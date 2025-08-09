@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, Platform, StatusBar } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors, Spacing } from "../theme";
 
-const StatsHeader = ({ level, xp, mana }) => {
+export default function StatsHeader({ level, xp, mana }) {
   const percent = Math.min(Math.max((xp / 100) * 100, 0), 100);
   return (
     <View style={styles.container}>
@@ -26,7 +26,7 @@ const StatsHeader = ({ level, xp, mana }) => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -77,5 +77,3 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.small / 2,
   },
 });
-
-export default StatsHeader;
