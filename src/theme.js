@@ -8,6 +8,7 @@ export const Colors = {
   danger: "#FF6347",
   text: "#FFFFFF",
   textMuted: "#5C7A8F",
+  buttonBg: "#222a36",
   elementWater: "#4FC3F7",
   elementEarth: "#8BC34A",
   elementFire: "#E57373",

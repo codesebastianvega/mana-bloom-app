@@ -35,7 +35,7 @@ export default function AdvancedFilters({
           return (
             <TouchableOpacity
               key={el.key}
-              style={[styles.btn, isActive && { backgroundColor: el.color }]}
+              style={[styles.elementBtn, isActive && { backgroundColor: el.color }]}
               onPress={() => setElementFilter(isActive ? "all" : el.key)}
             >
               <FontAwesome5
@@ -61,7 +61,7 @@ export default function AdvancedFilters({
           return (
             <TouchableOpacity
               key={opt.key}
-              style={[styles.btn, isActive && { backgroundColor: opt.color }]}
+              style={[styles.priorityBtn, isActive && { backgroundColor: opt.color }]}
               onPress={() => setPriorityFilter(isActive ? "all" : opt.key)}
             >
               <Text
@@ -83,7 +83,7 @@ export default function AdvancedFilters({
             <TouchableOpacity
               key={opt.key}
               style={[
-                styles.btn,
+                styles.difficultyBtn,
                 isActive && {
                   backgroundColor: opt.color,
                   borderColor: opt.color,
@@ -115,7 +115,7 @@ export default function AdvancedFilters({
             <TouchableOpacity
               key={tag}
               style={[
-                styles.btn,
+                styles.tagBtn,
                 isActive && { backgroundColor: Colors.accent },
               ]}
               onPress={() => setTagFilter(isActive ? "all" : tag)}
