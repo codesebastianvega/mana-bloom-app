@@ -74,8 +74,9 @@ export default function SwipeableTaskItem({
   // se usa useRef para evitar recrear el objeto en cada render
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gs) => Math.abs(gs.dx) > 5,
+      onStartShouldSetPanResponder: () => false,
+      onMoveShouldSetPanResponder: (_, gs) =>
+        Math.abs(gs.dx) > Math.abs(gs.dy) && Math.abs(gs.dx) > 5,
       onPanResponderMove: Animated.event([null, { dx: pan }], {
         useNativeDriver: false,
       }),
