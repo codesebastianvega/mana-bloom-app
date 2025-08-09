@@ -43,6 +43,7 @@ export default function AdvancedFilters({
           return (
             <TouchableOpacity
               key={el.key}
+codex/add-optional-props-for-button-styles
               style={[
                 styles.elementBtn,
                 elementBtnStyle,
@@ -78,6 +79,7 @@ export default function AdvancedFilters({
                 priorityBtnStyle,
                 isActive && { backgroundColor: opt.color },
               ]}
+
               onPress={() => setPriorityFilter(isActive ? "all" : opt.key)}
             >
               <Text

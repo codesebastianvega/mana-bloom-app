@@ -38,6 +38,24 @@ export default StyleSheet.create({
   priorityBtn: baseBtn,
   difficultyBtn: baseBtn,
   tagBtn: baseBtn,
+  elementBtn: {
+    ...baseBtn,
+    backgroundColor: Colors.buttonBg,
+  },
+  priorityBtn: {
+    ...baseBtn,
+    backgroundColor: Colors.buttonBg,
+  },
+  difficultyBtn: {
+    ...baseBtn,
+    backgroundColor: Colors.buttonBg,
+  },
+  tagBtn: {
+    ...baseBtn,
+    backgroundColor: Colors.buttonBg,
+  btn: {
+
+  },
   text: {
     color: Colors.text,
     fontSize: 14,
