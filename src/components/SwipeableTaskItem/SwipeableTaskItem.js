@@ -114,10 +114,10 @@ export default function SwipeableTaskItem({
                 extrapolate: "clamp",
               }),
               backgroundColor: isDeletedView
-                ? "#87a4edff" // Restaurar: azul pastel
+                ? Colors.elementWater // Restaurar: azul pastel
                 : isCompletedView
-                ? "#92de71ff" // Completar: verde pastel
-                : "#92de71ff", // Completar: verde pastel (default)
+                ? Colors.secondary // Completar: verde pastel
+                : Colors.secondary, // Completar: verde pastel (default)
             },
           ]}
         >
@@ -142,8 +142,8 @@ export default function SwipeableTaskItem({
                 extrapolate: "clamp",
               }),
               backgroundColor: isDeletedView
-                ? "#FF8A80" // Borrar permanente: rojo pastel
-                : "#be6a69ff", // Borrar (soft): amarillo pastel
+                ? Colors.danger // Borrar permanente: rojo pastel
+                : Colors.accent, // Borrar (soft): amarillo pastel
             },
           ]}
         >

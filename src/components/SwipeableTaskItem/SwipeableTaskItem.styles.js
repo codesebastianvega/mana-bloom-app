@@ -46,6 +46,7 @@ export default StyleSheet.create({
     padding: Spacing.base,
     borderLeftWidth: 2,
       shadowColor: Colors.shadow,
+
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -135,6 +136,7 @@ export default StyleSheet.create({
     marginTop: 1,
     // opcional: un poco de relieve
       shadowColor: Colors.shadow,
+
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 1.5,
