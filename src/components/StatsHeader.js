@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderRadius: 12,
     marginBottom: Spacing.small,
-    shadowColor: "#000",
+    shadowColor: Colors.background,
     paddingBottom: Spacing.base,
   },
   row: {
