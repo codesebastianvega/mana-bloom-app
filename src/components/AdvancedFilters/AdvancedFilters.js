@@ -6,6 +6,9 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./AdvancedFilters.styles";
 import { Colors } from "../../theme";
 
+// Puedes sobrescribir el estilo de los botones de cada sección pasando
+// las props opcionales: elementBtnStyle, priorityBtnStyle,
+// difficultyBtnStyle y tagBtnStyle.
 export default function AdvancedFilters({
   elementOptions,
   elementFilter,
@@ -19,6 +22,11 @@ export default function AdvancedFilters({
   tags,
   tagFilter,
   setTagFilter,
+  // Estilos personalizados opcionales para cada sección
+  elementBtnStyle,
+  priorityBtnStyle,
+  difficultyBtnStyle,
+  tagBtnStyle,
 }) {
   return (
     <View style={styles.container}>
@@ -35,7 +43,11 @@ export default function AdvancedFilters({
           return (
             <TouchableOpacity
               key={el.key}
-              style={[styles.btn, isActive && { backgroundColor: el.color }]}
+              style={[
+                styles.elementBtn,
+                elementBtnStyle,
+                isActive && { backgroundColor: el.color },
+              ]}
               onPress={() => setElementFilter(isActive ? "all" : el.key)}
             >
               <FontAwesome5
@@ -61,7 +73,11 @@ export default function AdvancedFilters({
           return (
             <TouchableOpacity
               key={opt.key}
-              style={[styles.btn, isActive && { backgroundColor: opt.color }]}
+              style={[
+                styles.priorityBtn,
+                priorityBtnStyle,
+                isActive && { backgroundColor: opt.color },
+              ]}
               onPress={() => setPriorityFilter(isActive ? "all" : opt.key)}
             >
               <Text
@@ -83,7 +99,8 @@ export default function AdvancedFilters({
             <TouchableOpacity
               key={opt.key}
               style={[
-                styles.btn,
+                styles.difficultyBtn,
+                difficultyBtnStyle,
                 isActive && {
                   backgroundColor: opt.color,
                   borderColor: opt.color,
@@ -115,7 +132,8 @@ export default function AdvancedFilters({
             <TouchableOpacity
               key={tag}
               style={[
-                styles.btn,
+                styles.tagBtn,
+                tagBtnStyle,
                 isActive && { backgroundColor: Colors.accent },
               ]}
               onPress={() => setTagFilter(isActive ? "all" : tag)}

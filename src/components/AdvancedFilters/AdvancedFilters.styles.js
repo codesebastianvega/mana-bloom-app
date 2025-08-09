@@ -3,6 +3,18 @@
 import { StyleSheet } from "react-native";
 import { Colors, Spacing } from "../../theme";
 
+const baseBtn = {
+  flexDirection: "row",
+  alignItems: "center",
+  padding: Spacing.tiny,
+  paddingHorizontal: Spacing.small,
+  borderRadius: 8,
+  borderWidth: 0.5,
+  borderColor: Colors.text,
+  marginRight: Spacing.small,
+  backgroundColor: "#222a36", // Color base para todos los botones
+};
+
 export default StyleSheet.create({
   container: {
     backgroundColor: Colors.surface,
@@ -21,17 +33,11 @@ export default StyleSheet.create({
     flexDirection: "row",
     marginBottom: Spacing.base,
   },
-  btn: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: Spacing.tiny,
-    paddingHorizontal: Spacing.small,
-    borderRadius: 8,
-    borderWidth: 0.5,
-    borderColor: Colors.text,
-    marginRight: Spacing.small,
-    backgroundColor: "#222a36", // Color base para todos los botones
-  },
+  // Estilo base reutilizado por todos los botones de filtro
+  elementBtn: baseBtn,
+  priorityBtn: baseBtn,
+  difficultyBtn: baseBtn,
+  tagBtn: baseBtn,
   text: {
     color: Colors.text,
     fontSize: 14,

@@ -11,6 +11,25 @@ Mana Bloom es una aplicación de gestión de colecciones de cartas, diseñada pa
 * **Estadísticas de la Colección:** Visualiza rápidamente el desglose de tu colección con estadísticas útiles, como el total de cartas por elemento o el promedio de costo de maná.
 * **Experiencia de Usuario Intuitiva:** La interfaz de usuario ha sido cuidadosamente diseñada para ser atractiva, fácil de usar y accesible para todos los usuarios.
 
+## 🎨 Personalización de filtros
+
+El componente `AdvancedFilters` permite modificar el estilo de los botones de cada sección.
+Solo debes pasar los estilos opcionales que necesites:
+
+```jsx
+<AdvancedFilters
+  elementBtnStyle={{ backgroundColor: '#333' }}
+  priorityBtnStyle={{ borderColor: 'gold' }}
+  difficultyBtnStyle={{ paddingHorizontal: 20 }}
+  tagBtnStyle={{ borderRadius: 20 }}
+  {...otrosProps}
+/>
+```
+
+Cada estilo se combina con el estilo base del componente (por ejemplo,
+`style={[styles.elementBtn, elementBtnStyle]}`), lo que permite personalizar
+individualmente cada grupo de filtros.
+
 ## 💻 Transparencia y Tecnología
 
 Este proyecto es una muestra de cómo la colaboración entre la creatividad humana y la inteligencia artificial puede resultar en productos innovadores.
