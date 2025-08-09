@@ -54,7 +54,6 @@ export const modalStyles = StyleSheet.create({
     color: Colors.background,
     fontWeight: "600",
   },
-  // bajo modalStyles…
   label: {
     color: Colors.text,
     fontSize: 14,
@@ -81,15 +80,7 @@ export const modalStyles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 6,
   },
-  // dentro de export const modalStyles = StyleSheet.create({ … })
-  //estilos de los chips
-  label: {
-    color: Colors.text,
-    fontSize: 14,
-    fontWeight: "600",
-    marginTop: Spacing.base,
-    marginBottom: Spacing.small,
-  },
+  // estilos de los chips
   tagInputRow: {
     flexDirection: "row",
     alignItems: "center",
