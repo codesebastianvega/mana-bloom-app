@@ -1,8 +1,3 @@
-¡Entendido\! Me disculpo de nuevo por los problemas. A veces, la vista previa o la forma en que se copia el texto puede causar esos errores.
-
-Aquí tienes el texto del `README` en formato Markdown. Por favor, copia **todo el texto de este bloque** y pégalo directamente en el editor del archivo `README.md` en GitHub.
-
-````markdown
 # Mana Bloom App
 
 ## 🌿 Descripción General
@@ -54,4 +49,3 @@ Sigue estos pasos para contribuir:
 ## 📜 Licencia
 
 Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
-````
