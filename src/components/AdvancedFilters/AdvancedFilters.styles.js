@@ -12,6 +12,7 @@ const baseBtn = {
   borderWidth: 0.5,
   borderColor: Colors.text,
   marginRight: Spacing.small,
+  backgroundColor: "#222a36", // Color base para todos los botones
 };
 
 export default StyleSheet.create({
@@ -32,6 +33,11 @@ export default StyleSheet.create({
     flexDirection: "row",
     marginBottom: Spacing.base,
   },
+  // Estilo base reutilizado por todos los botones de filtro
+  elementBtn: baseBtn,
+  priorityBtn: baseBtn,
+  difficultyBtn: baseBtn,
+  tagBtn: baseBtn,
   elementBtn: {
     ...baseBtn,
     backgroundColor: Colors.buttonBg,
@@ -47,7 +53,6 @@ export default StyleSheet.create({
   tagBtn: {
     ...baseBtn,
     backgroundColor: Colors.buttonBg,
-=======
   btn: {
 
   },
