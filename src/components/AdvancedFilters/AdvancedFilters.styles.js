@@ -24,9 +24,9 @@ export default StyleSheet.create({
   btn: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: Spacing.small,
-    paddingHorizontal: Spacing.base,
-    borderRadius: 15,
+    padding: Spacing.tiny,
+    paddingHorizontal: Spacing.small,
+    borderRadius: 8,
     borderWidth: 0.5,
     borderColor: Colors.text,
     marginRight: Spacing.small,
