@@ -3,7 +3,9 @@ export const Colors = {
   background: "#0e0a1e", // Fondo oscuro profundo
   surface: "#1b1231", // Superficie ligeramente más clara
   primary: "#7e57c2", // Púrpura místico
+  primaryLight: "#b39ddb", // Versión aclarada para estados activos
   secondary: "#4dd0e1", // Turquesa etéreo
+  secondaryLight: "#80deea", // Variante clara para estados activos
   accent: "#ffca28", // Dorado suave para acentos
   danger: "#ef5350", // Rojo armónico
   text: "#FFFFFF",
