@@ -68,7 +68,7 @@ export default function TasksScreen() {
       isDeleted: false,
       type: "single",
       element: "fire",
-      priority: "high",
+      priority: "pending",
       tags: ["personal"],
       difficulty: "hard",
     },
@@ -101,7 +101,7 @@ export default function TasksScreen() {
   // Estados extra en el modal de creación
   const [newType, setNewType] = useState("single"); // 'single' | 'habit'
   const [newElement, setNewElement] = useState("all"); // 'all' | 'water' | 'earth' | ...
-  const [newPriority, setNewPriority] = useState("all"); // 'all' | 'urgent' | 'pending' | ...
+  const [newPriority, setNewPriority] = useState("all"); // 'all' | 'urgent' | 'pending' | 'relevant'
   // ➕ Estados para etiquetas en modal
   const [newTagInput, setNewTagInput] = useState("");
   const [newTags, setNewTags] = useState([]);
