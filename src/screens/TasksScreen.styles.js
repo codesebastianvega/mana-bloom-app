@@ -80,6 +80,22 @@ export const modalStyles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 6,
   },
+  // estilos específicos para los botones de tipo de tarea
+  typeOptionBtn: {
+    flex: 1,
+    paddingVertical: Spacing.small,
+    borderRadius: 10,
+    borderWidth: 0.5,
+    borderColor: Colors.text,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: Spacing.small,
+  },
+  typeOptionText: {
+    color: Colors.text,
+    fontSize: 14,
+    fontWeight: "600",
+  },
   // estilos de los chips
   tagInputRow: {
     flexDirection: "row",

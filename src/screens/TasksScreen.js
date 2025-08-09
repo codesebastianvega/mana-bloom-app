@@ -105,6 +105,11 @@ export default function TasksScreen() {
   // ➕ Estados para etiquetas en modal
   const [newTagInput, setNewTagInput] = useState("");
   const [newTags, setNewTags] = useState([]);
+  // Opciones del tipo de tarea
+  const typeOptions = [
+    { key: "single", label: "Tarea", activeColor: Colors.primaryLight },
+    { key: "habit", label: "Hábito", activeColor: Colors.secondaryLight },
+  ];
   // Opciones de dificultad
   const difficultyOptions = [
     { key: "easy", label: "Fácil", color: Colors.secondary },
@@ -301,24 +306,25 @@ export default function TasksScreen() {
             {/* Tipo de tarea */}
             <Text style={modalStyles.label}>Tipo</Text>
             <View style={modalStyles.row}>
-              {["single", "habit"].map((typeKey) => {
-                const active = newType === typeKey;
+              {typeOptions.map((opt, index) => {
+                const active = newType === opt.key;
                 return (
                   <TouchableOpacity
-                    key={typeKey}
+                    key={opt.key}
                     style={[
-                      modalStyles.optionBtn,
-                      active && { backgroundColor: Colors.primary },
+                      modalStyles.typeOptionBtn,
+                      index === typeOptions.length - 1 && { marginRight: 0 },
+                      active && { backgroundColor: opt.activeColor },
                     ]}
-                    onPress={() => setNewType(typeKey)}
+                    onPress={() => setNewType(opt.key)}
                   >
                     <Text
                       style={[
-                        modalStyles.optionText,
+                        modalStyles.typeOptionText,
                         active && { color: Colors.background },
                       ]}
                     >
-                      {typeKey === "single" ? "Única" : "Hábito"}
+                      {opt.label}
                     </Text>
                   </TouchableOpacity>
                 );
