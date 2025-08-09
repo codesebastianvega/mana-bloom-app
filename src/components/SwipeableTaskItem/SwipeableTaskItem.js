@@ -217,7 +217,7 @@ export default function SwipeableTaskItem({
               {task.difficulty}
             </Text>
           </View>
-          + {/* Prioridad (chip con borde) */}
+          {/* Prioridad (chip con borde) */}
           <View
             style={[
               styles.priorityChip,
