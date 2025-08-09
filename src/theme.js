@@ -8,6 +8,9 @@ export const Colors = {
   danger: "#FF6347",
   text: "#FFFFFF",
   textMuted: "#5C7A8F",
+  buttonBg: "#00B4D8", // Celeste vibrante moderno
+  filterBtnBg: "#222a36", // Color base para botones de filtro
+  shadow: "#000000", // Color para sombras
   elementWater: "#4FC3F7",
   elementEarth: "#8BC34A",
   elementFire: "#E57373",

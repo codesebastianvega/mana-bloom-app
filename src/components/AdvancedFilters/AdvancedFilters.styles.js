@@ -30,7 +30,7 @@ export default StyleSheet.create({
     borderWidth: 0.5,
     borderColor: Colors.text,
     marginRight: Spacing.small,
-    backgroundColor: "#222a36", // Color base para todos los botones
+      backgroundColor: Colors.filterBtnBg, // Color base para todos los botones
   },
   text: {
     color: Colors.text,
