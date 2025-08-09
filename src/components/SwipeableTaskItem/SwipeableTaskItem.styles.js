@@ -129,7 +129,6 @@ export default StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 8,
-    color: Colors.agua,
     alignItems: "center",
     justifyContent: "center",
     marginRight: Spacing.small,
