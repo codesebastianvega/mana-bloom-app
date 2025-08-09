@@ -130,7 +130,6 @@ export default function TasksScreen() {
       element: newElement,
       priority: newPriority,
       tags: newTags.length > 0 ? newTags : [], // si hay etiquetas, las usamos
-      difficulty: "easy",
       difficulty: newDifficulty, // dificultad por defecto
     };
     // Añadimos la nueva tarea al estado
