@@ -47,6 +47,9 @@ export default StyleSheet.create({
   tagBtn: {
     ...baseBtn,
     backgroundColor: Colors.buttonBg,
+=======
+  btn: {
+
   },
   text: {
     color: Colors.text,
