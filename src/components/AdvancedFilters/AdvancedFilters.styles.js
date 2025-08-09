@@ -54,6 +54,15 @@ export default StyleSheet.create({
     ...baseBtn,
     backgroundColor: Colors.buttonBg,
   btn: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: Spacing.tiny,
+    paddingHorizontal: Spacing.small,
+    borderRadius: 8,
+    borderWidth: 0.5,
+    borderColor: Colors.text,
+    marginRight: Spacing.small,
+      backgroundColor: Colors.filterBtnBg, // Color base para todos los botones
 
   },
   text: {
