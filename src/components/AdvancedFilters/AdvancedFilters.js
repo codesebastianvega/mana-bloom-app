@@ -1,56 +1,104 @@
-// src/components/AdvancedFilters/AdvancedFilters.styles.js
+// src/components/AdvancedFilters/AdvancedFilters.js
 
-import { StyleSheet } from "react-native";
-import { Colors, Spacing } from "../../theme";
+import React from "react";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { FontAwesome5 } from "@expo/vector-icons";
+import styles from "./AdvancedFilters.styles";
+import { Colors } from "../../theme";
 
-// Un solo estilo base para todos los botones.
-const baseBtn = {
-  flexDirection: "row",
-  alignItems: "center",
-  padding: Spacing.tiny,
-  paddingHorizontal: Spacing.small,
-  borderRadius: 8,
-  borderWidth: 0.5,
-  borderColor: Colors.text,
-  marginRight: Spacing.small,
-  backgroundColor: Colors.buttonBg, // Color base para todos los botones de filtro
-};
+function renderRow(options, activeKey, setActive, baseStyle, overrideStyle) {
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.row}
+    >
+      {options.map((opt) => {
+        const isActive = activeKey === opt.key;
+        return (
+          <TouchableOpacity
+            key={opt.key}
+            style={[
+              baseStyle,
+              overrideStyle,
+              isActive && {
+                backgroundColor: opt.color,
+                borderColor: opt.color,
+              },
+            ]}
+            onPress={() => setActive(opt.key)}
+          >
+            {opt.icon && (
+              <FontAwesome5
+                name={opt.icon}
+                size={14}
+                color={isActive ? Colors.background : opt.color}
+              />
+            )}
+            <Text
+              style={[
+                styles.text,
+                isActive && { color: Colors.background },
+              ]}
+            >
+              {opt.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </ScrollView>
+  );
+}
 
-export default StyleSheet.create({
-  container: {
-    backgroundColor: Colors.surface,
-    borderRadius: 12,
-    padding: Spacing.base,
-    marginTop: 0,
-    marginBottom: Spacing.small,
-  },
-  title: {
-    color: Colors.text,
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: Spacing.small,
-  },
-  row: {
-    flexDirection: "row",
-    marginBottom: Spacing.base,
-  },
-  // Se define una sola vez el estilo para cada tipo de botón,
-  // heredando las propiedades del estilo base.
-  elementBtn: {
-    ...baseBtn,
-  },
-  priorityBtn: {
-    ...baseBtn,
-  },
-  difficultyBtn: {
-    ...baseBtn,
-  },
-  tagBtn: {
-    ...baseBtn,
-  },
-  text: {
-    color: Colors.text,
-    fontSize: 14,
-    marginLeft: Spacing.small,
-  },
-});
+export default function AdvancedFilters({
+  elementOptions = [],
+  elementFilter,
+  setElementFilter,
+  priorityOptions = [],
+  priorityFilter,
+  setPriorityFilter,
+  difficultyOptions = [],
+  difficultyFilter,
+  setDifficultyFilter,
+  tags = [],
+  tagFilter,
+  setTagFilter,
+  elementBtnStyle,
+  priorityBtnStyle,
+  difficultyBtnStyle,
+  tagBtnStyle,
+}) {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Filtros avanzados</Text>
+      {renderRow(
+        elementOptions,
+        elementFilter,
+        setElementFilter,
+        styles.elementBtn,
+        elementBtnStyle
+      )}
+      {renderRow(
+        priorityOptions,
+        priorityFilter,
+        setPriorityFilter,
+        styles.priorityBtn,
+        priorityBtnStyle
+      )}
+      {renderRow(
+        difficultyOptions,
+        difficultyFilter,
+        setDifficultyFilter,
+        styles.difficultyBtn,
+        difficultyBtnStyle
+      )}
+      {renderRow(
+        tags.map((tag) => ({ key: tag, label: tag, color: Colors.accent })),
+        tagFilter,
+        setTagFilter,
+        styles.tagBtn,
+        tagBtnStyle
+      )}
+    </View>
+  );
+}

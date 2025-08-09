@@ -7,19 +7,14 @@ export const Colors = {
   accent: "#ffca28", // Dorado suave para acentos
   danger: "#ef5350", // Rojo armónico
   text: "#FFFFFF",
-  textMuted: "#5C7A8F",
+  textMuted: "#b0bec5", // Texto atenuado acorde con la paleta
   buttonBg: "#00B4D8", // Celeste vibrante moderno
   filterBtnBg: "#222a36", // Color base para botones de filtro
   shadow: "#000000", // Color para sombras
 
-  elementWater: "#4FC3F7",
-  elementEarth: "#8BC34A",
-  elementFire: "#E57373",
-  elementAir: "#BDBDBD",
-  textMuted: "#b0bec5", // Texto atenuado acorde con la paleta
-  elementFire: "#ff7043",
   elementWater: "#29b6f6",
   elementEarth: "#8d6e63",
+  elementFire: "#ff7043",
   elementAir: "#90a4ae",
 };
 
