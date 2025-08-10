@@ -321,6 +321,11 @@ export default function TasksScreen() {
       >
         <View style={modalStyles.background}>
           <View style={modalStyles.container}>
+            <ScrollView
+              style={{ width: "100%" }}
+              contentContainerStyle={{ paddingBottom: Spacing.large }}
+              showsVerticalScrollIndicator={false}
+            >
             {/* Título del modal */}
             <Text style={modalStyles.title}>Crear Nueva Tarea</Text>
 
@@ -450,13 +455,14 @@ export default function TasksScreen() {
             {/* Dificultad */}
             <Text style={modalStyles.label}>Dificultad</Text>
             <View style={modalStyles.row}>
-              {difficultyOptions.map((opt) => {
+              {difficultyOptions.map((opt, index) => {
                 const active = newDifficulty === opt.key;
                 return (
                   <TouchableOpacity
                     key={opt.key}
                     style={[
-                      modalStyles.optionBtn,
+                      modalStyles.difficultyOptionBtn,
+                      index === difficultyOptions.length - 1 && { marginRight: 0 },
                       active && {
                         backgroundColor: opt.color,
                         borderColor: opt.color,
@@ -467,6 +473,7 @@ export default function TasksScreen() {
                     <Text
                       style={[
                         modalStyles.optionText,
+                        { marginLeft: 0 },
                         active && { color: Colors.background },
                       ]}
                     >
@@ -590,6 +597,7 @@ export default function TasksScreen() {
                 <Text style={modalStyles.buttonText}>Guardar</Text>
               </TouchableOpacity>
             </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>
