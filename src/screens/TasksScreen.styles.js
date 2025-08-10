@@ -16,6 +16,19 @@ export default StyleSheet.create({
   list: {
     marginTop: Spacing.small,
   },
+  filterModalBackground: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  filterModalContainer: {
+    width: "90%",
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    padding: Spacing.base,
+    maxHeight: "90%",
+  },
 });
 
 export const modalStyles = StyleSheet.create({
