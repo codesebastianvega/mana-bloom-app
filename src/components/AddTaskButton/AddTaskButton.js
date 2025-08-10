@@ -18,7 +18,7 @@ export default function AddTaskButton({ onPress }) {
     >
       {" "}
       <LinearGradient
-        colors={["#568ed3ff", "#450ca7ff"]} // Nueva paleta de colores para el degradado
+        colors={["#6d56d3ff", "#0ca790ff"]} // Nueva paleta de colores para el degradado
         style={styles.gradient}
       >
         <FontAwesome name="plus" size={20} color={Colors.text} />{" "}

@@ -83,6 +83,31 @@ export default StyleSheet.create({
   clearBtn: {
     marginLeft: Spacing.small,
   },
+  tagText: {
+    color: Colors.text,
+    fontSize: 14,
+  },
+  tagSearchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.filterBtnBg,
+    borderRadius: 8,
+    borderWidth: 0.5,
+    borderColor: Colors.text,
+    paddingHorizontal: Spacing.small,
+    marginBottom: Spacing.base,
+  },
+  tagSearchContainerFocused: {
+    borderColor: Colors.accent,
+  },
+  tagSearchInput: {
+    flex: 1,
+    color: Colors.text,
+    paddingVertical: 0,
+  },
+  clearBtn: {
+    marginLeft: Spacing.small,
+  },
   sectionTitle: {
     color: Colors.text,
     fontSize: 14,
