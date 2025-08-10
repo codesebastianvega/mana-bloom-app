@@ -105,6 +105,7 @@ export const modalStyles = StyleSheet.create({
     fontSize: 12,
     marginTop: 2,
   },
+
   // estilos específicos para los botones de tipo de tarea
   typeOptionBtn: {
     flex: 1,
