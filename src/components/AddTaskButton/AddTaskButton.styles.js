@@ -6,12 +6,12 @@ import { Colors, Spacing } from "../../theme";
 export default StyleSheet.create({
   fab: {
     position: "absolute",
-    bottom: Spacing.large,
+    bottom: 100, // Ajusta este valor si tu footer es más alto o más bajo.
     right: Spacing.large,
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: Colors.buttonBg, // Celeste vibrante moderno
+    backgroundColor: Colors.buttonBg,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: Colors.shadow,
