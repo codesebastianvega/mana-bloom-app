@@ -16,19 +16,6 @@ export default StyleSheet.create({
   list: {
     marginTop: Spacing.small,
   },
-  filterModalBackground: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  filterModalContainer: {
-    width: "90%",
-    maxHeight: "80%",
-    backgroundColor: Colors.surface,
-    borderRadius: 12,
-    padding: Spacing.base,
-  },
 });
 
 export const modalStyles = StyleSheet.create({
@@ -167,37 +154,68 @@ export const modalStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  elementInfoBox: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderRadius: 8,
-    padding: Spacing.small,
+  priorityContainer: {
+    width: "100%",
     marginBottom: Spacing.base,
-    alignItems: "center",
   },
-  elementInfoTitle: {
-    color: Colors.text,
-    fontSize: 16,
-    fontWeight: "600",
-    textAlign: "center",
+  priorityBtn: {
+    width: "100%",
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.small,
+    borderRadius: 10,
+    borderWidth: 0.5,
+    borderColor: Colors.text,
     marginBottom: Spacing.small,
+    alignItems: "flex-start",
+    borderRightWidth: 4,
   },
-  elementInfoDescription: {
+  priorityTitle: {
     color: Colors.text,
-    fontSize: 13,
-    textAlign: "center",
-    marginBottom: 4,
+    fontSize: 14,
+    fontWeight: "600",
   },
-  elementInfoExamples: {
+  prioritySubtitle: {
     color: Colors.textMuted,
     fontSize: 12,
-    textAlign: "center",
-    marginBottom: 4,
+    marginTop: 2,
   },
-  elementInfoPurpose: {
-    color: Colors.text,
-    fontSize: 13,
-    textAlign: "center",
 
+  // estilos específicos para los botones de tipo de tarea
+  typeOptionBtn: {
+    flex: 1,
+    paddingVertical: Spacing.small,
+    borderRadius: 10,
+    borderWidth: 0.5,
+    borderColor: Colors.text,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: Spacing.small,
+  },
+  typeOptionText: {
+    color: Colors.text,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  // botones de elemento en cuadrícula
+  elementGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginBottom: Spacing.base,
+  },
+  elementBtn: {
+    width: "48%",
+    borderRadius: 10,
+    borderWidth: 0.5,
+    borderColor: Colors.text,
+    marginBottom: Spacing.small,
+    overflow: "hidden",
+  },
+  elementBtnInner: {
+    paddingVertical: Spacing.small,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   // estilos de los chips
   tagInputRow: {
@@ -234,39 +252,5 @@ export const modalStyles = StyleSheet.create({
   tagText: {
     color: Colors.text,
     fontSize: 12,
-  },
-  subtaskInputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: Spacing.base,
-  },
-  subtaskInput: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    color: Colors.text,
-    borderRadius: 8,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.small,
-    fontSize: 14,
-  },
-  addSubtaskButton: {
-    marginLeft: Spacing.small,
-    backgroundColor: Colors.primary,
-    padding: Spacing.small,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  subtaskList: {
-    marginBottom: Spacing.base,
-  },
-  subtaskItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: Spacing.tiny,
-  },
-  subtaskText: {
-    color: Colors.text,
-    fontSize: 13,
   },
 });
