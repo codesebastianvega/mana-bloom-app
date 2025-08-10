@@ -18,11 +18,16 @@ export default StyleSheet.create({
   },
   filterModalBackground: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   filterModalContainer: {
+    width: "90%",
+    maxHeight: "80%",
     backgroundColor: Colors.surface,
+    borderRadius: 12,
+    padding: Spacing.base,
   },
 });
 
