@@ -3,7 +3,7 @@ import { SafeAreaView, FlatList } from "react-native";
 
 import StatsHeader from "../components/StatsHeader";
 import SearchBar from "../components/SearchBar/SearchBar";
-import TaskFilters from "../components/TaskFilters/TaskFilters";
+import TaskFilters from "../components/TaskFilters";
 import SwipeableTaskItem from "../components/SwipeableTaskItem/SwipeableTaskItem";
 import AddTaskButton from "../components/AddTaskButton/AddTaskButton";
 import FilterBar from "../components/FilterBar/FilterBar";
@@ -369,20 +369,24 @@ export default function TasksScreen() {
           <View style={styles.filterModalContainer}>
             <TaskFilters
               filters={mainFilters}
-              active={activeFilter}
-              onSelect={setActiveFilter}
               elementOptions={elementOptions}
-              elementFilter={elementFilter}
-              setElementFilter={setElementFilter}
               priorityOptions={priorityOptions}
-              priorityFilter={priorityFilter}
-              setPriorityFilter={setPriorityFilter}
               difficultyOptions={difficultyOptions}
-              difficultyFilter={difficultyFilter}
-              setDifficultyFilter={setDifficultyFilter}
               tags={uniqueTags}
-              tagFilter={tagFilter}
-              setTagFilter={setTagFilter}
+              onSelect={({
+                active,
+                elementFilter,
+                priorityFilter,
+                difficultyFilter,
+                tagFilter,
+              }) => {
+                setActiveFilter(active);
+                setElementFilter(elementFilter);
+                setPriorityFilter(priorityFilter);
+                setDifficultyFilter(difficultyFilter);
+                setTagFilter(tagFilter);
+                setFiltersVisible(false);
+              }}
               onClose={() => setFiltersVisible(false)}
             />
           </View>
