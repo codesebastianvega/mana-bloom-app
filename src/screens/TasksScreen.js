@@ -361,7 +361,7 @@ export default function TasksScreen() {
 
       <Modal
         visible={filtersVisible}
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         onRequestClose={() => setFiltersVisible(false)}
       >
