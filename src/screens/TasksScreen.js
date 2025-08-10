@@ -105,8 +105,8 @@ const elementInfo = {
       "Se usa para tareas que requieren alta energía, urgencia o creatividad espontánea.",
     examples:
       "Ejemplos: Terminar un proyecto con fecha límite, una sesión de brainstorming intensa, o una tarea que te apasiona y quieres completar rápidamente.",
-    purpose: 'Propósito: "Inyecta poder y acelera el crecimiento de la planta."',
-
+    purpose:
+      'Propósito: "Inyecta poder y acelera el crecimiento de la planta."',
   },
   water: {
     title: "Agua 💧 (Calma y Flujo)",
@@ -116,7 +116,6 @@ const elementInfo = {
       "Ejemplos: Planificar tu semana, leer un documento largo, o meditar.",
     purpose:
       'Propósito: "Mantiene la planta hidratada y en un crecimiento estable."',
-
   },
   earth: {
     title: "Tierra 🌱 (Estabilidad y Crecimiento)",
@@ -126,7 +125,6 @@ const elementInfo = {
       "Ejemplos: Limpiar tu espacio de trabajo, hacer ejercicio, o realizar una tarea diaria de tu rutina.",
     purpose:
       'Propósito: "Proporciona una base sólida y nutrientes para un crecimiento sostenible."',
-
   },
   air: {
     title: "Aire 🌬️ (Libertad y Movimiento)",
@@ -136,7 +134,6 @@ const elementInfo = {
       "Ejemplos: Escribir un correo importante, organizar ideas, o aprender algo nuevo.",
     purpose:
       'Propósito: "Le da a la planta el espacio para respirar y expandirse."',
-
   },
 };
 
@@ -312,13 +309,7 @@ export default function TasksScreen() {
       difficultyFilter === "all" || task.difficulty === difficultyFilter;
 
     return (
-      stateOK &&
-      typeOK &&
-      elementOK &&
-      searchOK &&
-      prioOK &&
-      tagOK &&
-      diffOK
+      stateOK && typeOK && elementOK && searchOK && prioOK && tagOK && diffOK
     );
   });
 
@@ -407,329 +398,341 @@ export default function TasksScreen() {
               contentContainerStyle={{ paddingBottom: Spacing.large }}
               showsVerticalScrollIndicator={false}
             >
-            {/* Título del modal */}
-            <Text style={modalStyles.title}>Crear Nueva Tarea</Text>
+              {/* Título del modal */}
+              <Text style={modalStyles.title}>Crear Nueva Tarea</Text>
 
-            {/* Input Título */}
-            <TextInput
-              style={modalStyles.input}
-              placeholder="Título"
-              placeholderTextColor={Colors.textMuted}
-              value={newTitle}
-              onChangeText={setNewTitle}
-            />
-
-            {/* Input Nota */}
-            <TextInput
-              style={[modalStyles.input, { marginTop: Spacing.small }]}
-              placeholder="Detalle o nota (opcional)"
-              placeholderTextColor={Colors.textMuted}
-              value={newNote}
-              onChangeText={setNewNote}
-            />
-            {/* Tipo de tarea */}
-            <Text style={modalStyles.label}>Tipo</Text>
-            <View style={modalStyles.row}>
-              {typeOptions.map((opt, index) => {
-                const active = newType === opt.key;
-                return (
-                  <TouchableOpacity
-                    key={opt.key}
-                    style={[
-                      modalStyles.typeOptionBtn,
-                      index === typeOptions.length - 1 && { marginRight: 0 },
-                      active && { backgroundColor: opt.activeColor },
-                    ]}
-                    onPress={() => setNewType(opt.key)}
-                  >
-                    <Text
-                      style={[
-                        modalStyles.typeOptionText,
-                        active && { color: Colors.background },
-                      ]}
-                    >
-                      {opt.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            {/* Elemento */}
-            <Text style={modalStyles.label}>Elemento</Text>
-            <View style={modalStyles.elementGrid}>
-              {elementOptions.map((el) => {
-                const active = newElement === el.key;
-                return (
-                  <TouchableOpacity
-                    key={el.key}
-                    style={modalStyles.elementBtn}
-                    onPress={() => setNewElement(el.key)}
-                  >
-                    <LinearGradient
-                      colors={
-                        active
-                          ? el.gradient
-                          : [Colors.filterBtnBg, Colors.filterBtnBg]
-                      }
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={modalStyles.elementBtnInner}
-                    >
-                      <FontAwesome5
-                        name={el.icon}
-                        size={16}
-                        color={active ? Colors.background : Colors.text}
-                      />
-                      <Text
-                        style={[
-                          modalStyles.optionText,
-                          { color: active ? Colors.background : Colors.text },
-                        ]}
-                      >
-                        {el.label}
-                      </Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            {newElement !== "all" && (
-              <View style={modalStyles.elementInfoBox}>
-                <Text style={modalStyles.elementInfoTitle}>
-                  {elementInfo[newElement].title}
-                </Text>
-                <Text style={modalStyles.elementInfoDescription}>
-                  {elementInfo[newElement].description}
-                </Text>
-                <Text style={modalStyles.elementInfoExamples}>
-                  {elementInfo[newElement].examples}
-                </Text>
-                <Text style={modalStyles.elementInfoPurpose}>
-
-                  {elementInfo[newElement].purpose}
-                </Text>
-              </View>
-            )}
-
-            {/* Subtareas */}
-            <Text style={modalStyles.label}>
-              Subtareas <Text style={modalStyles.subtaskHint}>(agrega y toca para marcar)</Text>
-            </Text>
-            <View style={modalStyles.subtaskInputRow}>
+              {/* Input Título */}
               <TextInput
-                style={modalStyles.subtaskInput}
-                placeholder="Nueva subtarea"
+                style={modalStyles.input}
+                placeholder="Título"
                 placeholderTextColor={Colors.textMuted}
-                value={newSubtaskInput}
-                onChangeText={setNewSubtaskInput}
+                value={newTitle}
+                onChangeText={setNewTitle}
               />
-              <TouchableOpacity
-                style={modalStyles.addSubtaskButton}
-                onPress={() => {
-                  const st = newSubtaskInput.trim();
-                  if (!st) return;
-                  setNewSubtasks((prev) => [...prev, st]);
-                  setNewSubtaskInput("");
-                }}
-              >
-                <FontAwesome5 name="plus" size={16} color={Colors.background} />
-              </TouchableOpacity>
-            </View>
-            {newSubtasks.length > 0 && (
-              <View style={modalStyles.subtaskList}>
-                {newSubtasks.map((st, idx) => (
-                  <View key={idx} style={modalStyles.subtaskItem}>
-                    <Text style={modalStyles.subtaskText}>{st}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
 
-            {/* Prioridad */}
-            <Text style={modalStyles.label}>Prioridad</Text>
-            <View style={modalStyles.priorityContainer}>
-              {priorityOptions.map((pr) => {
-                const active = newPriority === pr.key;
-                return (
-                  <TouchableOpacity
-                    key={pr.key}
-                    style={[
-                      modalStyles.priorityBtn,
-                      { borderRightColor: pr.color },
-                      active && {
-                        backgroundColor: pr.color,
-                      },
-                    ]}
-                    onPress={() => setNewPriority(pr.key)}
-                  >
-                    <Text
-                      style={[
-                        modalStyles.priorityTitle,
-                        active && { color: Colors.background },
-                      ]}
-                    >
-                      {pr.label}
-                    </Text>
-                    <Text
-                      style={[
-                        modalStyles.prioritySubtitle,
-                        active && { color: Colors.background },
-                      ]}
-                    >
-                      {`+${pr.xp} XP • +${pr.mana} Maná`}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            {/* Dificultad */}
-            <Text style={modalStyles.label}>Dificultad</Text>
-            <View style={modalStyles.row}>
-              {difficultyOptions.map((opt, index) => {
-                const active = newDifficulty === opt.key;
-                return (
-                  <TouchableOpacity
-                    key={opt.key}
-                    style={[
-                      modalStyles.difficultyOptionBtn,
-                      index === difficultyOptions.length - 1 && { marginRight: 0 },
-                      active && {
-                        backgroundColor: opt.color,
-                        borderColor: opt.color,
-                      },
-                    ]}
-                    onPress={() => setNewDifficulty(opt.key)}
-                  >
-                    <Text
-                      style={[
-                        modalStyles.optionText,
-                        { marginLeft: 0 },
-                        active && { color: Colors.background },
-                      ]}
-                    >
-                      {opt.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            {/* Etiquetas dinámicas */}
-            <Text style={modalStyles.label}>Etiquetas</Text>
-            <View style={modalStyles.tagInputRow}>
+              {/* Input Nota */}
               <TextInput
-                style={modalStyles.tagInput}
-                placeholder="Nueva etiqueta"
+                style={[modalStyles.input, { marginTop: Spacing.small }]}
+                placeholder="Detalle o nota (opcional)"
                 placeholderTextColor={Colors.textMuted}
-                value={newTagInput}
-                onChangeText={setNewTagInput}
+                value={newNote}
+                onChangeText={setNewNote}
               />
-              <TouchableOpacity
-                style={modalStyles.addTagButton}
-                onPress={() => {
-                  const tag = newTagInput.trim();
-                  if (!tag) return;
-                  setNewTags((prev) => [...new Set([...prev, tag])]);
-                  setNewTagInput("");
-                }}
-              >
-                <FontAwesome5 name="plus" size={16} color={Colors.background} />
-              </TouchableOpacity>
-            </View>
-            {/* Etiquetas existentes */}
-            {uniqueTags.length > 0 && (
-              <Text style={modalStyles.label}>Selecciona etiquetas</Text>
-            )}
-            {uniqueTags.length > 0 && (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={modalStyles.row}
-                contentContainerStyle={{ alignItems: "center" }}
-              >
-                {uniqueTags.map((tagKey) => {
-                  const active = newTags.includes(tagKey);
+              {/* Tipo de tarea */}
+              <Text style={modalStyles.label}>Tipo</Text>
+              <View style={modalStyles.row}>
+                {typeOptions.map((opt, index) => {
+                  const active = newType === opt.key;
                   return (
                     <TouchableOpacity
-                      key={tagKey}
+                      key={opt.key}
                       style={[
-                        modalStyles.optionBtn,
-                        active && {
-                          backgroundColor: Colors.accent,
-                          borderColor: Colors.accent,
-                        },
+                        modalStyles.typeOptionBtn,
+                        index === typeOptions.length - 1 && { marginRight: 0 },
+                        active && { backgroundColor: opt.activeColor },
                       ]}
-                      onPress={() => {
-                        // alterna selección
-                        setNewTags((prev) =>
-                          prev.includes(tagKey)
-                            ? prev.filter((t) => t !== tagKey)
-                            : [...prev, tagKey]
-                        );
-                      }}
+                      onPress={() => setNewType(opt.key)}
                     >
                       <Text
                         style={[
-                          modalStyles.optionText,
+                          modalStyles.typeOptionText,
                           active && { color: Colors.background },
                         ]}
                       >
-                        {tagKey}
+                        {opt.label}
                       </Text>
                     </TouchableOpacity>
                   );
                 })}
-              </ScrollView>
-            )}
+              </View>
 
-            {newTags.length > 0 && (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={modalStyles.row}
-                contentContainerStyle={{ alignItems: "center" }}
-              >
-                {newTags.map((tag) => (
-                  <View key={tag} style={modalStyles.tagChip}>
-                    <Text style={modalStyles.tagText}>{tag}</Text>
-                  </View>
-                ))}
-              </ScrollView>
-            )}
+              {/* Elemento */}
+              <Text style={modalStyles.label}>Elemento</Text>
+              <View style={modalStyles.elementGrid}>
+                {elementOptions.map((el) => {
+                  const active = newElement === el.key;
+                  return (
+                    <TouchableOpacity
+                      key={el.key}
+                      style={modalStyles.elementBtn}
+                      onPress={() => setNewElement(el.key)}
+                    >
+                      <LinearGradient
+                        colors={
+                          active
+                            ? el.gradient
+                            : [Colors.filterBtnBg, Colors.filterBtnBg]
+                        }
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={modalStyles.elementBtnInner}
+                      >
+                        <FontAwesome5
+                          name={el.icon}
+                          size={16}
+                          color={active ? Colors.background : Colors.text}
+                        />
+                        <Text
+                          style={[
+                            modalStyles.optionText,
+                            { color: active ? Colors.background : Colors.text },
+                          ]}
+                        >
+                          {el.label}
+                        </Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
 
-            {/* Botones */}
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "flex-end",
-                marginTop: Spacing.base,
-              }}
-            >
-              <TouchableOpacity
-                style={[
-                  modalStyles.button,
-                  {
-                    backgroundColor: Colors.danger,
-                    marginRight: Spacing.small,
-                  },
-                ]}
-                onPress={() => setShowAddModal(false)}
+              {newElement !== "all" && (
+                <View style={modalStyles.elementInfoBox}>
+                  <Text style={modalStyles.elementInfoTitle}>
+                    {elementInfo[newElement].title}
+                  </Text>
+                  <Text style={modalStyles.elementInfoDescription}>
+                    {elementInfo[newElement].description}
+                  </Text>
+                  <Text style={modalStyles.elementInfoExamples}>
+                    {elementInfo[newElement].examples}
+                  </Text>
+                  <Text style={modalStyles.elementInfoPurpose}>
+                    {elementInfo[newElement].purpose}
+                  </Text>
+                </View>
+              )}
+
+              {/* Subtareas */}
+              <Text style={modalStyles.label}>
+                Subtareas{" "}
+                <Text style={modalStyles.subtaskHint}>
+                  (Agrega tareas más pequeñas para facilitar tu trabajo)
+                </Text>
+              </Text>
+              <View style={modalStyles.subtaskInputRow}>
+                <TextInput
+                  style={modalStyles.subtaskInput}
+                  placeholder="Nueva subtarea"
+                  placeholderTextColor={Colors.textMuted}
+                  value={newSubtaskInput}
+                  onChangeText={setNewSubtaskInput}
+                />
+                <TouchableOpacity
+                  style={modalStyles.addSubtaskButton}
+                  onPress={() => {
+                    const st = newSubtaskInput.trim();
+                    if (!st) return;
+                    setNewSubtasks((prev) => [...prev, st]);
+                    setNewSubtaskInput("");
+                  }}
+                >
+                  <FontAwesome5
+                    name="plus"
+                    size={16}
+                    color={Colors.background}
+                  />
+                </TouchableOpacity>
+              </View>
+              {newSubtasks.length > 0 && (
+                <View style={modalStyles.subtaskList}>
+                  {newSubtasks.map((st, idx) => (
+                    <View key={idx} style={modalStyles.subtaskItem}>
+                      <Text style={modalStyles.subtaskText}>{st}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {/* Prioridad */}
+              <Text style={modalStyles.label}>Prioridad</Text>
+              <View style={modalStyles.priorityContainer}>
+                {priorityOptions.map((pr) => {
+                  const active = newPriority === pr.key;
+                  return (
+                    <TouchableOpacity
+                      key={pr.key}
+                      style={[
+                        modalStyles.priorityBtn,
+                        { borderRightColor: pr.color },
+                        active && {
+                          backgroundColor: pr.color,
+                        },
+                      ]}
+                      onPress={() => setNewPriority(pr.key)}
+                    >
+                      <Text
+                        style={[
+                          modalStyles.priorityTitle,
+                          active && { color: Colors.background },
+                        ]}
+                      >
+                        {pr.label}
+                      </Text>
+                      <Text
+                        style={[
+                          modalStyles.prioritySubtitle,
+                          active && { color: Colors.background },
+                        ]}
+                      >
+                        {`+${pr.xp} XP • +${pr.mana} Maná`}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {/* Dificultad */}
+              <Text style={modalStyles.label}>Dificultad</Text>
+              <View style={modalStyles.row}>
+                {difficultyOptions.map((opt, index) => {
+                  const active = newDifficulty === opt.key;
+                  return (
+                    <TouchableOpacity
+                      key={opt.key}
+                      style={[
+                        modalStyles.difficultyOptionBtn,
+                        index === difficultyOptions.length - 1 && {
+                          marginRight: 0,
+                        },
+                        active && {
+                          backgroundColor: opt.color,
+                          borderColor: opt.color,
+                        },
+                      ]}
+                      onPress={() => setNewDifficulty(opt.key)}
+                    >
+                      <Text
+                        style={[
+                          modalStyles.optionText,
+                          { marginLeft: 0 },
+                          active && { color: Colors.background },
+                        ]}
+                      >
+                        {opt.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {/* Etiquetas dinámicas */}
+              <Text style={modalStyles.label}>Etiquetas</Text>
+              <View style={modalStyles.tagInputRow}>
+                <TextInput
+                  style={modalStyles.tagInput}
+                  placeholder="Nueva etiqueta"
+                  placeholderTextColor={Colors.textMuted}
+                  value={newTagInput}
+                  onChangeText={setNewTagInput}
+                />
+                <TouchableOpacity
+                  style={modalStyles.addTagButton}
+                  onPress={() => {
+                    const tag = newTagInput.trim();
+                    if (!tag) return;
+                    setNewTags((prev) => [...new Set([...prev, tag])]);
+                    setNewTagInput("");
+                  }}
+                >
+                  <FontAwesome5
+                    name="plus"
+                    size={16}
+                    color={Colors.background}
+                  />
+                </TouchableOpacity>
+              </View>
+              {/* Etiquetas existentes */}
+              {uniqueTags.length > 0 && (
+                <Text style={modalStyles.label}>Selecciona etiquetas</Text>
+              )}
+              {uniqueTags.length > 0 && (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={modalStyles.row}
+                  contentContainerStyle={{ alignItems: "center" }}
+                >
+                  {uniqueTags.map((tagKey) => {
+                    const active = newTags.includes(tagKey);
+                    return (
+                      <TouchableOpacity
+                        key={tagKey}
+                        style={[
+                          modalStyles.optionBtn,
+                          active && {
+                            backgroundColor: Colors.accent,
+                            borderColor: Colors.accent,
+                          },
+                        ]}
+                        onPress={() => {
+                          // alterna selección
+                          setNewTags((prev) =>
+                            prev.includes(tagKey)
+                              ? prev.filter((t) => t !== tagKey)
+                              : [...prev, tagKey]
+                          );
+                        }}
+                      >
+                        <Text
+                          style={[
+                            modalStyles.optionText,
+                            active && { color: Colors.background },
+                          ]}
+                        >
+                          {tagKey}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              )}
+
+              {newTags.length > 0 && (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={modalStyles.row}
+                  contentContainerStyle={{ alignItems: "center" }}
+                >
+                  {newTags.map((tag) => (
+                    <View key={tag} style={modalStyles.tagChip}>
+                      <Text style={modalStyles.tagText}>{tag}</Text>
+                    </View>
+                  ))}
+                </ScrollView>
+              )}
+
+              {/* Botones */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "flex-end",
+                  marginTop: Spacing.base,
+                }}
               >
-                <Text style={modalStyles.buttonText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  modalStyles.button,
-                  { backgroundColor: Colors.primary },
-                ]}
-                onPress={onSaveTask}
-              >
-                <Text style={modalStyles.buttonText}>Guardar</Text>
-              </TouchableOpacity>
-            </View>
+                <TouchableOpacity
+                  style={[
+                    modalStyles.button,
+                    {
+                      backgroundColor: Colors.danger,
+                      marginRight: Spacing.small,
+                    },
+                  ]}
+                  onPress={() => setShowAddModal(false)}
+                >
+                  <Text style={modalStyles.buttonText}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    modalStyles.button,
+                    { backgroundColor: Colors.primary },
+                  ]}
+                  onPress={onSaveTask}
+                >
+                  <Text style={modalStyles.buttonText}>Guardar</Text>
+                </TouchableOpacity>
+              </View>
             </ScrollView>
           </View>
         </View>
