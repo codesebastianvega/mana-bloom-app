@@ -80,6 +80,43 @@ export const modalStyles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 6,
   },
+  // estilos específicos para los botones de tipo de tarea
+  typeOptionBtn: {
+    flex: 1,
+    paddingVertical: Spacing.small,
+    borderRadius: 10,
+    borderWidth: 0.5,
+    borderColor: Colors.text,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: Spacing.small,
+  },
+  typeOptionText: {
+    color: Colors.text,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  // botones de elemento en cuadrícula
+  elementGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginBottom: Spacing.base,
+  },
+  elementBtn: {
+    width: "48%",
+    borderRadius: 10,
+    borderWidth: 0.5,
+    borderColor: Colors.text,
+    marginBottom: Spacing.small,
+    overflow: "hidden",
+  },
+  elementBtnInner: {
+    paddingVertical: Spacing.small,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   // estilos de los chips
   tagInputRow: {
     flexDirection: "row",
