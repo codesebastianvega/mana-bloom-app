@@ -365,40 +365,27 @@ export default function TasksScreen() {
         transparent={true}
         onRequestClose={() => setFiltersVisible(false)}
       >
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "flex-end",
-            backgroundColor: "rgba(0,0,0,0.5)",
-          }}
-        >
-          <TaskFilters
-            filters={mainFilters}
-            active={activeFilter}
-            onSelect={setActiveFilter}
-            elementOptions={elementOptions}
-            elementFilter={elementFilter}
-            setElementFilter={setElementFilter}
-            priorityOptions={priorityOptions}
-            priorityFilter={priorityFilter}
-            setPriorityFilter={setPriorityFilter}
-            difficultyOptions={difficultyOptions}
-            difficultyFilter={difficultyFilter}
-            setDifficultyFilter={setDifficultyFilter}
-            tags={uniqueTags}
-            tagFilter={tagFilter}
-            setTagFilter={setTagFilter}
-          />
-          <TouchableOpacity
-            onPress={() => setFiltersVisible(false)}
-            style={{
-              backgroundColor: Colors.surface,
-              padding: Spacing.small,
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ color: Colors.text }}>Cerrar</Text>
-          </TouchableOpacity>
+        <View style={styles.filterModalBackground}>
+          <View style={styles.filterModalContainer}>
+            <TaskFilters
+              filters={mainFilters}
+              active={activeFilter}
+              onSelect={setActiveFilter}
+              elementOptions={elementOptions}
+              elementFilter={elementFilter}
+              setElementFilter={setElementFilter}
+              priorityOptions={priorityOptions}
+              priorityFilter={priorityFilter}
+              setPriorityFilter={setPriorityFilter}
+              difficultyOptions={difficultyOptions}
+              difficultyFilter={difficultyFilter}
+              setDifficultyFilter={setDifficultyFilter}
+              tags={uniqueTags}
+              tagFilter={tagFilter}
+              setTagFilter={setTagFilter}
+              onClose={() => setFiltersVisible(false)}
+            />
+          </View>
         </View>
       </Modal>
 
