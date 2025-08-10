@@ -6,6 +6,7 @@ import SearchBar from "../components/SearchBar/SearchBar";
 import TaskFilters from "../components/TaskFilters/TaskFilters";
 import SwipeableTaskItem from "../components/SwipeableTaskItem/SwipeableTaskItem";
 import AddTaskButton from "../components/AddTaskButton/AddTaskButton";
+import FilterBar from "../components/FilterBar/FilterBar";
 import {
   Modal,
   View,
@@ -29,6 +30,10 @@ const mainFilters = [
     icon: "check-square",
     color: Colors.text,
   },
+];
+
+const statusFilters = [
+  { key: "pending", label: "Pendientes", icon: "clock", color: Colors.text },
   {
     key: "completed",
     label: "Completadas",
@@ -175,6 +180,7 @@ export default function TasksScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [tagFilter, setTagFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("pending");
   const [filtersVisible, setFiltersVisible] = useState(false); // BottomSheet de filtros
   const [showAddModal, setShowAddModal] = useState(false); // Para el botón de añadir tarea
 
@@ -284,13 +290,7 @@ export default function TasksScreen() {
   // ——— 4) Filtrado combinado ———
   const filteredTasks = tasks.filter((task) => {
     let stateOK;
-    switch (activeFilter) {
-      case "single":
-        stateOK = !task.isDeleted && !task.completed && task.type === "single";
-        break;
-      case "habit":
-        stateOK = !task.isDeleted && !task.completed && task.type === "habit";
-        break;
+    switch (statusFilter) {
       case "completed":
         stateOK = task.completed && !task.isDeleted;
         break;
@@ -298,8 +298,9 @@ export default function TasksScreen() {
         stateOK = task.isDeleted;
         break;
       default:
-        stateOK = !task.isDeleted && !task.completed;
+        stateOK = !task.completed && !task.isDeleted;
     }
+    const typeOK = activeFilter === "all" || task.type === activeFilter;
     const elementOK = elementFilter === "all" || task.element === elementFilter;
     const q = searchQuery.toLowerCase();
     const searchOK =
@@ -310,13 +311,27 @@ export default function TasksScreen() {
     const diffOK =
       difficultyFilter === "all" || task.difficulty === difficultyFilter;
 
-    return stateOK && elementOK && searchOK && prioOK && tagOK && diffOK;
+    return (
+      stateOK &&
+      typeOK &&
+      elementOK &&
+      searchOK &&
+      prioOK &&
+      tagOK &&
+      diffOK
+    );
   });
 
   // ——— 5) Render ———
   return (
     <SafeAreaView style={styles.container}>
       <StatsHeader level={1} xp={25} mana={40} />
+
+      <FilterBar
+        filters={statusFilters}
+        active={statusFilter}
+        onSelect={setStatusFilter}
+      />
 
       <SearchBar
         value={searchQuery}
@@ -336,7 +351,7 @@ export default function TasksScreen() {
             onPermanentDeleteTask={onPermanentDeleteTask}
             onEditTask={onEditTask}
             onToggleSubtask={onToggleSubtask}
-            activeFilter={activeFilter}
+            activeFilter={statusFilter}
           />
         )}
         style={styles.list}
