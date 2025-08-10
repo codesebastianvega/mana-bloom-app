@@ -14,7 +14,7 @@ const baseBtn = {
   borderWidth: 0.5,
   borderColor: Colors.text,
   marginRight: Spacing.small,
-  backgroundColor: Colors.buttonBg, // Color base para todos los botones de filtro
+  backgroundColor: "transparent", // Botones transparentes por defecto
 };
 
 export default StyleSheet.create({
@@ -35,10 +35,18 @@ export default StyleSheet.create({
     flexDirection: "row",
     marginBottom: Spacing.base,
   },
-  // Se define una sola vez el estilo para cada tipo de botón,
-  // heredando las propiedades del estilo base.
-  elementBtn: {
+  elementGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginBottom: Spacing.base,
+  },
+  elementGridBtn: {
     ...baseBtn,
+    width: "48%",
+    justifyContent: "center",
+    marginRight: 0,
+    marginBottom: Spacing.small,
   },
   priorityBtn: {
     ...baseBtn,
@@ -48,6 +56,13 @@ export default StyleSheet.create({
   },
   tagBtn: {
     ...baseBtn,
+  },
+  sectionTitle: {
+    color: Colors.text,
+    fontSize: 14,
+    fontWeight: "600",
+    marginTop: Spacing.small,
+    marginBottom: Spacing.tiny,
   },
   text: {
     color: Colors.text,
