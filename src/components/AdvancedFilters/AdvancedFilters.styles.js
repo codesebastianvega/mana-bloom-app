@@ -45,6 +45,15 @@ export default StyleSheet.create({
   tagBtn: {
     ...baseBtn,
   },
+  tagSearchInput: {
+    borderWidth: 0.5,
+    borderColor: Colors.text,
+    borderRadius: 8,
+    padding: Spacing.tiny,
+    paddingHorizontal: Spacing.small,
+    marginBottom: Spacing.base,
+    color: Colors.text,
+  },
   text: {
     color: Colors.text,
     fontSize: 14,
