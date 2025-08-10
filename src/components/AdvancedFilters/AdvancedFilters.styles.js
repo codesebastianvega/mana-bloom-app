@@ -3,6 +3,8 @@
 import { StyleSheet } from "react-native";
 import { Colors, Spacing } from "../../theme";
 
+// Un solo estilo base para todos los botones.
+// Esto evita la repetición de código.
 const baseBtn = {
   flexDirection: "row",
   alignItems: "center",
@@ -12,7 +14,7 @@ const baseBtn = {
   borderWidth: 0.5,
   borderColor: Colors.text,
   marginRight: Spacing.small,
-  backgroundColor: Colors.filterBtnBg,
+  backgroundColor: Colors.buttonBg, // Color base para todos los botones de filtro
 };
 
 export default StyleSheet.create({
@@ -31,20 +33,12 @@ export default StyleSheet.create({
   },
   row: {
     flexDirection: "row",
-    marginBottom: Spacing.large,
+    marginBottom: Spacing.base,
   },
-  elementGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    marginBottom: Spacing.large,
-  },
-  elementGridBtn: {
+  // Se define una sola vez el estilo para cada tipo de botón,
+  // heredando las propiedades del estilo base.
+  elementBtn: {
     ...baseBtn,
-    width: "48%",
-    justifyContent: "center",
-    marginRight: 0,
-    marginBottom: Spacing.small,
   },
   priorityBtn: {
     ...baseBtn,
@@ -54,41 +48,10 @@ export default StyleSheet.create({
   },
   tagBtn: {
     ...baseBtn,
-    paddingVertical: Spacing.tiny,
-    paddingHorizontal: Spacing.tiny,
-    marginRight: Spacing.base,
-    marginBottom: Spacing.small,
-  },
-  tagSearchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 0.5,
-    borderColor: Colors.text,
-    borderRadius: 8,
-    padding: Spacing.tiny,
-    paddingHorizontal: Spacing.small,
-    marginBottom: Spacing.large,
-    backgroundColor: Colors.surface,
-  },
-  tagSearchContainerFocused: {
-    borderColor: Colors.accent,
-  },
-  tagSearchInput: {
-    flex: 1,
-    color: Colors.text,
-  },
-  clearBtn: {
-    marginLeft: Spacing.small,
-    padding: Spacing.tiny,
   },
   text: {
     color: Colors.text,
     fontSize: 14,
-    marginLeft: Spacing.small,
-  },
-  tagText: {
-    color: Colors.text,
-    fontSize: 12,
     marginLeft: Spacing.small,
   },
 });
