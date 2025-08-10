@@ -10,9 +10,93 @@ import {
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./AdvancedFilters.styles";
-import { Colors } from "../../theme";
+import { Colors, Spacing } from "../../theme";
 
-function renderRow(options, activeKey, setActive, baseStyle, overrideStyle) {
+function renderElementGrid(options, activeKey, setActive, overrideStyle) {
+  return (
+    <View style={styles.elementGrid}>
+      {options.map((opt) => {
+        const isActive = activeKey === opt.key;
+        return (
+          <TouchableOpacity
+            key={opt.key}
+            style={[
+              styles.elementGridBtn,
+              overrideStyle,
+              isActive && {
+                backgroundColor: opt.color,
+                borderColor: opt.color,
+              },
+            ]}
+            onPress={() => setActive(opt.key)}
+          >
+            {opt.icon && (
+              <FontAwesome5
+                name={opt.icon}
+                size={18}
+                color={isActive ? Colors.background : opt.color}
+              />
+            )}
+            <Text
+              style={[
+                styles.text,
+                isActive && { color: Colors.background },
+              ]}
+            >
+              {opt.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
+function renderFullRow(options, activeKey, setActive, baseStyle, overrideStyle) {
+  return (
+    <View style={styles.row}>
+      {options.map((opt, index) => {
+        const isActive = activeKey === opt.key;
+        return (
+          <TouchableOpacity
+            key={opt.key}
+            style={[
+              baseStyle,
+              overrideStyle,
+              {
+                flex: 1,
+                marginRight: index === options.length - 1 ? 0 : Spacing.small,
+              },
+              isActive && {
+                backgroundColor: opt.color,
+                borderColor: opt.color,
+              },
+            ]}
+            onPress={() => setActive(opt.key)}
+          >
+            {opt.icon && (
+              <FontAwesome5
+                name={opt.icon}
+                size={14}
+                color={isActive ? Colors.background : opt.color}
+              />
+            )}
+            <Text
+              style={[
+                styles.text,
+                isActive && { color: Colors.background },
+              ]}
+            >
+              {opt.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
+function renderTagRow(options, activeKey, setActive, baseStyle, overrideStyle) {
   return (
     <ScrollView
       horizontal
@@ -34,16 +118,9 @@ function renderRow(options, activeKey, setActive, baseStyle, overrideStyle) {
             ]}
             onPress={() => setActive(opt.key)}
           >
-            {opt.icon && (
-              <FontAwesome5
-                name={opt.icon}
-                size={14}
-                color={isActive ? Colors.background : opt.color}
-              />
-            )}
             <Text
               style={[
-                styles.text,
+                styles.tagText,
                 isActive && { color: Colors.background },
               ]}
             >
@@ -90,21 +167,20 @@ export default function AdvancedFilters({
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Filtros avanzados</Text>
-      {renderRow(
+      {renderElementGrid(
         elementOptions,
         elementFilter,
         setElementFilter,
-        styles.elementBtn,
         elementBtnStyle
       )}
-      {renderRow(
+      {renderFullRow(
         priorityOptions,
         priorityFilter,
         setPriorityFilter,
         styles.priorityBtn,
         priorityBtnStyle
       )}
-      {renderRow(
+      {renderFullRow(
         difficultyOptions,
         difficultyFilter,
         setDifficultyFilter,
@@ -135,8 +211,12 @@ export default function AdvancedFilters({
           </TouchableOpacity>
         )}
       </View>
-      {renderRow(
-        filteredTags.map((tag) => ({ key: tag, label: tag, color: Colors.accent })),
+      {renderTagRow(
+        filteredTags.map((tag) => ({
+          key: tag,
+          label: tag,
+          color: Colors.accent,
+        })),
         tagFilter,
         setTagFilter,
         styles.tagBtn,
@@ -145,3 +225,4 @@ export default function AdvancedFilters({
     </View>
   );
 }
+

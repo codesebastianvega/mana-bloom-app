@@ -46,21 +46,21 @@ const statusFilters = [
 const priorityOptions = [
   {
     key: "easy",
-    label: "Fácil",
+    label: "Baja",
     color: Colors.secondary,
     xp: 10,
     mana: 5,
   },
   {
     key: "medium",
-    label: "Medio",
+    label: "Media",
     color: Colors.accent,
     xp: 25,
     mana: 12,
   },
   {
     key: "hard",
-    label: "Difícil",
+    label: "Urgente",
     color: Colors.danger,
     xp: 50,
     mana: 25,
