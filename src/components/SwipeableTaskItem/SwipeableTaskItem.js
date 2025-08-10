@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./SwipeableTaskItem.styles";
-import { Colors } from "../../theme";
+import { Colors, Spacing } from "../../theme";
 
 const getElementColor = (element) => {
   switch (element) {
@@ -198,30 +198,92 @@ export default function SwipeableTaskItem({
             </TouchableOpacity>
             {showSubtasks && (
               <View style={styles.subtaskList}>
-                {task.subtasks.map((st) => (
-                  <View key={st.id} style={styles.subtaskItem}>
+                {task.subtasks.length > 5 ? (
+                  <View style={styles.subtaskColumns}>
+                    <View
+                      style={[styles.subtaskColumn, { marginRight: Spacing.small }]}
+                    >
+                      {task.subtasks.slice(0, 5).map((st) => (
+                        <TouchableOpacity
+                          key={st.id}
+                          style={styles.subtaskItem}
+                          onPress={() => onToggleSubtask(task.id, st.id)}
+                        >
+                          <View style={styles.checkbox}>
+                            {st.completed && (
+                              <FontAwesome5
+                                name="check"
+                                size={10}
+                                color={Colors.text}
+                              />
+                            )}
+                          </View>
+                          <Text
+                            style={[
+                              styles.subtaskText,
+                              st.completed && styles.subtaskTextCompleted,
+                            ]}
+                          >
+                            {st.text}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                    <View style={styles.subtaskColumn}>
+                      {task.subtasks.slice(5, 10).map((st) => (
+                        <TouchableOpacity
+                          key={st.id}
+                          style={styles.subtaskItem}
+                          onPress={() => onToggleSubtask(task.id, st.id)}
+                        >
+                          <View style={styles.checkbox}>
+                            {st.completed && (
+                              <FontAwesome5
+                                name="check"
+                                size={10}
+                                color={Colors.text}
+                              />
+                            )}
+                          </View>
+                          <Text
+                            style={[
+                              styles.subtaskText,
+                              st.completed && styles.subtaskTextCompleted,
+                            ]}
+                          >
+                            {st.text}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </View>
+                ) : (
+                  task.subtasks.map((st) => (
                     <TouchableOpacity
-                      style={styles.checkbox}
+                      key={st.id}
+                      style={styles.subtaskItem}
                       onPress={() => onToggleSubtask(task.id, st.id)}
                     >
-                      {st.completed && (
-                        <FontAwesome5
-                          name="check"
-                          size={10}
-                          color={Colors.surface}
-                        />
-                      )}
+                      <View style={styles.checkbox}>
+                        {st.completed && (
+                          <FontAwesome5
+                            name="check"
+                            size={10}
+                            color={Colors.text}
+                          />
+                        )}
+                      </View>
+                      <Text
+                        style={[
+                          styles.subtaskText,
+                          st.completed && styles.subtaskTextCompleted,
+                        ]}
+                      >
+                        {st.text}
+                      </Text>
                     </TouchableOpacity>
-                    <Text
-                      style={[
-                        styles.subtaskText,
-                        st.completed && styles.subtaskTextCompleted,
-                      ]}
-                    >
-                      {st.text}
-                    </Text>
-                  </View>
-                ))}
+                  ))
+                )}
               </View>
             )}
           </>

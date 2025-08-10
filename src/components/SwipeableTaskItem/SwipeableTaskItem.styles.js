@@ -89,6 +89,13 @@ export default StyleSheet.create({
     marginTop: Spacing.small,
     paddingLeft: Spacing.small,
   },
+  subtaskColumns: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  subtaskColumn: {
+    flex: 1,
+  },
   subtaskItem: {
     flexDirection: "row",
     alignItems: "center",
