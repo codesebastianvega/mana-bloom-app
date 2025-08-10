@@ -75,6 +75,16 @@ export default StyleSheet.create({
     color: Colors.textMuted,
     textDecorationLine: "line-through",
   },
+  subtaskToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: Spacing.tiny,
+  },
+  subtaskToggleText: {
+    color: Colors.textMuted,
+    marginLeft: Spacing.tiny,
+    fontSize: 12,
+  },
   subtaskList: {
     marginTop: Spacing.small,
     paddingLeft: Spacing.small,
