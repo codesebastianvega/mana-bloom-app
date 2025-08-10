@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import { SafeAreaView, FlatList } from "react-native";
 
 import StatsHeader from "../components/StatsHeader";
-import FilterBar from "../components/FilterBar/FilterBar";
 import SearchBar from "../components/SearchBar/SearchBar";
-import AdvancedFilters from "../components/AdvancedFilters/AdvancedFilters";
+import TaskFilters from "../components/TaskFilters/TaskFilters";
 import SwipeableTaskItem from "../components/SwipeableTaskItem/SwipeableTaskItem";
 import AddTaskButton from "../components/AddTaskButton/AddTaskButton";
 import {
@@ -176,7 +175,7 @@ export default function TasksScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [tagFilter, setTagFilter] = useState("all");
-  const [showAdvanced, setShowAdvanced] = useState(false); // Para mostrar/ocultar filtros avanzados
+  const [filtersVisible, setFiltersVisible] = useState(false); // BottomSheet de filtros
   const [showAddModal, setShowAddModal] = useState(false); // Para el botón de añadir tarea
 
   // Estados para la nueva tarea
@@ -319,34 +318,11 @@ export default function TasksScreen() {
     <SafeAreaView style={styles.container}>
       <StatsHeader level={1} xp={25} mana={40} />
 
-      <FilterBar
-        filters={mainFilters}
-        active={activeFilter}
-        onSelect={setActiveFilter}
-      />
-
       <SearchBar
         value={searchQuery}
         onChange={setSearchQuery}
-        onToggleAdvanced={() => setShowAdvanced(!showAdvanced)}
+        onToggleAdvanced={() => setFiltersVisible(true)}
       />
-
-      {showAdvanced && (
-        <AdvancedFilters
-          elementOptions={elementOptions}
-          elementFilter={elementFilter}
-          setElementFilter={setElementFilter}
-          priorityOptions={priorityOptions}
-          priorityFilter={priorityFilter}
-          setPriorityFilter={setPriorityFilter}
-          difficultyOptions={difficultyOptions}
-          difficultyFilter={difficultyFilter}
-          setDifficultyFilter={setDifficultyFilter}
-          tags={uniqueTags}
-          tagFilter={tagFilter}
-          setTagFilter={setTagFilter}
-        />
-      )}
 
       <FlatList
         data={filteredTasks}
@@ -367,6 +343,50 @@ export default function TasksScreen() {
       />
 
       <AddTaskButton onPress={onAddTask} />
+
+      <Modal
+        visible={filtersVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setFiltersVisible(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "flex-end",
+            backgroundColor: "rgba(0,0,0,0.5)",
+          }}
+        >
+          <TaskFilters
+            filters={mainFilters}
+            active={activeFilter}
+            onSelect={setActiveFilter}
+            elementOptions={elementOptions}
+            elementFilter={elementFilter}
+            setElementFilter={setElementFilter}
+            priorityOptions={priorityOptions}
+            priorityFilter={priorityFilter}
+            setPriorityFilter={setPriorityFilter}
+            difficultyOptions={difficultyOptions}
+            difficultyFilter={difficultyFilter}
+            setDifficultyFilter={setDifficultyFilter}
+            tags={uniqueTags}
+            tagFilter={tagFilter}
+            setTagFilter={setTagFilter}
+          />
+          <TouchableOpacity
+            onPress={() => setFiltersVisible(false)}
+            style={{
+              backgroundColor: Colors.surface,
+              padding: Spacing.small,
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: Colors.text }}>Cerrar</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
       {/* Modal de Nueva Tarea */}
       <Modal
         visible={showAddModal}
