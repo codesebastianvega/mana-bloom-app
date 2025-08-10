@@ -3,7 +3,9 @@ export const Colors = {
   background: "#0e0a1e", // Fondo oscuro profundo
   surface: "#1b1231", // Superficie ligeramente más clara
   primary: "#7e57c2", // Púrpura místico
+  primaryLight: "#b39ddb", // Versión aclarada para estados activos
   secondary: "#4dd0e1", // Turquesa etéreo
+  secondaryLight: "#80deea", // Variante clara para estados activos
   accent: "#ffca28", // Dorado suave para acentos
   danger: "#ef5350", // Rojo armónico
   text: "#FFFFFF",
@@ -13,9 +15,13 @@ export const Colors = {
   shadow: "#000000", // Color para sombras
 
   elementWater: "#29b6f6",
+  elementWaterLight: "#81d4fa",
   elementEarth: "#8d6e63",
+  elementEarthLight: "#bcaaa4",
   elementFire: "#ff7043",
+  elementFireLight: "#ffab91",
   elementAir: "#90a4ae",
+  elementAirLight: "#cfd8dc",
 };
 
 export const Spacing = {
