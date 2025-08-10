@@ -161,41 +161,41 @@ export default function AdvancedFilters({
     return () => clearTimeout(handler);
   }, [tagSearch]);
 
-    const filteredTags = tags.filter((tag) =>
-      tag.toLowerCase().includes(debouncedTagSearch.toLowerCase())
-    );
+  const filteredTags = tags.filter((tag) =>
+    tag.toLowerCase().includes(debouncedTagSearch.toLowerCase())
+  );
 
-    return (
-      <View style={styles.container}>
-        <Text style={styles.sectionTitle}>Elemento</Text>
-        {renderElementGrid(
-          elementOptions,
-          elementFilter,
-          setElementFilter,
-          elementBtnStyle
-        )}
-        <Text style={styles.sectionTitle}>Prioridad</Text>
-        {renderFullRow(
-          priorityOptions,
-          priorityFilter,
-          setPriorityFilter,
-          styles.priorityBtn,
-          priorityBtnStyle
-        )}
-        <Text style={styles.sectionTitle}>Dificultad</Text>
-        {renderFullRow(
-          difficultyOptions,
-          difficultyFilter,
-          setDifficultyFilter,
-          styles.difficultyBtn,
-          difficultyBtnStyle
-        )}
-        <Text style={styles.sectionTitle}>Etiquetas</Text>
-        <View
-          style={[
-            styles.tagSearchContainer,
-            tagSearchFocused && styles.tagSearchContainerFocused,
-          ]}
+  return (
+    <View style={styles.container}>
+      <Text style={styles.sectionTitle}>Elemento</Text>
+      {renderElementGrid(
+        elementOptions,
+        elementFilter,
+        setElementFilter,
+        elementBtnStyle
+      )}
+      <Text style={styles.sectionTitle}>Prioridad</Text>
+      {renderFullRow(
+        priorityOptions,
+        priorityFilter,
+        setPriorityFilter,
+        styles.priorityBtn,
+        priorityBtnStyle
+      )}
+      <Text style={styles.sectionTitle}>Dificultad</Text>
+      {renderFullRow(
+        difficultyOptions,
+        difficultyFilter,
+        setDifficultyFilter,
+        styles.difficultyBtn,
+        difficultyBtnStyle
+      )}
+      <Text style={styles.sectionTitle}>Etiquetas</Text>
+      <View
+        style={[
+          styles.tagSearchContainer,
+          tagSearchFocused && styles.tagSearchContainerFocused,
+        ]}
       >
         <TextInput
           style={styles.tagSearchInput}
