@@ -13,11 +13,11 @@ Mana Bloom es una aplicación de gestión de colecciones de cartas, diseñada pa
 
 ## 🎨 Personalización de filtros
 
-El componente `AdvancedFilters` permite modificar el estilo de los botones de cada sección.
+El componente `TaskFilters` permite modificar el estilo de los botones de cada sección.
 Solo debes pasar los estilos opcionales que necesites:
 
 ```jsx
-<AdvancedFilters
+<TaskFilters
   elementBtnStyle={{ backgroundColor: '#333' }}
   priorityBtnStyle={{ borderColor: 'gold' }}
   difficultyBtnStyle={{ paddingHorizontal: 20 }}

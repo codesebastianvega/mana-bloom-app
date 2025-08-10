@@ -1,4 +1,4 @@
-// src/components/AdvancedFilters/AdvancedFilters.styles.js
+// src/components/TaskFilters/TaskFilters.styles.js
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing } from "../../theme";
@@ -29,9 +29,22 @@ export default StyleSheet.create({
     fontWeight: "600",
     marginBottom: Spacing.small,
   },
+  section: {
+    marginBottom: Spacing.base,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: Spacing.tiny,
+  },
+  sectionTitle: {
+    color: Colors.text,
+    fontSize: 14,
+    fontWeight: "500",
+  },
   row: {
     flexDirection: "row",
-    marginBottom: Spacing.base,
   },
   elementBtn: {
     ...baseBtn,

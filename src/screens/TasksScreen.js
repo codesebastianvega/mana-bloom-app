@@ -4,7 +4,7 @@ import { SafeAreaView, FlatList } from "react-native";
 import StatsHeader from "../components/StatsHeader";
 import FilterBar from "../components/FilterBar/FilterBar";
 import SearchBar from "../components/SearchBar/SearchBar";
-import AdvancedFilters from "../components/AdvancedFilters/AdvancedFilters";
+import TaskFilters from "../components/TaskFilters/TaskFilters";
 import SwipeableTaskItem from "../components/SwipeableTaskItem/SwipeableTaskItem";
 import AddTaskButton from "../components/AddTaskButton/AddTaskButton";
 import {
@@ -332,7 +332,7 @@ export default function TasksScreen() {
       />
 
       {showAdvanced && (
-        <AdvancedFilters
+        <TaskFilters
           elementOptions={elementOptions}
           elementFilter={elementFilter}
           setElementFilter={setElementFilter}
