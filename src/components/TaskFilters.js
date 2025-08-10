@@ -47,6 +47,7 @@ export default function TaskFilters({
           <FontAwesome5 name="times" size={16} color={Colors.text} />
         </TouchableOpacity>
       )}
+      <Text style={styles.title}>Filtros avanzados</Text>
       <FilterBar filters={filters} active={active} onSelect={setActive} />
       <AdvancedFilters
         elementOptions={elementOptions}
@@ -78,6 +79,12 @@ const styles = StyleSheet.create({
   closeBtn: {
     alignSelf: "flex-end",
     padding: Spacing.tiny,
+  },
+  title: {
+    color: Colors.text,
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: Spacing.small,
   },
   buttons: {
     flexDirection: "row",

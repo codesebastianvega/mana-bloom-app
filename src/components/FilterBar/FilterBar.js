@@ -14,6 +14,7 @@ export default function FilterBar({ filters, active, onSelect }) {
           horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.container}
+          contentContainerStyle={styles.contentContainer}
         >
           {filters.map((f) => {
             const Icon = ["single", "completed", "deleted"].includes(f.key)

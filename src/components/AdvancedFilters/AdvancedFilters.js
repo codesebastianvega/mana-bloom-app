@@ -85,7 +85,11 @@ function renderFullRow(
               />
             )}
             <Text
-              style={[styles.text, isActive && { color: Colors.background }]}
+              style={[
+                styles.text,
+                !opt.icon && styles.centerText,
+                isActive && { color: Colors.background },
+              ]}
             >
               {opt.label}
             </Text>
@@ -163,7 +167,6 @@ export default function AdvancedFilters({
 
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Filtros avanzados</Text>
         <Text style={styles.sectionTitle}>Elemento</Text>
         {renderElementGrid(
           elementOptions,
