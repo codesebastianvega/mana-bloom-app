@@ -173,6 +173,7 @@ export default function AdvancedFilters({
         setElementFilter,
         elementBtnStyle
       )}
+      <Text style={styles.sectionTitle}>Prioridad</Text>
       {renderFullRow(
         priorityOptions,
         priorityFilter,
@@ -180,6 +181,7 @@ export default function AdvancedFilters({
         styles.priorityBtn,
         priorityBtnStyle
       )}
+      <Text style={styles.sectionTitle}>Dificultad</Text>
       {renderFullRow(
         difficultyOptions,
         difficultyFilter,
