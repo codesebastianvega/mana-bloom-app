@@ -11,7 +11,6 @@ export default StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: Colors.buttonBg,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: Colors.shadow,
@@ -20,5 +19,11 @@ export default StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 8,
+  },
+  gradient: { width: "100%", height: "100%", borderRadius: 30 },
+  fabShadowPressed: {
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 12,
   },
 });
