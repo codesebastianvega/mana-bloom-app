@@ -1,3 +1,5 @@
+// src/components/Footer/Footer.styles.js
+
 import { StyleSheet } from "react-native";
 import { Colors, Spacing } from "../theme";
 
@@ -10,32 +12,48 @@ export default StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.1)",
+    backgroundColor: "rgba(34, 42, 54, 0.9)",
     paddingVertical: Spacing.small,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.2)",
+    paddingHorizontal: Spacing.base,
+    borderTopWidth: 2,
+    borderTopColor: "rgba(255, 255, 255, 0.1)",
     shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 5,
+    borderRadius: 10,
+    paddingTop: Spacing.tiny,
+    paddingBottom: 15,
   },
   button: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    paddingVertical: Spacing.small,
+  },
+  activeButton: {
+    transform: [{ scale: 1.2 }], // Escala sutilmente el botón activo
+    transition: "transform 0.3s ease-in-out", // Animación de escala
   },
   iconWrapper: {
     padding: Spacing.small,
-    borderRadius: 20,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    // Ya no hay un estilo de fondo para el estado activo aquí.
   },
-  activeIconWrapper: {
-    padding: Spacing.small,
-    borderRadius: 20,
-    backgroundColor: Colors.accent,
-  },
+  // El estilo activeIconWrapper ha sido eliminado.
   label: {
     marginTop: Spacing.tiny,
     fontSize: 12,
+    fontWeight: "600",
     color: Colors.text,
+    opacity: 0.8,
+  },
+  activeLabel: {
+    color: Colors.text,
+    fontWeight: "bold",
+    opacity: 1,
   },
 });
