@@ -38,10 +38,7 @@ function renderElementGrid(options, activeKey, setActive, overrideStyle) {
               />
             )}
             <Text
-              style={[
-                styles.text,
-                isActive && { color: Colors.background },
-              ]}
+              style={[styles.text, isActive && { color: Colors.background }]}
             >
               {opt.label}
             </Text>
@@ -52,7 +49,13 @@ function renderElementGrid(options, activeKey, setActive, overrideStyle) {
   );
 }
 
-function renderFullRow(options, activeKey, setActive, baseStyle, overrideStyle) {
+function renderFullRow(
+  options,
+  activeKey,
+  setActive,
+  baseStyle,
+  overrideStyle
+) {
   return (
     <View style={styles.row}>
       {options.map((opt, index) => {
@@ -82,10 +85,7 @@ function renderFullRow(options, activeKey, setActive, baseStyle, overrideStyle) 
               />
             )}
             <Text
-              style={[
-                styles.text,
-                isActive && { color: Colors.background },
-              ]}
+              style={[styles.text, isActive && { color: Colors.background }]}
             >
               {opt.label}
             </Text>
@@ -119,10 +119,7 @@ function renderTagRow(options, activeKey, setActive, baseStyle, overrideStyle) {
             onPress={() => setActive(opt.key)}
           >
             <Text
-              style={[
-                styles.tagText,
-                isActive && { color: Colors.background },
-              ]}
+              style={[styles.tagText, isActive && { color: Colors.background }]}
             >
               {opt.label}
             </Text>
@@ -173,7 +170,6 @@ export default function AdvancedFilters({
         setElementFilter,
         elementBtnStyle
       )}
-      <Text style={styles.sectionTitle}>Prioridad</Text>
       {renderFullRow(
         priorityOptions,
         priorityFilter,
@@ -181,7 +177,6 @@ export default function AdvancedFilters({
         styles.priorityBtn,
         priorityBtnStyle
       )}
-      <Text style={styles.sectionTitle}>Dificultad</Text>
       {renderFullRow(
         difficultyOptions,
         difficultyFilter,
@@ -227,4 +222,3 @@ export default function AdvancedFilters({
     </View>
   );
 }
-
