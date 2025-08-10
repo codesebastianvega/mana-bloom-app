@@ -1,7 +1,7 @@
 // src/components/AdvancedFilters/AdvancedFilters.js
 
-import React from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, ScrollView, TextInput } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./AdvancedFilters.styles";
 import { Colors } from "../../theme";
@@ -68,6 +68,18 @@ export default function AdvancedFilters({
   difficultyBtnStyle,
   tagBtnStyle,
 }) {
+  const [tagSearch, setTagSearch] = useState("");
+  const [debouncedTagSearch, setDebouncedTagSearch] = useState(tagSearch);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedTagSearch(tagSearch), 300);
+    return () => clearTimeout(handler);
+  }, [tagSearch]);
+
+  const filteredTags = tags.filter((tag) =>
+    tag.toLowerCase().includes(debouncedTagSearch.toLowerCase())
+  );
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Filtros avanzados</Text>
@@ -92,8 +104,15 @@ export default function AdvancedFilters({
         styles.difficultyBtn,
         difficultyBtnStyle
       )}
+      <TextInput
+        style={styles.tagSearchInput}
+        placeholder="Buscar etiqueta"
+        placeholderTextColor={Colors.text}
+        value={tagSearch}
+        onChangeText={setTagSearch}
+      />
       {renderRow(
-        tags.map((tag) => ({ key: tag, label: tag, color: Colors.accent })),
+        filteredTags.map((tag) => ({ key: tag, label: tag, color: Colors.accent })),
         tagFilter,
         setTagFilter,
         styles.tagBtn,
