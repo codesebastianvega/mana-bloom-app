@@ -18,6 +18,7 @@ import {
 import styles, { modalStyles } from "./TasksScreen.styles";
 import { Colors, Spacing } from "../theme";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 // ——— 1) Configuración de filtros ———
 const mainFilters = [
@@ -39,21 +40,58 @@ const mainFilters = [
 ];
 
 const priorityOptions = [
-  { key: "urgent", label: "Urgentes", color: Colors.danger },
-  { key: "pending", label: "Pendientes", color: Colors.primary },
-  { key: "relevant", label: "Relevantes", color: Colors.secondary },
+  {
+    key: "easy",
+    label: "Fácil",
+    color: Colors.secondary,
+    xp: 10,
+    mana: 5,
+  },
+  {
+    key: "medium",
+    label: "Medio",
+    color: Colors.accent,
+    xp: 25,
+    mana: 12,
+  },
+  {
+    key: "hard",
+    label: "Difícil",
+    color: Colors.danger,
+    xp: 50,
+    mana: 25,
+  },
 ];
 
 const elementOptions = [
-  { key: "water", label: "Agua", color: Colors.elementWater, icon: "tint" },
+  {
+    key: "water",
+    label: "Agua",
+    color: Colors.elementWater,
+    gradient: [Colors.elementWaterLight, Colors.elementWater],
+    icon: "tint",
+  },
+  {
+    key: "fire",
+    label: "Fuego",
+    color: Colors.elementFire,
+    gradient: [Colors.elementFireLight, Colors.elementFire],
+    icon: "fire",
+  },
   {
     key: "earth",
     label: "Tierra",
     color: Colors.elementEarth,
+    gradient: [Colors.elementEarthLight, Colors.elementEarth],
     icon: "pagelines",
   },
-  { key: "fire", label: "Fuego", color: Colors.elementFire, icon: "fire" },
-  { key: "air", label: "Aire", color: Colors.elementAir, icon: "wind" },
+  {
+    key: "air",
+    label: "Aire",
+    color: Colors.elementAir,
+    gradient: [Colors.elementAirLight, Colors.elementAir],
+    icon: "wind",
+  },
 ];
 
 export default function TasksScreen() {
@@ -68,7 +106,7 @@ export default function TasksScreen() {
       isDeleted: false,
       type: "single",
       element: "fire",
-      priority: "pending",
+      priority: "medium",
       tags: ["personal"],
       difficulty: "hard",
     },
@@ -80,7 +118,7 @@ export default function TasksScreen() {
       isDeleted: false,
       type: "habit",
       element: "water",
-      priority: "urgent",
+      priority: "hard",
       tags: ["salud"],
       difficulty: "medium",
     },
@@ -101,10 +139,15 @@ export default function TasksScreen() {
   // Estados extra en el modal de creación
   const [newType, setNewType] = useState("single"); // 'single' | 'habit'
   const [newElement, setNewElement] = useState("all"); // 'all' | 'water' | 'earth' | ...
-  const [newPriority, setNewPriority] = useState("all"); // 'all' | 'urgent' | 'pending' | 'relevant'
+  const [newPriority, setNewPriority] = useState("easy"); // 'easy' | 'medium' | 'hard'
   // ➕ Estados para etiquetas en modal
   const [newTagInput, setNewTagInput] = useState("");
   const [newTags, setNewTags] = useState([]);
+  // Opciones del tipo de tarea
+  const typeOptions = [
+    { key: "single", label: "Tarea", activeColor: Colors.primaryLight },
+    { key: "habit", label: "Hábito", activeColor: Colors.secondaryLight },
+  ];
   // Opciones de dificultad
   const difficultyOptions = [
     { key: "easy", label: "Fácil", color: Colors.secondary },
@@ -140,7 +183,7 @@ export default function TasksScreen() {
     setNewNote("");
     setNewType("single");
     setNewElement("all");
-    setNewPriority("all");
+    setNewPriority("easy");
     setShowAddModal(false);
   };
 
@@ -278,6 +321,11 @@ export default function TasksScreen() {
       >
         <View style={modalStyles.background}>
           <View style={modalStyles.container}>
+            <ScrollView
+              style={{ width: "100%" }}
+              contentContainerStyle={{ paddingBottom: Spacing.large }}
+              showsVerticalScrollIndicator={false}
+            >
             {/* Título del modal */}
             <Text style={modalStyles.title}>Crear Nueva Tarea</Text>
 
@@ -301,24 +349,25 @@ export default function TasksScreen() {
             {/* Tipo de tarea */}
             <Text style={modalStyles.label}>Tipo</Text>
             <View style={modalStyles.row}>
-              {["single", "habit"].map((typeKey) => {
-                const active = newType === typeKey;
+              {typeOptions.map((opt, index) => {
+                const active = newType === opt.key;
                 return (
                   <TouchableOpacity
-                    key={typeKey}
+                    key={opt.key}
                     style={[
-                      modalStyles.optionBtn,
-                      active && { backgroundColor: Colors.primary },
+                      modalStyles.typeOptionBtn,
+                      index === typeOptions.length - 1 && { marginRight: 0 },
+                      active && { backgroundColor: opt.activeColor },
                     ]}
-                    onPress={() => setNewType(typeKey)}
+                    onPress={() => setNewType(opt.key)}
                   >
                     <Text
                       style={[
-                        modalStyles.optionText,
+                        modalStyles.typeOptionText,
                         active && { color: Colors.background },
                       ]}
                     >
-                      {typeKey === "single" ? "Única" : "Hábito"}
+                      {opt.label}
                     </Text>
                   </TouchableOpacity>
                 );
@@ -327,64 +376,76 @@ export default function TasksScreen() {
 
             {/* Elemento */}
             <Text style={modalStyles.label}>Elemento</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={modalStyles.row}
-            >
+            <View style={modalStyles.elementGrid}>
               {elementOptions.map((el) => {
                 const active = newElement === el.key;
                 return (
                   <TouchableOpacity
                     key={el.key}
-                    style={[
-                      modalStyles.optionBtn,
-                      active && { backgroundColor: el.color },
-                    ]}
+                    style={modalStyles.elementBtn}
                     onPress={() => setNewElement(el.key)}
                   >
-                    <FontAwesome5
-                      name={el.icon}
-                      size={16}
-                      color={active ? Colors.background : el.color}
-                    />
-                    <Text
-                      style={[
-                        modalStyles.optionText,
-                        active && { color: Colors.background },
-                      ]}
+                    <LinearGradient
+                      colors={
+                        active
+                          ? el.gradient
+                          : [Colors.filterBtnBg, Colors.filterBtnBg]
+                      }
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={modalStyles.elementBtnInner}
                     >
-                      {el.label}
-                    </Text>
+                      <FontAwesome5
+                        name={el.icon}
+                        size={16}
+                        color={active ? Colors.background : Colors.text}
+                      />
+                      <Text
+                        style={[
+                          modalStyles.optionText,
+                          { color: active ? Colors.background : Colors.text },
+                        ]}
+                      >
+                        {el.label}
+                      </Text>
+                    </LinearGradient>
                   </TouchableOpacity>
                 );
               })}
-            </ScrollView>
+            </View>
 
             {/* Prioridad */}
             <Text style={modalStyles.label}>Prioridad</Text>
-            <View style={modalStyles.row}>
+            <View style={modalStyles.priorityContainer}>
               {priorityOptions.map((pr) => {
                 const active = newPriority === pr.key;
                 return (
                   <TouchableOpacity
                     key={pr.key}
                     style={[
-                      modalStyles.optionBtn,
+                      modalStyles.priorityBtn,
+                      { borderRightColor: pr.color },
                       active && {
                         backgroundColor: pr.color,
-                        borderColor: pr.color, // ← borde a color activo
                       },
                     ]}
                     onPress={() => setNewPriority(pr.key)}
                   >
                     <Text
                       style={[
-                        modalStyles.optionText,
+                        modalStyles.priorityTitle,
                         active && { color: Colors.background },
                       ]}
                     >
                       {pr.label}
+                    </Text>
+                    <Text
+                      style={[
+                        modalStyles.prioritySubtitle,
+                        active && { color: Colors.background },
+                      ]}
+                    >
+                      {`+${pr.xp} XP • +${pr.mana} Maná`}
                     </Text>
                   </TouchableOpacity>
                 );
@@ -394,13 +455,14 @@ export default function TasksScreen() {
             {/* Dificultad */}
             <Text style={modalStyles.label}>Dificultad</Text>
             <View style={modalStyles.row}>
-              {difficultyOptions.map((opt) => {
+              {difficultyOptions.map((opt, index) => {
                 const active = newDifficulty === opt.key;
                 return (
                   <TouchableOpacity
                     key={opt.key}
                     style={[
-                      modalStyles.optionBtn,
+                      modalStyles.difficultyOptionBtn,
+                      index === difficultyOptions.length - 1 && { marginRight: 0 },
                       active && {
                         backgroundColor: opt.color,
                         borderColor: opt.color,
@@ -411,6 +473,7 @@ export default function TasksScreen() {
                     <Text
                       style={[
                         modalStyles.optionText,
+                        { marginLeft: 0 },
                         active && { color: Colors.background },
                       ]}
                     >
@@ -534,6 +597,7 @@ export default function TasksScreen() {
                 <Text style={modalStyles.buttonText}>Guardar</Text>
               </TouchableOpacity>
             </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>
