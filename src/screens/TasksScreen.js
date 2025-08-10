@@ -40,9 +40,27 @@ const mainFilters = [
 ];
 
 const priorityOptions = [
-  { key: "urgent", label: "Urgentes", color: Colors.danger },
-  { key: "pending", label: "Pendientes", color: Colors.primary },
-  { key: "relevant", label: "Relevantes", color: Colors.secondary },
+  {
+    key: "easy",
+    label: "Fácil",
+    color: Colors.secondary,
+    xp: 10,
+    mana: 5,
+  },
+  {
+    key: "medium",
+    label: "Medio",
+    color: Colors.accent,
+    xp: 25,
+    mana: 12,
+  },
+  {
+    key: "hard",
+    label: "Difícil",
+    color: Colors.danger,
+    xp: 50,
+    mana: 25,
+  },
 ];
 
 const elementOptions = [
@@ -88,7 +106,7 @@ export default function TasksScreen() {
       isDeleted: false,
       type: "single",
       element: "fire",
-      priority: "pending",
+      priority: "medium",
       tags: ["personal"],
       difficulty: "hard",
     },
@@ -100,7 +118,7 @@ export default function TasksScreen() {
       isDeleted: false,
       type: "habit",
       element: "water",
-      priority: "urgent",
+      priority: "hard",
       tags: ["salud"],
       difficulty: "medium",
     },
@@ -121,7 +139,7 @@ export default function TasksScreen() {
   // Estados extra en el modal de creación
   const [newType, setNewType] = useState("single"); // 'single' | 'habit'
   const [newElement, setNewElement] = useState("all"); // 'all' | 'water' | 'earth' | ...
-  const [newPriority, setNewPriority] = useState("all"); // 'all' | 'urgent' | 'pending' | 'relevant'
+  const [newPriority, setNewPriority] = useState("easy"); // 'easy' | 'medium' | 'hard'
   // ➕ Estados para etiquetas en modal
   const [newTagInput, setNewTagInput] = useState("");
   const [newTags, setNewTags] = useState([]);
@@ -165,7 +183,7 @@ export default function TasksScreen() {
     setNewNote("");
     setNewType("single");
     setNewElement("all");
-    setNewPriority("all");
+    setNewPriority("easy");
     setShowAddModal(false);
   };
 
@@ -393,28 +411,36 @@ export default function TasksScreen() {
 
             {/* Prioridad */}
             <Text style={modalStyles.label}>Prioridad</Text>
-            <View style={modalStyles.row}>
+            <View style={modalStyles.priorityContainer}>
               {priorityOptions.map((pr) => {
                 const active = newPriority === pr.key;
                 return (
                   <TouchableOpacity
                     key={pr.key}
                     style={[
-                      modalStyles.optionBtn,
+                      modalStyles.priorityBtn,
+                      { borderRightColor: pr.color },
                       active && {
                         backgroundColor: pr.color,
-                        borderColor: pr.color, // ← borde a color activo
                       },
                     ]}
                     onPress={() => setNewPriority(pr.key)}
                   >
                     <Text
                       style={[
-                        modalStyles.optionText,
+                        modalStyles.priorityTitle,
                         active && { color: Colors.background },
                       ]}
                     >
                       {pr.label}
+                    </Text>
+                    <Text
+                      style={[
+                        modalStyles.prioritySubtitle,
+                        active && { color: Colors.background },
+                      ]}
+                    >
+                      {`+${pr.xp} XP • +${pr.mana} Maná`}
                     </Text>
                   </TouchableOpacity>
                 );
