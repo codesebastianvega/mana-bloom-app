@@ -266,4 +266,39 @@ export const modalStyles = StyleSheet.create({
     color: Colors.text,
     fontSize: 12,
   },
+  // estilos de las subtareas
+  subtaskInputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: Spacing.base,
+  },
+  subtaskInput: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    color: Colors.text,
+    borderRadius: 8,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.small,
+    fontSize: 14,
+  },
+  addSubtaskButton: {
+    marginLeft: Spacing.small,
+    backgroundColor: Colors.primary,
+    padding: Spacing.small,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  subtaskList: {
+    marginTop: Spacing.small,
+  },
+  subtaskItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: Spacing.small,
+  },
+  subtaskText: {
+    color: Colors.text,
+    fontSize: 14,
+  },
 });
