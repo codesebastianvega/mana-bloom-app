@@ -4,7 +4,7 @@ export const Colors = {
   surface: "#1b1231", // Superficie ligeramente más clara
   primary: "#7e57c2", // Púrpura místico
   primaryLight: "#b39ddb", // Versión aclarada para estados activos
-  secondary: "#4dd0e1", // Turquesa etéreo
+  secondary: "#1cd47bff", // Turquesa etéreo
 
   secondaryLight: "#80deea", // Variante clara para estados activos
   accent: "#ffca28", // Dorado suave para acentos
