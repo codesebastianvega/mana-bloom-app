@@ -5,6 +5,7 @@ export const Colors = {
   primary: "#7e57c2", // Púrpura místico
   primaryLight: "#b39ddb", // Versión aclarada para estados activos
   secondary: "#4dd0e1", // Turquesa etéreo
+
   secondaryLight: "#80deea", // Variante clara para estados activos
   accent: "#ffca28", // Dorado suave para acentos
   danger: "#ef5350", // Rojo armónico

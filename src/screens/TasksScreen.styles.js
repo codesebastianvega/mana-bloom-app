@@ -184,6 +184,7 @@ export const modalStyles = StyleSheet.create({
     color: Colors.text,
     fontSize: 13,
     textAlign: "center",
+
   },
   // estilos de los chips
   tagInputRow: {
