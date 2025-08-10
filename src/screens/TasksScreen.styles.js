@@ -154,22 +154,68 @@ export const modalStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  elementInfoBox: {
-    backgroundColor: Colors.background,
-    borderRadius: 8,
-    padding: Spacing.small,
+  priorityContainer: {
+    width: "100%",
     marginBottom: Spacing.base,
   },
-  elementInfoTitle: {
+  priorityBtn: {
+    width: "100%",
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.small,
+    borderRadius: 10,
+    borderWidth: 0.5,
+    borderColor: Colors.text,
+    marginBottom: Spacing.small,
+    alignItems: "flex-start",
+    borderRightWidth: 4,
+  },
+  priorityTitle: {
     color: Colors.text,
     fontSize: 14,
     fontWeight: "600",
-    marginBottom: 4,
   },
-  elementInfoText: {
+  prioritySubtitle: {
     color: Colors.textMuted,
     fontSize: 12,
-    marginBottom: 2,
+    marginTop: 2,
+  },
+
+  // estilos específicos para los botones de tipo de tarea
+  typeOptionBtn: {
+    flex: 1,
+    paddingVertical: Spacing.small,
+    borderRadius: 10,
+    borderWidth: 0.5,
+    borderColor: Colors.text,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: Spacing.small,
+  },
+  typeOptionText: {
+    color: Colors.text,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  // botones de elemento en cuadrícula
+  elementGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginBottom: Spacing.base,
+  },
+  elementBtn: {
+    width: "48%",
+    borderRadius: 10,
+    borderWidth: 0.5,
+    borderColor: Colors.text,
+    marginBottom: Spacing.small,
+    overflow: "hidden",
+  },
+  elementBtnInner: {
+    paddingVertical: Spacing.small,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   // estilos de los chips
   tagInputRow: {
