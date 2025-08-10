@@ -31,7 +31,7 @@ export default StyleSheet.create({
   },
   row: {
     flexDirection: "row",
-    marginBottom: Spacing.base,
+    marginBottom: Spacing.large,
   },
   elementBtn: {
     ...baseBtn,
@@ -44,15 +44,30 @@ export default StyleSheet.create({
   },
   tagBtn: {
     ...baseBtn,
+    marginRight: Spacing.base,
+    marginBottom: Spacing.small,
   },
-  tagSearchInput: {
+  tagSearchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 0.5,
     borderColor: Colors.text,
     borderRadius: 8,
     padding: Spacing.tiny,
     paddingHorizontal: Spacing.small,
-    marginBottom: Spacing.base,
+    marginBottom: Spacing.large,
+    backgroundColor: Colors.surface,
+  },
+  tagSearchContainerFocused: {
+    borderColor: Colors.accent,
+  },
+  tagSearchInput: {
+    flex: 1,
     color: Colors.text,
+  },
+  clearBtn: {
+    marginLeft: Spacing.small,
+    padding: Spacing.tiny,
   },
   text: {
     color: Colors.text,
