@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { FontAwesome5 } from "@expo/vector-icons";
 import FilterBar from "./FilterBar/FilterBar";
 import AdvancedFilters from "./AdvancedFilters/AdvancedFilters";
 import { Colors, Spacing } from "../theme";
@@ -11,6 +12,7 @@ export default function TaskFilters({
   difficultyOptions = [],
   tags = [],
   onSelect,
+  onClose,
 }) {
   const [active, setActive] = useState("all");
   const [elementFilter, setElementFilter] = useState("all");
@@ -40,6 +42,11 @@ export default function TaskFilters({
 
   return (
     <View>
+      {onClose && (
+        <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
+          <FontAwesome5 name="times" size={16} color={Colors.text} />
+        </TouchableOpacity>
+      )}
       <FilterBar filters={filters} active={active} onSelect={setActive} />
       <AdvancedFilters
         elementOptions={elementOptions}
@@ -68,6 +75,10 @@ export default function TaskFilters({
 }
 
 const styles = StyleSheet.create({
+  closeBtn: {
+    alignSelf: "flex-end",
+    padding: Spacing.tiny,
+  },
   buttons: {
     flexDirection: "row",
     justifyContent: "space-between",

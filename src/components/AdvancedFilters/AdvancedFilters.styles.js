@@ -33,8 +33,18 @@ export default StyleSheet.create({
     flexDirection: "row",
     marginBottom: Spacing.large,
   },
-  elementBtn: {
+  elementGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginBottom: Spacing.large,
+  },
+  elementGridBtn: {
     ...baseBtn,
+    width: "48%",
+    justifyContent: "center",
+    marginRight: 0,
+    marginBottom: Spacing.small,
   },
   priorityBtn: {
     ...baseBtn,
@@ -44,6 +54,8 @@ export default StyleSheet.create({
   },
   tagBtn: {
     ...baseBtn,
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.tiny,
     marginRight: Spacing.base,
     marginBottom: Spacing.small,
   },
@@ -72,6 +84,11 @@ export default StyleSheet.create({
   text: {
     color: Colors.text,
     fontSize: 14,
+    marginLeft: Spacing.small,
+  },
+  tagText: {
+    color: Colors.text,
+    fontSize: 12,
     marginLeft: Spacing.small,
   },
 });
