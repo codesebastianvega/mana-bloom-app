@@ -514,7 +514,9 @@ export default function TasksScreen() {
             )}
 
             {/* Subtareas */}
-            <Text style={modalStyles.label}>Subtareas</Text>
+            <Text style={modalStyles.label}>
+              Subtareas <Text style={modalStyles.subtaskHint}>(agrega y toca para marcar)</Text>
+            </Text>
             <View style={modalStyles.subtaskInputRow}>
               <TextInput
                 style={modalStyles.subtaskInput}

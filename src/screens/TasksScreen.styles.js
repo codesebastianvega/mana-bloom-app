@@ -75,6 +75,10 @@ export const modalStyles = StyleSheet.create({
     marginTop: Spacing.base,
     marginBottom: Spacing.small,
   },
+  subtaskHint: {
+    color: Colors.textMuted,
+    fontSize: 12,
+  },
   row: {
     flexDirection: "row",
     marginBottom: Spacing.base,
