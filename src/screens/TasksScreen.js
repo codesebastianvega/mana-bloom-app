@@ -101,7 +101,8 @@ const elementInfo = {
       "Se usa para tareas que requieren alta energía, urgencia o creatividad espontánea.",
     examples:
       "Ejemplos: Terminar un proyecto con fecha límite, una sesión de brainstorming intensa, o una tarea que te apasiona y quieres completar rápidamente.",
-    purpose: "Propósito: Inyecta poder y acelera el crecimiento de la planta.",
+    purpose: 'Propósito: "Inyecta poder y acelera el crecimiento de la planta."',
+
   },
   water: {
     title: "Agua 💧 (Calma y Flujo)",
@@ -110,7 +111,8 @@ const elementInfo = {
     examples:
       "Ejemplos: Planificar tu semana, leer un documento largo, o meditar.",
     purpose:
-      "Propósito: Mantiene la planta hidratada y en un crecimiento estable.",
+      'Propósito: "Mantiene la planta hidratada y en un crecimiento estable."',
+
   },
   earth: {
     title: "Tierra 🌱 (Estabilidad y Crecimiento)",
@@ -119,7 +121,8 @@ const elementInfo = {
     examples:
       "Ejemplos: Limpiar tu espacio de trabajo, hacer ejercicio, o realizar una tarea diaria de tu rutina.",
     purpose:
-      "Propósito: Proporciona una base sólida y nutrientes para un crecimiento sostenible.",
+      'Propósito: "Proporciona una base sólida y nutrientes para un crecimiento sostenible."',
+
   },
   air: {
     title: "Aire 🌬️ (Libertad y Movimiento)",
@@ -128,7 +131,8 @@ const elementInfo = {
     examples:
       "Ejemplos: Escribir un correo importante, organizar ideas, o aprender algo nuevo.",
     purpose:
-      "Propósito: Le da a la planta el espacio para respirar y expandirse.",
+      'Propósito: "Le da a la planta el espacio para respirar y expandirse."',
+
   },
 };
 
@@ -457,13 +461,14 @@ export default function TasksScreen() {
                 <Text style={modalStyles.elementInfoTitle}>
                   {elementInfo[newElement].title}
                 </Text>
-                <Text style={modalStyles.elementInfoText}>
+                <Text style={modalStyles.elementInfoDescription}>
                   {elementInfo[newElement].description}
                 </Text>
-                <Text style={modalStyles.elementInfoText}>
+                <Text style={modalStyles.elementInfoExamples}>
                   {elementInfo[newElement].examples}
                 </Text>
-                <Text style={modalStyles.elementInfoText}>
+                <Text style={modalStyles.elementInfoPurpose}>
+
                   {elementInfo[newElement].purpose}
                 </Text>
               </View>
