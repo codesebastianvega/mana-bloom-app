@@ -68,9 +68,16 @@ export default function TaskFilters({
   tags = [],
   tagFilter,
   setTagFilter,
+  onClose,
 }) {
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Filtros</Text>
+        <TouchableOpacity onPress={onClose} style={styles.headerClose}>
+          <FontAwesome name="times" style={styles.headerCloseIcon} />
+        </TouchableOpacity>
+      </View>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Estado</Text>
         {renderRow(

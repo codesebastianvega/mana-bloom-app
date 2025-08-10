@@ -20,6 +20,26 @@ export default StyleSheet.create({
     borderTopRightRadius: 16,
     padding: Spacing.base,
   },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingBottom: Spacing.small,
+    marginBottom: Spacing.base,
+  },
+  headerTitle: {
+    color: Colors.text,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  headerClose: {
+    padding: Spacing.tiny,
+    borderRadius: 8,
+  },
+  headerCloseIcon: {
+    fontSize: 20,
+    color: Colors.text,
+  },
   section: {
     marginBottom: Spacing.base,
   },
