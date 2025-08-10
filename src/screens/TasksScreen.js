@@ -18,6 +18,7 @@ import {
 import styles, { modalStyles } from "./TasksScreen.styles";
 import { Colors, Spacing } from "../theme";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 // ——— 1) Configuración de filtros ———
 const mainFilters = [
@@ -45,15 +46,34 @@ const priorityOptions = [
 ];
 
 const elementOptions = [
-  { key: "water", label: "Agua", color: Colors.elementWater, icon: "tint" },
+  {
+    key: "water",
+    label: "Agua",
+    color: Colors.elementWater,
+    gradient: [Colors.elementWaterLight, Colors.elementWater],
+    icon: "tint",
+  },
+  {
+    key: "fire",
+    label: "Fuego",
+    color: Colors.elementFire,
+    gradient: [Colors.elementFireLight, Colors.elementFire],
+    icon: "fire",
+  },
   {
     key: "earth",
     label: "Tierra",
     color: Colors.elementEarth,
+    gradient: [Colors.elementEarthLight, Colors.elementEarth],
     icon: "pagelines",
   },
-  { key: "fire", label: "Fuego", color: Colors.elementFire, icon: "fire" },
-  { key: "air", label: "Aire", color: Colors.elementAir, icon: "wind" },
+  {
+    key: "air",
+    label: "Aire",
+    color: Colors.elementAir,
+    gradient: [Colors.elementAirLight, Colors.elementAir],
+    icon: "wind",
+  },
 ];
 
 export default function TasksScreen() {
@@ -333,39 +353,43 @@ export default function TasksScreen() {
 
             {/* Elemento */}
             <Text style={modalStyles.label}>Elemento</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={modalStyles.row}
-            >
+            <View style={modalStyles.elementGrid}>
               {elementOptions.map((el) => {
                 const active = newElement === el.key;
                 return (
                   <TouchableOpacity
                     key={el.key}
-                    style={[
-                      modalStyles.optionBtn,
-                      active && { backgroundColor: el.color },
-                    ]}
+                    style={modalStyles.elementBtn}
                     onPress={() => setNewElement(el.key)}
                   >
-                    <FontAwesome5
-                      name={el.icon}
-                      size={16}
-                      color={active ? Colors.background : el.color}
-                    />
-                    <Text
-                      style={[
-                        modalStyles.optionText,
-                        active && { color: Colors.background },
-                      ]}
+                    <LinearGradient
+                      colors={
+                        active
+                          ? el.gradient
+                          : [Colors.filterBtnBg, Colors.filterBtnBg]
+                      }
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={modalStyles.elementBtnInner}
                     >
-                      {el.label}
-                    </Text>
+                      <FontAwesome5
+                        name={el.icon}
+                        size={16}
+                        color={active ? Colors.background : Colors.text}
+                      />
+                      <Text
+                        style={[
+                          modalStyles.optionText,
+                          { color: active ? Colors.background : Colors.text },
+                        ]}
+                      >
+                        {el.label}
+                      </Text>
+                    </LinearGradient>
                   </TouchableOpacity>
                 );
               })}
-            </ScrollView>
+            </View>
 
             {/* Prioridad */}
             <Text style={modalStyles.label}>Prioridad</Text>

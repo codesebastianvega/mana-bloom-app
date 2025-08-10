@@ -15,9 +15,13 @@ export const Colors = {
   shadow: "#000000", // Color para sombras
 
   elementWater: "#29b6f6",
+  elementWaterLight: "#81d4fa",
   elementEarth: "#8d6e63",
+  elementEarthLight: "#bcaaa4",
   elementFire: "#ff7043",
+  elementFireLight: "#ffab91",
   elementAir: "#90a4ae",
+  elementAirLight: "#cfd8dc",
 };
 
 export const Spacing = {
