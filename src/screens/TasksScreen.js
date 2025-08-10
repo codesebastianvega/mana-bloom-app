@@ -151,6 +151,10 @@ export default function TasksScreen() {
       priority: "medium",
       tags: ["personal"],
       difficulty: "hard",
+      subtasks: [
+        { id: 1, text: "Revisar opciones", completed: false },
+        { id: 2, text: "Hacer pedido", completed: false },
+      ],
     },
     {
       id: 2,
@@ -185,6 +189,8 @@ export default function TasksScreen() {
   // ➕ Estados para etiquetas en modal
   const [newTagInput, setNewTagInput] = useState("");
   const [newTags, setNewTags] = useState([]);
+  const [newSubtaskInput, setNewSubtaskInput] = useState("");
+  const [newSubtasks, setNewSubtasks] = useState([]);
   // Opciones del tipo de tarea
   const typeOptions = [
     { key: "single", label: "Tarea", activeColor: Colors.primaryLight },
@@ -216,6 +222,11 @@ export default function TasksScreen() {
       priority: newPriority,
       tags: newTags.length > 0 ? newTags : [], // si hay etiquetas, las usamos
       difficulty: newDifficulty, // dificultad por defecto
+      subtasks: newSubtasks.map((text, index) => ({
+        id: index + 1,
+        text,
+        completed: false,
+      })),
     };
     // Añadimos la nueva tarea al estado
     setTasks((prev) => [newTask, ...prev]);
@@ -226,6 +237,8 @@ export default function TasksScreen() {
     setNewType("single");
     setNewElement("all");
     setNewPriority("easy");
+    setNewSubtaskInput("");
+    setNewSubtasks([]);
     setShowAddModal(false);
   };
 
@@ -471,6 +484,38 @@ export default function TasksScreen() {
 
                   {elementInfo[newElement].purpose}
                 </Text>
+              </View>
+            )}
+
+            {/* Subtareas */}
+            <Text style={modalStyles.label}>Subtareas</Text>
+            <View style={modalStyles.subtaskInputRow}>
+              <TextInput
+                style={modalStyles.subtaskInput}
+                placeholder="Nueva subtarea"
+                placeholderTextColor={Colors.textMuted}
+                value={newSubtaskInput}
+                onChangeText={setNewSubtaskInput}
+              />
+              <TouchableOpacity
+                style={modalStyles.addSubtaskButton}
+                onPress={() => {
+                  const st = newSubtaskInput.trim();
+                  if (!st) return;
+                  setNewSubtasks((prev) => [...prev, st]);
+                  setNewSubtaskInput("");
+                }}
+              >
+                <FontAwesome5 name="plus" size={16} color={Colors.background} />
+              </TouchableOpacity>
+            </View>
+            {newSubtasks.length > 0 && (
+              <View style={modalStyles.subtaskList}>
+                {newSubtasks.map((st, idx) => (
+                  <View key={idx} style={modalStyles.subtaskItem}>
+                    <Text style={modalStyles.subtaskText}>{st}</Text>
+                  </View>
+                ))}
               </View>
             )}
 

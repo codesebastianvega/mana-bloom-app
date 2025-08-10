@@ -1,6 +1,6 @@
 // src/components/SwipeableTaskItem/SwipeableTaskItem.js
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   Animated,
   View,
@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./SwipeableTaskItem.styles";
-import { Colors } from "../../theme";
+import { Colors, Spacing } from "../../theme";
 
 const getElementColor = (element) => {
   switch (element) {
@@ -97,6 +97,7 @@ export default function SwipeableTaskItem({
   // Información del elemento (icono y color)
   // se usa una función para evitar lógica compleja en el render
   const elementInfo = getElementColor(task.element);
+  const [showSubtasks, setShowSubtasks] = useState(false);
 
   // Estilos de acción al deslizar
   return (
@@ -170,8 +171,6 @@ export default function SwipeableTaskItem({
           style={styles.contentRow}
           onPress={() => onEditTask(task)}
         >
-          {/* textos */}
-
           <View style={styles.textContainer}>
             <Text
               style={[styles.title, task.completed && styles.textCompleted]}
@@ -183,6 +182,112 @@ export default function SwipeableTaskItem({
             </Text>
           </View>
         </TouchableOpacity>
+
+        {task.subtasks?.length > 0 && (
+          <>
+            <TouchableOpacity
+              style={styles.subtaskToggle}
+              onPress={() => setShowSubtasks(!showSubtasks)}
+            >
+              <FontAwesome5
+                name={showSubtasks ? "chevron-up" : "chevron-down"}
+                size={12}
+                color={Colors.textMuted}
+              />
+              <Text style={styles.subtaskToggleText}>Subtareas</Text>
+            </TouchableOpacity>
+            {showSubtasks && (
+              <View style={styles.subtaskList}>
+                {task.subtasks.length > 5 ? (
+                  <View style={styles.subtaskColumns}>
+                    <View
+                      style={[styles.subtaskColumn, { marginRight: Spacing.small }]}
+                    >
+                      {task.subtasks.slice(0, 5).map((st) => (
+                        <TouchableOpacity
+                          key={st.id}
+                          style={styles.subtaskItem}
+                          onPress={() => onToggleSubtask(task.id, st.id)}
+                        >
+                          <View style={styles.checkbox}>
+                            {st.completed && (
+                              <FontAwesome5
+                                name="check"
+                                size={10}
+                                color={Colors.text}
+                              />
+                            )}
+                          </View>
+                          <Text
+                            style={[
+                              styles.subtaskText,
+                              st.completed && styles.subtaskTextCompleted,
+                            ]}
+                          >
+                            {st.text}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                    <View style={styles.subtaskColumn}>
+                      {task.subtasks.slice(5, 10).map((st) => (
+                        <TouchableOpacity
+                          key={st.id}
+                          style={styles.subtaskItem}
+                          onPress={() => onToggleSubtask(task.id, st.id)}
+                        >
+                          <View style={styles.checkbox}>
+                            {st.completed && (
+                              <FontAwesome5
+                                name="check"
+                                size={10}
+                                color={Colors.text}
+                              />
+                            )}
+                          </View>
+                          <Text
+                            style={[
+                              styles.subtaskText,
+                              st.completed && styles.subtaskTextCompleted,
+                            ]}
+                          >
+                            {st.text}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </View>
+                ) : (
+                  task.subtasks.map((st) => (
+                    <TouchableOpacity
+                      key={st.id}
+                      style={styles.subtaskItem}
+                      onPress={() => onToggleSubtask(task.id, st.id)}
+                    >
+                      <View style={styles.checkbox}>
+                        {st.completed && (
+                          <FontAwesome5
+                            name="check"
+                            size={10}
+                            color={Colors.text}
+                          />
+                        )}
+                      </View>
+                      <Text
+                        style={[
+                          styles.subtaskText,
+                          st.completed && styles.subtaskTextCompleted,
+                        ]}
+                      >
+                        {st.text}
+                      </Text>
+                    </TouchableOpacity>
+                  ))
+                )}
+              </View>
+            )}
+          </>
+        )}
 
         {/* ——— Badges de Elemento y Dificultad ——— */}
         <View style={styles.badgeRow}>
@@ -242,36 +347,6 @@ export default function SwipeableTaskItem({
             {task.tags.map((tag) => (
               <View key={tag} style={styles.tagChip}>
                 <Text style={styles.tagText}>{tag}</Text>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Subtareas (si existen) */}
-        {task.subtasks?.length > 0 && (
-          <View style={styles.subtaskList}>
-            {task.subtasks.map((st) => (
-              <View key={st.id} style={styles.subtaskItem}>
-                <TouchableOpacity
-                  style={styles.checkbox}
-                  onPress={() => onToggleSubtask(task.id, st.id)}
-                >
-                  {st.completed && (
-                    <FontAwesome5
-                      name="check"
-                      size={10}
-                      color={Colors.surface}
-                    />
-                  )}
-                </TouchableOpacity>
-                <Text
-                  style={[
-                    styles.subtaskText,
-                    st.completed && styles.subtaskTextCompleted,
-                  ]}
-                >
-                  {st.text}
-                </Text>
               </View>
             ))}
           </View>
