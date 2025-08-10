@@ -10,11 +10,11 @@ export default StyleSheet.create({
     right: Spacing.large,
     width: 60,
     height: 60,
-      borderRadius: 30,
-      backgroundColor: Colors.buttonBg, // Celeste vibrante moderno
-      justifyContent: "center",
-      alignItems: "center",
-      shadowColor: Colors.shadow,
+    borderRadius: 30,
+    backgroundColor: Colors.buttonBg, // Celeste vibrante moderno
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: Colors.shadow,
 
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
