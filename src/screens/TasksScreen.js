@@ -94,6 +94,44 @@ const elementOptions = [
   },
 ];
 
+const elementInfo = {
+  fire: {
+    title: "Fuego 🔥 (Poder y Pasión)",
+    description:
+      "Se usa para tareas que requieren alta energía, urgencia o creatividad espontánea.",
+    examples:
+      "Ejemplos: Terminar un proyecto con fecha límite, una sesión de brainstorming intensa, o una tarea que te apasiona y quieres completar rápidamente.",
+    purpose: "Propósito: Inyecta poder y acelera el crecimiento de la planta.",
+  },
+  water: {
+    title: "Agua 💧 (Calma y Flujo)",
+    description:
+      "Se usa para tareas que necesitan atención continua, concentración o un estado de calma.",
+    examples:
+      "Ejemplos: Planificar tu semana, leer un documento largo, o meditar.",
+    purpose:
+      "Propósito: Mantiene la planta hidratada y en un crecimiento estable.",
+  },
+  earth: {
+    title: "Tierra 🌱 (Estabilidad y Crecimiento)",
+    description:
+      "Se usa para tareas fundamentales, repetitivas o que construyen un hábito.",
+    examples:
+      "Ejemplos: Limpiar tu espacio de trabajo, hacer ejercicio, o realizar una tarea diaria de tu rutina.",
+    purpose:
+      "Propósito: Proporciona una base sólida y nutrientes para un crecimiento sostenible.",
+  },
+  air: {
+    title: "Aire 🌬️ (Libertad y Movimiento)",
+    description:
+      "Se usa para tareas que requieren claridad mental, comunicación o flexibilidad.",
+    examples:
+      "Ejemplos: Escribir un correo importante, organizar ideas, o aprender algo nuevo.",
+    purpose:
+      "Propósito: Le da a la planta el espacio para respirar y expandirse.",
+  },
+};
+
 export default function TasksScreen() {
   // ——— 2) Estados ———
   const [tasks, setTasks] = useState([
@@ -413,6 +451,23 @@ export default function TasksScreen() {
                 );
               })}
             </View>
+
+            {newElement !== "all" && (
+              <View style={modalStyles.elementInfoBox}>
+                <Text style={modalStyles.elementInfoTitle}>
+                  {elementInfo[newElement].title}
+                </Text>
+                <Text style={modalStyles.elementInfoText}>
+                  {elementInfo[newElement].description}
+                </Text>
+                <Text style={modalStyles.elementInfoText}>
+                  {elementInfo[newElement].examples}
+                </Text>
+                <Text style={modalStyles.elementInfoText}>
+                  {elementInfo[newElement].purpose}
+                </Text>
+              </View>
+            )}
 
             {/* Prioridad */}
             <Text style={modalStyles.label}>Prioridad</Text>
