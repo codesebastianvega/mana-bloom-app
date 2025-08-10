@@ -16,16 +16,13 @@ export default function AddTaskButton({ onPress }) {
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}
     >
+      {" "}
       <LinearGradient
-        colors={[
-          Colors.primaryFantasy,
-          Colors.secondaryFantasy,
-          Colors.tertiaryFantasy,
-        ]}
+        colors={["#568ed3ff", "#450ca7ff"]} // Nueva paleta de colores para el degradado
         style={styles.gradient}
       >
-        <FontAwesome name="plus" size={24} color={Colors.background} />
-      </LinearGradient>
+        <FontAwesome name="plus" size={20} color={Colors.text} />{" "}
+      </LinearGradient>{" "}
     </TouchableOpacity>
   );
 }
