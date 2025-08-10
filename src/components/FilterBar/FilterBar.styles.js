@@ -22,6 +22,11 @@ export default StyleSheet.create({
   container: {
     flexGrow: 0,
   },
+  contentContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 
   // “botón” transparente (solo texto/ícono cambian)
   btn: {

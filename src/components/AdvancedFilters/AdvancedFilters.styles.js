@@ -25,12 +25,6 @@ export default StyleSheet.create({
     marginTop: 0,
     marginBottom: Spacing.small,
   },
-  title: {
-    color: Colors.text,
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: Spacing.small,
-  },
   row: {
     flexDirection: "row",
     marginBottom: Spacing.base,
@@ -50,12 +44,44 @@ export default StyleSheet.create({
   },
   priorityBtn: {
     ...baseBtn,
+    justifyContent: "center",
   },
   difficultyBtn: {
     ...baseBtn,
+    justifyContent: "center",
   },
   tagBtn: {
     ...baseBtn,
+    paddingVertical: 2,
+    paddingHorizontal: Spacing.tiny,
+    borderRadius: 6,
+    marginRight: Spacing.tiny,
+  },
+  tagText: {
+    color: Colors.text,
+    fontSize: 12,
+  },
+  tagSearchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.filterBtnBg,
+    borderRadius: 8,
+    borderWidth: 0.5,
+    borderColor: Colors.text,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    marginBottom: Spacing.base,
+  },
+  tagSearchContainerFocused: {
+    borderColor: Colors.accent,
+  },
+  tagSearchInput: {
+    flex: 1,
+    color: Colors.text,
+    paddingVertical: Spacing.tiny,
+  },
+  clearBtn: {
+    marginLeft: Spacing.small,
   },
   sectionTitle: {
     color: Colors.text,
@@ -68,5 +94,10 @@ export default StyleSheet.create({
     color: Colors.text,
     fontSize: 14,
     marginLeft: Spacing.small,
+  },
+  centerText: {
+    marginLeft: 0,
+    textAlign: "center",
+    flex: 1,
   },
 });
