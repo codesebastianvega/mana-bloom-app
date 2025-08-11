@@ -251,6 +251,7 @@ export default StyleSheet.create({
   alertContainer: {
     position: "absolute",
     bottom: Spacing.xlarge,
+
     left: Spacing.base,
     right: Spacing.base,
     paddingVertical: Spacing.small,

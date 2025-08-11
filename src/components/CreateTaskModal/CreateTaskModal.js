@@ -8,6 +8,10 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  Alert,
+  Platform,
+  ToastAndroid,
+
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -82,6 +86,7 @@ export default function CreateTaskModal({
   const showAlert = (message, type = "info") => {
     setAlert({ message, type });
     setTimeout(() => setAlert(null), 3000);
+
   };
 
   const handleSave = () => {
