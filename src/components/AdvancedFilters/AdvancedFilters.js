@@ -12,6 +12,10 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./AdvancedFilters.styles";
 import { Colors, Spacing } from "../../theme";
 
+/**
+ * Renderiza la cuadrícula de elementos.
+ * Controla la sección "Elemento" del modal.
+ */
 function renderElementGrid(options, activeKey, setActive, overrideStyle) {
   return (
     <View style={styles.elementGrid}>
@@ -49,6 +53,10 @@ function renderElementGrid(options, activeKey, setActive, overrideStyle) {
   );
 }
 
+/**
+ * Renderiza una fila completa de botones.
+ * Se utiliza para secciones como "Prioridad" y "Dificultad" del modal.
+ */
 function renderFullRow(
   options,
   activeKey,
@@ -100,6 +108,10 @@ function renderFullRow(
   );
 }
 
+/**
+ * Renderiza la fila horizontal de etiquetas.
+ * Controla la sección "Etiquetas" del modal.
+ */
 function renderTagRow(options, activeKey, setActive, baseStyle, overrideStyle) {
   return (
     <ScrollView
@@ -167,6 +179,7 @@ export default function AdvancedFilters({
 
   return (
     <View style={styles.container}>
+      {/* Sección del modal para seleccionar el elemento del hechizo */}
       <Text style={styles.sectionTitle}>Elemento</Text>
       {renderElementGrid(
         elementOptions,
@@ -174,6 +187,7 @@ export default function AdvancedFilters({
         setElementFilter,
         elementBtnStyle
       )}
+      {/* Sección del modal para ajustar la prioridad */}
       <Text style={styles.sectionTitle}>Prioridad</Text>
       {renderFullRow(
         priorityOptions,
@@ -182,6 +196,7 @@ export default function AdvancedFilters({
         styles.priorityBtn,
         priorityBtnStyle
       )}
+      {/* Sección del modal para definir la dificultad */}
       <Text style={styles.sectionTitle}>Dificultad</Text>
       {renderFullRow(
         difficultyOptions,
@@ -190,6 +205,7 @@ export default function AdvancedFilters({
         styles.difficultyBtn,
         difficultyBtnStyle
       )}
+      {/* Sección del modal para filtrar por etiquetas */}
       <Text style={styles.sectionTitle}>Etiquetas</Text>
       <View
         style={[

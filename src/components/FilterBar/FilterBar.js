@@ -3,6 +3,7 @@
 import React from "react";
 import { View, ScrollView, TouchableOpacity, Text } from "react-native";
 import { FontAwesome5, FontAwesome } from "@expo/vector-icons";
+// Los estilos de la barra de filtros residen en FilterBar.styles.js
 import styles from "./FilterBar.styles";
 import { Colors } from "../../theme";
 
