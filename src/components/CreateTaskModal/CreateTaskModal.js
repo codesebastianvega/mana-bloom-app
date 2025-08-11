@@ -9,6 +9,9 @@ import {
   TextInput,
   ScrollView,
   Alert,
+  Platform,
+  ToastAndroid,
+
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -356,13 +359,16 @@ export default function CreateTaskModal({
                   if (!tag) return;
                   setNewTags((prev) => [...new Set([...prev, tag])]);
                   setNewTagInput("");
+                  if (Platform.OS === "android") {
+                    ToastAndroid.show("Etiqueta creada", ToastAndroid.SHORT);
+                  }
                 }}
               >
                 <FontAwesome5 name="plus" size={12} color={Colors.background} />
               </TouchableOpacity>
             </View>
             {uniqueTags.length > 0 && (
-              <Text style={styles.label}>Selecciona etiquetas</Text>
+              <Text style={styles.label}>Mis Etiquetas</Text>
             )}
             {uniqueTags.length > 0 && (
               <ScrollView
@@ -406,18 +412,21 @@ export default function CreateTaskModal({
             )}
 
             {newTags.length > 0 && (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.row}
-                contentContainerStyle={{ alignItems: "center" }}
-              >
-                {newTags.map((tag) => (
-                  <View key={tag} style={styles.tagChip}>
-                    <Text style={styles.tagText}>{tag}</Text>
-                  </View>
-                ))}
-              </ScrollView>
+              <>
+                <Text style={styles.selectedTagsLabel}>Etiquetas seleccionadas</Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.row}
+                  contentContainerStyle={{ alignItems: "center" }}
+                >
+                  {newTags.map((tag) => (
+                    <View key={tag} style={styles.tagChip}>
+                      <Text style={styles.tagText}>{tag}</Text>
+                    </View>
+                  ))}
+                </ScrollView>
+              </>
             )}
 
             <View

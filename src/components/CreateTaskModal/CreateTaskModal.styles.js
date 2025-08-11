@@ -175,6 +175,12 @@ export default StyleSheet.create({
     color: Colors.text,
     fontSize: 12,
   },
+  selectedTagsLabel: {
+    color: Colors.text,
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: Spacing.small,
+  },
   subtaskInputRow: {
     flexDirection: "row",
     alignItems: "center",
