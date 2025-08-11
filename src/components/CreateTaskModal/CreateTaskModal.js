@@ -24,7 +24,8 @@ const elementInfo = {
     title: "Fuego 🔥 (Poder y Pasión)",
     description:
       "Se usa para tareas que requieren alta energía, urgencia o creatividad espontánea.",
-    examples: "Ejemplos: Terminar un proyecto con fecha límite, una sesión de brainstorming intensa, o una tarea que te apasiona y quieres completar rápidamente.",
+    examples:
+      "Ejemplos: Terminar un proyecto con fecha límite, una sesión de brainstorming intensa, o una tarea que te apasiona y quieres completar rápidamente.",
     purpose:
       'Propósito: "Inyecta poder y acelera el crecimiento de la planta."',
   },
@@ -131,7 +132,14 @@ export default function CreateTaskModal({
             />
 
             <TextInput
-              style={[styles.input, { marginTop: Spacing.small }]}
+              style={[
+                styles.input,
+                {
+                  marginTop: Spacing.small,
+                  paddingBottom: 40,
+                  textAlignVertical: "top",
+                },
+              ]}
               placeholder="Detalle o nota (opcional)"
               placeholderTextColor={Colors.textMuted}
               value={newNote}
@@ -244,11 +252,7 @@ export default function CreateTaskModal({
                   setNewSubtaskInput("");
                 }}
               >
-                <FontAwesome5
-                  name="plus"
-                  size={16}
-                  color={Colors.background}
-                />
+                <FontAwesome5 name="plus" size={12} color={Colors.background} />
               </TouchableOpacity>
             </View>
             {newSubtasks.length > 0 && (
@@ -349,11 +353,7 @@ export default function CreateTaskModal({
                   setNewTagInput("");
                 }}
               >
-                <FontAwesome5
-                  name="plus"
-                  size={16}
-                  color={Colors.background}
-                />
+                <FontAwesome5 name="plus" size={12} color={Colors.background} />
               </TouchableOpacity>
             </View>
             {uniqueTags.length > 0 && (
@@ -425,7 +425,10 @@ export default function CreateTaskModal({
               <TouchableOpacity
                 style={[
                   styles.button,
-                  { backgroundColor: Colors.danger, marginRight: Spacing.small },
+                  {
+                    backgroundColor: Colors.danger,
+                    marginRight: Spacing.small,
+                  },
                 ]}
                 onPress={onClose}
               >
