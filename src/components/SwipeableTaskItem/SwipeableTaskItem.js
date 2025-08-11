@@ -59,6 +59,7 @@ const getTypeConfig = (type) => {
       return { label: "Hábito", color: Colors.secondaryLight };
     case "single":
       return { label: "Tarea", color: Colors.primaryLight };
+
     default:
       return { label: "Tarea", color: Colors.primaryLight };
   }
@@ -323,6 +324,7 @@ export default function SwipeableTaskItem({
             style={[styles.badge, { backgroundColor: typeConfig.color }]}
           >
             <Text style={[styles.badgeText, { color: Colors.text }]}>
+
               {typeConfig.label}
             </Text>
           </View>

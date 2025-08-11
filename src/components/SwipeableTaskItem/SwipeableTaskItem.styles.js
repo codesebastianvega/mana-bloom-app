@@ -128,6 +128,7 @@ export default StyleSheet.create({
     marginTop: Spacing.small,
   },
   tagChip: {
+    // chip de etiqueta en tarjeta de tarea
     backgroundColor: Colors.background,
     borderRadius: 5,
     paddingHorizontal: Spacing.small,
@@ -180,7 +181,7 @@ export default StyleSheet.create({
   },
   // chip de prioridad:
   priorityChip: {
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderRadius: 8,
     paddingHorizontal: Spacing.small,
     paddingVertical: 4,
@@ -189,7 +190,7 @@ export default StyleSheet.create({
   },
   priorityChipText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "500",
     textTransform: "capitalize",
   },
 });
