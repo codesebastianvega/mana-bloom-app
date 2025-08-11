@@ -175,6 +175,12 @@ export default StyleSheet.create({
     color: Colors.text,
     fontSize: 12,
   },
+  selectedTagsLabel: {
+    color: Colors.text,
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: Spacing.small,
+  },
   subtaskInputRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -199,15 +205,22 @@ export default StyleSheet.create({
   },
   subtaskList: {
     marginTop: Spacing.small,
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
   subtaskItem: {
-    flexDirection: "row",
-    alignItems: "center",
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    borderWidth: 0.5,
+    borderColor: Colors.textMuted,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: 4,
+    marginRight: Spacing.small,
     marginBottom: Spacing.small,
   },
   subtaskText: {
     color: Colors.text,
-    fontSize: 14,
+    fontSize: 12,
   },
   elementInfoBox: {
     backgroundColor: Colors.surface,
@@ -234,5 +247,27 @@ export default StyleSheet.create({
   elementInfoPurpose: {
     color: Colors.text,
     fontSize: 12,
+  },
+  alertContainer: {
+    position: "absolute",
+    bottom: Spacing.xlarge,
+    left: Spacing.base,
+    right: Spacing.base,
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.base,
+    borderRadius: 8,
+    zIndex: 2,
+    alignItems: "center",
+  },
+  alertText: {
+    color: Colors.text,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  alertSuccess: {
+    backgroundColor: Colors.secondary,
+  },
+  alertError: {
+    backgroundColor: Colors.danger,
   },
 });
