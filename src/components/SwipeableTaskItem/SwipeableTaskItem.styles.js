@@ -45,7 +45,7 @@ export default StyleSheet.create({
     borderRadius: Spacing.small,
     padding: Spacing.base,
     borderLeftWidth: 2,
-      shadowColor: Colors.shadow,
+    shadowColor: Colors.shadow,
 
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -132,7 +132,7 @@ export default StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: Spacing.small,
     paddingVertical: 3,
-    marginRight: Spacing.small,
+    marginRight: Spacing.tiny,
     marginTop: 0.1,
   },
   tagText: {
@@ -152,7 +152,7 @@ export default StyleSheet.create({
     marginRight: Spacing.small,
     marginTop: 1,
     // opcional: un poco de relieve
-      shadowColor: Colors.shadow,
+    shadowColor: Colors.shadow,
 
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
