@@ -1,6 +1,6 @@
 // src/components/CreateTaskModal/CreateTaskModal.js
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   View,
@@ -66,6 +66,8 @@ export default function CreateTaskModal({
   visible,
   onClose,
   onSave,
+  onUpdate,
+  task,
   uniqueTags,
   priorityOptions,
   elementOptions,
@@ -80,8 +82,34 @@ export default function CreateTaskModal({
   const [newTagInput, setNewTagInput] = useState("");
   const [newTags, setNewTags] = useState([]);
   const [newSubtaskInput, setNewSubtaskInput] = useState("");
-  const [newSubtasks, setNewSubtasks] = useState([]);
+  const [newSubtasks, setNewSubtasks] = useState([]); // [{id,text,completed}]
   const [alert, setAlert] = useState(null); // { message, type }
+
+  useEffect(() => {
+    if (task) {
+      setNewTitle(task.title || "");
+      setNewNote(task.note || "");
+      setNewType(task.type || "single");
+      setNewElement(task.element || "all");
+      setNewPriority(task.priority || "easy");
+      setNewDifficulty(task.difficulty || "easy");
+      setNewTags(task.tags || []);
+      setNewSubtasks(task.subtasks ? task.subtasks.map((st) => ({ ...st })) : []);
+      setNewTagInput("");
+      setNewSubtaskInput("");
+    } else {
+      setNewTitle("");
+      setNewNote("");
+      setNewType("single");
+      setNewElement("all");
+      setNewPriority("easy");
+      setNewDifficulty("easy");
+      setNewTagInput("");
+      setNewTags([]);
+      setNewSubtaskInput("");
+      setNewSubtasks([]);
+    }
+  }, [task, visible]);
 
   const showAlert = (message, type = "info") => {
     setAlert({ message, type });
@@ -94,20 +122,37 @@ export default function CreateTaskModal({
       showAlert("Debes ingresar un título para la tarea.", "error");
       return;
     }
-    onSave({
-      title: newTitle,
-      note: newNote,
-      type: newType,
-      element: newElement,
-      priority: newPriority,
-      tags: newTags.length > 0 ? newTags : [],
-      difficulty: newDifficulty,
-      subtasks: newSubtasks.map((text, index) => ({
-        id: index + 1,
-        text,
-        completed: false,
-      })),
-    });
+    const subtasks = newSubtasks.map((st, index) => ({
+      id: st.id ?? index + 1,
+      text: st.text,
+      completed: st.completed || false,
+    }));
+    if (task) {
+      onUpdate &&
+        onUpdate({
+          ...task,
+          title: newTitle,
+          note: newNote,
+          type: newType,
+          element: newElement,
+          priority: newPriority,
+          tags: newTags.length > 0 ? newTags : [],
+          difficulty: newDifficulty,
+          subtasks,
+        });
+    } else {
+      onSave &&
+        onSave({
+          title: newTitle,
+          note: newNote,
+          type: newType,
+          element: newElement,
+          priority: newPriority,
+          tags: newTags.length > 0 ? newTags : [],
+          difficulty: newDifficulty,
+          subtasks,
+        });
+    }
     setNewDifficulty("easy");
     setNewTitle("");
     setNewNote("");
@@ -148,7 +193,9 @@ export default function CreateTaskModal({
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            <Text style={styles.title}>Crear Nueva Tarea</Text>
+            <Text style={styles.title}>
+              {task ? "Editar Tarea" : "Crear Nueva Tarea"}
+            </Text>
 
             <TextInput
               style={styles.input}
@@ -275,7 +322,10 @@ export default function CreateTaskModal({
                 onPress={() => {
                   const st = newSubtaskInput.trim();
                   if (!st) return;
-                  setNewSubtasks((prev) => [...prev, st]);
+                  setNewSubtasks((prev) => [
+                    ...prev,
+                    { id: Date.now(), text: st, completed: false },
+                  ]);
                   setNewSubtaskInput("");
                 }}
               >
@@ -285,8 +335,16 @@ export default function CreateTaskModal({
             {newSubtasks.length > 0 && (
               <View style={styles.subtaskList}>
                 {newSubtasks.map((st, idx) => (
-                  <View key={idx} style={styles.subtaskItem}>
-                    <Text style={styles.subtaskText}>{st}</Text>
+                  <View key={st.id || idx} style={styles.subtaskItem}>
+                    <Text style={styles.subtaskText}>{st.text}</Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        setNewSubtasks((prev) => prev.filter((_, i) => i !== idx))
+                      }
+                      style={styles.removeIcon}
+                    >
+                      <FontAwesome5 name="times" size={12} color={Colors.text} />
+                    </TouchableOpacity>
                   </View>
                 ))}
               </View>
@@ -440,6 +498,18 @@ export default function CreateTaskModal({
                   {newTags.map((tag) => (
                     <View key={tag} style={styles.tagChip}>
                       <Text style={styles.tagText}>{tag}</Text>
+                      <TouchableOpacity
+                        onPress={() =>
+                          setNewTags((prev) => prev.filter((t) => t !== tag))
+                        }
+                        style={styles.removeIcon}
+                      >
+                        <FontAwesome5
+                          name="times"
+                          size={12}
+                          color={Colors.text}
+                        />
+                      </TouchableOpacity>
                     </View>
                   ))}
                 </ScrollView>
