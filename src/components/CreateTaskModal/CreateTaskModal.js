@@ -85,13 +85,13 @@ export default function CreateTaskModal({
 
   const showAlert = (message, type = "info") => {
     setAlert({ message, type });
-    setTimeout(() => setAlert(null), 2000);
+    setTimeout(() => setAlert(null), 3000);
+
   };
 
   const handleSave = () => {
     if (!newTitle.trim()) {
       showAlert("Debes ingresar un título para la tarea.", "error");
-
       return;
     }
     onSave({
@@ -379,7 +379,6 @@ export default function CreateTaskModal({
                   setNewTags((prev) => [...new Set([...prev, tag])]);
                   setNewTagInput("");
                   showAlert("Etiqueta creada", "success");
-
                 }}
               >
                 <FontAwesome5 name="plus" size={12} color={Colors.background} />

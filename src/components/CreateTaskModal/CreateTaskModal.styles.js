@@ -250,7 +250,8 @@ export default StyleSheet.create({
   },
   alertContainer: {
     position: "absolute",
-    top: Spacing.base,
+    bottom: Spacing.xlarge,
+
     left: Spacing.base,
     right: Spacing.base,
     paddingVertical: Spacing.small,
