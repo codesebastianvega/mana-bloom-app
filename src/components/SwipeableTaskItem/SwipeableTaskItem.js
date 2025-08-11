@@ -56,7 +56,7 @@ const getPriorityLabel = (p) => {
 const getTypeConfig = (type) => {
   switch (type) {
     case "habit":
-      return { label: "Hábito", color: Colors.secondaryLight };
+      return { label: "Hábito", color: Colors.buttonBg };
     case "single":
       return { label: "Tarea", color: Colors.primaryLight };
 
@@ -214,7 +214,10 @@ export default function SwipeableTaskItem({
                 {task.subtasks.length > 5 ? (
                   <View style={styles.subtaskColumns}>
                     <View
-                      style={[styles.subtaskColumn, { marginRight: Spacing.small }]}
+                      style={[
+                        styles.subtaskColumn,
+                        { marginRight: Spacing.small },
+                      ]}
                     >
                       {task.subtasks.slice(0, 5).map((st) => (
                         <TouchableOpacity
@@ -320,11 +323,8 @@ export default function SwipeableTaskItem({
             />
           </View>
           {/* Tipo */}
-          <View
-            style={[styles.badge, { backgroundColor: typeConfig.color }]}
-          >
+          <View style={[styles.badge, { backgroundColor: typeConfig.color }]}>
             <Text style={[styles.badgeText, { color: Colors.text }]}>
-
               {typeConfig.label}
             </Text>
           </View>
