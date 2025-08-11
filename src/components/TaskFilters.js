@@ -39,6 +39,17 @@ export default function TaskFilters({
     setPriorityFilter("all");
     setDifficultyFilter("all");
     setTagFilter("all");
+    if (onSelect) {
+      onSelect({
+        active: "all",
+        elementFilter: "all",
+        priorityFilter: "all",
+        difficultyFilter: "all",
+        tagFilter: "all",
+      });
+    } else if (onClose) {
+      onClose();
+    }
   };
 
   return (
