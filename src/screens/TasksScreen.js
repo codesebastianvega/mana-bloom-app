@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView, FlatList, Modal, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import StatsHeader from "../components/StatsHeader";
 import SearchBar from "../components/SearchBar/SearchBar";
@@ -173,6 +174,31 @@ export default function TasksScreen() {
   const [showAddModal, setShowAddModal] = useState(false); // Para el botón de añadir tarea
   const [editingTask, setEditingTask] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        const storedTasks = await AsyncStorage.getItem("tasks");
+        if (storedTasks) {
+          setTasks(JSON.parse(storedTasks));
+        }
+      } catch (error) {
+        console.error("Error loading tasks", error);
+      }
+    };
+    loadTasks();
+  }, []);
+
+  useEffect(() => {
+    const saveTasks = async () => {
+      try {
+        await AsyncStorage.setItem("tasks", JSON.stringify(tasks));
+      } catch (error) {
+        console.error("Error saving tasks", error);
+      }
+    };
+    saveTasks();
+  }, [tasks]);
 
   const difficultyOptions = [
     { key: "easy", label: "Fácil", color: Colors.secondary },
