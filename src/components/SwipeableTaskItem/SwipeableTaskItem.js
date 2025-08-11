@@ -29,14 +29,27 @@ const getElementColor = (element) => {
 
 const getPriorityColor = (p) => {
   switch (p) {
-    case "urgent":
-      return Colors.danger;
-    case "pending":
-      return Colors.primary;
-    case "relevant":
+    case "easy":
       return Colors.secondary;
+    case "medium":
+      return Colors.accent;
+    case "hard":
+      return Colors.danger;
     default:
       return Colors.textMuted;
+  }
+};
+
+const getPriorityLabel = (p) => {
+  switch (p) {
+    case "easy":
+      return "Baja";
+    case "medium":
+      return "Media";
+    case "hard":
+      return "Urgente";
+    default:
+      return p;
   }
 };
 
@@ -336,7 +349,7 @@ export default function SwipeableTaskItem({
                 { color: getPriorityColor(task.priority) },
               ]}
             >
-              {task.priority}
+              {getPriorityLabel(task.priority)}
             </Text>
           </View>
         </View>
