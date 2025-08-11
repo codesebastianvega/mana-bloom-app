@@ -199,15 +199,22 @@ export default StyleSheet.create({
   },
   subtaskList: {
     marginTop: Spacing.small,
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
   subtaskItem: {
-    flexDirection: "row",
-    alignItems: "center",
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    borderWidth: 0.5,
+    borderColor: Colors.textMuted,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: 4,
+    marginRight: Spacing.small,
     marginBottom: Spacing.small,
   },
   subtaskText: {
     color: Colors.text,
-    fontSize: 14,
+    fontSize: 12,
   },
   elementInfoBox: {
     backgroundColor: Colors.surface,

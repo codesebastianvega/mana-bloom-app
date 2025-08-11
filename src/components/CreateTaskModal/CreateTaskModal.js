@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  Alert,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -79,7 +80,10 @@ export default function CreateTaskModal({
   const [newSubtasks, setNewSubtasks] = useState([]);
 
   const handleSave = () => {
-    if (!newTitle.trim()) return;
+    if (!newTitle.trim()) {
+      Alert.alert("Falta título", "Debes ingresar un título para la tarea.");
+      return;
+    }
     onSave({
       title: newTitle,
       note: newNote,
@@ -120,6 +124,7 @@ export default function CreateTaskModal({
             style={{ width: "100%" }}
             contentContainerStyle={{ paddingBottom: Spacing.large }}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
           >
             <Text style={styles.title}>Crear Nueva Tarea</Text>
 
