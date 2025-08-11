@@ -43,13 +43,16 @@ export default function TaskFilters({
 
   return (
     <View>
+      {/* Sección de cierre del modal */}
       {onClose && (
         <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
           <FontAwesome5 name="times" size={16} color={Colors.text} />
         </TouchableOpacity>
       )}
+      {/* Barra superior con filtros rápidos */}
       <Text style={styles.title}>Filtros avanzados</Text>
       <FilterBar filters={filters} active={active} onSelect={setActive} />
+      {/* Filtros avanzados del modal */}
       <AdvancedFilters
         elementOptions={elementOptions}
         elementFilter={elementFilter}
@@ -64,12 +67,13 @@ export default function TaskFilters({
         tagFilter={tagFilter}
         setTagFilter={setTagFilter}
       />
+      {/* Botones de acción para aplicar o resetear los filtros */}
       <View style={styles.buttons}>
-        {/* styles.apply controla el botón "Aplicar" */}
+        {/* Botón para aplicar la selección de filtros */}
         <TouchableOpacity style={[styles.button, styles.apply]} onPress={onApply}>
           <Text style={styles.buttonText}>Aplicar</Text>
         </TouchableOpacity>
-        {/* styles.reset controla el botón "Resetear" */}
+        {/* Botón para resetear todos los filtros */}
         <TouchableOpacity style={[styles.button, styles.reset]} onPress={onReset}>
           <Text style={styles.buttonText}>Resetear</Text>
         </TouchableOpacity>
