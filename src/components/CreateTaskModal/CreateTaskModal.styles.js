@@ -170,6 +170,8 @@ export default StyleSheet.create({
     paddingHorizontal: Spacing.small,
     paddingVertical: 4,
     marginRight: Spacing.small,
+    flexDirection: "row",
+    alignItems: "center",
   },
   tagText: {
     color: Colors.text,
@@ -217,10 +219,15 @@ export default StyleSheet.create({
     paddingVertical: 4,
     marginRight: Spacing.small,
     marginBottom: Spacing.small,
+    flexDirection: "row",
+    alignItems: "center",
   },
   subtaskText: {
     color: Colors.text,
     fontSize: 12,
+  },
+  removeIcon: {
+    marginLeft: Spacing.tiny,
   },
   elementInfoBox: {
     backgroundColor: Colors.surface,

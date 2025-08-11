@@ -171,6 +171,8 @@ export default function TasksScreen() {
   const [statusFilter, setStatusFilter] = useState("pending");
   const [filtersVisible, setFiltersVisible] = useState(false); // BottomSheet de filtros
   const [showAddModal, setShowAddModal] = useState(false); // Para el botón de añadir tarea
+  const [editingTask, setEditingTask] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const difficultyOptions = [
     { key: "easy", label: "Fácil", color: Colors.secondary },
@@ -210,8 +212,15 @@ export default function TasksScreen() {
   const onPermanentDeleteTask = (id) =>
     setTasks((prev) => prev.filter((t) => t.id !== id));
   const onEditTask = (task) => {
-    // TODO: abrir modal o navegar
-    console.log("Editar tarea", task);
+    setEditingTask(task);
+    setShowEditModal(true);
+  };
+  const handleUpdateTask = (updatedTask) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
+    );
+    setShowEditModal(false);
+    setEditingTask(null);
   };
   const onToggleSubtask = (taskId, subId) =>
     setTasks((prev) =>
@@ -335,6 +344,19 @@ export default function TasksScreen() {
         visible={showAddModal}
         onClose={() => setShowAddModal(false)}
         onSave={handleSaveTask}
+        uniqueTags={uniqueTags}
+        priorityOptions={priorityOptions}
+        elementOptions={elementOptions}
+        difficultyOptions={difficultyOptions}
+      />
+      <CreateTaskModal
+        visible={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingTask(null);
+        }}
+        onUpdate={handleUpdateTask}
+        task={editingTask}
         uniqueTags={uniqueTags}
         priorityOptions={priorityOptions}
         elementOptions={elementOptions}
