@@ -70,12 +70,18 @@ export default function TaskFilters({
       {/* Botones de acción para aplicar o resetear los filtros */}
       <View style={styles.buttons}>
         {/* Botón para aplicar la selección de filtros */}
-        <TouchableOpacity style={[styles.button, styles.apply]} onPress={onApply}>
-          <Text style={styles.buttonText}>Aplicar</Text>
+        <TouchableOpacity
+          style={[styles.button, styles.apply]}
+          onPress={onApply}
+        >
+          <Text style={styles.buttonText}>Aplicar Filtros</Text>
         </TouchableOpacity>
         {/* Botón para resetear todos los filtros */}
-        <TouchableOpacity style={[styles.button, styles.reset]} onPress={onReset}>
-          <Text style={styles.buttonText}>Resetear</Text>
+        <TouchableOpacity
+          style={[styles.button, styles.reset]}
+          onPress={onReset}
+        >
+          <Text style={styles.buttonText}>Limpiar Filtros</Text>
         </TouchableOpacity>
       </View>
     </View>

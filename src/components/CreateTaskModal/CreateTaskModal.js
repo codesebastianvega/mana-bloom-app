@@ -8,6 +8,10 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  Alert,
+  Platform,
+  ToastAndroid,
+
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -87,6 +91,7 @@ export default function CreateTaskModal({
   const handleSave = () => {
     if (!newTitle.trim()) {
       showAlert("Debes ingresar un título para la tarea.", "error");
+
       return;
     }
     onSave({
@@ -374,6 +379,7 @@ export default function CreateTaskModal({
                   setNewTags((prev) => [...new Set([...prev, tag])]);
                   setNewTagInput("");
                   showAlert("Etiqueta creada", "success");
+
                 }}
               >
                 <FontAwesome5 name="plus" size={12} color={Colors.background} />
