@@ -53,16 +53,13 @@ const getPriorityLabel = (p) => {
   }
 };
 
-const getDifficultyColor = (d) => {
-  switch (d) {
-    case "easy":
-      return Colors.secondary;
-    case "medium":
-      return Colors.accent;
-    case "hard":
-      return Colors.danger;
+const getTypeConfig = (type) => {
+  switch (type) {
+    case "habit":
+      return { label: "Hábito", color: Colors.secondaryLight };
+    case "task":
     default:
-      return Colors.text;
+      return { label: "Tarea", color: Colors.primaryLight };
   }
 };
 
@@ -110,6 +107,7 @@ export default function SwipeableTaskItem({
   // Información del elemento (icono y color)
   // se usa una función para evitar lógica compleja en el render
   const elementInfo = getElementColor(task.element);
+  const typeConfig = getTypeConfig(task.type);
   const [showSubtasks, setShowSubtasks] = useState(false);
 
   // Estilos de acción al deslizar
@@ -175,7 +173,7 @@ export default function SwipeableTaskItem({
           {
             transform: [{ translateX: pan }],
             opacity: task.completed || task.isDeleted ? 0.5 : 1,
-            borderLeftColor: getDifficultyColor(task.difficulty),
+            borderLeftColor: getPriorityColor(task.priority),
           },
         ]}
         {...panResponder.panHandlers}
@@ -302,7 +300,7 @@ export default function SwipeableTaskItem({
           </>
         )}
 
-        {/* ——— Badges de Elemento y Dificultad ——— */}
+        {/* ——— Badges de Elemento y Tipo ——— */}
         <View style={styles.badgeRow}>
           {/* Elemento (solo icono) */}
           <View
@@ -319,21 +317,12 @@ export default function SwipeableTaskItem({
               color={Colors.background}
             />
           </View>
-          {/* Dificultad */}
+          {/* Tipo */}
           <View
-            style={[
-              styles.badge,
-              { backgroundColor: getDifficultyColor(task.difficulty) },
-            ]}
+            style={[styles.badge, { backgroundColor: typeConfig.color }]}
           >
-            <FontAwesome5
-              name="lightbulb"
-              size={12}
-              color={Colors.background}
-              style={styles.badgeIcon}
-            />
             <Text style={[styles.badgeText, { color: Colors.background }]}>
-              {task.difficulty}
+              {typeConfig.label}
             </Text>
           </View>
           {/* Prioridad (chip con borde) */}
