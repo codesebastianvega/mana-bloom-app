@@ -248,4 +248,26 @@ export default StyleSheet.create({
     color: Colors.text,
     fontSize: 12,
   },
+  alertContainer: {
+    position: "absolute",
+    top: Spacing.base,
+    left: Spacing.base,
+    right: Spacing.base,
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.base,
+    borderRadius: 8,
+    zIndex: 2,
+    alignItems: "center",
+  },
+  alertText: {
+    color: Colors.text,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  alertSuccess: {
+    backgroundColor: Colors.secondary,
+  },
+  alertError: {
+    backgroundColor: Colors.danger,
+  },
 });
