@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import FilterBar from "./FilterBar/FilterBar";
 import AdvancedFilters from "./AdvancedFilters/AdvancedFilters";
-import { Colors, Spacing } from "../theme";
+import styles from "./TaskFilters.styles";
+import { Colors } from "../theme";
 
 export default function TaskFilters({
   filters = [],
@@ -64,9 +65,11 @@ export default function TaskFilters({
         setTagFilter={setTagFilter}
       />
       <View style={styles.buttons}>
+        {/* styles.apply controla el botón "Aplicar" */}
         <TouchableOpacity style={[styles.button, styles.apply]} onPress={onApply}>
           <Text style={styles.buttonText}>Aplicar</Text>
         </TouchableOpacity>
+        {/* styles.reset controla el botón "Resetear" */}
         <TouchableOpacity style={[styles.button, styles.reset]} onPress={onReset}>
           <Text style={styles.buttonText}>Resetear</Text>
         </TouchableOpacity>
@@ -74,38 +77,3 @@ export default function TaskFilters({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  closeBtn: {
-    alignSelf: "flex-end",
-    padding: Spacing.tiny,
-  },
-  title: {
-    color: Colors.text,
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: Spacing.small,
-  },
-  buttons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: Spacing.base,
-  },
-  button: {
-    flex: 1,
-    padding: Spacing.small,
-    borderRadius: 8,
-    alignItems: "center",
-    marginHorizontal: Spacing.tiny,
-  },
-  apply: {
-    backgroundColor: Colors.primary,
-  },
-  reset: {
-    backgroundColor: Colors.danger,
-  },
-  buttonText: {
-    color: Colors.background,
-    fontWeight: "600",
-  },
-});
