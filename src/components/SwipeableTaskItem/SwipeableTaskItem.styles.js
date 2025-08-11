@@ -161,7 +161,7 @@ export default StyleSheet.create({
     elevation: 2,
   },
 
-  // fila de badges (elemento, tipo, prioridad):
+  // badges de dificultad:
   badgeRow: {
     flexDirection: "row",
     marginTop: Spacing.small,
@@ -174,6 +174,9 @@ export default StyleSheet.create({
     paddingVertical: Spacing.tiny,
     marginRight: Spacing.small,
     marginTop: 1,
+  },
+  badgeIcon: {
+    marginRight: Spacing.tiny,
   },
   badgeText: {
     fontSize: 12,
