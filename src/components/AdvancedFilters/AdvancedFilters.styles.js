@@ -57,10 +57,12 @@ export default StyleSheet.create({
     borderRadius: 6,
     marginRight: Spacing.tiny,
   },
+  // Texto dentro de cada etiqueta del filtro
   tagText: {
     color: Colors.text,
     fontSize: 12,
   },
+  // Contenedor del campo de búsqueda de etiquetas
   tagSearchContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -75,36 +77,13 @@ export default StyleSheet.create({
   tagSearchContainerFocused: {
     borderColor: Colors.accent,
   },
-  tagSearchInput: {
-    flex: 1,
-    color: Colors.text,
-    paddingVertical: Spacing.tiny,
-  },
-  clearBtn: {
-    marginLeft: Spacing.small,
-  },
-  tagText: {
-    color: Colors.text,
-    fontSize: 14,
-  },
-  tagSearchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.filterBtnBg,
-    borderRadius: 8,
-    borderWidth: 0.5,
-    borderColor: Colors.text,
-    paddingHorizontal: Spacing.small,
-    marginBottom: Spacing.base,
-  },
-  tagSearchContainerFocused: {
-    borderColor: Colors.accent,
-  },
+  // Campo de texto para buscar etiquetas
   tagSearchInput: {
     flex: 1,
     color: Colors.text,
     paddingVertical: 0,
   },
+  // Botón que limpia el texto del buscador
   clearBtn: {
     marginLeft: Spacing.small,
   },
