@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { SafeAreaView, FlatList } from "react-native";
+import { SafeAreaView, FlatList, Modal, View } from "react-native";
 
 import StatsHeader from "../components/StatsHeader";
 import SearchBar from "../components/SearchBar/SearchBar";
@@ -7,18 +7,9 @@ import TaskFilters from "../components/TaskFilters";
 import SwipeableTaskItem from "../components/SwipeableTaskItem/SwipeableTaskItem";
 import AddTaskButton from "../components/AddTaskButton/AddTaskButton";
 import FilterBar from "../components/FilterBar/FilterBar";
-import {
-  Modal,
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-} from "react-native";
-import styles, { modalStyles } from "./TasksScreen.styles";
-import { Colors, Spacing } from "../theme";
-import { FontAwesome5 } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+import styles from "./TasksScreen.styles";
+import { Colors } from "../theme";
+import CreateTaskModal from "../components/CreateTaskModal/CreateTaskModal";
 
 // ——— 1) Configuración de filtros ———
 const mainFilters = [
@@ -181,24 +172,6 @@ export default function TasksScreen() {
   const [filtersVisible, setFiltersVisible] = useState(false); // BottomSheet de filtros
   const [showAddModal, setShowAddModal] = useState(false); // Para el botón de añadir tarea
 
-  // Estados para la nueva tarea
-  const [newTitle, setNewTitle] = useState("");
-  const [newNote, setNewNote] = useState("");
-  // Estados extra en el modal de creación
-  const [newType, setNewType] = useState("single"); // 'single' | 'habit'
-  const [newElement, setNewElement] = useState("all"); // 'all' | 'water' | 'earth' | ...
-  const [newPriority, setNewPriority] = useState("easy"); // 'easy' | 'medium' | 'hard'
-  // ➕ Estados para etiquetas en modal
-  const [newTagInput, setNewTagInput] = useState("");
-  const [newTags, setNewTags] = useState([]);
-  const [newSubtaskInput, setNewSubtaskInput] = useState("");
-  const [newSubtasks, setNewSubtasks] = useState([]);
-  // Opciones del tipo de tarea
-  const typeOptions = [
-    { key: "single", label: "Tarea", activeColor: Colors.primaryLight },
-    { key: "habit", label: "Hábito", activeColor: Colors.secondaryLight },
-  ];
-  // Opciones de dificultad
   const difficultyOptions = [
     { key: "easy", label: "Fácil", color: Colors.secondary },
     { key: "medium", label: "Medio", color: Colors.accent },
@@ -206,44 +179,17 @@ export default function TasksScreen() {
   ];
   // filtro avanzado
   const [difficultyFilter, setDifficultyFilter] = useState("all");
-  // en el modal (nueva tarea)
-  const [newDifficulty, setNewDifficulty] = useState("easy");
 
-  // Handler que crea y añade la nueva tarea
-  const onSaveTask = () => {
-    if (!newTitle.trim()) return; // no dejamos guardar sin título
+  const handleSaveTask = (data) => {
     const nextId = tasks.length ? Math.max(...tasks.map((t) => t.id)) + 1 : 1;
     const newTask = {
       id: nextId,
-      title: newTitle,
-      note: newNote,
       completed: false,
       isDeleted: false,
-      type: newType, // ✔️ usamos el estado
-      element: newElement,
-      priority: newPriority,
-      tags: newTags.length > 0 ? newTags : [], // si hay etiquetas, las usamos
-      difficulty: newDifficulty, // dificultad por defecto
-      subtasks: newSubtasks.map((text, index) => ({
-        id: index + 1,
-        text,
-        completed: false,
-      })),
+      ...data,
     };
-    // Añadimos la nueva tarea al estado
     setTasks((prev) => [newTask, ...prev]);
-    // reset campos y cerramos modal
-    setNewDifficulty("easy");
-    setNewTitle("");
-    setNewNote("");
-    setNewType("single");
-    setNewElement("all");
-    setNewPriority("easy");
-    setNewSubtaskInput("");
-    setNewSubtasks([]);
-    setShowAddModal(false);
   };
-
   // ——— 3) Handlers ———
   const onToggleComplete = (id) =>
     setTasks((prev) =>
@@ -385,358 +331,15 @@ export default function TasksScreen() {
       </Modal>
 
       {/* Modal de Nueva Tarea */}
-      <Modal
+      <CreateTaskModal
         visible={showAddModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowAddModal(false)}
-      >
-        <View style={modalStyles.background}>
-          <View style={modalStyles.container}>
-            <ScrollView
-              style={{ width: "100%" }}
-              contentContainerStyle={{ paddingBottom: Spacing.large }}
-              showsVerticalScrollIndicator={false}
-            >
-              {/* Título del modal */}
-              <Text style={modalStyles.title}>Crear Nueva Tarea</Text>
-
-              {/* Input Título */}
-              <TextInput
-                style={modalStyles.input}
-                placeholder="Título"
-                placeholderTextColor={Colors.textMuted}
-                value={newTitle}
-                onChangeText={setNewTitle}
-              />
-
-              {/* Input Nota */}
-              <TextInput
-                style={[modalStyles.input, { marginTop: Spacing.small }]}
-                placeholder="Detalle o nota (opcional)"
-                placeholderTextColor={Colors.textMuted}
-                value={newNote}
-                onChangeText={setNewNote}
-              />
-              {/* Tipo de tarea */}
-              <Text style={modalStyles.label}>Tipo</Text>
-              <View style={modalStyles.row}>
-                {typeOptions.map((opt, index) => {
-                  const active = newType === opt.key;
-                  return (
-                    <TouchableOpacity
-                      key={opt.key}
-                      style={[
-                        modalStyles.typeOptionBtn,
-                        index === typeOptions.length - 1 && { marginRight: 0 },
-                        active && { backgroundColor: opt.activeColor },
-                      ]}
-                      onPress={() => setNewType(opt.key)}
-                    >
-                      <Text
-                        style={[
-                          modalStyles.typeOptionText,
-                          active && { color: Colors.background },
-                        ]}
-                      >
-                        {opt.label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              {/* Elemento */}
-              <Text style={modalStyles.label}>Elemento</Text>
-              <View style={modalStyles.elementGrid}>
-                {elementOptions.map((el) => {
-                  const active = newElement === el.key;
-                  return (
-                    <TouchableOpacity
-                      key={el.key}
-                      style={modalStyles.elementBtn}
-                      onPress={() => setNewElement(el.key)}
-                    >
-                      <LinearGradient
-                        colors={
-                          active
-                            ? el.gradient
-                            : [Colors.filterBtnBg, Colors.filterBtnBg]
-                        }
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={modalStyles.elementBtnInner}
-                      >
-                        <FontAwesome5
-                          name={el.icon}
-                          size={16}
-                          color={active ? Colors.background : Colors.text}
-                        />
-                        <Text
-                          style={[
-                            modalStyles.optionText,
-                            { color: active ? Colors.background : Colors.text },
-                          ]}
-                        >
-                          {el.label}
-                        </Text>
-                      </LinearGradient>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              {newElement !== "all" && (
-                <View style={modalStyles.elementInfoBox}>
-                  <Text style={modalStyles.elementInfoTitle}>
-                    {elementInfo[newElement].title}
-                  </Text>
-                  <Text style={modalStyles.elementInfoDescription}>
-                    {elementInfo[newElement].description}
-                  </Text>
-                  <Text style={modalStyles.elementInfoExamples}>
-                    {elementInfo[newElement].examples}
-                  </Text>
-                  <Text style={modalStyles.elementInfoPurpose}>
-                    {elementInfo[newElement].purpose}
-                  </Text>
-                </View>
-              )}
-
-              {/* Subtareas */}
-              <Text style={modalStyles.label}>
-                Subtareas{" "}
-                <Text style={modalStyles.subtaskHint}>
-                  (Agrega tareas más pequeñas para facilitar tu trabajo)
-                </Text>
-              </Text>
-              <View style={modalStyles.subtaskInputRow}>
-                <TextInput
-                  style={modalStyles.subtaskInput}
-                  placeholder="Nueva subtarea"
-                  placeholderTextColor={Colors.textMuted}
-                  value={newSubtaskInput}
-                  onChangeText={setNewSubtaskInput}
-                />
-                <TouchableOpacity
-                  style={modalStyles.addSubtaskButton}
-                  onPress={() => {
-                    const st = newSubtaskInput.trim();
-                    if (!st) return;
-                    setNewSubtasks((prev) => [...prev, st]);
-                    setNewSubtaskInput("");
-                  }}
-                >
-                  <FontAwesome5
-                    name="plus"
-                    size={16}
-                    color={Colors.background}
-                  />
-                </TouchableOpacity>
-              </View>
-              {newSubtasks.length > 0 && (
-                <View style={modalStyles.subtaskList}>
-                  {newSubtasks.map((st, idx) => (
-                    <View key={idx} style={modalStyles.subtaskItem}>
-                      <Text style={modalStyles.subtaskText}>{st}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-
-              {/* Prioridad */}
-              <Text style={modalStyles.label}>Prioridad</Text>
-              <View style={modalStyles.priorityContainer}>
-                {priorityOptions.map((pr) => {
-                  const active = newPriority === pr.key;
-                  return (
-                    <TouchableOpacity
-                      key={pr.key}
-                      style={[
-                        modalStyles.priorityBtn,
-                        { borderRightColor: pr.color },
-                        active && {
-                          backgroundColor: pr.color,
-                        },
-                      ]}
-                      onPress={() => setNewPriority(pr.key)}
-                    >
-                      <Text
-                        style={[
-                          modalStyles.priorityTitle,
-                          active && { color: Colors.background },
-                        ]}
-                      >
-                        {pr.label}
-                      </Text>
-                      <Text
-                        style={[
-                          modalStyles.prioritySubtitle,
-                          active && { color: Colors.background },
-                        ]}
-                      >
-                        {`+${pr.xp} XP • +${pr.mana} Maná`}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              {/* Dificultad */}
-              <Text style={modalStyles.label}>Dificultad</Text>
-              <View style={modalStyles.row}>
-                {difficultyOptions.map((opt, index) => {
-                  const active = newDifficulty === opt.key;
-                  return (
-                    <TouchableOpacity
-                      key={opt.key}
-                      style={[
-                        modalStyles.difficultyOptionBtn,
-                        index === difficultyOptions.length - 1 && {
-                          marginRight: 0,
-                        },
-                        active && {
-                          backgroundColor: opt.color,
-                          borderColor: opt.color,
-                        },
-                      ]}
-                      onPress={() => setNewDifficulty(opt.key)}
-                    >
-                      <Text
-                        style={[
-                          modalStyles.optionText,
-                          { marginLeft: 0 },
-                          active && { color: Colors.background },
-                        ]}
-                      >
-                        {opt.label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              {/* Etiquetas dinámicas */}
-              <Text style={modalStyles.label}>Etiquetas</Text>
-              <View style={modalStyles.tagInputRow}>
-                <TextInput
-                  style={modalStyles.tagInput}
-                  placeholder="Nueva etiqueta"
-                  placeholderTextColor={Colors.textMuted}
-                  value={newTagInput}
-                  onChangeText={setNewTagInput}
-                />
-                <TouchableOpacity
-                  style={modalStyles.addTagButton}
-                  onPress={() => {
-                    const tag = newTagInput.trim();
-                    if (!tag) return;
-                    setNewTags((prev) => [...new Set([...prev, tag])]);
-                    setNewTagInput("");
-                  }}
-                >
-                  <FontAwesome5
-                    name="plus"
-                    size={16}
-                    color={Colors.background}
-                  />
-                </TouchableOpacity>
-              </View>
-              {/* Etiquetas existentes */}
-              {uniqueTags.length > 0 && (
-                <Text style={modalStyles.label}>Selecciona etiquetas</Text>
-              )}
-              {uniqueTags.length > 0 && (
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  style={modalStyles.row}
-                  contentContainerStyle={{ alignItems: "center" }}
-                >
-                  {uniqueTags.map((tagKey) => {
-                    const active = newTags.includes(tagKey);
-                    return (
-                      <TouchableOpacity
-                        key={tagKey}
-                        style={[
-                          modalStyles.optionBtn,
-                          active && {
-                            backgroundColor: Colors.accent,
-                            borderColor: Colors.accent,
-                          },
-                        ]}
-                        onPress={() => {
-                          // alterna selección
-                          setNewTags((prev) =>
-                            prev.includes(tagKey)
-                              ? prev.filter((t) => t !== tagKey)
-                              : [...prev, tagKey]
-                          );
-                        }}
-                      >
-                        <Text
-                          style={[
-                            modalStyles.optionText,
-                            active && { color: Colors.background },
-                          ]}
-                        >
-                          {tagKey}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
-              )}
-
-              {newTags.length > 0 && (
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  style={modalStyles.row}
-                  contentContainerStyle={{ alignItems: "center" }}
-                >
-                  {newTags.map((tag) => (
-                    <View key={tag} style={modalStyles.tagChip}>
-                      <Text style={modalStyles.tagText}>{tag}</Text>
-                    </View>
-                  ))}
-                </ScrollView>
-              )}
-
-              {/* Botones */}
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "flex-end",
-                  marginTop: Spacing.base,
-                }}
-              >
-                <TouchableOpacity
-                  style={[
-                    modalStyles.button,
-                    {
-                      backgroundColor: Colors.danger,
-                      marginRight: Spacing.small,
-                    },
-                  ]}
-                  onPress={() => setShowAddModal(false)}
-                >
-                  <Text style={modalStyles.buttonText}>Cancelar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    modalStyles.button,
-                    { backgroundColor: Colors.primary },
-                  ]}
-                  onPress={onSaveTask}
-                >
-                  <Text style={modalStyles.buttonText}>Guardar</Text>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setShowAddModal(false)}
+        onSave={handleSaveTask}
+        uniqueTags={uniqueTags}
+        priorityOptions={priorityOptions}
+        elementOptions={elementOptions}
+        difficultyOptions={difficultyOptions}
+      />
     </SafeAreaView>
   );
 }
