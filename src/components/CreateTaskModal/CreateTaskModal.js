@@ -77,9 +77,18 @@ export default function CreateTaskModal({
   const [newTags, setNewTags] = useState([]);
   const [newSubtaskInput, setNewSubtaskInput] = useState("");
   const [newSubtasks, setNewSubtasks] = useState([]);
+  const [alert, setAlert] = useState(null); // { message, type }
+
+  const showAlert = (message, type = "info") => {
+    setAlert({ message, type });
+    setTimeout(() => setAlert(null), 2000);
+  };
 
   const handleSave = () => {
-    if (!newTitle.trim()) return;
+    if (!newTitle.trim()) {
+      showAlert("Debes ingresar un título para la tarea.", "error");
+      return;
+    }
     onSave({
       title: newTitle,
       note: newNote,
@@ -116,10 +125,23 @@ export default function CreateTaskModal({
     >
       <View style={styles.background}>
         <View style={styles.container}>
+          {alert && (
+            <View
+              style={[
+                styles.alertContainer,
+                alert.type === "error"
+                  ? styles.alertError
+                  : styles.alertSuccess,
+              ]}
+            >
+              <Text style={styles.alertText}>{alert.message}</Text>
+            </View>
+          )}
           <ScrollView
             style={{ width: "100%" }}
             contentContainerStyle={{ paddingBottom: Spacing.large }}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
           >
             <Text style={styles.title}>Crear Nueva Tarea</Text>
 
@@ -351,13 +373,14 @@ export default function CreateTaskModal({
                   if (!tag) return;
                   setNewTags((prev) => [...new Set([...prev, tag])]);
                   setNewTagInput("");
+                  showAlert("Etiqueta creada", "success");
                 }}
               >
                 <FontAwesome5 name="plus" size={12} color={Colors.background} />
               </TouchableOpacity>
             </View>
             {uniqueTags.length > 0 && (
-              <Text style={styles.label}>Selecciona etiquetas</Text>
+              <Text style={styles.label}>Mis Etiquetas</Text>
             )}
             {uniqueTags.length > 0 && (
               <ScrollView
@@ -401,18 +424,21 @@ export default function CreateTaskModal({
             )}
 
             {newTags.length > 0 && (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.row}
-                contentContainerStyle={{ alignItems: "center" }}
-              >
-                {newTags.map((tag) => (
-                  <View key={tag} style={styles.tagChip}>
-                    <Text style={styles.tagText}>{tag}</Text>
-                  </View>
-                ))}
-              </ScrollView>
+              <>
+                <Text style={styles.selectedTagsLabel}>Etiquetas seleccionadas</Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.row}
+                  contentContainerStyle={{ alignItems: "center" }}
+                >
+                  {newTags.map((tag) => (
+                    <View key={tag} style={styles.tagChip}>
+                      <Text style={styles.tagText}>{tag}</Text>
+                    </View>
+                  ))}
+                </ScrollView>
+              </>
             )}
 
             <View
