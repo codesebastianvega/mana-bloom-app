@@ -11,25 +11,19 @@ export default StyleSheet.create({
     backgroundColor: "#1b1231",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    paddingVertical: Spacing.tiny,
   },
   touchable: {
     flex: 1,
-  },
-  activeButton: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: Spacing.small,
+    paddingVertical: Spacing.tiny,
+  },
+  activeIcon: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: Spacing.tiny,
     borderRadius: 20,
-  },
-  inactiveButton: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: Spacing.small,
-  },
-  label: {
-    marginTop: Spacing.tiny,
-    fontSize: 12,
-    color: "#A9A9A9",
   },
   activeLabel: {
     marginTop: Spacing.tiny,

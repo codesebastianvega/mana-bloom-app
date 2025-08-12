@@ -17,6 +17,7 @@ export default function Footer({ state, navigation }) {
     <View style={styles.container}>
       {NAV_ITEMS.map((item, index) => {
         const isActive = state.index === index;
+
         return (
           <TouchableOpacity
             key={item.route}
@@ -24,18 +25,17 @@ export default function Footer({ state, navigation }) {
             onPress={() => navigation.navigate(item.route)}
           >
             {isActive ? (
-              <LinearGradient
-                colors={["#1E90FF", "#9932CC"]}
-                style={styles.activeButton}
-              >
-                <FontAwesome5 name={item.icon} size={20} color="#FFF" />
+              <>
+                <LinearGradient
+                  colors={["#1E90FF", "#9932CC"]}
+                  style={styles.activeIcon}
+                >
+                  <FontAwesome5 name={item.icon} size={20} color="#FFF" />
+                </LinearGradient>
                 <Text style={styles.activeLabel}>{item.label}</Text>
-              </LinearGradient>
+              </>
             ) : (
-              <View style={styles.inactiveButton}>
-                <FontAwesome5 name={item.icon} size={20} color="#A9A9A9" />
-                <Text style={styles.label}>{item.label}</Text>
-              </View>
+              <FontAwesome5 name={item.icon} size={20} color="#A9A9A9" />
             )}
           </TouchableOpacity>
         );
