@@ -58,3 +58,18 @@
 
 - Mantener componentes por sección en subcarpeta `src/components/home/`.
 - Preferir tokens de `theme.js` (Colors, Spacing). No hardcodear colores salvo acentos de cada tab (ver abajo).
+
+## Encabezado obligatorio en archivos nuevos o modificados
+
+// [MB] Módulo: <Home|Tasks|etc> / Sección: <...>
+// Afecta: <pantalla/componente principal>
+// Propósito: <qué hace este archivo>
+// Puntos de edición futura: <dónde tocar si cambio la UI>
+// Autor: <Sebas|Codex> - Fecha: YYYY-MM-DD
+
+## Verificación de ejecución (política práctica)
+
+- Prioridad: `npm test` (placeholder) debe terminar OK.
+- Opcional: `npx expo doctor` para chequeos de entorno.
+- `expo start` o `npm run web` son auxiliares: si fallan por red/puerto/proxy, NO bloquean la tarea.
+- La validación visual final la hago yo en Expo Go (QR en mi teléfono).
