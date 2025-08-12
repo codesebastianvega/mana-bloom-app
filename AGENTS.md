@@ -45,3 +45,16 @@
 - [ ] Compila y arranca sin errores.
 - [ ] `npm test` OK (placeholder).
 - [ ] Cambios limitados a lo pedido.
+
+## Convenciones para nuevas/archivos modificados
+
+- Encabezado obligatorio al inicio de cada archivo nuevo o modificado:
+
+// [MB] Módulo: Home / Sección: Tienda Mágica (Pestañas)
+// Afecta: HomeScreen (layout principal)
+// Propósito: UI de tienda con tabs Potiones|Herramientas|Cosméticos
+// Puntos de edición futura: estilos .styles.js y data mock en la sección
+// Autor: <tu_nombre o Codex> - Fecha: YYYY-MM-DD
+
+- Mantener componentes por sección en subcarpeta `src/components/home/`.
+- Preferir tokens de `theme.js` (Colors, Spacing). No hardcodear colores salvo acentos de cada tab (ver abajo).
