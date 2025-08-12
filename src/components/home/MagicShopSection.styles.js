@@ -1,4 +1,4 @@
-// [MB] Módulo: Home / Estilos: MagicShopSection
+// [MB] Módulo: Home / Sección: Tienda Mágica (Estilos)
 // Afecta: HomeScreen
 // Propósito: Estilos para sección de tienda mágica con tabs y cards
 // Puntos de edición futura: diferenciar categorías y tarjetas
@@ -25,14 +25,35 @@ export default StyleSheet.create({
     ...Typography.h2,
     color: Colors.text,
   },
-  manaText: {
+  manaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: Spacing.small,
+    paddingVertical: Spacing.small,
+    marginBottom: Spacing.base,
+  },
+  manaLabel: {
     ...Typography.caption,
     color: Colors.text,
-    marginTop: Spacing.small,
+  },
+  manaPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: Radii.pill,
+    paddingHorizontal: Spacing.base,
+    height: 28,
+  },
+  manaIcon: {
+    marginRight: Spacing.tiny,
+  },
+  manaValue: {
+    ...Typography.body,
+    color: Colors.text,
   },
   tabsRow: {
     flexDirection: "row",
-    marginTop: Spacing.base,
   },
   tabButton: {
     flex: 1,

@@ -1,4 +1,4 @@
-// [MB] Módulo: Home / Componente: MagicShopSection
+// [MB] Módulo: Home / Sección: Tienda Mágica (Pestañas)
 // Afecta: HomeScreen
 // Propósito: Sección de tienda mágica con tabs y maná disponible
 // Puntos de edición futura: integrar productos y navegación
@@ -6,6 +6,7 @@
 
 import React, { useState } from "react";
 import { View, Text, Pressable } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import styles from "./MagicShopSection.styles";
 import ShopItemCard from "./ShopItemCard";
 import { ShopColors } from "../../theme";
@@ -38,7 +39,25 @@ export default function MagicShopSection() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tienda Mágica</Text>
-      <Text style={styles.manaText}>Maná disponible: {mana}</Text>
+
+      <View style={styles.manaRow}>
+        <Text style={styles.manaLabel} accessibilityRole="text">
+          Maná disponible
+        </Text>
+        <View
+          accessible
+          accessibilityLabel={`Maná disponible: ${mana}`}
+          style={[styles.manaPill, { borderColor: ShopColors[activeTab].pill }]}
+        >
+          <Ionicons
+            name="sparkles"
+            size={16}
+            color={ShopColors[activeTab].pill}
+            style={styles.manaIcon}
+          />
+          <Text style={styles.manaValue}>{mana}</Text>
+        </View>
+      </View>
 
       <View style={styles.tabsRow}>
         {TABS.map((tab, index) => {
