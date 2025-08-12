@@ -1,23 +1,49 @@
 // src/theme.js
+/* [MB] Módulo: Sistema de diseño / Sección: Tokens globales
+   Afecta: toda la app (colores, espaciado, tipografía, radios, elevación, acentos tienda)
+   Propósito: unificar estilos y facilitar que Codex y yo creemos UI coherente
+   Puntos de edición futura: ShopColors, Typography, Radii
+*/
+
 export const Colors = {
+  // Base
   background: "#0e0a1e", // Fondo oscuro profundo
   surface: "#1b1231", // Superficie ligeramente más clara
+  surfaceAlt: "#1a1430",
+  surfaceElevated: "#251a3f",
+  border: "#2e2548",
+  separator: "#3a2b5e",
+  overlay: "rgba(0,0,0,0.5)",
+  shadow: "#000000",
+
+  // Marca
   primary: "#7e57c2", // Púrpura místico
-  primaryLight: "#b39ddb", // Versión aclarada para estados activos
-  secondary: "#1cd47bff", // Turquesa etéreo
-  primaryFantasy: '#B542F6',
-  secondaryFantasy: '#F8329D',
-  tertiaryFantasy: '#FFD700',
-
-  secondaryLight: "#80deea", // Variante clara para estados activos
+  primaryLight: "#b39ddb",
+  secondary: "#1cd47bff", // Turquesa etéreo (con alpha)
+  secondaryLight: "#80deea",
   accent: "#ffca28", // Dorado suave para acentos
-  danger: "#ef5350", // Rojo armónico
-  text: "#FFFFFF",
-  textMuted: "#b0bec5", // Texto atenuado acorde con la paleta
-  buttonBg: "#00B4D8", // Celeste vibrante moderno
-  filterBtnBg: "#222a36", // Color base para botones de filtro
-  shadow: "#000000", // Color para sombras
 
+  // Fantasía (gradientes/decor)
+  primaryFantasy: "#B542F6",
+  secondaryFantasy: "#F8329D",
+  tertiaryFantasy: "#FFD700",
+
+  // Estados
+  success: "#1db954",
+  warning: "#f5a623",
+  danger: "#ef5350",
+  info: "#64b5f6",
+
+  // Texto
+  text: "#FFFFFF",
+  textMuted: "#b0bec5",
+  textInverse: "#0e0a1e",
+
+  // Controles
+  buttonBg: "#00B4D8",
+  filterBtnBg: "#222a36",
+
+  // Elementos (rituales)
   elementWater: "#29b6f6",
   elementWaterLight: "#81d4fa",
   elementEarth: "#8d6e63",
@@ -35,3 +61,55 @@ export const Spacing = {
   large: 24,
   xlarge: 32,
 };
+
+export const Radii = {
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  pill: 999,
+};
+
+export const Typography = {
+  h1: { fontSize: 24, fontWeight: "700", lineHeight: 30 },
+  h2: { fontSize: 20, fontWeight: "700", lineHeight: 26 },
+  title: { fontSize: 18, fontWeight: "600", lineHeight: 24 },
+  body: { fontSize: 14, fontWeight: "400", lineHeight: 20 },
+  caption: { fontSize: 12, fontWeight: "500", lineHeight: 16 },
+};
+
+export const Elevation = {
+  card: {
+    shadowColor: Colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  raised: {
+    shadowColor: Colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+};
+
+export const Gradients = {
+  mana: [Colors.primaryFantasy, Colors.secondaryFantasy],
+  xp: [Colors.primary, Colors.primaryLight],
+};
+
+// Acentos por pestaña de la Tienda (ajústalos a tu gusto)
+export const ShopColors = {
+  potions: { bg: "#2F1B4C", border: "#8060D0", pill: "#7442FF" },
+  tools: { bg: "#0F2A46", border: "#2D6DB2", pill: "#1E90FF" },
+  cosmetics: { bg: "#3A2A0F", border: "#C7A039", pill: "#E2C36A" },
+};
+
+export const Opacity = {
+  disabled: 0.5,
+  muted: 0.7,
+};
+
+export const isDarkTheme = true;
