@@ -1,10 +1,17 @@
 // [MB] Módulo: Estado / Archivo: AppContext
 // Afecta: toda la app
 // Propósito: Proveer estado global para maná y estado de la planta
-// Puntos de edición futura: persistencia con AsyncStorage
+// Puntos de edición futura: extender persistencia a otros campos
 // Autor: Codex - Fecha: 2025-08-12
 
-import React, { createContext, useContext, useReducer } from "react";
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  useRef,
+} from "react";
+import { getMana, setMana } from "../storage";
 
 const AppStateContext = createContext();
 const AppDispatchContext = createContext();
@@ -24,6 +31,22 @@ function appReducer(state, action) {
 
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
+  const isHydrating = useRef(true);
+
+  useEffect(() => {
+    async function hydrate() {
+      const storedMana = await getMana();
+      dispatch({ type: "SET_MANA", payload: storedMana });
+      isHydrating.current = false;
+    }
+    hydrate();
+  }, []);
+
+  useEffect(() => {
+    if (isHydrating.current) return;
+    setMana(state.mana);
+  }, [state.mana]);
+
   return (
     <AppStateContext.Provider value={state}>
       <AppDispatchContext.Provider value={dispatch}>

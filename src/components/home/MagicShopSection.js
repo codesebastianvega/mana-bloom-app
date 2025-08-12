@@ -1,7 +1,7 @@
 // [MB] Módulo: Home / Sección: Tienda Mágica (Pestañas)
 // Afecta: HomeScreen
 // Propósito: Sección de tienda mágica con tabs y maná disponible
-// Puntos de edición futura: integrar productos y navegación
+// Puntos de edición futura: integrar productos, navegación y retirar debug
 // Autor: Codex - Fecha: 2025-08-12
 
 import React, { useState } from "react";
@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import styles from "./MagicShopSection.styles";
 import ShopItemCard from "./ShopItemCard";
 import { ShopColors } from "../../theme";
-import { useAppState } from "../../state/AppContext";
+import { useAppState, useAppDispatch } from "../../state/AppContext";
 
 const TABS = [
   { key: "potions", label: "Pociones" },
@@ -35,6 +35,10 @@ const SHOP_ITEMS = {
 export default function MagicShopSection() {
   const [activeTab, setActiveTab] = useState("potions");
   const { mana } = useAppState();
+  const dispatch = useAppDispatch();
+
+  const addDebugMana = () =>
+    dispatch({ type: "SET_MANA", payload: mana + 5 });
 
   return (
     <View style={styles.container}>
@@ -58,6 +62,17 @@ export default function MagicShopSection() {
           <Text style={styles.manaValue}>{mana}</Text>
         </View>
       </View>
+
+      {__DEV__ && (
+        <Pressable
+          onPress={addDebugMana}
+          style={styles.debugButton}
+          accessibilityRole="button"
+          accessibilityLabel="Agregar 5 maná"
+        >
+          <Text style={styles.debugButtonText}>+5</Text>
+        </Pressable>
+      )}
 
       <View style={styles.tabsRow}>
         {TABS.map((tab, index) => {
