@@ -1,18 +1,27 @@
-// src/components/StatsHeader.js
+// [MB] Módulo: Tasks / Sección: Encabezado de estadísticas
+// Afecta: TasksScreen (encabezado con nivel y recursos)
+// Propósito: Mostrar nivel, XP actual y maná desde el contexto
+// Puntos de edición futura: estilos y fuentes en StatsHeader
+// Autor: Codex - Fecha: 2025-08-12
 
 import React from "react";
 import { View, Text, StyleSheet, Platform, StatusBar } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors, Spacing } from "../theme";
+import { useProgress, useAppState } from "../state/AppContext";
 
-export default function StatsHeader({ level, xp, mana }) {
-  const percent = Math.min(Math.max((xp / 100) * 100, 0), 100);
+export default function StatsHeader() {
+  const { level, xp, xpGoal, progress } = useProgress();
+  const { mana } = useAppState();
+  const percent = Math.min(Math.max(progress * 100, 0), 100);
   return (
     <View style={styles.container}>
       <View style={styles.row}>
         <View style={styles.levelContainer}>
           <Text style={styles.levelText}>Level {level}</Text>
-          <Text style={styles.xpText}>{xp}/100 XP</Text>
+          <Text style={styles.xpText}>
+            {xp}/{xpGoal} XP
+          </Text>
         </View>
         <Text style={styles.manaText}>Vida: {mana}</Text>
       </View>

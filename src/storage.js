@@ -1,5 +1,5 @@
 // [MB] Módulo: Estado / Sección: Storage helpers
-// Afecta: AppContext (persistencia de maná y rachas)
+// Afecta: AppContext (persistencia de maná, rachas y progreso)
 // Propósito: Persistir datos básicos de usuario en AsyncStorage
 // Puntos de edición futura: extender a otros campos y manejo de errores
 // Autor: Codex - Fecha: 2025-08-12
@@ -9,6 +9,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const MANA_KEY = "mb:mana";
 const STREAK_KEY = "mb:streak";
 const LAST_CLAIM_DATE_KEY = "mb:lastClaimDate";
+const PROGRESS_KEY = "mb:progress";
 
 export async function getMana() {
   try {
@@ -67,6 +68,30 @@ export async function setLastClaimDate(value) {
     await AsyncStorage.setItem(LAST_CLAIM_DATE_KEY, value);
   } catch (e) {
     console.warn("Error guardando fecha de reclamo en storage", e);
+  }
+}
+
+// [MB] Helpers de progreso (xp, nivel, meta de xp)
+const DEFAULT_PROGRESS = { xp: 0, level: 1, xpGoal: 100 };
+
+export async function getProgress() {
+  try {
+    const value = await AsyncStorage.getItem(PROGRESS_KEY);
+    if (value !== null) {
+      const parsed = JSON.parse(value);
+      return { ...DEFAULT_PROGRESS, ...parsed };
+    }
+  } catch (e) {
+    console.warn("Error leyendo progreso de storage", e);
+  }
+  return { ...DEFAULT_PROGRESS };
+}
+
+export async function setProgress(progress) {
+  try {
+    await AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+  } catch (e) {
+    console.warn("Error guardando progreso en storage", e);
   }
 }
 

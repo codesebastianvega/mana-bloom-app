@@ -1,3 +1,9 @@
+// [MB] Módulo: Tasks / Sección: Pantalla de tareas
+// Afecta: TasksScreen (listado y gestión de tareas)
+// Propósito: Listar, filtrar y aplicar recompensas por completar tareas
+// Puntos de edición futura: persistencia de tareas y estilos de filtros
+// Autor: Codex - Fecha: 2025-08-12
+
 import React, { useState, useEffect } from "react";
 import { SafeAreaView, FlatList, Modal, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -11,6 +17,8 @@ import FilterBar from "../components/FilterBar/FilterBar";
 import styles from "./TasksScreen.styles";
 import { Colors } from "../theme";
 import CreateTaskModal from "../components/CreateTaskModal/CreateTaskModal";
+import { useAppDispatch } from "../state/AppContext";
+import { XP_REWARD_BY_PRIORITY } from "../constants/rewards";
 
 // ——— 1) Configuración de filtros ———
 const mainFilters = [
@@ -130,6 +138,7 @@ const elementInfo = {
 };
 
 export default function TasksScreen() {
+  const dispatch = useAppDispatch();
   // ——— 2) Estados ———
   const [tasks, setTasks] = useState([
     // Ejemplo de tareas; reemplaza/inyecta tus datos reales
@@ -225,6 +234,16 @@ export default function TasksScreen() {
         t.id === id ? { ...t, completed: !t.completed, isDeleted: false } : t
       )
     );
+  const onTaskCompleted = (task) => {
+    const priorityLabel =
+      priorityOptions.find((p) => p.key === task.priority)?.label || "";
+    const { xp = 0, mana = 0 } =
+      XP_REWARD_BY_PRIORITY[priorityLabel] || { xp: 0, mana: 0 };
+    dispatch({
+      type: "APPLY_TASK_REWARD",
+      payload: { xpDelta: xp, manaDelta: mana },
+    });
+  };
   const onSoftDeleteTask = (id) =>
     setTasks((prev) =>
       prev.map((t) => (t.id === id ? { ...t, isDeleted: true } : t))
@@ -297,7 +316,7 @@ export default function TasksScreen() {
   // ——— 5) Render ———
   return (
     <SafeAreaView style={styles.container}>
-      <StatsHeader level={1} xp={25} mana={40} />
+      <StatsHeader />
 
       <FilterBar
         filters={statusFilters}
@@ -324,6 +343,7 @@ export default function TasksScreen() {
             onEditTask={onEditTask}
             onToggleSubtask={onToggleSubtask}
             activeFilter={statusFilter}
+            onTaskCompleted={onTaskCompleted}
           />
         )}
         style={styles.list}
