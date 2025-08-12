@@ -1,6 +1,6 @@
 // [MB] Módulo: Home / Componente: MagicShopSection
 // Afecta: HomeScreen
-// Propósito: Sección placeholder para la tienda mágica
+// Propósito: Sección de tienda mágica con tabs y maná disponible
 // Puntos de edición futura: integrar productos y navegación
 // Autor: Codex - Fecha: 2025-08-12
 
@@ -9,6 +9,7 @@ import { View, Text, Pressable } from "react-native";
 import styles from "./MagicShopSection.styles";
 import ShopItemCard from "./ShopItemCard";
 import { ShopColors } from "../../theme";
+import { useAppState } from "../../state/AppContext";
 
 const TABS = [
   { key: "potions", label: "Pociones" },
@@ -32,10 +33,12 @@ const SHOP_ITEMS = {
 
 export default function MagicShopSection() {
   const [activeTab, setActiveTab] = useState("potions");
+  const { mana } = useAppState();
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tienda Mágica</Text>
+      <Text style={styles.manaText}>Maná disponible: {mana}</Text>
 
       <View style={styles.tabsRow}>
         {TABS.map((tab, index) => {
