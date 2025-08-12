@@ -16,7 +16,7 @@ export default function HomeWelcomeCard() {
   return (
     <View style={styles.container}>
       <Text accessibilityRole="header" style={styles.title}>
-        ¡Hola, Jugador!
+        ¡Hola, Sebas!
       </Text>
       <Text style={styles.subtitle}>
         Planta: {plantState} · Nivel {level} · Racha {streak} · Maná {mana}
