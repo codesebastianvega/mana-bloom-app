@@ -49,11 +49,25 @@ export default StyleSheet.create({
     borderRadius: Radii.lg,
     padding: Spacing.small,
     marginBottom: Spacing.small,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     ...Elevation.card,
   },
   itemText: {
     ...Typography.body,
     color: Colors.text,
+  },
+  useButton: {
+    backgroundColor: Colors.buttonBg,
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.small,
+    borderRadius: Radii.sm,
+    marginLeft: Spacing.small,
+  },
+  useButtonText: {
+    ...Typography.caption,
+    color: Colors.textInverse,
   },
   viewAllButton: {
     marginTop: Spacing.base,

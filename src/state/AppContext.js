@@ -124,6 +124,23 @@ function appReducer(state, action) {
       }
       return { ...state, mana: state.mana - cost };
     }
+    case "CONSUME_ITEM": {
+      const { sku } = action.payload;
+      const item = state.inventory.find((it) => it.sku === sku);
+      if (!item || item.quantity <= 0) {
+        return state;
+      }
+      let mana = state.mana;
+      if (sku === "shop/potions/p2") {
+        mana += 100;
+      }
+      const inventory = state.inventory
+        .map((it) =>
+          it.sku === sku ? { ...it, quantity: it.quantity - 1 } : it
+        )
+        .filter((it) => it.quantity > 0);
+      return { ...state, mana, inventory };
+    }
     default:
       return state;
   }
