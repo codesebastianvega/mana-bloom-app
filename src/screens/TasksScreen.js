@@ -1,12 +1,12 @@
 // [MB] Módulo: Tasks / Sección: Pantalla de tareas
 // Afecta: TasksScreen (listado y gestión de tareas)
-// Propósito: Listar, filtrar y aplicar recompensas por completar tareas
-// Puntos de edición futura: persistencia de tareas y estilos de filtros
+// Propósito: Listar, filtrar y persistir tareas con recompensas seguras
+// Puntos de edición futura: manejo remoto y estilos de filtros
 // Autor: Codex - Fecha: 2025-08-12
 
 import React, { useState, useEffect } from "react";
 import { SafeAreaView, FlatList, Modal, View } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getTasks as getStoredTasks, setTasks as setStoredTasks } from "../storage";
 
 import StatsHeader from "../components/StatsHeader";
 import SearchBar from "../components/SearchBar/SearchBar";
@@ -140,37 +140,7 @@ const elementInfo = {
 export default function TasksScreen() {
   const dispatch = useAppDispatch();
   // ——— 2) Estados ———
-  const [tasks, setTasks] = useState([
-    // Ejemplo de tareas; reemplaza/inyecta tus datos reales
-    {
-      id: 1,
-      title: "Comprar insumo X",
-      note: "Detalle breve de la tarea",
-      completed: false,
-      isDeleted: false,
-      type: "single",
-      element: "fire",
-      priority: "medium",
-      tags: ["personal"],
-      difficulty: "hard",
-      subtasks: [
-        { id: 1, text: "Revisar opciones", completed: false },
-        { id: 2, text: "Hacer pedido", completed: false },
-      ],
-    },
-    {
-      id: 2,
-      title: "Hacer ejercicio",
-      note: "30 min de cardio",
-      completed: false,
-      isDeleted: false,
-      type: "habit",
-      element: "water",
-      priority: "hard",
-      tags: ["salud"],
-      difficulty: "medium",
-    },
-  ]);
+  const [tasks, setTasks] = useState([]);
   const uniqueTags = Array.from(new Set(tasks.flatMap((t) => t.tags || [])));
   // useState para manejar el estado de los filtros
   const [activeFilter, setActiveFilter] = useState("all");
@@ -185,28 +155,20 @@ export default function TasksScreen() {
   const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
-    const loadTasks = async () => {
-      try {
-        const storedTasks = await AsyncStorage.getItem("tasks");
-        if (storedTasks) {
-          setTasks(JSON.parse(storedTasks));
-        }
-      } catch (error) {
-        console.error("Error loading tasks", error);
-      }
+    const hydrate = async () => {
+      const stored = await getStoredTasks();
+      const normalized = stored.map((t) => ({
+        ...t,
+        note: t.note ?? t.description ?? "",
+        completed: t.done,
+      }));
+      setTasks(normalized);
     };
-    loadTasks();
+    hydrate();
   }, []);
 
   useEffect(() => {
-    const saveTasks = async () => {
-      try {
-        await AsyncStorage.setItem("tasks", JSON.stringify(tasks));
-      } catch (error) {
-        console.error("Error saving tasks", error);
-      }
-    };
-    saveTasks();
+    setStoredTasks(tasks);
   }, [tasks]);
 
   const difficultyOptions = [
@@ -216,57 +178,95 @@ export default function TasksScreen() {
   ];
   // filtro avanzado
   const [difficultyFilter, setDifficultyFilter] = useState("all");
-
-  const handleSaveTask = (data) => {
-    const nextId = tasks.length ? Math.max(...tasks.map((t) => t.id)) + 1 : 1;
+  const addTask = (draft) => {
     const newTask = {
-      id: nextId,
+      id: Date.now().toString(),
+      title: draft.title,
+      description: draft.description || draft.note || "",
+      note: draft.note || "",
+      priority: draft.priority,
+      type: draft.type,
+      element: draft.element,
+      tags: draft.tags || [],
+      difficulty: draft.difficulty,
+      subtasks: draft.subtasks || [],
+      done: false,
       completed: false,
       isDeleted: false,
-      ...data,
+      createdAt: new Date().toISOString(),
+      completedAt: null,
     };
     setTasks((prev) => [newTask, ...prev]);
   };
-  // ——— 3) Handlers ———
-  const onToggleComplete = (id) =>
+
+  const updateTask = (updated) => {
+    const toSave = { ...updated };
+    if (updated.note !== undefined) {
+      toSave.description = updated.note;
+    }
     setTasks((prev) =>
-      prev.map((t) =>
-        t.id === id ? { ...t, completed: !t.completed, isDeleted: false } : t
-      )
+      prev.map((t) => (t.id === toSave.id ? { ...t, ...toSave } : t))
     );
-  const onTaskCompleted = (task) => {
-    const priorityLabel =
-      priorityOptions.find((p) => p.key === task.priority)?.label || "";
-    const { xp = 0, mana = 0 } =
-      XP_REWARD_BY_PRIORITY[priorityLabel] || { xp: 0, mana: 0 };
-    dispatch({
-      type: "APPLY_TASK_REWARD",
-      payload: { xpDelta: xp, manaDelta: mana },
-    });
   };
+
+  const deleteTask = (id) => {
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const toggleTaskDone = (id) => {
+    const target = tasks.find((t) => t.id === id);
+    if (!target) return;
+    const newDone = !target.done;
+    const updated = {
+      ...target,
+      done: newDone,
+      completed: newDone,
+      completedAt: newDone ? new Date().toISOString() : null,
+      isDeleted: false,
+    };
+    setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+    if (newDone) {
+      const priorityLabel =
+        priorityOptions.find((p) => p.key === target.priority)?.label || "";
+      const { xp = 0, mana = 0 } =
+        XP_REWARD_BY_PRIORITY[priorityLabel] || { xp: 0, mana: 0 };
+      dispatch({
+        type: "APPLY_TASK_REWARD",
+        payload: { xpDelta: xp, manaDelta: mana },
+      });
+    }
+  };
+
   const onSoftDeleteTask = (id) =>
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, isDeleted: true } : t))
-    );
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, isDeleted: true } : t)));
+
   const onRestoreTask = (id) =>
     setTasks((prev) =>
       prev.map((t) =>
-        t.id === id ? { ...t, isDeleted: false, completed: false } : t
+        t.id === id
+          ? { ...t, isDeleted: false, done: false, completed: false, completedAt: null }
+          : t
       )
     );
-  const onPermanentDeleteTask = (id) =>
-    setTasks((prev) => prev.filter((t) => t.id !== id));
+
+  const onPermanentDeleteTask = (id) => deleteTask(id);
+
   const onEditTask = (task) => {
     setEditingTask(task);
     setShowEditModal(true);
   };
-  const handleUpdateTask = (updatedTask) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
-    );
+
+  const handleSaveTask = (data) => {
+    addTask(data);
+    setShowAddModal(false);
+  };
+
+  const handleUpdateTask = (updatedData) => {
+    updateTask(updatedData);
     setShowEditModal(false);
     setEditingTask(null);
   };
+
   const onToggleSubtask = (taskId, subId) =>
     setTasks((prev) =>
       prev.map((t) => {
@@ -279,7 +279,7 @@ export default function TasksScreen() {
         };
       })
     );
-  //boton para añadir tarea
+
   const onAddTask = () => {
     setShowAddModal(true);
   };
@@ -289,13 +289,13 @@ export default function TasksScreen() {
     let stateOK;
     switch (statusFilter) {
       case "completed":
-        stateOK = task.completed && !task.isDeleted;
+        stateOK = task.done && !task.isDeleted;
         break;
       case "deleted":
         stateOK = task.isDeleted;
         break;
       default:
-        stateOK = !task.completed && !task.isDeleted;
+        stateOK = !task.done && !task.isDeleted;
     }
     const typeOK = activeFilter === "all" || task.type === activeFilter;
     const elementOK = elementFilter === "all" || task.element === elementFilter;
@@ -336,17 +336,17 @@ export default function TasksScreen() {
         renderItem={({ item }) => (
           <SwipeableTaskItem
             task={item}
-            onToggleComplete={onToggleComplete}
+            onToggleComplete={toggleTaskDone}
             onSoftDeleteTask={onSoftDeleteTask}
             onRestoreTask={onRestoreTask}
             onPermanentDeleteTask={onPermanentDeleteTask}
             onEditTask={onEditTask}
             onToggleSubtask={onToggleSubtask}
             activeFilter={statusFilter}
-            onTaskCompleted={onTaskCompleted}
           />
         )}
         style={styles.list}
+        contentContainerStyle={{ paddingBottom: 96 }}
       />
 
       <AddTaskButton onPress={onAddTask} />
