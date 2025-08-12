@@ -1,5 +1,5 @@
 // [MB] Módulo: Estado / Sección: Storage helpers
-// Afecta: AppContext (persistencia de maná, rachas y progreso)
+// Afecta: AppContext (persistencia de maná, rachas, progreso y tareas)
 // Propósito: Persistir datos básicos de usuario en AsyncStorage
 // Puntos de edición futura: extender a otros campos y manejo de errores
 // Autor: Codex - Fecha: 2025-08-12
@@ -10,6 +10,7 @@ const MANA_KEY = "mb:mana";
 const STREAK_KEY = "mb:streak";
 const LAST_CLAIM_DATE_KEY = "mb:lastClaimDate";
 const PROGRESS_KEY = "mb:progress";
+const TASKS_KEY = "mb:tasks";
 
 export async function getMana() {
   try {
@@ -92,6 +93,25 @@ export async function setProgress(progress) {
     await AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
   } catch (e) {
     console.warn("Error guardando progreso en storage", e);
+  }
+}
+
+// [MB] Helpers de tareas
+export async function getTasks() {
+  try {
+    const value = await AsyncStorage.getItem(TASKS_KEY);
+    return value ? JSON.parse(value) : [];
+  } catch (e) {
+    console.warn("Error leyendo tareas de storage", e);
+    return [];
+  }
+}
+
+export async function setTasks(tasks) {
+  try {
+    await AsyncStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+  } catch (e) {
+    console.warn("Error guardando tareas en storage", e);
   }
 }
 
