@@ -1,7 +1,7 @@
 // [MB] Módulo: Home / Estilos: StatsQuickTiles
 // Afecta: HomeScreen
-// Propósito: Estilos placeholder para estadísticas rápidas
-// Puntos de edición futura: ajustar layout de mosaicos
+// Propósito: Estilos para racha, nivel y maná en mosaicos
+// Puntos de edición futura: ajustar layout o añadir animaciones
 // Autor: Codex - Fecha: 2025-08-12
 
 import { StyleSheet } from "react-native";
@@ -39,7 +39,17 @@ export default StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  tileText: {
+  tileSmall: {
+    flex: 0,
+    width: Spacing.xlarge * 2,
+    marginHorizontal: 0,
+    marginLeft: Spacing.tiny,
+  },
+  tileValue: {
+    ...Typography.h2,
+    color: Colors.text,
+  },
+  tileLabel: {
     ...Typography.caption,
     color: Colors.text,
   },
