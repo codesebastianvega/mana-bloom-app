@@ -12,7 +12,7 @@ import { Colors } from "./src/theme";
 import Footer from "./src/components/Footer";
 import HomeScreen from "./src/screens/HomeScreen";
 import TasksScreen from "./src/screens/TasksScreen";
-import MiPlantaScreen from "./src/screens/MiPlantaScreen";
+import PlantScreen from "./src/screens/PlantScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
 import { AppProvider } from "./src/state/AppContext";
 
@@ -30,7 +30,7 @@ export default function App() {
         >
           <Tab.Screen name="HomeScreen" component={HomeScreen} />
           <Tab.Screen name="TasksScreen" component={TasksScreen} />
-          <Tab.Screen name="MiPlantaScreen" component={MiPlantaScreen} />
+          <Tab.Screen name="PlantScreen" component={PlantScreen} />
           <Tab.Screen name="ProfileScreen" component={ProfileScreen} />
         </Tab.Navigator>
       </NavigationContainer>
