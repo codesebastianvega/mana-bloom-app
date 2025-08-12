@@ -1,4 +1,8 @@
-// src/components/SwipeableTaskItem/SwipeableTaskItem.js
+// [MB] Módulo: Tasks / Sección: Tarea swipeable
+// Afecta: TasksScreen (interacción de completar y eliminar tareas)
+// Propósito: Item de tarea deslizable con acciones y recompensas
+// Puntos de edición futura: animaciones y estilos en SwipeableTaskItem
+// Autor: Codex - Fecha: 2025-08-12
 
 import React, { useRef, useState } from "react";
 import {
@@ -74,6 +78,7 @@ export default function SwipeableTaskItem({
   activeFilter,
   onEditTask,
   onToggleSubtask,
+  onTaskCompleted,
 }) {
   if (!task) return null;
 
@@ -94,6 +99,9 @@ export default function SwipeableTaskItem({
       }),
       onPanResponderRelease: (_, gs) => {
         if (gs.dx > threshold) {
+          if (!task.completed && onTaskCompleted) {
+            onTaskCompleted(task);
+          }
           isDeletedView || isCompletedView
             ? onRestoreTask(task.id)
             : onToggleComplete(task.id);

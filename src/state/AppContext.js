@@ -1,6 +1,6 @@
 // [MB] Módulo: Estado / Archivo: AppContext
 // Afecta: toda la app
-// Propósito: Proveer estado global para maná, racha diaria y estado de la planta
+// Propósito: Proveer estado global para maná, progreso de XP y racha diaria
 // Puntos de edición futura: extender persistencia a otros campos y acciones
 // Autor: Codex - Fecha: 2025-08-12
 
@@ -19,6 +19,8 @@ import {
   setStreak,
   getLastClaimDate,
   setLastClaimDate,
+  getProgress,
+  setProgress,
 } from "../storage";
 
 export const DAILY_REWARD_MANA = 10;
@@ -35,7 +37,14 @@ const initialState = {
   plantState: "Floreciendo",
   streak: 0,
   lastClaimDate: null,
+  xp: 0,
+  level: 1,
+  xpGoal: 100,
 };
+
+function roundToNearest10(n) {
+  return Math.round(n / 10) * 10;
+}
 
 function appReducer(state, action) {
   switch (action.type) {
@@ -47,6 +56,27 @@ function appReducer(state, action) {
       return { ...state, streak: action.payload };
     case "SET_LAST_CLAIM_DATE":
       return { ...state, lastClaimDate: action.payload };
+    case "SET_PROGRESS":
+      return {
+        ...state,
+        xp: action.payload.xp,
+        level: action.payload.level,
+        xpGoal: action.payload.xpGoal,
+      };
+    case "APPLY_TASK_REWARD": {
+      const { xpDelta = 0, manaDelta = 0 } = action.payload;
+      let mana = state.mana + manaDelta;
+      if (mana < 0) mana = 0;
+      let xp = state.xp + xpDelta;
+      let level = state.level;
+      let xpGoal = state.xpGoal;
+      while (xp >= xpGoal) {
+        xp -= xpGoal;
+        level += 1;
+        xpGoal = roundToNearest10(Math.ceil(xpGoal * 1.25));
+      }
+      return { ...state, mana, xp, level, xpGoal };
+    }
     case "CLAIM_DAILY_REWARD": {
       const today = getLocalISODate();
       if (state.lastClaimDate === today) {
@@ -79,14 +109,17 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     async function hydrate() {
-      const [storedMana, storedStreak, storedLastClaim] = await Promise.all([
-        getMana(),
-        getStreak(),
-        getLastClaimDate(),
-      ]);
+      const [storedMana, storedStreak, storedLastClaim, storedProgress] =
+        await Promise.all([
+          getMana(),
+          getStreak(),
+          getLastClaimDate(),
+          getProgress(),
+        ]);
       dispatch({ type: "SET_MANA", payload: storedMana });
       dispatch({ type: "SET_STREAK", payload: storedStreak });
       dispatch({ type: "SET_LAST_CLAIM_DATE", payload: storedLastClaim });
+      dispatch({ type: "SET_PROGRESS", payload: storedProgress });
       isHydrating.current = false;
     }
     hydrate();
@@ -108,6 +141,11 @@ export function AppProvider({ children }) {
       setLastClaimDate(state.lastClaimDate);
     }
   }, [state.lastClaimDate]);
+
+  useEffect(() => {
+    if (isHydrating.current) return;
+    setProgress({ xp: state.xp, level: state.level, xpGoal: state.xpGoal });
+  }, [state.xp, state.level, state.xpGoal]);
 
   return (
     <AppStateContext.Provider value={state}>
@@ -142,4 +180,10 @@ export function useCanClaimToday() {
 export function useCanAfford() {
   const { mana } = useAppState();
   return useCallback((cost) => mana >= cost, [mana]);
+}
+
+export function useProgress() {
+  const { xp, xpGoal, level } = useAppState();
+  const progress = xpGoal ? xp / xpGoal : 0;
+  return { xp, xpGoal, level, progress };
 }
