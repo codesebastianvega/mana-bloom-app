@@ -23,6 +23,8 @@ import {
   setProgress,
   getInventory,
   setInventory,
+  getBuffs,
+  setBuffs,
 } from "../storage";
 
 export const DAILY_REWARD_MANA = 10;
@@ -34,6 +36,15 @@ function getLocalISODate(date = new Date()) {
 const AppStateContext = createContext();
 const AppDispatchContext = createContext();
 
+const now = () => Date.now();
+function cleanupExpired(buffs, t = now()) {
+  return (buffs || []).filter((b) => (b?.expiresAt || 0) > t);
+}
+function xpMultiplier(buffs, t = now()) {
+  const active = cleanupExpired(buffs, t);
+  return active.some((b) => b.type === "xp_double") ? 2 : 1;
+}
+
 const initialState = {
   mana: 50,
   plantState: "Floreciendo",
@@ -43,6 +54,7 @@ const initialState = {
   level: 1,
   xpGoal: 100,
   inventory: [],
+  buffs: [],
 };
 
 function roundToNearest10(n) {
@@ -68,6 +80,8 @@ function appReducer(state, action) {
       };
     case "SET_INVENTORY":
       return { ...state, inventory: action.payload };
+    case "SET_BUFFS":
+      return { ...state, buffs: action.payload };
     case "ADD_TO_INVENTORY": {
       const { sku, title, category } = action.payload;
       const existing = state.inventory.find((it) => it.sku === sku);
@@ -91,9 +105,11 @@ function appReducer(state, action) {
     }
     case "APPLY_TASK_REWARD": {
       const { xpDelta = 0, manaDelta = 0 } = action.payload;
+      const mul = xpMultiplier(state.buffs);
+      const xpDeltaAdj = Math.round(xpDelta * mul);
       let mana = state.mana + manaDelta;
       if (mana < 0) mana = 0;
-      let xp = state.xp + xpDelta;
+      let xp = state.xp + xpDeltaAdj;
       let level = state.level;
       let xpGoal = state.xpGoal;
       while (xp >= xpGoal) {
@@ -141,6 +157,19 @@ function appReducer(state, action) {
         .filter((it) => it.quantity > 0);
       return { ...state, mana, inventory };
     }
+    case "ACTIVATE_BUFF": {
+      const { type, durationMs } = action.payload;
+      const startedAt = now();
+      const expiresAt = startedAt + durationMs;
+      const id = String(startedAt);
+      const active = cleanupExpired(state.buffs);
+      return {
+        ...state,
+        buffs: [...active, { id, type, startedAt, expiresAt }],
+      };
+    }
+    case "CLEAN_EXPIRED_BUFFS":
+      return { ...state, buffs: cleanupExpired(state.buffs) };
     default:
       return state;
   }
@@ -158,18 +187,24 @@ export function AppProvider({ children }) {
         storedLastClaim,
         storedProgress,
         storedInventory,
+        storedBuffs,
       ] = await Promise.all([
         getMana(),
         getStreak(),
         getLastClaimDate(),
         getProgress(),
         getInventory(),
+        getBuffs(),
       ]);
       dispatch({ type: "SET_MANA", payload: storedMana });
       dispatch({ type: "SET_STREAK", payload: storedStreak });
       dispatch({ type: "SET_LAST_CLAIM_DATE", payload: storedLastClaim });
       dispatch({ type: "SET_PROGRESS", payload: storedProgress });
       dispatch({ type: "SET_INVENTORY", payload: storedInventory });
+      dispatch({
+        type: "SET_BUFFS",
+        payload: cleanupExpired(storedBuffs),
+      });
       isHydrating.current = false;
     }
     hydrate();
@@ -201,6 +236,11 @@ export function AppProvider({ children }) {
     if (isHydrating.current) return;
     setInventory(state.inventory);
   }, [state.inventory]);
+
+  useEffect(() => {
+    if (isHydrating.current) return;
+    setBuffs(state.buffs);
+  }, [state.buffs]);
 
   return (
     <AppStateContext.Provider value={state}>
@@ -254,4 +294,16 @@ export function useInventoryCounts() {
     { potions: 0, tools: 0, cosmetics: 0, total: 0 }
   );
   return counts;
+}
+
+export function useActiveBuffs() {
+  const { buffs } = useAppState();
+  return cleanupExpired(buffs);
+}
+
+export function useXpMultiplier() {
+  const buffs = useActiveBuffs();
+  const multiplier = xpMultiplier(buffs);
+  const buff = buffs.find((b) => b.type === "xp_double");
+  return { multiplier, expiresAt: buff?.expiresAt };
 }

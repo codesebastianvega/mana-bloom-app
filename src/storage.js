@@ -135,3 +135,24 @@ export async function setInventory(items) {
   }
 }
 
+// [MB] Helpers de buffs
+const BUFFS_KEY = "mb:buffs";
+
+export async function getBuffs() {
+  try {
+    const value = await AsyncStorage.getItem(BUFFS_KEY);
+    return value ? JSON.parse(value) : [];
+  } catch (e) {
+    console.warn("Error leyendo buffs de storage", e);
+    return [];
+  }
+}
+
+export async function setBuffs(buffs) {
+  try {
+    await AsyncStorage.setItem(BUFFS_KEY, JSON.stringify(buffs));
+  } catch (e) {
+    console.warn("Error guardando buffs en storage", e);
+  }
+}
+

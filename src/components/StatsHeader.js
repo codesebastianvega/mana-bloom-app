@@ -7,12 +7,21 @@
 import React from "react";
 import { View, Text, StyleSheet, Platform, StatusBar } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Colors, Spacing } from "../theme";
-import { useProgress, useAppState } from "../state/AppContext";
+import { Colors, Spacing, Radii, Typography } from "../theme";
+import { useProgress, useAppState, useXpMultiplier } from "../state/AppContext";
 
 export default function StatsHeader() {
   const { level, xp, xpGoal, progress } = useProgress();
   const { mana } = useAppState();
+  const { multiplier, expiresAt } = useXpMultiplier();
+  const remainingMs = expiresAt ? expiresAt - Date.now() : 0;
+  const formatRemaining = (ms) => {
+    const total = Math.max(0, Math.floor(ms / 60000));
+    const h = Math.floor(total / 60);
+    const m = total % 60;
+    return `${h}h ${m}m`;
+  };
+  const remainingText = expiresAt ? formatRemaining(remainingMs) : null;
   const percent = Math.min(Math.max(progress * 100, 0), 100);
   return (
     <View style={styles.container}>
@@ -23,7 +32,19 @@ export default function StatsHeader() {
             {xp}/{xpGoal} XP
           </Text>
         </View>
-        <Text style={styles.manaText}>Vida: {mana}</Text>
+        <View style={styles.rightRow}>
+          {multiplier === 2 && (
+            <View style={styles.buffContainer}>
+              <View style={styles.buffChip}>
+                <Text style={styles.buffChipText}>XP×2</Text>
+              </View>
+              {remainingText && (
+                <Text style={styles.buffTime}>{remainingText}</Text>
+              )}
+            </View>
+          )}
+          <Text style={styles.manaText}>Vida: {mana}</Text>
+        </View>
       </View>
       <View style={styles.progressBackground}>
         <LinearGradient
@@ -73,6 +94,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.text,
     fontWeight: "600",
+  },
+  rightRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  buffContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: Spacing.small,
+  },
+  buffChip: {
+    backgroundColor: Colors.accent,
+    borderRadius: Radii.pill,
+    paddingHorizontal: Spacing.small,
+    height: 24,
+    justifyContent: "center",
+    marginRight: Spacing.tiny,
+  },
+  buffChipText: {
+    ...Typography.caption,
+    color: Colors.textInverse,
+  },
+  buffTime: {
+    ...Typography.caption,
+    color: Colors.text,
   },
   progressBackground: {
     width: "100%",
