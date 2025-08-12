@@ -25,6 +25,11 @@ export default StyleSheet.create({
     ...Typography.h2,
     color: Colors.text,
   },
+  subtitle: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    marginTop: Spacing.tiny,
+  },
   manaRow: {
     flexDirection: "row",
     alignItems: "center",

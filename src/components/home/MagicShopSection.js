@@ -44,6 +44,7 @@ export default function MagicShopSection() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tienda Mágica</Text>
+      <Text style={styles.subtitle}>Las pociones compradas se guardan en Inventario</Text>
 
       <View style={styles.manaRow}>
         <Text style={styles.manaLabel} accessibilityRole="text">
