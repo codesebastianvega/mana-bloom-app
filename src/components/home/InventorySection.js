@@ -21,8 +21,21 @@ export default function InventorySection() {
   const topItems = inventory.slice(0, 3);
 
   const handleUse = (item) => {
+    const current = inventory.find((it) => it.sku === item.sku);
+    if (!current || current.quantity <= 0) return;
     dispatch({ type: "CONSUME_ITEM", payload: { sku: item.sku } });
-    Alert.alert("Poción usada", "Cristal de Maná +100");
+    if (item.sku === "shop/potions/p1") {
+      dispatch({
+        type: "ACTIVATE_BUFF",
+        payload: { type: "xp_double", durationMs: 2 * 60 * 60 * 1000 },
+      });
+      Alert.alert(
+        "Poción usada",
+        "Sabiduría activa: XP x2 por 2 horas"
+      );
+    } else if (item.sku === "shop/potions/p2") {
+      Alert.alert("Poción usada", "Cristal de Maná +100");
+    }
   };
 
   return (
@@ -46,7 +59,7 @@ export default function InventorySection() {
           const isUsable =
             item.category === "potions" &&
             item.quantity > 0 &&
-            item.sku === "shop/potions/p2";
+            (item.sku === "shop/potions/p2" || item.sku === "shop/potions/p1");
           return (
             <View key={item.id} style={styles.itemCard}>
               <Text style={styles.itemText}>{`${item.title} × ${item.quantity}`}</Text>
