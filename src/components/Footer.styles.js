@@ -17,13 +17,14 @@ export default StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: Spacing.tiny,
+    paddingVertical: Spacing.small,
+    paddingBottom: 10,
   },
   activeIcon: {
     alignItems: "center",
     justifyContent: "center",
-    padding: Spacing.tiny,
-    borderRadius: 20,
+    padding: Spacing.small,
+    borderRadius: 8,
   },
   activeLabel: {
     marginTop: Spacing.tiny,
@@ -32,4 +33,3 @@ export default StyleSheet.create({
     fontWeight: "bold",
   },
 });
-
