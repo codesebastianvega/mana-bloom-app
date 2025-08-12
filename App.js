@@ -1,65 +1,30 @@
-// App.js
-
-import React, { useState } from "react";
-import { SafeAreaView, StyleSheet, View, Text } from "react-native";
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Colors } from "./src/theme";
-import TasksScreen from "./src/screens/TasksScreen";
+
 import Footer from "./src/components/Footer";
+import HomeScreen from "./src/screens/HomeScreen";
+import TasksScreen from "./src/screens/TasksScreen";
+import MiPlantaScreen from "./src/screens/MiPlantaScreen";
+import ProfileScreen from "./src/screens/ProfileScreen";
+
+const Tab = createBottomTabNavigator();
 
 export default function App() {
-  const [activeScreen, setActiveScreen] = useState("tasks");
-
-  const handleNavigate = (screen) => {
-    setActiveScreen(screen);
-  };
-
-  const renderScreen = () => {
-    switch (activeScreen) {
-      case "tasks":
-        return <TasksScreen />;
-      case "plant":
-        return (
-          <View style={styles.placeholder}>
-            <Text style={styles.placeholderText}>Planta</Text>
-          </View>
-        );
-      case "stats":
-        return (
-          <View style={styles.placeholder}>
-            <Text style={styles.placeholderText}>Estadísticas</Text>
-          </View>
-        );
-      case "profile":
-        return (
-          <View style={styles.placeholder}>
-            <Text style={styles.placeholderText}>Perfil</Text>
-          </View>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
-    <SafeAreaView style={styles.container}>
-      {renderScreen()}
-      <Footer activeScreen={activeScreen} onNavigate={handleNavigate} />
-    </SafeAreaView>
+    <NavigationContainer>
+      <Tab.Navigator
+        initialRouteName="HomeScreen"
+        screenOptions={{ headerShown: false }}
+        tabBar={(props) => <Footer {...props} />}
+        sceneContainerStyle={{ backgroundColor: Colors.background }}
+      >
+        <Tab.Screen name="HomeScreen" component={HomeScreen} />
+        <Tab.Screen name="TasksScreen" component={TasksScreen} />
+        <Tab.Screen name="MiPlantaScreen" component={MiPlantaScreen} />
+        <Tab.Screen name="ProfileScreen" component={ProfileScreen} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background, // <-- aquí usamos tu token de tema
-  },
-  placeholder: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  placeholderText: {
-    color: Colors.text,
-    fontSize: 16,
-  },
-});
