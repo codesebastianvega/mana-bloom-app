@@ -1,8 +1,20 @@
+// [MB] Módulo: Home / Pantalla: HomeScreen
+// Afecta: HomeScreen (layout principal)
+// Propósito: Renderizar secciones placeholder de inicio
+// Puntos de edición futura: conectar datos reales y navegación
+// Autor: Codex - Fecha: 2025-08-12
+
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors } from "../theme";
+import { Colors, Spacing } from "../theme";
 import HomeScreenHeader from "../components/HomeScreenHeader";
+import HomeWelcomeCard from "../components/home/HomeWelcomeCard";
+import DailyChallengesSection from "../components/home/DailyChallengesSection";
+import MagicShopSection from "../components/home/MagicShopSection";
+import NewsFeedSection from "../components/home/NewsFeedSection";
+import StatsQuickTiles from "../components/home/StatsQuickTiles";
+import EventBanner from "../components/home/EventBanner";
 
 export default function HomeScreen() {
   return (
@@ -12,6 +24,19 @@ export default function HomeScreen() {
         manaCount={50}
         plantState="Floreciendo"
       />
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: Spacing.base,
+          paddingBottom: 96,
+        }}
+      >
+        <HomeWelcomeCard />
+        <DailyChallengesSection />
+        <MagicShopSection />
+        <NewsFeedSection />
+        <StatsQuickTiles />
+        <EventBanner />
+      </ScrollView>
     </SafeAreaView>
   );
 }
