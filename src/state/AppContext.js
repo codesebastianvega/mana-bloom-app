@@ -1,6 +1,6 @@
 // [MB] Módulo: Estado / Archivo: AppContext
 // Afecta: toda la app
-// Propósito: Proveer estado global para maná, progreso de XP, racha diaria y desafíos
+// Propósito: Proveer estado global (maná, progreso, racha, desafíos y noticias)
 // Puntos de edición futura: extender persistencia a otros campos y acciones
 // Autor: Codex - Fecha: 2025-08-12
 
@@ -27,6 +27,8 @@ import {
   setBuffs,
   getDailyChallengesState,
   setDailyChallengesState,
+  getNewsFeed,
+  setNewsFeed,
 } from "../storage";
 
 export const DAILY_REWARD_MANA = 10;
@@ -77,6 +79,42 @@ function generateDefaultDailyChallenges() {
   }));
 }
 
+function generateDefaultNewsFeed() {
+  const now = Date.now();
+  return {
+    items: [
+      {
+        id: `news-${now}-1`,
+        title: "Bienvenido a Mana Bloom",
+        iconName: "sparkles",
+        timestamp: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+        read: false,
+      },
+      {
+        id: `news-${now}-2`,
+        title: "Recuerda regar tu planta",
+        iconName: "leaf",
+        timestamp: new Date(now - 6 * 60 * 60 * 1000).toISOString(),
+        read: false,
+      },
+      {
+        id: `news-${now}-3`,
+        title: "Nueva recompensa diaria disponible",
+        iconName: "flame",
+        timestamp: new Date(now - 24 * 60 * 60 * 1000).toISOString(),
+        read: false,
+      },
+      {
+        id: `news-${now}-4`,
+        title: "Evento especial de hace 3 días",
+        iconName: "sparkles",
+        timestamp: new Date(now - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        read: false,
+      },
+    ],
+  };
+}
+
 const initialState = {
   mana: 50,
   plantState: "Floreciendo",
@@ -88,6 +126,7 @@ const initialState = {
   inventory: [],
   buffs: [],
   dailyChallenges: { dateKey: null, items: [] },
+  news: { items: [] },
 };
 
 function roundToNearest10(n) {
@@ -117,6 +156,18 @@ function appReducer(state, action) {
       return { ...state, buffs: action.payload };
     case "SET_DAILY_CHALLENGES":
       return { ...state, dailyChallenges: action.payload };
+    case "SET_NEWS":
+      return { ...state, news: action.payload };
+    case "MARK_NEWS_READ": {
+      const items = state.news.items.map((it) =>
+        it.id === action.payload.id ? { ...it, read: true } : it
+      );
+      return { ...state, news: { ...state.news, items } };
+    }
+    case "MARK_ALL_NEWS_READ": {
+      const items = state.news.items.map((it) => ({ ...it, read: true }));
+      return { ...state, news: { ...state.news, items } };
+    }
     case "ADD_TO_INVENTORY": {
       const { sku, title, category } = action.payload;
       const existing = state.inventory.find((it) => it.sku === sku);
@@ -257,6 +308,7 @@ export function AppProvider({ children }) {
         storedInventory,
         storedBuffs,
         storedDailyChallenges,
+        storedNews,
       ] = await Promise.all([
         getMana(),
         getStreak(),
@@ -265,6 +317,7 @@ export function AppProvider({ children }) {
         getInventory(),
         getBuffs(),
         getDailyChallengesState(),
+        getNewsFeed(),
       ]);
       dispatch({ type: "SET_MANA", payload: storedMana });
       dispatch({ type: "SET_STREAK", payload: storedStreak });
@@ -288,6 +341,12 @@ export function AppProvider({ children }) {
         type: "SET_DAILY_CHALLENGES",
         payload: dailyChallenges,
       });
+      let news = storedNews;
+      if (!news) {
+        news = generateDefaultNewsFeed();
+        await setNewsFeed(news);
+      }
+      dispatch({ type: "SET_NEWS", payload: news });
       isHydrating.current = false;
     }
     hydrate();
@@ -329,6 +388,11 @@ export function AppProvider({ children }) {
     if (isHydrating.current) return;
     setDailyChallengesState(state.dailyChallenges);
   }, [state.dailyChallenges]);
+
+  useEffect(() => {
+    if (isHydrating.current) return;
+    setNewsFeed(state.news);
+  }, [state.news]);
 
   return (
     <AppStateContext.Provider value={state}>
@@ -399,4 +463,9 @@ export function useXpMultiplier() {
 export function useDailyChallenges() {
   const { dailyChallenges } = useAppState();
   return dailyChallenges;
+}
+
+export function useNewsFeed() {
+  const { news } = useAppState();
+  return news;
 }
