@@ -1,6 +1,6 @@
 // [MB] Módulo: Home / Pantalla: HomeScreen
 // Afecta: HomeScreen (layout principal)
-// Propósito: Renderizar secciones placeholder de inicio
+// Propósito: Renderizar secciones de inicio y mostrar estado global
 // Puntos de edición futura: conectar datos reales y navegación
 // Autor: Codex - Fecha: 2025-08-12
 
@@ -15,15 +15,14 @@ import MagicShopSection from "../components/home/MagicShopSection";
 import NewsFeedSection from "../components/home/NewsFeedSection";
 import StatsQuickTiles from "../components/home/StatsQuickTiles";
 import EventBanner from "../components/home/EventBanner";
+import { useAppState } from "../state/AppContext";
 
 export default function HomeScreen() {
+  const { mana, plantState } = useAppState();
+
   return (
     <SafeAreaView style={styles.container}>
-      <HomeScreenHeader
-        userName="Jugador"
-        manaCount={50}
-        plantState="Floreciendo"
-      />
+      <HomeScreenHeader userName="Jugador" manaCount={mana} plantState={plantState} />
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: Spacing.base,

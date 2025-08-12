@@ -25,6 +25,11 @@ export default StyleSheet.create({
     ...Typography.h2,
     color: Colors.text,
   },
+  manaText: {
+    ...Typography.caption,
+    color: Colors.text,
+    marginTop: Spacing.small,
+  },
   tabsRow: {
     flexDirection: "row",
     marginTop: Spacing.base,
