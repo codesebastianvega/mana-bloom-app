@@ -6,17 +6,17 @@ import { LinearGradient } from "expo-linear-gradient";
 import styles from "./Footer.styles";
 
 const NAV_ITEMS = [
-  { route: "Home", label: "Inicio", icon: "home" },
-  { route: "Tasks", label: "Tareas", icon: "tasks" },
-  { route: "Plant", label: "Mi Planta", icon: "leaf" },
-  { route: "Profile", label: "Perfil", icon: "user" },
+  { route: "HomeScreen", label: "Inicio", icon: "home" },
+  { route: "TasksScreen", label: "Tareas", icon: "tasks" },
+  { route: "MiPlantaScreen", label: "Mi Planta", icon: "leaf" },
+  { route: "ProfileScreen", label: "Perfil", icon: "user" },
 ];
 
-export default function Footer({ navigation, activeRoute }) {
+export default function Footer({ state, navigation }) {
   return (
     <View style={styles.container}>
-      {NAV_ITEMS.map((item) => {
-        const isActive = activeRoute === item.route;
+      {NAV_ITEMS.map((item, index) => {
+        const isActive = state.index === index;
         return (
           <TouchableOpacity
             key={item.route}
