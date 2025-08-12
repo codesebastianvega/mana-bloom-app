@@ -1,0 +1,49 @@
+// [MB] Módulo: Home / Estilos: Recompensa Diaria
+// Afecta: HomeScreen
+// Propósito: Estilos para sección de recompensa diaria
+// Puntos de edición futura: ajustar colores y diseño del botón
+// Autor: Codex - Fecha: 2025-08-12
+
+import { StyleSheet } from "react-native";
+import {
+  Colors,
+  Spacing,
+  Radii,
+  Elevation,
+  Typography,
+} from "../../theme";
+
+export default StyleSheet.create({
+  container: {
+    backgroundColor: Colors.surface,
+    padding: Spacing.base,
+    borderRadius: Radii.lg,
+    marginBottom: Spacing.large,
+    ...Elevation.card,
+  },
+  title: {
+    ...Typography.title,
+    color: Colors.text,
+    marginBottom: Spacing.small,
+  },
+  claimButton: {
+    backgroundColor: Colors.buttonBg,
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.base,
+    borderRadius: Radii.md,
+    alignItems: "center",
+  },
+  claimButtonText: {
+    ...Typography.body,
+    color: Colors.textInverse,
+  },
+  claimedText: {
+    ...Typography.body,
+    color: Colors.text,
+    marginBottom: Spacing.small,
+  },
+  streakText: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+});

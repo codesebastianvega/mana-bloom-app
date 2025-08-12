@@ -10,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors, Spacing } from "../theme";
 import HomeScreenHeader from "../components/HomeScreenHeader";
 import HomeWelcomeCard from "../components/home/HomeWelcomeCard";
+import DailyRewardSection from "../components/home/DailyRewardSection";
 import DailyChallengesSection from "../components/home/DailyChallengesSection";
 import MagicShopSection from "../components/home/MagicShopSection";
 import NewsFeedSection from "../components/home/NewsFeedSection";
@@ -30,6 +31,7 @@ export default function HomeScreen() {
         }}
       >
         <HomeWelcomeCard />
+        <DailyRewardSection />
         <DailyChallengesSection />
         <MagicShopSection />
         <NewsFeedSection />
