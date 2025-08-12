@@ -6,17 +6,18 @@ import { LinearGradient } from "expo-linear-gradient";
 import styles from "./Footer.styles";
 
 const NAV_ITEMS = [
-  { route: "Home", label: "Inicio", icon: "home" },
-  { route: "Tasks", label: "Tareas", icon: "tasks" },
-  { route: "Plant", label: "Mi Planta", icon: "leaf" },
-  { route: "Profile", label: "Perfil", icon: "user" },
+  { route: "HomeScreen", label: "Inicio", icon: "home" },
+  { route: "TasksScreen", label: "Tareas", icon: "tasks" },
+  { route: "MiPlantaScreen", label: "Mi Planta", icon: "leaf" },
+  { route: "ProfileScreen", label: "Perfil", icon: "user" },
 ];
 
-export default function Footer({ navigation, activeRoute }) {
+export default function Footer({ state, navigation }) {
   return (
     <View style={styles.container}>
-      {NAV_ITEMS.map((item) => {
-        const isActive = activeRoute === item.route;
+      {NAV_ITEMS.map((item, index) => {
+        const isActive = state.index === index;
+
         return (
           <TouchableOpacity
             key={item.route}
@@ -24,18 +25,17 @@ export default function Footer({ navigation, activeRoute }) {
             onPress={() => navigation.navigate(item.route)}
           >
             {isActive ? (
-              <LinearGradient
-                colors={["#1E90FF", "#9932CC"]}
-                style={styles.activeButton}
-              >
-                <FontAwesome5 name={item.icon} size={20} color="#FFF" />
+              <>
+                <LinearGradient
+                  colors={["#1E90FF", "#9932CC"]}
+                  style={styles.activeIcon}
+                >
+                  <FontAwesome5 name={item.icon} size={20} color="#FFF" />
+                </LinearGradient>
                 <Text style={styles.activeLabel}>{item.label}</Text>
-              </LinearGradient>
+              </>
             ) : (
-              <View style={styles.inactiveButton}>
-                <FontAwesome5 name={item.icon} size={20} color="#A9A9A9" />
-                <Text style={styles.label}>{item.label}</Text>
-              </View>
+              <FontAwesome5 name={item.icon} size={20} color="#A9A9A9" />
             )}
           </TouchableOpacity>
         );
