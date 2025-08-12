@@ -8,7 +8,7 @@ import React from "react";
 import { Pressable, View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import styles from "./ShopItemCard.styles";
-import { Colors } from "../../theme";
+import { Colors, Opacity } from "../../theme";
 
 export default function ShopItemCard({
   title,
@@ -17,25 +17,34 @@ export default function ShopItemCard({
   iconName,
   accent,
   selected,
+  disabled,
   onPress,
   ...rest
 }) {
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
       style={[
         styles.card,
         { borderColor: accent.border },
-        selected && { borderColor: accent.pill, shadowColor: accent.pill },
+        selected && {
+          borderColor: accent.pill,
+          shadowColor: accent.pill,
+          shadowOpacity: 0.6,
+          shadowRadius: 6,
+        },
+        disabled && { opacity: Opacity.disabled },
       ]}
       accessibilityRole="button"
+      accessibilityState={{ disabled }}
       {...rest}
     >
       <View style={styles.info}>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.description}>{description}</Text>
       </View>
-      <View style={[styles.pill, { backgroundColor: accent.pill }]}>
+      <View style={[styles.pill, { backgroundColor: accent.pill }]}> 
         <Ionicons name={iconName} size={16} color={Colors.textInverse} />
         <Text style={styles.pillText}>{price}</Text>
       </View>
