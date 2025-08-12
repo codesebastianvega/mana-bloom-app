@@ -26,8 +26,8 @@ export default StyleSheet.create({
   },
   iconBackground: {
     padding: Spacing.tiny,
-    borderRadius: 12,
-    marginRight: Spacing.tiny,
+    borderRadius: 8,
+    marginRight: Spacing.small,
   },
   statusText: {
     color: Colors.text,
