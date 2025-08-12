@@ -1,7 +1,7 @@
 // [MB] Módulo: Home / Estilos: EventBanner
 // Afecta: HomeScreen
-// Propósito: Estilos placeholder para banner de eventos
-// Puntos de edición futura: agregar imágenes y enlaces
+// Propósito: Estilos para banner de evento con chip de días restantes
+// Puntos de edición futura: agregar imágenes, enlaces y fecha dinámica
 // Autor: Codex - Fecha: 2025-08-12
 
 import { StyleSheet } from "react-native";
@@ -23,6 +23,19 @@ export default StyleSheet.create({
   },
   title: {
     ...Typography.h2,
+    color: Colors.text,
+  },
+  chip: {
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: Radii.pill,
+    paddingHorizontal: Spacing.base,
+    height: 28,
+    justifyContent: "center",
+    marginTop: Spacing.small,
+    alignSelf: "flex-start",
+  },
+  chipText: {
+    ...Typography.caption,
     color: Colors.text,
   },
 });
