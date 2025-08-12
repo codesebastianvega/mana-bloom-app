@@ -1,7 +1,7 @@
 // [MB] Módulo: Home / Sección: Tienda Mágica (Estilos)
 // Afecta: HomeScreen
 // Propósito: Estilos para sección de tienda mágica con tabs y cards
-// Puntos de edición futura: diferenciar categorías y tarjetas
+// Puntos de edición futura: diferenciar categorías y tarjetas, retirar debug
 // Autor: Codex - Fecha: 2025-08-12
 
 import { StyleSheet } from "react-native";
@@ -83,6 +83,19 @@ export default StyleSheet.create({
   },
   viewAllText: {
     ...Typography.body,
+    color: Colors.text,
+  },
+  debugButton: {
+    alignSelf: "flex-end",
+    marginTop: Spacing.tiny,
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.base,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  debugButtonText: {
+    ...Typography.caption,
     color: Colors.text,
   },
 });
