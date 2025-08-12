@@ -1,5 +1,5 @@
 // [MB] Módulo: Estado / Sección: Storage helpers
-// Afecta: AppContext (persistencia de maná, rachas, progreso y tareas)
+// Afecta: AppContext (persistencia de maná, rachas, progreso, tareas y desafíos)
 // Propósito: Persistir datos básicos de usuario en AsyncStorage
 // Puntos de edición futura: extender a otros campos y manejo de errores
 // Autor: Codex - Fecha: 2025-08-12
@@ -12,6 +12,7 @@ const LAST_CLAIM_DATE_KEY = "mb:lastClaimDate";
 const PROGRESS_KEY = "mb:progress";
 const TASKS_KEY = "mb:tasks";
 const INVENTORY_KEY = "mb:inventory";
+const DAILY_CHALLENGES_KEY = "mb:dailyChallenges";
 
 export async function getMana() {
   try {
@@ -132,6 +133,25 @@ export async function setInventory(items) {
     await AsyncStorage.setItem(INVENTORY_KEY, JSON.stringify(items));
   } catch (e) {
     console.warn("Error guardando inventario en storage", e);
+  }
+}
+
+// [MB] Helpers de desafíos diarios
+export async function getDailyChallengesState() {
+  try {
+    const value = await AsyncStorage.getItem(DAILY_CHALLENGES_KEY);
+    return value ? JSON.parse(value) : null;
+  } catch (e) {
+    console.warn("Error leyendo desafíos diarios de storage", e);
+    return null;
+  }
+}
+
+export async function setDailyChallengesState(state) {
+  try {
+    await AsyncStorage.setItem(DAILY_CHALLENGES_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn("Error guardando desafíos diarios en storage", e);
   }
 }
 

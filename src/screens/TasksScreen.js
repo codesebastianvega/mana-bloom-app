@@ -234,6 +234,10 @@ export default function TasksScreen() {
         type: "APPLY_TASK_REWARD",
         payload: { xpDelta: xp, manaDelta: mana },
       });
+      dispatch({
+        type: "UPDATE_DAILY_CHALLENGES_ON_TASK_DONE",
+        payload: { priority: priorityLabel },
+      });
     }
   };
 
