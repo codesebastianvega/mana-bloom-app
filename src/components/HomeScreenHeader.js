@@ -16,7 +16,7 @@ export default function HomeScreenHeader({ userName, manaCount, plantState }) {
             colors={[Colors.primary, Colors.secondary]}
             style={styles.iconBackground}
           >
-            <FontAwesome5 name="leaf" size={16} color={Colors.text} />
+            <FontAwesome5 name="leaf" size={14} color={Colors.text} />
           </LinearGradient>
           <Text style={styles.statusText}>{plantState}</Text>
         </View>
@@ -25,7 +25,7 @@ export default function HomeScreenHeader({ userName, manaCount, plantState }) {
             colors={[Colors.secondary, Colors.primary]}
             style={styles.iconBackground}
           >
-            <Ionicons name="flash" size={16} color={Colors.text} />
+            <Ionicons name="flash" size={14} color={Colors.text} />
           </LinearGradient>
           <Text style={styles.statusText}>{manaCount}</Text>
         </View>
