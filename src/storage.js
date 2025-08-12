@@ -1,5 +1,5 @@
 // [MB] Módulo: Estado / Sección: Storage helpers
-// Afecta: AppContext (persistencia de maná, rachas, progreso, tareas y desafíos)
+// Afecta: AppContext (persistencia de maná, rachas, progreso, tareas, desafíos y noticias)
 // Propósito: Persistir datos básicos de usuario en AsyncStorage
 // Puntos de edición futura: extender a otros campos y manejo de errores
 // Autor: Codex - Fecha: 2025-08-12
@@ -13,6 +13,7 @@ const PROGRESS_KEY = "mb:progress";
 const TASKS_KEY = "mb:tasks";
 const INVENTORY_KEY = "mb:inventory";
 const DAILY_CHALLENGES_KEY = "mb:dailyChallenges";
+const NEWS_KEY = "mb:news";
 
 export async function getMana() {
   try {
@@ -173,6 +174,25 @@ export async function setBuffs(buffs) {
     await AsyncStorage.setItem(BUFFS_KEY, JSON.stringify(buffs));
   } catch (e) {
     console.warn("Error guardando buffs en storage", e);
+  }
+}
+
+// [MB] Helpers de noticias
+export async function getNewsFeed() {
+  try {
+    const value = await AsyncStorage.getItem(NEWS_KEY);
+    return value ? JSON.parse(value) : null;
+  } catch (e) {
+    console.warn("Error leyendo noticias de storage", e);
+    return null;
+  }
+}
+
+export async function setNewsFeed(feed) {
+  try {
+    await AsyncStorage.setItem(NEWS_KEY, JSON.stringify(feed));
+  } catch (e) {
+    console.warn("Error guardando noticias en storage", e);
   }
 }
 
