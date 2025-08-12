@@ -10,6 +10,7 @@ import React, {
   useReducer,
   useEffect,
   useRef,
+  useCallback,
 } from "react";
 import {
   getMana,
@@ -59,6 +60,13 @@ function appReducer(state, action) {
         streak: newStreak,
         lastClaimDate: today,
       };
+    }
+    case "PURCHASE_WITH_MANA": {
+      const cost = action.payload;
+      if (state.mana < cost) {
+        return state;
+      }
+      return { ...state, mana: state.mana - cost };
     }
     default:
       return state;
@@ -129,4 +137,9 @@ export function useAppDispatch() {
 export function useCanClaimToday() {
   const { lastClaimDate } = useAppState();
   return lastClaimDate !== getLocalISODate();
+}
+
+export function useCanAfford() {
+  const { mana } = useAppState();
+  return useCallback((cost) => mana >= cost, [mana]);
 }

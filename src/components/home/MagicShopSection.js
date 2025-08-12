@@ -5,12 +5,12 @@
 // Autor: Codex - Fecha: 2025-08-12
 
 import React, { useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import styles from "./MagicShopSection.styles";
 import ShopItemCard from "./ShopItemCard";
 import { ShopColors } from "../../theme";
-import { useAppState, useAppDispatch } from "../../state/AppContext";
+import { useAppState, useAppDispatch, useCanAfford } from "../../state/AppContext";
 
 const TABS = [
   { key: "potions", label: "Pociones" },
@@ -36,6 +36,7 @@ export default function MagicShopSection() {
   const [activeTab, setActiveTab] = useState("potions");
   const { mana } = useAppState();
   const dispatch = useAppDispatch();
+  const canAfford = useCanAfford();
 
   const addDebugMana = () =>
     dispatch({ type: "SET_MANA", payload: mana + 5 });
@@ -96,18 +97,30 @@ export default function MagicShopSection() {
         })}
       </View>
 
-      {SHOP_ITEMS[activeTab].map((item) => (
-        <View key={item.id} style={styles.itemWrapper}>
-          <ShopItemCard
-            title={item.title}
-            description={item.description}
-            price={item.price}
-            iconName={item.iconName}
-            accent={ShopColors[activeTab]}
-            accessibilityLabel={`Comprar ${item.title} por ${item.price} maná`}
-          />
-        </View>
-      ))}
+      {SHOP_ITEMS[activeTab].map((item) => {
+        const affordable = canAfford(item.price);
+        return (
+          <View key={item.id} style={styles.itemWrapper}>
+            <ShopItemCard
+              title={item.title}
+              description={item.description}
+              price={item.price}
+              iconName={item.iconName}
+              accent={ShopColors[activeTab]}
+              disabled={!affordable}
+              onPress={() => {
+                if (canAfford(item.price)) {
+                  dispatch({ type: "PURCHASE_WITH_MANA", payload: item.price });
+                  Alert.alert("Compra exitosa", "¡Comprado!");
+                } else {
+                  Alert.alert("Sin maná", "Maná insuficiente");
+                }
+              }}
+              accessibilityLabel={`Comprar ${item.title} por ${item.price} maná`}
+            />
+          </View>
+        );
+      })}
 
       <Pressable
         style={styles.viewAllButton}
