@@ -1,17 +1,18 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../theme";
 import HomeScreenHeader from "../components/HomeScreenHeader";
 
 export default function HomeScreen() {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <HomeScreenHeader
         userName="Jugador"
         manaCount={50}
         plantState="Floreciendo"
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
