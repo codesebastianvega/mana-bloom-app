@@ -1,42 +1,46 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+
 import styles from "./Footer.styles";
-import { Colors } from "../theme";
 
-export default function Footer({ activeScreen, onNavigate }) {
-  const buttons = [
-    { key: "tasks", label: "Tareas", icon: "list-ul" },
-    { key: "plant", label: "Planta", icon: "leaf" },
-    { key: "stats", label: "Estadísticas", icon: "chart-bar" },
-    { key: "profile", label: "Perfil", icon: "user-circle" },
-  ];
+const NAV_ITEMS = [
+  { route: "Home", label: "Inicio", icon: "home" },
+  { route: "Tasks", label: "Tareas", icon: "tasks" },
+  { route: "Plant", label: "Mi Planta", icon: "leaf" },
+  { route: "Profile", label: "Perfil", icon: "user" },
+];
 
+export default function Footer({ navigation, activeRoute }) {
   return (
     <View style={styles.container}>
-      {buttons.map((btn) => {
-        const isActive = activeScreen === btn.key;
+      {NAV_ITEMS.map((item) => {
+        const isActive = activeRoute === item.route;
         return (
           <TouchableOpacity
-            key={btn.key}
-            style={styles.button}
-            onPress={() => onNavigate(btn.key)}
+            key={item.route}
+            style={styles.touchable}
+            onPress={() => navigation.navigate(item.route)}
           >
-            <View
-              style={
-                isActive ? styles.activeIconWrapper : styles.iconWrapper
-              }
-            >
-              <FontAwesome5
-                name={btn.icon}
-                size={isActive ? 24 : 20}
-                color={isActive ? Colors.text : Colors.textMuted}
-              />
-            </View>
-            {isActive && <Text style={styles.label}>{btn.label}</Text>}
+            {isActive ? (
+              <LinearGradient
+                colors={["#1E90FF", "#9932CC"]}
+                style={styles.activeButton}
+              >
+                <FontAwesome5 name={item.icon} size={20} color="#FFF" />
+                <Text style={styles.activeLabel}>{item.label}</Text>
+              </LinearGradient>
+            ) : (
+              <View style={styles.inactiveButton}>
+                <FontAwesome5 name={item.icon} size={20} color="#A9A9A9" />
+                <Text style={styles.label}>{item.label}</Text>
+              </View>
+            )}
           </TouchableOpacity>
         );
       })}
     </View>
   );
 }
+
