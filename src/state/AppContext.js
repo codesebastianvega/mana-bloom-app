@@ -1,6 +1,6 @@
 // [MB] Módulo: Estado / Archivo: AppContext
 // Afecta: toda la app
-// Propósito: Proveer estado global para maná, progreso de XP y racha diaria
+// Propósito: Proveer estado global para maná, progreso de XP, racha diaria y desafíos
 // Puntos de edición futura: extender persistencia a otros campos y acciones
 // Autor: Codex - Fecha: 2025-08-12
 
@@ -25,6 +25,8 @@ import {
   setInventory,
   getBuffs,
   setBuffs,
+  getDailyChallengesState,
+  setDailyChallengesState,
 } from "../storage";
 
 export const DAILY_REWARD_MANA = 10;
@@ -45,6 +47,36 @@ function xpMultiplier(buffs, t = now()) {
   return active.some((b) => b.type === "xp_double") ? 2 : 1;
 }
 
+function generateDefaultDailyChallenges() {
+  const base = [
+    {
+      title: "Completa 3 tareas",
+      type: "complete_tasks",
+      goal: 3,
+      reward: { xp: 25, mana: 10 },
+    },
+    {
+      title: "Termina 1 tarea Urgente",
+      type: "complete_priority",
+      param: "Urgente",
+      goal: 1,
+      reward: { xp: 30, mana: 15 },
+    },
+    {
+      title: "Completa 2 tareas",
+      type: "complete_tasks",
+      goal: 2,
+      reward: { xp: 20, mana: 8 },
+    },
+  ];
+  return base.map((item) => ({
+    ...item,
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    progress: 0,
+    claimed: false,
+  }));
+}
+
 const initialState = {
   mana: 50,
   plantState: "Floreciendo",
@@ -55,6 +87,7 @@ const initialState = {
   xpGoal: 100,
   inventory: [],
   buffs: [],
+  dailyChallenges: { dateKey: null, items: [] },
 };
 
 function roundToNearest10(n) {
@@ -82,6 +115,8 @@ function appReducer(state, action) {
       return { ...state, inventory: action.payload };
     case "SET_BUFFS":
       return { ...state, buffs: action.payload };
+    case "SET_DAILY_CHALLENGES":
+      return { ...state, dailyChallenges: action.payload };
     case "ADD_TO_INVENTORY": {
       const { sku, title, category } = action.payload;
       const existing = state.inventory.find((it) => it.sku === sku);
@@ -118,6 +153,39 @@ function appReducer(state, action) {
         xpGoal = roundToNearest10(Math.ceil(xpGoal * 1.25));
       }
       return { ...state, mana, xp, level, xpGoal };
+    }
+    case "UPDATE_DAILY_CHALLENGES_ON_TASK_DONE": {
+      const { priority } = action.payload;
+      const items = state.dailyChallenges.items.map((it) => {
+        if (it.type === "complete_tasks") {
+          const progress = Math.min(it.goal, it.progress + 1);
+          return { ...it, progress };
+        }
+        if (it.type === "complete_priority" && it.param === priority) {
+          const progress = Math.min(it.goal, it.progress + 1);
+          return { ...it, progress };
+        }
+        return it;
+      });
+      return { ...state, dailyChallenges: { ...state.dailyChallenges, items } };
+    }
+    case "CLAIM_DAILY_CHALLENGE": {
+      const { id } = action.payload;
+      const item = state.dailyChallenges.items.find((it) => it.id === id);
+      if (!item || item.claimed || item.progress < item.goal) {
+        return state;
+      }
+      const items = state.dailyChallenges.items.map((it) =>
+        it.id === id ? { ...it, claimed: true } : it
+      );
+      const withReward = appReducer(state, {
+        type: "APPLY_TASK_REWARD",
+        payload: { xpDelta: item.reward.xp, manaDelta: item.reward.mana },
+      });
+      return {
+        ...withReward,
+        dailyChallenges: { ...state.dailyChallenges, items },
+      };
     }
     case "CLAIM_DAILY_REWARD": {
       const today = getLocalISODate();
@@ -188,6 +256,7 @@ export function AppProvider({ children }) {
         storedProgress,
         storedInventory,
         storedBuffs,
+        storedDailyChallenges,
       ] = await Promise.all([
         getMana(),
         getStreak(),
@@ -195,6 +264,7 @@ export function AppProvider({ children }) {
         getProgress(),
         getInventory(),
         getBuffs(),
+        getDailyChallengesState(),
       ]);
       dispatch({ type: "SET_MANA", payload: storedMana });
       dispatch({ type: "SET_STREAK", payload: storedStreak });
@@ -204,6 +274,19 @@ export function AppProvider({ children }) {
       dispatch({
         type: "SET_BUFFS",
         payload: cleanupExpired(storedBuffs),
+      });
+      const todayKey = getLocalISODate();
+      let dailyChallenges = storedDailyChallenges;
+      if (!dailyChallenges || dailyChallenges.dateKey !== todayKey) {
+        dailyChallenges = {
+          dateKey: todayKey,
+          items: generateDefaultDailyChallenges(),
+        };
+        await setDailyChallengesState(dailyChallenges);
+      }
+      dispatch({
+        type: "SET_DAILY_CHALLENGES",
+        payload: dailyChallenges,
       });
       isHydrating.current = false;
     }
@@ -241,6 +324,11 @@ export function AppProvider({ children }) {
     if (isHydrating.current) return;
     setBuffs(state.buffs);
   }, [state.buffs]);
+
+  useEffect(() => {
+    if (isHydrating.current) return;
+    setDailyChallengesState(state.dailyChallenges);
+  }, [state.dailyChallenges]);
 
   return (
     <AppStateContext.Provider value={state}>
@@ -306,4 +394,9 @@ export function useXpMultiplier() {
   const multiplier = xpMultiplier(buffs);
   const buff = buffs.find((b) => b.type === "xp_double");
   return { multiplier, expiresAt: buff?.expiresAt };
+}
+
+export function useDailyChallenges() {
+  const { dailyChallenges } = useAppState();
+  return dailyChallenges;
 }
