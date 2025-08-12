@@ -1,11 +1,16 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Colors } from "../theme";
+import HomeScreenHeader from "../components/HomeScreenHeader";
 
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Inicio</Text>
+      <HomeScreenHeader
+        userName="Jugador"
+        manaCount={50}
+        plantState="Floreciendo"
+      />
     </View>
   );
 }
@@ -13,12 +18,8 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "flex-start",
+    alignItems: "stretch",
     backgroundColor: Colors.background,
-  },
-  text: {
-    color: Colors.text,
-    fontSize: 16,
   },
 });
