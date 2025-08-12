@@ -1,7 +1,7 @@
 // [MB] Módulo: Home / Estilos: HomeWelcomeCard
 // Afecta: HomeScreen
-// Propósito: Estilos placeholder para tarjeta de bienvenida
-// Puntos de edición futura: ajustar layout y gráficos
+// Propósito: Estilos para saludo y resumen de estado
+// Puntos de edición futura: ajustar layout o añadir gráficos
 // Autor: Codex - Fecha: 2025-08-12
 
 import { StyleSheet } from "react-native";
@@ -24,5 +24,10 @@ export default StyleSheet.create({
   title: {
     ...Typography.h2,
     color: Colors.text,
+  },
+  subtitle: {
+    ...Typography.body,
+    color: Colors.text,
+    marginTop: Spacing.tiny,
   },
 });
