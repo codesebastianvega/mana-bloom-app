@@ -1,3 +1,9 @@
+// [MB] Módulo: Navegación / Sección: Footer
+// Afecta: navegación global
+// Propósito: barra de navegación inferior
+// Puntos de edición futura: rutas y estilos del footer
+// Autor: Codex - Fecha: 2025-08-12
+
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -8,7 +14,7 @@ import styles from "./Footer.styles";
 const NAV_ITEMS = [
   { route: "HomeScreen", label: "Inicio", icon: "home" },
   { route: "TasksScreen", label: "Tareas", icon: "tasks" },
-  { route: "MiPlantaScreen", label: "Mi Planta", icon: "leaf" },
+  { route: "PlantScreen", label: "Mi Planta", icon: "leaf" },
   { route: "ProfileScreen", label: "Perfil", icon: "user" },
 ];
 
@@ -43,3 +49,4 @@ export default function Footer({ state, navigation }) {
     </View>
   );
 }
+
