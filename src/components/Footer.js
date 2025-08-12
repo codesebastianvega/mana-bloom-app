@@ -27,10 +27,10 @@ export default function Footer({ state, navigation }) {
             {isActive ? (
               <>
                 <LinearGradient
-                  colors={["#1E90FF", "#9932CC"]}
+                  colors={["#6d56d3ff", "#0ca790ff"]}
                   style={styles.activeIcon}
                 >
-                  <FontAwesome5 name={item.icon} size={20} color="#FFF" />
+                  <FontAwesome5 name={item.icon} size={18} color="#FFF" />
                 </LinearGradient>
                 <Text style={styles.activeLabel}>{item.label}</Text>
               </>
@@ -43,4 +43,3 @@ export default function Footer({ state, navigation }) {
     </View>
   );
 }
-
