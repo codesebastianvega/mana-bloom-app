@@ -11,6 +11,7 @@ const STREAK_KEY = "mb:streak";
 const LAST_CLAIM_DATE_KEY = "mb:lastClaimDate";
 const PROGRESS_KEY = "mb:progress";
 const TASKS_KEY = "mb:tasks";
+const INVENTORY_KEY = "mb:inventory";
 
 export async function getMana() {
   try {
@@ -112,6 +113,25 @@ export async function setTasks(tasks) {
     await AsyncStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
   } catch (e) {
     console.warn("Error guardando tareas en storage", e);
+  }
+}
+
+// [MB] Helpers de inventario
+export async function getInventory() {
+  try {
+    const value = await AsyncStorage.getItem(INVENTORY_KEY);
+    return value ? JSON.parse(value) : [];
+  } catch (e) {
+    console.warn("Error leyendo inventario de storage", e);
+    return [];
+  }
+}
+
+export async function setInventory(items) {
+  try {
+    await AsyncStorage.setItem(INVENTORY_KEY, JSON.stringify(items));
+  } catch (e) {
+    console.warn("Error guardando inventario en storage", e);
   }
 }
 

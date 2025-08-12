@@ -111,7 +111,15 @@ export default function MagicShopSection() {
               onPress={() => {
                 if (canAfford(item.price)) {
                   dispatch({ type: "PURCHASE_WITH_MANA", payload: item.price });
-                  Alert.alert("Compra exitosa", "¡Comprado!");
+                  dispatch({
+                    type: "ADD_TO_INVENTORY",
+                    payload: {
+                      sku: `shop/${activeTab}/${item.id}`,
+                      title: item.title,
+                      category: activeTab,
+                    },
+                  });
+                  Alert.alert("Compra exitosa — añadido al inventario");
                 } else {
                   Alert.alert("Sin maná", "Maná insuficiente");
                 }

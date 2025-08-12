@@ -13,6 +13,7 @@ import HomeWelcomeCard from "../components/home/HomeWelcomeCard";
 import DailyRewardSection from "../components/home/DailyRewardSection";
 import DailyChallengesSection from "../components/home/DailyChallengesSection";
 import MagicShopSection from "../components/home/MagicShopSection";
+import InventorySection from "../components/home/InventorySection";
 import NewsFeedSection from "../components/home/NewsFeedSection";
 import StatsQuickTiles from "../components/home/StatsQuickTiles";
 import EventBanner from "../components/home/EventBanner";
@@ -34,6 +35,7 @@ export default function HomeScreen() {
         <DailyRewardSection />
         <DailyChallengesSection />
         <MagicShopSection />
+        <InventorySection />
         <NewsFeedSection />
         <StatsQuickTiles />
         <EventBanner />

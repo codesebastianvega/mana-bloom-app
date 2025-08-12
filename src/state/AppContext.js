@@ -21,6 +21,8 @@ import {
   setLastClaimDate,
   getProgress,
   setProgress,
+  getInventory,
+  setInventory,
 } from "../storage";
 
 export const DAILY_REWARD_MANA = 10;
@@ -40,6 +42,7 @@ const initialState = {
   xp: 0,
   level: 1,
   xpGoal: 100,
+  inventory: [],
 };
 
 function roundToNearest10(n) {
@@ -63,6 +66,29 @@ function appReducer(state, action) {
         level: action.payload.level,
         xpGoal: action.payload.xpGoal,
       };
+    case "SET_INVENTORY":
+      return { ...state, inventory: action.payload };
+    case "ADD_TO_INVENTORY": {
+      const { sku, title, category } = action.payload;
+      const existing = state.inventory.find((it) => it.sku === sku);
+      if (existing) {
+        return {
+          ...state,
+          inventory: state.inventory.map((it) =>
+            it.sku === sku ? { ...it, quantity: it.quantity + 1 } : it
+          ),
+        };
+      }
+      const newItem = {
+        id: Date.now().toString(),
+        sku,
+        title,
+        category,
+        quantity: 1,
+        createdAt: new Date().toISOString(),
+      };
+      return { ...state, inventory: [...state.inventory, newItem] };
+    }
     case "APPLY_TASK_REWARD": {
       const { xpDelta = 0, manaDelta = 0 } = action.payload;
       let mana = state.mana + manaDelta;
@@ -109,17 +135,24 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     async function hydrate() {
-      const [storedMana, storedStreak, storedLastClaim, storedProgress] =
-        await Promise.all([
-          getMana(),
-          getStreak(),
-          getLastClaimDate(),
-          getProgress(),
-        ]);
+      const [
+        storedMana,
+        storedStreak,
+        storedLastClaim,
+        storedProgress,
+        storedInventory,
+      ] = await Promise.all([
+        getMana(),
+        getStreak(),
+        getLastClaimDate(),
+        getProgress(),
+        getInventory(),
+      ]);
       dispatch({ type: "SET_MANA", payload: storedMana });
       dispatch({ type: "SET_STREAK", payload: storedStreak });
       dispatch({ type: "SET_LAST_CLAIM_DATE", payload: storedLastClaim });
       dispatch({ type: "SET_PROGRESS", payload: storedProgress });
+      dispatch({ type: "SET_INVENTORY", payload: storedInventory });
       isHydrating.current = false;
     }
     hydrate();
@@ -146,6 +179,11 @@ export function AppProvider({ children }) {
     if (isHydrating.current) return;
     setProgress({ xp: state.xp, level: state.level, xpGoal: state.xpGoal });
   }, [state.xp, state.level, state.xpGoal]);
+
+  useEffect(() => {
+    if (isHydrating.current) return;
+    setInventory(state.inventory);
+  }, [state.inventory]);
 
   return (
     <AppStateContext.Provider value={state}>
@@ -186,4 +224,17 @@ export function useProgress() {
   const { xp, xpGoal, level } = useAppState();
   const progress = xpGoal ? xp / xpGoal : 0;
   return { xp, xpGoal, level, progress };
+}
+
+export function useInventoryCounts() {
+  const { inventory } = useAppState();
+  const counts = inventory.reduce(
+    (acc, item) => {
+      acc[item.category] += item.quantity;
+      acc.total += item.quantity;
+      return acc;
+    },
+    { potions: 0, tools: 0, cosmetics: 0, total: 0 }
+  );
+  return counts;
 }
