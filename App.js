@@ -16,12 +16,14 @@ import TasksScreen from "./src/screens/TasksScreen";
 import PlantScreen from "./src/screens/PlantScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
 import InventoryScreen from "./src/screens/InventoryScreen";
+import NewsInboxScreen from "./src/screens/NewsInboxScreen";
 import { AppProvider } from "./src/state/AppContext";
 
 const Tab = createBottomTabNavigator();
 const RootStack = createNativeStackNavigator();
 
-function Tabs() {
+function TabsNavigator() {
+
   return (
     <Tab.Navigator
       initialRouteName="HomeScreen"
@@ -42,11 +44,17 @@ export default function App() {
     <AppProvider>
       <NavigationContainer>
         <RootStack.Navigator screenOptions={{ headerShown: false }}>
-          <RootStack.Screen name="Tabs" component={Tabs} />
+          <RootStack.Screen name="Tabs" component={TabsNavigator} />
           <RootStack.Screen
             name="InventoryModal"
             component={InventoryScreen}
-            options={{ presentation: "modal", headerShown: false }}
+            options={{ presentation: "modal" }}
+          />
+          <RootStack.Screen
+            name="NewsInboxModal"
+            component={NewsInboxScreen}
+            options={{ presentation: "modal" }}
+
           />
         </RootStack.Navigator>
       </NavigationContainer>
