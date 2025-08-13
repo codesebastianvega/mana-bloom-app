@@ -2,7 +2,7 @@
 // Afecta: Tienda completa
 // Propósito: Pantalla dedicada de tienda con grid y suscripciones
 // Puntos de edición futura: conectar IAP y expandir catálogo
-// Autor: Codex - Fecha: 2025-08-24
+// Autor: Codex - Fecha: 2025-08-13
 
 import React, { useState, useCallback, useMemo } from "react";
 import { View, Text, FlatList, Pressable, Alert } from "react-native";
@@ -233,6 +233,7 @@ export default function ShopScreen() {
         })}
       </View>
       <FlatList
+        key={activeTab === "subs" ? "subs" : "grid"}
         data={data}
         keyExtractor={(item) => item.sku || item.id}
         renderItem={renderItem}
