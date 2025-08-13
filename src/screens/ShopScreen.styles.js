@@ -56,7 +56,7 @@ export default StyleSheet.create({
     borderColor: Colors.border,
     borderRadius: Radii.pill,
     paddingHorizontal: Spacing.small,
-    height: 24,
+    height: 28,
     marginLeft: Spacing.small,
   },
   currencyIcon: {
@@ -73,7 +73,7 @@ export default StyleSheet.create({
   },
   tabButton: {
     flex: 1,
-    height: 40,
+    height: 35,
     borderWidth: 1,
     borderColor: Colors.border,
     borderRadius: Radii.lg,
