@@ -7,7 +7,7 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { View, Text, FlatList, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import styles from "./ShopScreen.styles";
 import ShopGridItem from "../components/shop/ShopGridItem";
@@ -58,6 +58,7 @@ const SUBSCRIPTION_PLANS = [
 
 export default function ShopScreen() {
   const route = useRoute();
+  const navigation = useNavigation();
   const initialTab = route.params?.initialTab || "potions";
   const [activeTab, setActiveTab] = useState(initialTab);
   const { mana } = useAppState();
@@ -175,6 +176,14 @@ export default function ShopScreen() {
         accessible
         accessibilityLabel={`Saldo: ${mana} maná, ${wallet.coin} monedas, ${wallet.gem} diamantes`}
       >
+        <Pressable
+          onPress={() => navigation.goBack()}
+          style={styles.closeButton}
+          accessibilityLabel="Cerrar tienda"
+          accessibilityRole="button"
+        >
+          <Ionicons name="close" size={20} color={Colors.text} />
+        </Pressable>
         <Text style={styles.headerTitle}>Tienda Mágica</Text>
         <View style={styles.walletRow}>
           <View

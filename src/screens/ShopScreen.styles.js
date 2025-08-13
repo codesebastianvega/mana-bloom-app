@@ -18,6 +18,13 @@ export default StyleSheet.create({
     borderBottomColor: Colors.border,
     backgroundColor: Colors.surface,
   },
+  closeButton: {
+    position: "absolute",
+    top: Spacing.base,
+    right: Spacing.base,
+    padding: Spacing.small,
+    borderRadius: Radii.md,
+  },
   headerTitle: {
     ...Typography.h2,
     color: Colors.text,
