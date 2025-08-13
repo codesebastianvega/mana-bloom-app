@@ -37,10 +37,23 @@ export default StyleSheet.create({
     ...Typography.body,
     color: Colors.textInverse,
   },
-  claimedText: {
+  rewardPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Radii.pill,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.tiny,
+    alignSelf: "flex-start",
+    marginBottom: Spacing.small,
+  },
+  rewardIcon: {
+    marginRight: Spacing.tiny,
+  },
+  rewardText: {
     ...Typography.body,
     color: Colors.text,
-    marginBottom: Spacing.small,
   },
   streakText: {
     ...Typography.caption,
