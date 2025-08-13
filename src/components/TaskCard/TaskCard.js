@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./TaskCardStyles";
+
 import { Colors, Spacing } from "../../theme";
 
 const getElementColor = (element) => {
@@ -341,10 +342,8 @@ export default function TaskCard({
               color={Colors.background}
             />
           </View>
-          <View style={[styles.chip, { backgroundColor: typeConfig.color }]}> 
-            <Text style={styles.chipText}>
-              {typeConfig.label}
-            </Text>
+          <View style={[styles.chip, { backgroundColor: typeConfig.color }]}>
+            <Text style={styles.chipText}>{typeConfig.label}</Text>
           </View>
           <View
             style={[
