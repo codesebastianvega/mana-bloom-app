@@ -5,59 +5,46 @@
 // Autor: Codex - Fecha: 2025-08-13
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Elevation /*, Typography*/ } from "../../theme";
+import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
 
 export default StyleSheet.create({
-  // Contenedor raíz del modal (usa este en el wrapper principal del modal)
   root: {
     backgroundColor: Colors.surfaceElevated || Colors.surface,
     borderRadius: Radii?.xl ?? 20,
     padding: Spacing.large,
     ...(Elevation?.modal || {}),
-
   },
 
-  // Encabezado / título del modal
   title: {
-    // Typography.h2 si existe; fallback manual:
-    fontSize: 22,
-    fontWeight: "700",
+    ...(Typography?.h2 || { fontSize: 22, fontWeight: "700" }),
     color: Colors.text,
     marginBottom: Spacing.small,
   },
 
-  // Subtítulo o labels de secciones (ej. "Tipo", "Elemento", "Prioridad")
   sectionLabel: {
     fontSize: 14,
-
     fontWeight: "600",
     color: Colors.text,
     marginTop: Spacing.base,
     marginBottom: Spacing.small,
   },
 
-  // Etiquetas pequeñas (debajo de inputs)
   helperText: {
     fontSize: 12,
     color: Colors.textMuted,
     marginTop: Spacing.tiny,
   },
 
-  // Filas genéricas para alinear controles en horizontal
   row: {
     flexDirection: "row",
-
     alignItems: "center",
     justifyContent: "space-between",
   },
 
-  // Contenedor con separación vertical entre grupos
   group: {
     marginTop: Spacing.base,
-
   },
 
-  // Input de una línea (título, etiqueta, etc.)
   input: {
     height: 48,
     borderRadius: Radii?.lg ?? 14,
@@ -68,7 +55,6 @@ export default StyleSheet.create({
     color: Colors.text,
   },
 
-  // Input multilínea (notas / descripción)
   inputMultiline: {
     minHeight: 96,
     borderRadius: Radii?.lg ?? 14,
@@ -79,12 +65,16 @@ export default StyleSheet.create({
     paddingTop: Spacing.base,
     color: Colors.text,
     textAlignVertical: "top",
-
   },
-  typeOptionBtn: {
+
+  segmentContainer: {
+    flexDirection: "row",
+    gap: Spacing.small,
+    marginTop: Spacing.small,
+  },
+  segmentButton: {
     flex: 1,
     minHeight: 40,
-
     paddingHorizontal: Spacing.base,
     borderRadius: Radii?.pill ?? 999,
     borderWidth: 1,
@@ -93,34 +83,55 @@ export default StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  chipLabel: {
-    fontSize: 13,
-    color: Colors.text,
-    fontWeight: "500",
+  segmentButtonActive: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primary,
   },
+  segmentLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: Colors.text,
+  },
+  segmentLabelActive: {
+    color: Colors.background,
+  },
+
   elementGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: Spacing.base,
+    justifyContent: "space-between",
     marginTop: Spacing.small,
   },
   elementCard: {
-    width: "48%",
+    position: "relative",
+    flexBasis: "48%",
+    maxWidth: "48%",
     borderWidth: 2,
     borderRadius: Radii.lg,
     backgroundColor: Colors.surface,
     paddingVertical: Spacing.base,
+    paddingHorizontal: Spacing.base,
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: Spacing.base,
     ...(Elevation?.card || {}),
   },
+  elementCardLeft: {
+    marginRight: Spacing.base / 2,
+  },
   elementCardActive: {
+    shadowColor: "#000",
     shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 6,
+    borderWidth: 2.5,
   },
-  elementEmoji: {
-    fontSize: 32,
-    marginBottom: Spacing.tiny,
+  elementGradient: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: Radii.lg,
+    opacity: 0.35,
   },
+  elementEmoji: { fontSize: 32, marginBottom: Spacing.tiny },
   elementTitle: {
     fontSize: 16,
     fontWeight: "700",
@@ -131,37 +142,85 @@ export default StyleSheet.create({
     fontSize: 12,
     color: Colors.textMuted,
     textAlign: "center",
-    marginTop: Spacing.tiny,
+    marginTop: 2,
   },
-  priorityList: {
-    marginTop: Spacing.small,
+
+  subtasksChips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: Spacing.small,
+    marginTop: Spacing.small,
+    marginBottom: Spacing.small,
   },
-  priorityRow: {
-    width: "100%",
-    minHeight: 56,
-    borderWidth: 2,
-    borderRadius: Radii.lg,
-    paddingVertical: Spacing.small,
+  chip: {
+    minHeight: 28,
     paddingHorizontal: Spacing.base,
+    borderRadius: Radii?.pill ?? 999,
+    borderWidth: 1,
+    borderColor: Colors.textMuted,
+    backgroundColor: Colors.surface,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
   },
-  priorityTitle: {
-    fontSize: 16,
-    fontWeight: "700",
+  chipActive: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primary,
+  },
+  chipLabel: {
+    fontSize: 13,
     color: Colors.text,
-    textAlign: "center",
+    fontWeight: "500",
   },
-  priorityCaption: {
-    fontSize: 12,
-    color: Colors.textMuted,
-    textAlign: "center",
-    marginTop: 2,
-
+  chipLabelActive: {
+    color: Colors.background,
+  },
+  chipsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.small,
+    marginTop: Spacing.small,
   },
 
-  // Subtareas: fila input + botón "+"
+  priorityList: { marginTop: Spacing.small, gap: Spacing.small },
+  priorityRow: {
+    width: "100%",
+    minHeight: 64,
+    borderWidth: 2,
+    borderRadius: Radii.lg,
+    backgroundColor: Colors.surface,
+    borderColor: Colors.textMuted,
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.base,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    ...(Elevation?.card || {}),
+  },
+  priorityRowActive: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.surfaceElevated || Colors.surface,
+  },
+  priorityLeft: { maxWidth: "58%" },
+  priorityTitle: { fontSize: 16, fontWeight: "700", color: Colors.text },
+  priorityCaption: { fontSize: 12, color: Colors.textMuted, marginTop: 2 },
+  priorityRewards: {
+    flexDirection: "row",
+    gap: Spacing.small,
+    alignItems: "center",
+  },
+  rewardPill: {
+    minHeight: 28,
+    paddingHorizontal: Spacing.base,
+    borderRadius: Radii?.pill ?? 999,
+    backgroundColor: Colors.surfaceElevated || Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.textMuted,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  rewardText: { fontSize: 12, fontWeight: "700", color: Colors.text },
+
   subtaskRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -185,7 +244,6 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.primary,
     backgroundColor: Colors.surfaceElevated || Colors.surface,
-
     justifyContent: "center",
     alignItems: "center",
     ...(Elevation?.card || {}),
@@ -196,9 +254,26 @@ export default StyleSheet.create({
     color: Colors.text,
   },
 
-  // Botonera inferior
-  actions: {
+  tagsList: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.small,
+    marginTop: Spacing.small,
+  },
+  tagChip: {
+    minHeight: 28,
+    paddingHorizontal: Spacing.base,
+    borderRadius: Radii?.pill ?? 999,
+    backgroundColor: Colors.surfaceElevated || Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.textMuted,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tagText: { fontSize: 12, color: Colors.text },
 
+  actions: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.small,
@@ -217,7 +292,7 @@ export default StyleSheet.create({
   primaryButtonLabel: {
     fontSize: 16,
     fontWeight: "700",
-    color: Colors.text, // si prefieres contraste: usa un Colors.onPrimary si existe
+    color: Colors.text,
   },
   secondaryButton: {
     flex: 1,
@@ -229,15 +304,12 @@ export default StyleSheet.create({
     backgroundColor: Colors.surface,
     justifyContent: "center",
     alignItems: "center",
-
   },
   secondaryButtonLabel: {
     fontSize: 16,
     fontWeight: "600",
     color: Colors.text,
   },
-
-  // Separadores suaves entre bloques dentro del modal (si los usas)
   divider: {
     height: 1,
     backgroundColor: Colors.textMuted,
