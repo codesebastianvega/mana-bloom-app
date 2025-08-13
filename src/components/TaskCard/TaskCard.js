@@ -1,8 +1,8 @@
-// [MB] Módulo: Tasks / Sección: Tarea swipeable
+// [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: TasksScreen (interacción de completar y eliminar tareas)
 // Propósito: Item de tarea deslizable con acciones y recompensas
-// Puntos de edición futura: animaciones y estilos en SwipeableTaskItem
-// Autor: Codex - Fecha: 2025-08-12
+// Puntos de edición futura: animaciones y estilos en TaskCard
+// Autor: Codex - Fecha: 2025-08-13
 
 import React, { useRef, useState } from "react";
 import {
@@ -13,7 +13,7 @@ import {
   PanResponder,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
-import styles from "./SwipeableTaskItem.styles";
+import styles from "./TaskCard.styles";
 import { Colors, Spacing } from "../../theme";
 
 const getElementColor = (element) => {
@@ -69,7 +69,7 @@ const getTypeConfig = (type) => {
   }
 };
 
-export default function SwipeableTaskItem({
+export default function TaskCard({
   task,
   onToggleComplete,
   onSoftDeleteTask,
@@ -186,17 +186,19 @@ export default function SwipeableTaskItem({
       {/* task content */}
       <Animated.View
         style={[
-          styles.taskItem,
+          styles.card,
           {
             transform: [{ translateX: pan }, { scale }],
             opacity: task.completed || task.isDeleted ? 0.5 : 1,
-            borderLeftColor: getPriorityColor(task.priority),
           },
         ]}
         {...panResponder.panHandlers}
         onTouchStart={handlePressIn}
         onTouchEnd={handlePressOut}
       >
+        <View
+          style={[styles.accentBar, { backgroundColor: elementInfo.color }]}
+        />
         <TouchableOpacity
           style={styles.contentRow}
           onPress={() => onEditTask(task)}
@@ -327,7 +329,7 @@ export default function SwipeableTaskItem({
         )}
 
         {/* ——— Chips de metadatos ——— */}
-        <View style={styles.chipRow}>
+        <View style={styles.metaRow}>
           <View
             style={[styles.elementChip, { backgroundColor: elementInfo.color }]}
             accessible
@@ -339,8 +341,8 @@ export default function SwipeableTaskItem({
               color={Colors.background}
             />
           </View>
-          <View style={[styles.chip, { backgroundColor: typeConfig.color }]}>
-            <Text style={[styles.chipText, styles.typeChipText]}>
+          <View style={[styles.chip, { backgroundColor: typeConfig.color }]}> 
+            <Text style={styles.chipText}>
               {typeConfig.label}
             </Text>
           </View>
@@ -361,12 +363,16 @@ export default function SwipeableTaskItem({
               {getPriorityLabel(task.priority)}
             </Text>
           </View>
-          {task.tags?.map((tag) => (
-            <View key={tag} style={[styles.chip, styles.tagChip]}>
-              <Text style={styles.chipText}>{tag}</Text>
-            </View>
-          ))}
         </View>
+        {task.tags?.length > 0 && (
+          <View style={[styles.metaRow, styles.labelRow]}>
+            {task.tags.map((tag) => (
+              <View key={tag} style={[styles.chip, styles.tagChip]}>
+                <Text style={styles.chipText}>{tag}</Text>
+              </View>
+            ))}
+          </View>
+        )}
       </Animated.View>
     </View>
   );
