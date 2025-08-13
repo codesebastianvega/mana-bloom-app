@@ -44,7 +44,7 @@ export default function ShopItemCard({
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.description}>{description}</Text>
       </View>
-      <View style={[styles.pill, { backgroundColor: accent.pill }]}> 
+      <View style={[styles.pill, { backgroundColor: accent.pill }]}>
         <Ionicons name={iconName} size={16} color={Colors.textInverse} />
         <Text style={styles.pillText}>{price}</Text>
       </View>
