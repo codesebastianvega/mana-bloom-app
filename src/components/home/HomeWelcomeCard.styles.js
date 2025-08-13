@@ -12,9 +12,9 @@ export default StyleSheet.create({
     backgroundColor: Colors.surface,
     padding: Spacing.base,
     borderRadius: Radii.md,
-    marginBottom: Spacing.large,
+    marginBottom: Spacing.tiny,
     ...Elevation.card,
-    marginTop: Spacing.large,
+    marginTop: Spacing.small,
   },
   title: {
     ...Typography.h2,
