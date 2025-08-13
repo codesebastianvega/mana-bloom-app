@@ -12,7 +12,7 @@ export default StyleSheet.create({
     backgroundColor: Colors.surface,
     padding: Spacing.base,
     borderRadius: Radii.md,
-    marginBottom: Spacing.large,
+    marginBottom: Spacing.tiny,
     ...Elevation.card,
   },
   title: {
