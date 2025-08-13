@@ -32,7 +32,9 @@ export default function DailyRewardSection() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Recompensa diaria</Text>
+      <Text style={styles.title} accessibilityRole="header">
+        Recompensa diaria
+      </Text>
       {canClaimToday ? (
         <Pressable
           onPress={handleClaim}

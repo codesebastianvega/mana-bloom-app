@@ -31,7 +31,9 @@ export default function DailyChallengesSection() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Desafíos Diarios</Text>
+      <Text style={styles.title} accessibilityRole="header">
+        Desafíos Diarios
+      </Text>
       {allClaimed ? (
         <Text style={styles.emptyText}>¡Todo al día! Vuelve mañana</Text>
       ) : (

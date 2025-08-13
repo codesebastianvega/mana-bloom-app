@@ -48,7 +48,9 @@ export default function InventorySection({ onShopPress }) {
   if (counts.total === 0) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Inventario</Text>
+        <Text style={styles.title} accessibilityRole="header">
+          Inventario
+        </Text>
         <Text style={styles.emptyText}>Tu inventario está vacío</Text>
         <Pressable
           onPress={onShopPress}
@@ -64,7 +66,9 @@ export default function InventorySection({ onShopPress }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Inventario</Text>
+      <Text style={styles.title} accessibilityRole="header">
+        Inventario
+      </Text>
 
       <View style={styles.chipsRow}>
         <View style={styles.chip}>
@@ -107,6 +111,7 @@ export default function InventorySection({ onShopPress }) {
       </View>
 
       <Pressable
+        onPress={() => {}}
         style={styles.viewAllButton}
         accessibilityRole="button"
         accessibilityLabel="Ver inventario completo"

@@ -44,8 +44,14 @@ export default function NewsFeedSection() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Noticias</Text>
-        <TouchableOpacity onPress={markAll}>
+        <Text style={styles.title} accessibilityRole="header">
+          Noticias
+        </Text>
+        <TouchableOpacity
+          onPress={markAll}
+          accessibilityRole="button"
+          accessibilityLabel="Marcar todas las noticias como leídas"
+        >
           <Text style={styles.markAll}>Marcar todo como leído</Text>
         </TouchableOpacity>
       </View>
@@ -57,6 +63,8 @@ export default function NewsFeedSection() {
             key={item.id}
             style={styles.row}
             onPress={() => handlePress(item.id)}
+            accessibilityRole="button"
+            accessibilityLabel={`Marcar ${item.title} como leído`}
           >
             <Ionicons name={item.iconName} size={20} color={Colors.text} />
             <View style={styles.rowText}>
