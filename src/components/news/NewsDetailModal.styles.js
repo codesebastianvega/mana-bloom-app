@@ -19,7 +19,7 @@ export default StyleSheet.create({
     width: "100%",
     backgroundColor: Colors.surface,
     borderRadius: Radii.lg,
-    padding: Spacing.large,
+    padding: Spacing.base,
     gap: Spacing.small,
     ...Elevation.card,
   },
