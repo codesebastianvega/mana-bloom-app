@@ -174,11 +174,17 @@ export default function CreateTaskModal({
     <Modal
       visible={visible}
       animationType="slide"
-      transparent={true}
+      transparent
       onRequestClose={onClose}
+      statusBarTranslucent
     >
       <View style={styles.background}>
-        <View style={styles.container} accessibilityRole="dialog">
+        <View
+          style={styles.container}
+          accessible={true}
+          accessibilityViewIsModal={true}
+          accessibilityLabel="Crear tarea"
+        >
           {alert && (
             <View
               style={[

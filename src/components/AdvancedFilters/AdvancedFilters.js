@@ -167,7 +167,12 @@ export default function AdvancedFilters({
   );
 
   return (
-    <View style={styles.container} accessibilityRole="dialog">
+    <View
+      style={styles.container}
+      accessible={true}
+      accessibilityViewIsModal={true}
+      accessibilityLabel="Filtros avanzados"
+    >
       {/* Sección del modal para seleccionar el elemento del hechizo */}
       <Text style={styles.sectionTitle}>Elemento</Text>
       {renderElementGrid(
