@@ -372,6 +372,19 @@ function appReducer(state, action) {
         .filter((it) => it.quantity > 0);
       return { ...state, mana, inventory };
     }
+    case "DISCARD_ITEM": {
+      const { sku } = action.payload;
+      const item = state.inventory.find((it) => it.sku === sku);
+      if (!item || item.quantity <= 0) {
+        return state;
+      }
+      const inventory = state.inventory
+        .map((it) =>
+          it.sku === sku ? { ...it, quantity: it.quantity - 1 } : it
+        )
+        .filter((it) => it.quantity > 0);
+      return { ...state, inventory };
+    }
     case "ACHIEVEMENT_EVENT": {
       const { type, payload } = action.payload;
       const progress = { ...state.achievements.progress };
