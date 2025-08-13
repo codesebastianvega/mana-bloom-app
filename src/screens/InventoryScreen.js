@@ -89,7 +89,7 @@ export default function InventoryScreen() {
     const isUsable = canUseItem(item.sku) && item.quantity > 0;
 
     return (
-      <View style={styles.itemRow} accessibilityRole="listitem">
+      <View style={styles.itemRow}>
         <View style={styles.itemHeader}>
           <View style={styles.itemMain}>
             <Text style={styles.itemIcon}>{
