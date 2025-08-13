@@ -2,7 +2,7 @@
 // Afecta: HomeScreen
 // Propósito: Mostrar botón para reclamar recompensa diaria
 // Puntos de edición futura: integrar animaciones y estados visuales
-// Autor: Codex - Fecha: 2025-08-12
+// Autor: Codex - Fecha: 2025-08-13
 
 import React from "react";
 import { View, Text, Pressable } from "react-native";
@@ -12,16 +12,23 @@ import {
   useAppState,
   useCanClaimToday,
   DAILY_REWARD_MANA,
+  useHydrationStatus,
 } from "../../state/AppContext";
+import SectionPlaceholder from "./SectionPlaceholder";
 
 export default function DailyRewardSection() {
   const dispatch = useAppDispatch();
   const { streak } = useAppState();
   const canClaimToday = useCanClaimToday();
+  const hydration = useHydrationStatus();
 
   const handleClaim = () => {
     dispatch({ type: "CLAIM_DAILY_REWARD" });
   };
+
+  if (hydration.progress) {
+    return <SectionPlaceholder height={110} />;
+  }
 
   return (
     <View style={styles.container}>

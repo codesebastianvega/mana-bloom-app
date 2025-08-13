@@ -2,16 +2,26 @@
 // Afecta: HomeScreen
 // Propósito: Mostrar racha, nivel y maná desde el contexto
 // Puntos de edición futura: añadir más estadísticas o gráficos
-// Autor: Codex - Fecha: 2025-08-12
+// Autor: Codex - Fecha: 2025-08-13
 
 import React from "react";
 import { View, Text } from "react-native";
 import styles from "./StatsQuickTiles.styles";
-import { useAppState, useProgress } from "../../state/AppContext";
+import {
+  useAppState,
+  useProgress,
+  useHydrationStatus,
+} from "../../state/AppContext";
+import SectionPlaceholder from "./SectionPlaceholder";
 
 export default function StatsQuickTiles() {
   const { streak, mana } = useAppState();
   const { level } = useProgress();
+  const hydration = useHydrationStatus();
+
+  if (hydration.mana || hydration.progress) {
+    return <SectionPlaceholder height={140} />;
+  }
 
   return (
     <View style={styles.container}>

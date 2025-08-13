@@ -2,7 +2,7 @@
 // Afecta: toda la app
 // Propósito: Proveer estado global (maná, progreso, racha, desafíos y noticias)
 // Puntos de edición futura: extender persistencia a otros campos y acciones
-// Autor: Codex - Fecha: 2025-08-12
+// Autor: Codex - Fecha: 2025-08-13
 
 import React, {
   createContext,
@@ -11,6 +11,7 @@ import React, {
   useEffect,
   useRef,
   useCallback,
+  useState,
 } from "react";
 import {
   getMana,
@@ -39,6 +40,7 @@ function getLocalISODate(date = new Date()) {
 
 const AppStateContext = createContext();
 const AppDispatchContext = createContext();
+const HydrationStatusContext = createContext();
 
 const now = () => Date.now();
 function cleanupExpired(buffs, t = now()) {
@@ -297,6 +299,13 @@ function appReducer(state, action) {
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const isHydrating = useRef(true);
+  const [hydration, setHydration] = useState({
+    mana: true,
+    progress: true,
+    inventory: true,
+    news: true,
+    challenges: true,
+  });
 
   useEffect(() => {
     async function hydrate() {
@@ -320,14 +329,17 @@ export function AppProvider({ children }) {
         getNewsFeed(),
       ]);
       dispatch({ type: "SET_MANA", payload: storedMana });
+      setHydration((h) => ({ ...h, mana: false }));
       dispatch({ type: "SET_STREAK", payload: storedStreak });
       dispatch({ type: "SET_LAST_CLAIM_DATE", payload: storedLastClaim });
       dispatch({ type: "SET_PROGRESS", payload: storedProgress });
-      dispatch({ type: "SET_INVENTORY", payload: storedInventory });
       dispatch({
         type: "SET_BUFFS",
         payload: cleanupExpired(storedBuffs),
       });
+      setHydration((h) => ({ ...h, progress: false }));
+      dispatch({ type: "SET_INVENTORY", payload: storedInventory });
+      setHydration((h) => ({ ...h, inventory: false }));
       const todayKey = getLocalISODate();
       let dailyChallenges = storedDailyChallenges;
       if (!dailyChallenges || dailyChallenges.dateKey !== todayKey) {
@@ -341,12 +353,14 @@ export function AppProvider({ children }) {
         type: "SET_DAILY_CHALLENGES",
         payload: dailyChallenges,
       });
+      setHydration((h) => ({ ...h, challenges: false }));
       let news = storedNews;
       if (!news) {
         news = generateDefaultNewsFeed();
         await setNewsFeed(news);
       }
       dispatch({ type: "SET_NEWS", payload: news });
+      setHydration((h) => ({ ...h, news: false }));
       isHydrating.current = false;
     }
     hydrate();
@@ -397,7 +411,9 @@ export function AppProvider({ children }) {
   return (
     <AppStateContext.Provider value={state}>
       <AppDispatchContext.Provider value={dispatch}>
-        {children}
+        <HydrationStatusContext.Provider value={hydration}>
+          {children}
+        </HydrationStatusContext.Provider>
       </AppDispatchContext.Provider>
     </AppStateContext.Provider>
   );
@@ -468,4 +484,13 @@ export function useDailyChallenges() {
 export function useNewsFeed() {
   const { news } = useAppState();
   return news;
+}
+
+export function useHydrationStatus() {
+  const context = useContext(HydrationStatusContext);
+  if (context === undefined) {
+    throw new Error("useHydrationStatus must be used within an AppProvider");
+  }
+  const isHydratingGlobal = Object.values(context).some(Boolean);
+  return { ...context, isHydratingGlobal };
 }

@@ -2,7 +2,7 @@
 // Afecta: HomeScreen
 // Propósito: Sección de tienda mágica con tabs y maná disponible
 // Puntos de edición futura: integrar productos, navegación y retirar debug
-// Autor: Codex - Fecha: 2025-08-12
+// Autor: Codex - Fecha: 2025-08-13
 
 import React, { useState } from "react";
 import { View, Text, Pressable, Alert } from "react-native";
@@ -14,7 +14,9 @@ import {
   useAppState,
   useAppDispatch,
   useCanAfford,
+  useHydrationStatus,
 } from "../../state/AppContext";
+import SectionPlaceholder from "./SectionPlaceholder";
 
 const TABS = [
   { key: "potions", label: "Pociones" },
@@ -78,8 +80,13 @@ export default function MagicShopSection({ onLayout }) {
   const { mana } = useAppState();
   const dispatch = useAppDispatch();
   const canAfford = useCanAfford();
+  const hydration = useHydrationStatus();
 
   const addDebugMana = () => dispatch({ type: "SET_MANA", payload: mana + 5 });
+
+  if (hydration.mana) {
+    return <SectionPlaceholder height={300} />;
+  }
 
   return (
     <View style={styles.container} onLayout={onLayout}>
