@@ -1,6 +1,6 @@
 // [MB] Módulo: Home / Sección: Encabezado
 // Afecta: HomeScreenHeader
-// Propósito: Estilos para saludo y pills de recursos
+// Propósito: Estilos para título y pills de recursos
 // Puntos de edición futura: ajustar tokens y responsive wrap
 // Autor: Codex - Fecha: 2025-08-13
 
@@ -16,9 +16,8 @@ export default StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  greeting: {
-    fontSize: 24,
-    fontWeight: "bold",
+  title: {
+    ...Typography.h1,
     color: Colors.text,
   },
   plantStatus: {
