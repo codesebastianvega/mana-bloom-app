@@ -217,7 +217,7 @@ function MagicShopSection() {
         {SHOP_ITEMS[activeTab].map((item) => {
           const affordable = canAfford(item.price);
           return (
-            <View key={item.id} style={styles.itemWrapper} accessibilityRole="listitem">
+            <View key={item.id} style={styles.itemWrapper}>
               <ShopItemCard
                 title={item.title}
                 description={item.description}

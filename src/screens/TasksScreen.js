@@ -355,6 +355,7 @@ export default function TasksScreen() {
         )}
         style={styles.list}
         contentContainerStyle={{ paddingBottom: 96 }}
+        accessibilityRole="list"
       />
 
       <AddTaskButton onPress={onAddTask} />
