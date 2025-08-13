@@ -12,6 +12,7 @@ export default StyleSheet.create({
     borderRadius: Radii?.xl ?? 20,
     padding: Spacing.large,
     ...(Elevation?.modal || {}),
+
   },
 
   // Encabezado / título del modal
@@ -26,6 +27,7 @@ export default StyleSheet.create({
   // Subtítulo o labels de secciones (ej. "Tipo", "Elemento", "Prioridad")
   sectionLabel: {
     fontSize: 14,
+
     fontWeight: "600",
     color: Colors.text,
     marginTop: Spacing.base,
@@ -42,6 +44,7 @@ export default StyleSheet.create({
   // Filas genéricas para alinear controles en horizontal
   row: {
     flexDirection: "row",
+
     alignItems: "center",
     justifyContent: "space-between",
   },
@@ -49,6 +52,7 @@ export default StyleSheet.create({
   // Contenedor con separación vertical entre grupos
   group: {
     marginTop: Spacing.base,
+
   },
 
   // Input de una línea (título, etiqueta, etc.)
@@ -73,6 +77,7 @@ export default StyleSheet.create({
     paddingTop: Spacing.base,
     color: Colors.text,
     textAlignVertical: "top",
+
   },
 
   // Contenedor de "segmentos" (p. ej. Tarea / Hábito)
@@ -81,6 +86,7 @@ export default StyleSheet.create({
     flexWrap: "wrap",
     gap: Spacing.small,
     marginTop: Spacing.small,
+
   },
 
   // Botón de segmento (estado base)
@@ -92,10 +98,12 @@ export default StyleSheet.create({
     borderColor: Colors.textMuted,
     backgroundColor: Colors.surface,
     justifyContent: "center",
+
     alignItems: "center",
   },
   // Texto del segmento
   segmentLabel: {
+
     fontSize: 14,
     color: Colors.text,
     fontWeight: "500",
@@ -105,6 +113,7 @@ export default StyleSheet.create({
     borderColor: Colors.primary,
     // Si quieres leve fill activo sin alpha utils, usa surfaceElevated:
     backgroundColor: Colors.surfaceElevated || Colors.surface,
+
   },
   segmentLabelActive: {
     color: Colors.text,
@@ -166,6 +175,7 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.primary,
     backgroundColor: Colors.surfaceElevated || Colors.surface,
+
     justifyContent: "center",
     alignItems: "center",
     ...(Elevation?.card || {}),
@@ -178,6 +188,7 @@ export default StyleSheet.create({
 
   // Botonera inferior
   actions: {
+
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.small,
@@ -208,6 +219,7 @@ export default StyleSheet.create({
     backgroundColor: Colors.surface,
     justifyContent: "center",
     alignItems: "center",
+
   },
   secondaryButtonLabel: {
     fontSize: 16,

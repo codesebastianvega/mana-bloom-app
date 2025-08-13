@@ -1,4 +1,8 @@
-// src/components/CreateTaskModal/CreateTaskModal.js
+// [MB] Módulo: Tasks / Sección: CreateTaskModal
+// Afecta: CreateTaskModal
+// Propósito: Modal para crear y editar tareas
+// Puntos de edición futura: estilos en CreateTaskModal.styles.js
+// Autor: Codex - Fecha: 2025-08-13
 
 import React, { useState, useEffect } from "react";
 import {
@@ -182,6 +186,7 @@ export default function CreateTaskModal({
         }}
       >
         <View style={styles.root}>
+
           {alert && (
             <View
               style={{
@@ -225,6 +230,7 @@ export default function CreateTaskModal({
 
             <TextInput
               style={[styles.inputMultiline, { marginTop: Spacing.small }]}
+
               placeholder="Detalle o nota (opcional)"
               placeholderTextColor={Colors.textMuted}
               value={newNote}
@@ -239,6 +245,7 @@ export default function CreateTaskModal({
                 return (
                   <TouchableOpacity
                     key={opt.key}
+                    accessibilityRole="button"
                     style={[
                       styles.segmentButton,
                       active && [
@@ -248,6 +255,7 @@ export default function CreateTaskModal({
                           backgroundColor: opt.activeColor,
                         },
                       ],
+
                     ]}
                     onPress={() => setNewType(opt.key)}
                   >
@@ -258,6 +266,7 @@ export default function CreateTaskModal({
                           styles.segmentLabelActive,
                           { color: Colors.background },
                         ],
+
                       ]}
                     >
                       {opt.label}
@@ -277,14 +286,13 @@ export default function CreateTaskModal({
                     style={[
                       styles.segmentButton,
                       active && styles.segmentButtonActive,
+
                     ]}
                     onPress={() => setNewElement(el.key)}
                   >
                     <LinearGradient
                       colors={
-                        active
-                          ? el.gradient
-                          : [Colors.filterBtnBg, Colors.filterBtnBg]
+                        active ? el.gradient : [Colors.surface, Colors.surface]
                       }
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
@@ -293,7 +301,7 @@ export default function CreateTaskModal({
                       <FontAwesome5
                         name={el.icon}
                         size={16}
-                        color={active ? Colors.background : Colors.text}
+                        color={Colors.text}
                       />
                       <Text
                         style={[
@@ -304,6 +312,7 @@ export default function CreateTaskModal({
                           ],
                         ]}
                       >
+
                         {el.label}
                       </Text>
                     </LinearGradient>
@@ -345,6 +354,7 @@ export default function CreateTaskModal({
               />
               <TouchableOpacity
                 style={styles.subtaskAddBtn}
+
                 onPress={() => {
                   const st = newSubtaskInput.trim();
                   if (!st) return;
@@ -364,6 +374,7 @@ export default function CreateTaskModal({
                   <View key={st.id || idx} style={styles.chip}>
                     <Text style={styles.chipLabel}>{st.text}</Text>
                     <TouchableOpacity
+                      accessibilityRole="button"
                       onPress={() =>
                         setNewSubtasks((prev) => prev.filter((_, i) => i !== idx))
                       }
@@ -383,12 +394,14 @@ export default function CreateTaskModal({
                 return (
                   <TouchableOpacity
                     key={pr.key}
+                    accessibilityRole="button"
                     style={[
                       styles.chip,
                       {
                         width: "100%",
                         borderRightWidth: 4,
                         borderRightColor: pr.color,
+
                       },
                       active && [
                         styles.chipActive,
@@ -404,6 +417,7 @@ export default function CreateTaskModal({
                           styles.segmentLabelActive,
                           { color: Colors.background },
                         ],
+
                       ]}
                     >
                       {pr.label}
@@ -412,6 +426,7 @@ export default function CreateTaskModal({
                       style={[
                         styles.helperText,
                         active && { color: Colors.background },
+
                       ]}
                     >
                       {`+${pr.xp} XP • +${pr.mana} Maná`}
@@ -428,6 +443,7 @@ export default function CreateTaskModal({
                 return (
                   <TouchableOpacity
                     key={opt.key}
+                    accessibilityRole="button"
                     style={[
                       styles.segmentButton,
                       index === difficultyOptions.length - 1 && {
@@ -437,6 +453,7 @@ export default function CreateTaskModal({
                         styles.segmentButtonActive,
                         { borderColor: opt.color, backgroundColor: opt.color },
                       ],
+
                     ]}
                     onPress={() => setNewDifficulty(opt.key)}
                   >
@@ -448,6 +465,7 @@ export default function CreateTaskModal({
                           styles.segmentLabelActive,
                           { color: Colors.background },
                         ],
+
                       ]}
                     >
                       {opt.label}
@@ -468,6 +486,7 @@ export default function CreateTaskModal({
               />
               <TouchableOpacity
                 style={styles.subtaskAddBtn}
+
                 onPress={() => {
                   const tag = newTagInput.trim();
                   if (!tag) return;
@@ -494,6 +513,7 @@ export default function CreateTaskModal({
                   return (
                     <TouchableOpacity
                       key={tagKey}
+                      accessibilityRole="button"
                       style={[
                         styles.chip,
                         active && [
@@ -542,6 +562,7 @@ export default function CreateTaskModal({
                     <View key={tag} style={styles.chip}>
                       <Text style={styles.chipLabel}>{tag}</Text>
                       <TouchableOpacity
+                        accessibilityRole="button"
                         onPress={() =>
                           setNewTags((prev) => prev.filter((t) => t !== tag))
                         }
@@ -562,6 +583,7 @@ export default function CreateTaskModal({
             <View style={styles.actions}>
               <TouchableOpacity
                 style={[styles.secondaryButton, { borderColor: Colors.danger }]}
+
                 onPress={onClose}
               >
                 <Text style={styles.secondaryButtonLabel}>Cancelar</Text>
@@ -571,6 +593,7 @@ export default function CreateTaskModal({
                 onPress={handleSave}
               >
                 <Text style={styles.primaryButtonLabel}>Guardar</Text>
+
               </TouchableOpacity>
             </View>
           </ScrollView>
