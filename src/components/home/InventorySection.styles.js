@@ -81,4 +81,10 @@ export default StyleSheet.create({
     ...Typography.body,
     color: Colors.text,
   },
+  emptyText: {
+    ...Typography.body,
+    color: Colors.textMuted,
+    textAlign: "center",
+    marginTop: Spacing.base,
+  },
 });

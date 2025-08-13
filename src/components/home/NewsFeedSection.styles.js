@@ -56,4 +56,10 @@ export default StyleSheet.create({
     borderRadius: Radii.pill,
     backgroundColor: Colors.accent,
   },
+  emptyText: {
+    ...Typography.body,
+    color: Colors.textMuted,
+    textAlign: "center",
+    marginTop: Spacing.base,
+  },
 });
