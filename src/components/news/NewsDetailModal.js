@@ -35,9 +35,15 @@ export default function NewsDetailModal({ visible, news, onClose, onMarkRead }) 
         transparent
         animationType="fade"
         onRequestClose={onClose}
+        statusBarTranslucent
       >
         <View style={styles.overlay}>
-          <View style={styles.content} accessibilityRole="dialog">
+          <View
+            style={styles.content}
+            accessible={true}
+            accessibilityViewIsModal={true}
+            accessibilityLabel="Detalle de noticia"
+          >
             <TouchableOpacity
               onPress={onClose}
               accessibilityRole="button"
@@ -62,9 +68,15 @@ export default function NewsDetailModal({ visible, news, onClose, onMarkRead }) 
       transparent
       animationType="fade"
       onRequestClose={onClose}
+      statusBarTranslucent
     >
       <View style={styles.overlay}>
-        <View style={styles.content} accessibilityRole="dialog">
+        <View
+          style={styles.content}
+          accessible={true}
+          accessibilityViewIsModal={true}
+          accessibilityLabel="Detalle de noticia"
+        >
           <Ionicons
             name={news.iconName}
             size={48}

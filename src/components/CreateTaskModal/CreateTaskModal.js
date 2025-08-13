@@ -174,8 +174,9 @@ export default function CreateTaskModal({
     <Modal
       visible={visible}
       animationType="slide"
-      transparent={true}
+      transparent
       onRequestClose={onClose}
+      statusBarTranslucent
     >
       <View
         style={{
@@ -186,6 +187,7 @@ export default function CreateTaskModal({
         }}
       >
         <View style={styles.root}>
+
 
           {alert && (
             <View
