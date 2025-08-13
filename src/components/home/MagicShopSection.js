@@ -10,7 +10,11 @@ import { Ionicons } from "@expo/vector-icons";
 import styles from "./MagicShopSection.styles";
 import ShopItemCard from "./ShopItemCard";
 import { ShopColors } from "../../theme";
-import { useAppState, useAppDispatch, useCanAfford } from "../../state/AppContext";
+import {
+  useAppState,
+  useAppDispatch,
+  useCanAfford,
+} from "../../state/AppContext";
 
 const TABS = [
   { key: "potions", label: "Pociones" },
@@ -20,15 +24,52 @@ const TABS = [
 
 const SHOP_ITEMS = {
   potions: [
-    { id: "p1", title: "Poción de Sabiduría", description: "Duplica XP por 2 horas", price: 50, iconName: "flask" },
-    { id: "p2", title: "Cristal de Maná", description: "+100 maná instantáneo", price: 30, iconName: "diamond" },
+    {
+      id: "p1",
+      title: "Poción de Sabiduría",
+      description: "Duplica XP por 2 horas",
+      price: 50,
+      iconName: "flask",
+    },
+    {
+      id: "p2",
+      title: "Cristal de Maná",
+      description: "+100 maná instantáneo",
+      price: 30,
+      iconName: "diamond",
+    },
   ],
   tools: [
-    { id: "t1", title: "Varita Élfica", description: "Reduce dificultad por 1 día", price: 120, iconName: "construct" },
-    { id: "t2", title: "Escudo Temporal", description: "Protege racha por 1 día", price: 80, iconName: "shield" },
+    {
+      id: "t1",
+      title: "Varita Élfica",
+      description: "Reduce dificultad por 1 día",
+      price: 120,
+      iconName: "construct",
+    },
+    {
+      id: "t2",
+      title: "Escudo Temporal",
+      description: "Protege racha por 1 día",
+      price: 80,
+      iconName: "shield",
+    },
   ],
   cosmetics: [
-    { id: "c1", title: "Maceta Dorada", description: "Mejora visual de la planta", price: 200, iconName: "color-palette" },
+    {
+      id: "c1",
+      title: "Maceta Dorada",
+      description: "Mejora visual de la planta",
+      price: 200,
+      iconName: "color-palette",
+    },
+    {
+      id: "c2",
+      title: "Maceta Legendaria",
+      description: "Mejora calidad de la planta",
+      price: 400,
+      iconName: "color-palette",
+    },
   ],
 };
 
@@ -38,13 +79,14 @@ export default function MagicShopSection() {
   const dispatch = useAppDispatch();
   const canAfford = useCanAfford();
 
-  const addDebugMana = () =>
-    dispatch({ type: "SET_MANA", payload: mana + 5 });
+  const addDebugMana = () => dispatch({ type: "SET_MANA", payload: mana + 5 });
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tienda Mágica</Text>
-      <Text style={styles.subtitle}>Las pociones compradas se guardan en Inventario</Text>
+      <Text style={styles.subtitle}>
+        Las pociones compradas se guardan en Inventario
+      </Text>
 
       <View style={styles.manaRow}>
         <Text style={styles.manaLabel} accessibilityRole="text">
@@ -72,7 +114,7 @@ export default function MagicShopSection() {
           accessibilityRole="button"
           accessibilityLabel="Agregar 5 maná"
         >
-          <Text style={styles.debugButtonText}>+5</Text>
+          <Text style={styles.debugButtonText}>Agregar 5 de maná</Text>
         </Pressable>
       )}
 
@@ -87,7 +129,10 @@ export default function MagicShopSection() {
               style={[
                 styles.tabButton,
                 index === TABS.length - 1 && { marginRight: 0 },
-                isActive && { backgroundColor: accent.bg, borderColor: accent.border },
+                isActive && {
+                  backgroundColor: accent.bg,
+                  borderColor: accent.border,
+                },
               ]}
               accessibilityRole="button"
               accessibilityLabel={`Mostrar ${tab.label}`}
