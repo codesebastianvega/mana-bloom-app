@@ -7,35 +7,17 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import { Colors } from "../../theme";
 import styles from "./NewsFeedSection.styles";
-import {
-  useNewsFeed,
-  useAppDispatch,
-  useHydrationStatus,
-} from "../../state/AppContext";
+import { useNewsFeed, useHydrationStatus } from "../../state/AppContext";
+import { timeAgo } from "../../utils/time";
 import SectionPlaceholder from "./SectionPlaceholder";
-
-function timeAgo(iso) {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const m = Math.floor(diffMs / 60000);
-  const h = Math.floor(m / 60);
-  const d = Math.floor(h / 24);
-  if (m < 60) return `hace ${m} min`;
-  if (h < 24) return `hace ${h} h`;
-  if (d === 1) return "ayer";
-  return `hace ${d} días`;
-}
 
 export default function NewsFeedSection() {
   const { items } = useNewsFeed();
-  const dispatch = useAppDispatch();
+  const navigation = useNavigation();
   const hydration = useHydrationStatus();
-
-  const markAll = () => dispatch({ type: "MARK_ALL_NEWS_READ" });
-  const handlePress = (id) => {
-    dispatch({ type: "MARK_NEWS_READ", payload: { id } });
-  };
 
   if (hydration.news) {
     return <SectionPlaceholder height={220} />;
@@ -48,11 +30,11 @@ export default function NewsFeedSection() {
           Noticias
         </Text>
         <TouchableOpacity
-          onPress={markAll}
+          onPress={() => navigation.navigate("NewsInboxModal")}
           accessibilityRole="button"
-          accessibilityLabel="Marcar todas las noticias como leídas"
+          accessibilityLabel="Ver todas las noticias"
         >
-          <Text style={styles.markAll}>Marcar todo como leído</Text>
+          <Text style={styles.viewAll}>Ver todo</Text>
         </TouchableOpacity>
       </View>
       {items.length === 0 ? (
@@ -62,9 +44,11 @@ export default function NewsFeedSection() {
           <TouchableOpacity
             key={item.id}
             style={styles.row}
-            onPress={() => handlePress(item.id)}
+            onPress={() =>
+              navigation.navigate("NewsInboxModal", { initialId: item.id })
+            }
             accessibilityRole="button"
-            accessibilityLabel={`Marcar ${item.title} como leído`}
+            accessibilityLabel={`Abrir noticia: ${item.title}`}
           >
             <Ionicons name={item.iconName} size={20} color={Colors.text} />
             <View style={styles.rowText}>
