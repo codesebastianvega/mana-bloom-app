@@ -80,7 +80,7 @@ export default StyleSheet.create({
     borderRadius: Radii?.pill ?? 999,
     borderWidth: 1,
     borderColor: Colors.textMuted,
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.secondary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -313,4 +313,3 @@ export default StyleSheet.create({
     borderRadius: 1,
   },
 });
-
