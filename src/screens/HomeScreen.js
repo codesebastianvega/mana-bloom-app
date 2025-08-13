@@ -1,8 +1,8 @@
-// [MB] Módulo: Home / Pantalla: HomeScreen
+// [MB] Módulo: Home / Sección: HomeScreen
 // Afecta: HomeScreen (layout principal)
 // Propósito: Renderizar secciones de inicio y mostrar estado global
 // Puntos de edición futura: conectar datos reales y navegación
-// Autor: Codex - Fecha: 2025-08-12
+// Autor: Codex - Fecha: 2025-08-13
 
 import React, { useRef, useState } from "react";
 import { StyleSheet, ScrollView } from "react-native";
@@ -35,7 +35,9 @@ export default function HomeScreen() {
         ref={scrollRef}
         contentContainerStyle={{
           paddingHorizontal: Spacing.base,
+          paddingTop: Spacing.base,
           paddingBottom: 96,
+          gap: Spacing.large,
         }}
       >
         <HomeWelcomeCard />
