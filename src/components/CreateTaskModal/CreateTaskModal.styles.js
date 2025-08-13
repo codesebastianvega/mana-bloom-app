@@ -1,281 +1,227 @@
-// src/components/CreateTaskModal/CreateTaskModal.styles.js
+// [MB] CreateTaskModal.styles.js — estilos del modal de tareas alineados al tema (solo estilos, sin tocar la estructura)
+// Módulo: Tasks > CreateTaskModal
+// Propósito: Unificar visual con Home (fondos, radios, tipografías, paddings, chips y botones) usando tokens.
+
 import { StyleSheet } from "react-native";
-import { Colors, Spacing } from "../../theme";
+import { Colors, Spacing, Radii, Elevation /*, Typography*/ } from "../../theme";
 
 export default StyleSheet.create({
-  background: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
+  // Contenedor raíz del modal (usa este en el wrapper principal del modal)
+  root: {
+    backgroundColor: Colors.surfaceElevated || Colors.surface,
+    borderRadius: Radii?.xl ?? 20,
+    padding: Spacing.large,
+    ...(Elevation?.modal || {}),
   },
-  container: {
-    width: "90%",
-    backgroundColor: Colors.surface,
-    borderRadius: 12,
-    padding: Spacing.base,
-    maxHeight: "90%",
-  },
+
+  // Encabezado / título del modal
   title: {
+    // Typography.h2 si existe; fallback manual:
+    fontSize: 22,
+    fontWeight: "700",
     color: Colors.text,
-    fontSize: 18,
-    fontWeight: "600",
     marginBottom: Spacing.small,
   },
-  input: {
-    backgroundColor: Colors.background,
-    color: Colors.text,
-    borderRadius: 8,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.small,
-    fontSize: 14,
-  },
-  button: {
-    paddingVertical: Spacing.small,
-    paddingHorizontal: Spacing.base,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: Colors.background,
-    fontWeight: "600",
-  },
-  label: {
-    color: Colors.text,
+
+  // Subtítulo o labels de secciones (ej. "Tipo", "Elemento", "Prioridad")
+  sectionLabel: {
     fontSize: 14,
     fontWeight: "600",
+    color: Colors.text,
     marginTop: Spacing.base,
     marginBottom: Spacing.small,
   },
-  subtaskHint: {
-    color: Colors.textMuted,
+
+  // Etiquetas pequeñas (debajo de inputs)
+  helperText: {
     fontSize: 12,
+    color: Colors.textMuted,
+    marginTop: Spacing.tiny,
   },
+
+  // Filas genéricas para alinear controles en horizontal
   row: {
     flexDirection: "row",
-    marginBottom: Spacing.base,
-    width: "100%",
-  },
-  optionBtn: {
-    paddingVertical: Spacing.tiny,
-    paddingHorizontal: Spacing.tiny,
-    borderRadius: 8,
-    borderWidth: 0.5,
-    borderColor: Colors.text,
-    marginRight: Spacing.tiny,
-    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
   },
-  optionText: {
+
+  // Contenedor con separación vertical entre grupos
+  group: {
+    marginTop: Spacing.base,
+  },
+
+  // Input de una línea (título, etiqueta, etc.)
+  input: {
+    height: 48,
+    borderRadius: Radii?.lg ?? 14,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.textMuted,
+    paddingHorizontal: Spacing.base,
     color: Colors.text,
-    fontSize: 12,
-    marginLeft: 4,
   },
-  difficultyOptionBtn: {
-    flex: 1,
-    paddingVertical: Spacing.small,
-    borderRadius: 10,
-    borderWidth: 0.5,
-    borderColor: Colors.text,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: Spacing.small,
-  },
-  priorityContainer: {
-    width: "100%",
-    marginBottom: Spacing.base,
-  },
-  priorityBtn: {
-    width: "100%",
-    paddingVertical: Spacing.small,
-    paddingHorizontal: Spacing.small,
-    borderRadius: 10,
-    borderWidth: 0.5,
-    borderColor: Colors.text,
-    marginBottom: Spacing.small,
-    alignItems: "flex-start",
-    borderRightWidth: 4,
-  },
-  priorityTitle: {
+
+  // Input multilínea (notas / descripción)
+  inputMultiline: {
+    minHeight: 96,
+    borderRadius: Radii?.lg ?? 14,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.textMuted,
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.base,
     color: Colors.text,
-    fontSize: 14,
-    fontWeight: "600",
+    textAlignVertical: "top",
   },
-  prioritySubtitle: {
-    color: Colors.textMuted,
-    fontSize: 12,
-    marginTop: 2,
-  },
-  typeOptionBtn: {
-    flex: 1,
-    paddingVertical: Spacing.small,
-    borderRadius: 10,
-    borderWidth: 0.5,
-    borderColor: Colors.text,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: Spacing.small,
-  },
-  typeOptionText: {
-    color: Colors.text,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  elementGrid: {
+
+  // Contenedor de "segmentos" (p. ej. Tarea / Hábito)
+  segmentContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
-    marginBottom: Spacing.base,
+    gap: Spacing.small,
+    marginTop: Spacing.small,
   },
-  elementBtn: {
-    width: "48%",
-    borderRadius: 10,
-    borderWidth: 0.5,
-    borderColor: Colors.text,
-    marginBottom: Spacing.small,
-    overflow: "hidden",
-  },
-  elementBtnInner: {
-    paddingVertical: Spacing.small,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  tagInputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: Spacing.base,
-  },
-  tagInput: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    color: Colors.text,
-    borderRadius: 8,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.small,
-    fontSize: 14,
-  },
-  addTagButton: {
-    marginLeft: Spacing.small,
-    backgroundColor: Colors.primary,
-    padding: Spacing.small,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  tagChip: {
-    backgroundColor: Colors.surface,
-    borderRadius: 12,
-    borderWidth: 0.5,
+
+  // Botón de segmento (estado base)
+  segmentButton: {
+    minHeight: 36,
+    paddingHorizontal: Spacing.base,
+    borderRadius: Radii?.pill ?? 999,
+    borderWidth: 1,
     borderColor: Colors.textMuted,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: 4,
-    marginRight: Spacing.small,
-    flexDirection: "row",
+    backgroundColor: Colors.surface,
+    justifyContent: "center",
     alignItems: "center",
   },
-  tagText: {
-    color: Colors.text,
-    fontSize: 12,
-  },
-  selectedTagsLabel: {
-    color: Colors.text,
+  // Texto del segmento
+  segmentLabel: {
     fontSize: 14,
-    fontWeight: "600",
-    marginBottom: Spacing.small,
+    color: Colors.text,
+    fontWeight: "500",
   },
-  subtaskInputRow: {
+  // Estado activo del segmento
+  segmentButtonActive: {
+    borderColor: Colors.primary,
+    // Si quieres leve fill activo sin alpha utils, usa surfaceElevated:
+    backgroundColor: Colors.surfaceElevated || Colors.surface,
+  },
+  segmentLabelActive: {
+    color: Colors.text,
+    fontWeight: "700",
+  },
+
+  // Chips (Prioridad / Elemento / Etiquetas seleccionables)
+  chipsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.small,
+    marginTop: Spacing.small,
+  },
+  chip: {
+    minHeight: 28,
+    paddingHorizontal: Spacing.base,
+    borderRadius: Radii?.pill ?? 999,
+    borderWidth: 1,
+    borderColor: Colors.textMuted,
+    backgroundColor: Colors.surface,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  chipLabel: {
+    fontSize: 13,
+    color: Colors.text,
+    fontWeight: "500",
+  },
+  chipActive: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.surfaceElevated || Colors.surface,
+  },
+  chipLabelActive: {
+    color: Colors.text,
+    fontWeight: "700",
+  },
+
+  // Subtareas: fila input + botón "+"
+  subtaskRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: Spacing.base,
+    gap: Spacing.small,
+    marginTop: Spacing.small,
   },
   subtaskInput: {
     flex: 1,
-    backgroundColor: Colors.background,
+    height: 44,
+    borderRadius: Radii?.lg ?? 14,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.textMuted,
+    paddingHorizontal: Spacing.base,
     color: Colors.text,
-    borderRadius: 8,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.small,
-    fontSize: 14,
   },
-  addSubtaskButton: {
-    marginLeft: Spacing.small,
+  subtaskAddBtn: {
+    minHeight: 44,
+    paddingHorizontal: Spacing.base,
+    borderRadius: Radii?.pill ?? 999,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    backgroundColor: Colors.surfaceElevated || Colors.surface,
+    justifyContent: "center",
+    alignItems: "center",
+    ...(Elevation?.card || {}),
+  },
+  subtaskAddLabel: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: Colors.text,
+  },
+
+  // Botonera inferior
+  actions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+    marginTop: Spacing.large,
+  },
+  primaryButton: {
+    flex: 1,
+    minHeight: 44,
+    paddingHorizontal: Spacing.large,
+    borderRadius: Radii?.pill ?? 999,
     backgroundColor: Colors.primary,
-    padding: Spacing.small,
-    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    ...(Elevation?.card || {}),
+  },
+  primaryButtonLabel: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: Colors.text, // si prefieres contraste: usa un Colors.onPrimary si existe
+  },
+  secondaryButton: {
+    flex: 1,
+    minHeight: 44,
+    paddingHorizontal: Spacing.large,
+    borderRadius: Radii?.pill ?? 999,
+    borderWidth: 1,
+    borderColor: Colors.textMuted,
+    backgroundColor: Colors.surface,
     justifyContent: "center",
     alignItems: "center",
   },
-  subtaskList: {
-    marginTop: Spacing.small,
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  subtaskItem: {
-    backgroundColor: Colors.surface,
-    borderRadius: 12,
-    borderWidth: 0.5,
-    borderColor: Colors.textMuted,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: 4,
-    marginRight: Spacing.small,
-    marginBottom: Spacing.small,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  subtaskText: {
-    color: Colors.text,
-    fontSize: 12,
-  },
-  removeIcon: {
-    marginLeft: Spacing.tiny,
-  },
-  elementInfoBox: {
-    backgroundColor: Colors.surface,
-    borderRadius: 10,
-    padding: Spacing.small,
-    marginBottom: Spacing.base,
-  },
-  elementInfoTitle: {
-    color: Colors.text,
-    fontSize: 14,
+  secondaryButtonLabel: {
+    fontSize: 16,
     fontWeight: "600",
-    marginBottom: Spacing.tiny,
-  },
-  elementInfoDescription: {
     color: Colors.text,
-    fontSize: 12,
-    marginBottom: Spacing.tiny,
   },
-  elementInfoExamples: {
-    color: Colors.text,
-    fontSize: 12,
-    marginBottom: Spacing.tiny,
-  },
-  elementInfoPurpose: {
-    color: Colors.text,
-    fontSize: 12,
-  },
-  alertContainer: {
-    position: "absolute",
-    bottom: Spacing.xlarge,
 
-    left: Spacing.base,
-    right: Spacing.base,
-    paddingVertical: Spacing.small,
-    paddingHorizontal: Spacing.base,
-    borderRadius: 8,
-    zIndex: 2,
-    alignItems: "center",
-  },
-  alertText: {
-    color: Colors.text,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  alertSuccess: {
-    backgroundColor: Colors.secondary,
-  },
-  alertError: {
-    backgroundColor: Colors.danger,
+  // Separadores suaves entre bloques dentro del modal (si los usas)
+  divider: {
+    height: 1,
+    backgroundColor: Colors.textMuted,
+    opacity: 0.2,
+    marginVertical: Spacing.base,
+    borderRadius: 1,
   },
 });
+

@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { Colors, Spacing } from "../../theme";
+import { Colors, Spacing, Radii } from "../../theme";
 import styles from "./CreateTaskModal.styles";
 
 const typeOptions = [
@@ -173,18 +173,36 @@ export default function CreateTaskModal({
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={styles.background}>
-        <View style={styles.container}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: Colors.overlay,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <View style={styles.root}>
           {alert && (
             <View
-              style={[
-                styles.alertContainer,
-                alert.type === "error"
-                  ? styles.alertError
-                  : styles.alertSuccess,
-              ]}
+              style={{
+                position: "absolute",
+                bottom: Spacing.xlarge,
+                left: Spacing.base,
+                right: Spacing.base,
+                paddingVertical: Spacing.small,
+                paddingHorizontal: Spacing.base,
+                borderRadius: Radii.lg,
+                zIndex: 2,
+                alignItems: "center",
+                backgroundColor:
+                  alert.type === "error" ? Colors.danger : Colors.secondary,
+              }}
             >
-              <Text style={styles.alertText}>{alert.message}</Text>
+              <Text
+                style={{ color: Colors.text, fontSize: 14, fontWeight: "600" }}
+              >
+                {alert.message}
+              </Text>
             </View>
           )}
           <ScrollView
@@ -206,21 +224,15 @@ export default function CreateTaskModal({
             />
 
             <TextInput
-              style={[
-                styles.input,
-                {
-                  marginTop: Spacing.small,
-                  paddingBottom: 40,
-                  textAlignVertical: "top",
-                },
-              ]}
+              style={[styles.inputMultiline, { marginTop: Spacing.small }]}
               placeholder="Detalle o nota (opcional)"
               placeholderTextColor={Colors.textMuted}
               value={newNote}
               onChangeText={setNewNote}
+              multiline
             />
 
-            <Text style={styles.label}>Tipo</Text>
+            <Text style={styles.sectionLabel}>Tipo</Text>
             <View style={styles.row}>
               {typeOptions.map((opt, index) => {
                 const active = newType === opt.key;
@@ -228,16 +240,24 @@ export default function CreateTaskModal({
                   <TouchableOpacity
                     key={opt.key}
                     style={[
-                      styles.typeOptionBtn,
-                      index === typeOptions.length - 1 && { marginRight: 0 },
-                      active && { backgroundColor: opt.activeColor },
+                      styles.segmentButton,
+                      active && [
+                        styles.segmentButtonActive,
+                        {
+                          borderColor: opt.activeColor,
+                          backgroundColor: opt.activeColor,
+                        },
+                      ],
                     ]}
                     onPress={() => setNewType(opt.key)}
                   >
                     <Text
                       style={[
-                        styles.typeOptionText,
-                        active && { color: Colors.background },
+                        styles.segmentLabel,
+                        active && [
+                          styles.segmentLabelActive,
+                          { color: Colors.background },
+                        ],
                       ]}
                     >
                       {opt.label}
@@ -247,14 +267,17 @@ export default function CreateTaskModal({
               })}
             </View>
 
-            <Text style={styles.label}>Elemento</Text>
-            <View style={styles.elementGrid}>
+            <Text style={styles.sectionLabel}>Elemento</Text>
+            <View style={styles.segmentContainer}>
               {elementOptions.map((el) => {
                 const active = newElement === el.key;
                 return (
                   <TouchableOpacity
                     key={el.key}
-                    style={styles.elementBtn}
+                    style={[
+                      styles.segmentButton,
+                      active && styles.segmentButtonActive,
+                    ]}
                     onPress={() => setNewElement(el.key)}
                   >
                     <LinearGradient
@@ -265,7 +288,7 @@ export default function CreateTaskModal({
                       }
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
-                      style={styles.elementBtnInner}
+                      style={styles.segmentButton}
                     >
                       <FontAwesome5
                         name={el.icon}
@@ -274,8 +297,11 @@ export default function CreateTaskModal({
                       />
                       <Text
                         style={[
-                          styles.optionText,
-                          { color: active ? Colors.background : Colors.text },
+                          styles.segmentLabel,
+                          active && [
+                            styles.segmentLabelActive,
+                            { color: Colors.background },
+                          ],
                         ]}
                       >
                         {el.label}
@@ -287,29 +313,29 @@ export default function CreateTaskModal({
             </View>
 
             {newElement !== "all" && (
-              <View style={styles.elementInfoBox}>
-                <Text style={styles.elementInfoTitle}>
+              <View style={styles.group}>
+                <Text style={styles.sectionLabel}>
                   {elementInfo[newElement].title}
                 </Text>
-                <Text style={styles.elementInfoDescription}>
+                <Text style={styles.helperText}>
                   {elementInfo[newElement].description}
                 </Text>
-                <Text style={styles.elementInfoExamples}>
+                <Text style={styles.helperText}>
                   {elementInfo[newElement].examples}
                 </Text>
-                <Text style={styles.elementInfoPurpose}>
+                <Text style={styles.helperText}>
                   {elementInfo[newElement].purpose}
                 </Text>
               </View>
             )}
 
-            <Text style={styles.label}>
+            <Text style={styles.sectionLabel}>
               Subtareas{" "}
-              <Text style={styles.subtaskHint}>
+              <Text style={styles.helperText}>
                 (Agrega tareas más pequeñas para facilitar tu trabajo)
               </Text>
             </Text>
-            <View style={styles.subtaskInputRow}>
+            <View style={styles.subtaskRow}>
               <TextInput
                 style={styles.subtaskInput}
                 placeholder="Nueva subtarea"
@@ -318,7 +344,7 @@ export default function CreateTaskModal({
                 onChangeText={setNewSubtaskInput}
               />
               <TouchableOpacity
-                style={styles.addSubtaskButton}
+                style={styles.subtaskAddBtn}
                 onPress={() => {
                   const st = newSubtaskInput.trim();
                   if (!st) return;
@@ -333,15 +359,15 @@ export default function CreateTaskModal({
               </TouchableOpacity>
             </View>
             {newSubtasks.length > 0 && (
-              <View style={styles.subtaskList}>
+              <View style={styles.chipsContainer}>
                 {newSubtasks.map((st, idx) => (
-                  <View key={st.id || idx} style={styles.subtaskItem}>
-                    <Text style={styles.subtaskText}>{st.text}</Text>
+                  <View key={st.id || idx} style={styles.chip}>
+                    <Text style={styles.chipLabel}>{st.text}</Text>
                     <TouchableOpacity
                       onPress={() =>
                         setNewSubtasks((prev) => prev.filter((_, i) => i !== idx))
                       }
-                      style={styles.removeIcon}
+                      style={{ marginLeft: Spacing.tiny }}
                     >
                       <FontAwesome5 name="times" size={12} color={Colors.text} />
                     </TouchableOpacity>
@@ -350,33 +376,41 @@ export default function CreateTaskModal({
               </View>
             )}
 
-            <Text style={styles.label}>Prioridad</Text>
-            <View style={styles.priorityContainer}>
+            <Text style={styles.sectionLabel}>Prioridad</Text>
+            <View style={styles.group}>
               {priorityOptions.map((pr) => {
                 const active = newPriority === pr.key;
                 return (
                   <TouchableOpacity
                     key={pr.key}
                     style={[
-                      styles.priorityBtn,
-                      { borderRightColor: pr.color },
-                      active && {
-                        backgroundColor: pr.color,
+                      styles.chip,
+                      {
+                        width: "100%",
+                        borderRightWidth: 4,
+                        borderRightColor: pr.color,
                       },
+                      active && [
+                        styles.chipActive,
+                        { borderColor: pr.color, backgroundColor: pr.color },
+                      ],
                     ]}
                     onPress={() => setNewPriority(pr.key)}
                   >
                     <Text
                       style={[
-                        styles.priorityTitle,
-                        active && { color: Colors.background },
+                        styles.segmentLabel,
+                        active && [
+                          styles.segmentLabelActive,
+                          { color: Colors.background },
+                        ],
                       ]}
                     >
                       {pr.label}
                     </Text>
                     <Text
                       style={[
-                        styles.prioritySubtitle,
+                        styles.helperText,
                         active && { color: Colors.background },
                       ]}
                     >
@@ -387,7 +421,7 @@ export default function CreateTaskModal({
               })}
             </View>
 
-            <Text style={styles.label}>Dificultad</Text>
+            <Text style={styles.sectionLabel}>Dificultad</Text>
             <View style={styles.row}>
               {difficultyOptions.map((opt, index) => {
                 const active = newDifficulty === opt.key;
@@ -395,22 +429,25 @@ export default function CreateTaskModal({
                   <TouchableOpacity
                     key={opt.key}
                     style={[
-                      styles.difficultyOptionBtn,
+                      styles.segmentButton,
                       index === difficultyOptions.length - 1 && {
                         marginRight: 0,
                       },
-                      active && {
-                        backgroundColor: opt.color,
-                        borderColor: opt.color,
-                      },
+                      active && [
+                        styles.segmentButtonActive,
+                        { borderColor: opt.color, backgroundColor: opt.color },
+                      ],
                     ]}
                     onPress={() => setNewDifficulty(opt.key)}
                   >
                     <Text
                       style={[
-                        styles.optionText,
+                        styles.segmentLabel,
                         { marginLeft: 0 },
-                        active && { color: Colors.background },
+                        active && [
+                          styles.segmentLabelActive,
+                          { color: Colors.background },
+                        ],
                       ]}
                     >
                       {opt.label}
@@ -420,17 +457,17 @@ export default function CreateTaskModal({
               })}
             </View>
 
-            <Text style={styles.label}>Etiquetas</Text>
-            <View style={styles.tagInputRow}>
+            <Text style={styles.sectionLabel}>Etiquetas</Text>
+            <View style={styles.subtaskRow}>
               <TextInput
-                style={styles.tagInput}
+                style={styles.subtaskInput}
                 placeholder="Nueva etiqueta"
                 placeholderTextColor={Colors.textMuted}
                 value={newTagInput}
                 onChangeText={setNewTagInput}
               />
               <TouchableOpacity
-                style={styles.addTagButton}
+                style={styles.subtaskAddBtn}
                 onPress={() => {
                   const tag = newTagInput.trim();
                   if (!tag) return;
@@ -443,7 +480,7 @@ export default function CreateTaskModal({
               </TouchableOpacity>
             </View>
             {uniqueTags.length > 0 && (
-              <Text style={styles.label}>Mis Etiquetas</Text>
+              <Text style={styles.sectionLabel}>Mis Etiquetas</Text>
             )}
             {uniqueTags.length > 0 && (
               <ScrollView
@@ -458,11 +495,14 @@ export default function CreateTaskModal({
                     <TouchableOpacity
                       key={tagKey}
                       style={[
-                        styles.optionBtn,
-                        active && {
-                          backgroundColor: Colors.accent,
-                          borderColor: Colors.accent,
-                        },
+                        styles.chip,
+                        active && [
+                          styles.chipActive,
+                          {
+                            borderColor: Colors.accent,
+                            backgroundColor: Colors.accent,
+                          },
+                        ],
                       ]}
                       onPress={() => {
                         setNewTags((prev) =>
@@ -474,8 +514,11 @@ export default function CreateTaskModal({
                     >
                       <Text
                         style={[
-                          styles.optionText,
-                          active && { color: Colors.background },
+                          styles.chipLabel,
+                          active && [
+                            styles.chipLabelActive,
+                            { color: Colors.background },
+                          ],
                         ]}
                       >
                         {tagKey}
@@ -488,7 +531,7 @@ export default function CreateTaskModal({
 
             {newTags.length > 0 && (
               <>
-                <Text style={styles.selectedTagsLabel}>Etiquetas seleccionadas</Text>
+                <Text style={styles.sectionLabel}>Etiquetas seleccionadas</Text>
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -496,13 +539,13 @@ export default function CreateTaskModal({
                   contentContainerStyle={{ alignItems: "center" }}
                 >
                   {newTags.map((tag) => (
-                    <View key={tag} style={styles.tagChip}>
-                      <Text style={styles.tagText}>{tag}</Text>
+                    <View key={tag} style={styles.chip}>
+                      <Text style={styles.chipLabel}>{tag}</Text>
                       <TouchableOpacity
                         onPress={() =>
                           setNewTags((prev) => prev.filter((t) => t !== tag))
                         }
-                        style={styles.removeIcon}
+                        style={{ marginLeft: Spacing.tiny }}
                       >
                         <FontAwesome5
                           name="times"
@@ -516,30 +559,18 @@ export default function CreateTaskModal({
               </>
             )}
 
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "flex-end",
-                marginTop: Spacing.base,
-              }}
-            >
+            <View style={styles.actions}>
               <TouchableOpacity
-                style={[
-                  styles.button,
-                  {
-                    backgroundColor: Colors.danger,
-                    marginRight: Spacing.small,
-                  },
-                ]}
+                style={[styles.secondaryButton, { borderColor: Colors.danger }]}
                 onPress={onClose}
               >
-                <Text style={styles.buttonText}>Cancelar</Text>
+                <Text style={styles.secondaryButtonLabel}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.button, { backgroundColor: Colors.primary }]}
+                style={styles.primaryButton}
                 onPress={handleSave}
               >
-                <Text style={styles.buttonText}>Guardar</Text>
+                <Text style={styles.primaryButtonLabel}>Guardar</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
