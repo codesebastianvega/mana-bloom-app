@@ -19,94 +19,49 @@ import {
 
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { Colors, Spacing } from "../../theme";
+import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
+import { LinearGradient } from "expo-linear-gradient";
+import { XP_REWARD_BY_PRIORITY as PRIORITY_REWARDS } from "../../constants/rewards";
 
 import styles from "./CreateTaskModal.styles";
 
-const typeOptions = [
-  { key: "single", label: "Tarea", activeColor: Colors.primaryLight },
-  { key: "habit", label: "Hábito", activeColor: Colors.secondaryLight },
-];
-
-const elementInfo = {
-  fire: {
-    title: "Fuego 🔥 (Poder y Pasión)",
-    description:
-      "Se usa para tareas que requieren alta energía, urgencia o creatividad espontánea.",
-    examples:
-      "Ejemplos: Terminar un proyecto con fecha límite, una sesión de brainstorming intensa, o una tarea que te apasiona y quieres completar rápidamente.",
-    purpose:
-      'Propósito: "Inyecta poder y acelera el crecimiento de la planta."',
-  },
-  water: {
-    title: "Agua 💧 (Calma y Flujo)",
-    description:
-      "Se usa para tareas que necesitan atención continua, concentración o un estado de calma.",
-    examples:
-      "Ejemplos: Planificar tu semana, leer un documento largo, o meditar.",
-    purpose:
-      'Propósito: "Mantiene la planta hidratada y en un crecimiento estable."',
-  },
-  earth: {
-    title: "Tierra 🌱 (Estabilidad y Crecimiento)",
-    description:
-      "Se usa para tareas fundamentales, repetitivas o que construyen un hábito.",
-    examples:
-      "Ejemplos: Limpiar tu espacio de trabajo, hacer ejercicio, o realizar una tarea diaria de tu rutina.",
-    purpose:
-      'Propósito: "Proporciona una base sólida y nutrientes para un crecimiento sostenible."',
-  },
-  air: {
-    title: "Aire 🌬️ (Libertad y Movimiento)",
-    description:
-      "Se usa para tareas que requieren claridad mental, comunicación o flexibilidad.",
-    examples:
-      "Ejemplos: Escribir un correo importante, organizar ideas, o aprender algo nuevo.",
-    purpose:
-      'Propósito: "Le da a la planta el espacio para respirar y expandirse."',
-  },
-};
-
 const ELEMENT_ACCENTS = {
-  water: {
+  Agua: {
     border: Colors.elementWater,
-    bg: Colors.surface,
     pill: Colors.elementWaterLight,
     emoji: "💧",
-    label: "Agua",
+    grad: ["#143a52", "#0e2a3a"],
+    value: "water",
   },
-  fire: {
+  Fuego: {
     border: Colors.elementFire,
-    bg: Colors.surface,
     pill: Colors.elementFireLight,
     emoji: "🔥",
-    label: "Fuego",
+    grad: ["#5a1f0d", "#3a1308"],
+    value: "fire",
   },
-  earth: {
+  Tierra: {
     border: Colors.elementEarth,
-    bg: Colors.surface,
     pill: Colors.elementEarthLight,
     emoji: "🌱",
-    label: "Tierra",
+    grad: ["#3d2c28", "#2a1e1b"],
+    value: "earth",
   },
-  air: {
+  Aire: {
     border: Colors.elementAir,
-    bg: Colors.surface,
     pill: Colors.elementAirLight,
     emoji: "💨",
-    label: "Aire",
+    grad: ["#2d3438", "#202629"],
+    value: "air",
   },
 };
+const ELEMENTS = ["Agua", "Fuego", "Tierra", "Aire"];
 
-const ELEMENTS = ["water", "fire", "earth", "air"];
+const PRIORITIES = ["Baja", "Media", "Urgente"];
+const PRIORITY_VALUES = { Baja: "easy", Media: "medium", Urgente: "hard" };
 
-const PRIORITY_ACCENTS = {
-  easy: { label: "Baja", border: Colors.elementAir, fill: Colors.elementAirLight },
-  medium: { label: "Media", border: Colors.elementEarth, fill: Colors.elementEarthLight },
-  hard: { label: "Urgente", border: Colors.elementFire, fill: Colors.elementFireLight },
-};
-
-const PRIORITIES = ["easy", "medium", "hard"];
+const DIFFS = ["Fácil", "Medio", "Difícil"];
+const DIFF_VALUES = { Fácil: "easy", Medio: "medium", Difícil: "hard" };
 
 export default function CreateTaskModal({
   visible,
@@ -283,102 +238,95 @@ export default function CreateTaskModal({
             />
 
             <Text style={styles.sectionLabel}>Tipo</Text>
-            <View style={styles.row}>
-              {typeOptions.map((opt, index) => {
-                const active = newType === opt.key;
-                return (
-                  <TouchableOpacity
-                    key={opt.key}
-                    accessibilityRole="button"
-                    style={[
-                      styles.segmentButton,
-                      active && [
-                        styles.segmentButtonActive,
-                        {
-                          borderColor: opt.activeColor,
-                          backgroundColor: opt.activeColor,
-                        },
-                      ],
+            <View style={styles.segmentContainer}>
+              <Pressable
+                onPress={() => setNewType("single")}
+                style={[
+                  styles.segmentButton,
+                  newType === "single" && styles.segmentButtonActive,
+                ]}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: newType === "single" }}
+              >
+                <Text
+                  style={[
+                    styles.segmentLabel,
+                    newType === "single" && styles.segmentLabelActive,
+                  ]}
+                >
+                  Tarea
+                </Text>
+              </Pressable>
 
-                    ]}
-                    onPress={() => setNewType(opt.key)}
-                  >
-                    <Text
-                      style={[
-                        styles.segmentLabel,
-                        active && [
-                          styles.segmentLabelActive,
-                          { color: Colors.background },
-                        ],
-
-                      ]}
-                    >
-                      {opt.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+              <Pressable
+                onPress={() => setNewType("habit")}
+                style={[
+                  styles.segmentButton,
+                  newType === "habit" && styles.segmentButtonActive,
+                ]}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: newType === "habit" }}
+              >
+                <Text
+                  style={[
+                    styles.segmentLabel,
+                    newType === "habit" && styles.segmentLabelActive,
+                  ]}
+                >
+                  Hábito
+                </Text>
+              </Pressable>
             </View>
 
-            <Text style={styles.label}>Elemento</Text>
+            <Text style={styles.sectionLabel}>Elemento</Text>
             <View style={styles.elementGrid}>
-              {ELEMENTS.map((key) => {
-                const accent = ELEMENT_ACCENTS[key];
-                const isActive = newElement === key;
+              {ELEMENTS.map((name, idx) => {
+                const accent = ELEMENT_ACCENTS[name];
+                const selected = newElement === accent.value;
                 return (
                   <Pressable
-                    key={key}
-                    onPress={() => setNewElement(key)}
+                    key={name}
+                    onPress={() => setNewElement(accent.value)}
                     style={[
                       styles.elementCard,
                       { borderColor: accent.border },
-                      isActive && styles.elementCardActive,
-
+                      selected && styles.elementCardActive,
+                      idx % 2 === 0 && styles.elementCardLeft,
                     ]}
                     accessibilityRole="button"
-                    accessibilityState={{ selected: isActive }}
-                    accessibilityLabel={`Seleccionar elemento ${accent.label}`}
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={`Seleccionar elemento ${name}`}
                   >
+                    {selected ? (
+                      <LinearGradient
+                        colors={accent.grad}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.elementGradient}
+                      />
+                    ) : null}
                     <Text style={styles.elementEmoji}>{accent.emoji}</Text>
-                    <Text style={styles.elementTitle}>{accent.label}</Text>
+                    <Text style={styles.elementTitle}>{name}</Text>
                     <Text style={styles.elementCaption}>
-                      {key === "water"
+                      {name === "Agua"
                         ? "Fluye y enfoca"
-                        : key === "fire"
+                        : name === "Fuego"
                         ? "Energía y empuje"
-                        : key === "earth"
+                        : name === "Tierra"
                         ? "Constancia y base"
                         : "Ligereza y ritmo"}
                     </Text>
                   </Pressable>
-
                 );
               })}
             </View>
 
-            {newElement !== "all" && (
-              <View style={styles.group}>
-                <Text style={styles.sectionLabel}>
-                  {elementInfo[newElement].title}
-                </Text>
+              <Text style={styles.sectionLabel}>
+                Subtareas{" "}
                 <Text style={styles.helperText}>
-                  {elementInfo[newElement].description}
+                  (Agrega tareas más pequeñas para facilitar tu trabajo)
                 </Text>
-                <Text style={styles.helperText}>
-                  {elementInfo[newElement].examples}
-                </Text>
-                <Text style={styles.helperText}>
-                  {elementInfo[newElement].purpose}
-                </Text>
-              </View>
-            )}
-
-            <Text style={styles.sectionLabel}>
-              Subtareas{" "}
-              <Text style={styles.helperText}>
-                (Agrega tareas más pequeñas para facilitar tu trabajo)
               </Text>
-            </Text>
             <View style={styles.subtaskRow}>
               <TextInput
                 style={styles.subtaskInput}
@@ -404,7 +352,7 @@ export default function CreateTaskModal({
               </TouchableOpacity>
             </View>
             {newSubtasks.length > 0 && (
-              <View style={styles.chipsContainer}>
+              <View style={styles.subtasksChips}>
                 {newSubtasks.map((st, idx) => (
                   <View key={st.id || idx} style={styles.chip}>
                     <Text style={styles.chipLabel}>{st.text}</Text>
@@ -422,79 +370,70 @@ export default function CreateTaskModal({
               </View>
             )}
 
-            <Text style={styles.label}>Prioridad</Text>
+            <Text style={styles.sectionLabel}>Prioridad</Text>
             <View style={styles.priorityList}>
               {PRIORITIES.map((p) => {
-                const isActive = newPriority === p;
-                const accent = PRIORITY_ACCENTS[p];
-
+                const keyVal = PRIORITY_VALUES[p];
+                const selected = newPriority === keyVal;
+                const rw = PRIORITY_REWARDS[p] || { xp: 0, mana: 0 };
                 return (
                   <Pressable
                     key={p}
-                    onPress={() => setNewPriority(p)}
+                    onPress={() => setNewPriority(keyVal)}
                     style={[
                       styles.priorityRow,
-                      {
-                        borderColor: accent.border,
-                        backgroundColor: isActive
-                          ? Colors.surfaceElevated || Colors.surface
-                          : Colors.surface,
-
-                      },
+                      selected && styles.priorityRowActive,
                     ]}
                     accessibilityRole="button"
-                    accessibilityState={{ selected: isActive }}
-                    accessibilityLabel={`Prioridad ${accent.label}`}
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={`Prioridad ${p}`}
                   >
-                    <Text style={styles.priorityTitle}>{accent.label}</Text>
-                    <Text style={styles.priorityCaption}>
-                      {p === "easy"
-                        ? "Tranquila, sin apuro"
-                        : p === "medium"
-                        ? "Importante esta semana"
-                        : "Hazlo hoy"}
-                    </Text>
+                    <View style={styles.priorityLeft}>
+                      <Text style={styles.priorityTitle}>{p}</Text>
+                      <Text style={styles.priorityCaption}>
+                        {p === "Baja"
+                          ? "Tranquila, sin apuro"
+                          : p === "Media"
+                          ? "Importante esta semana"
+                          : "Hazlo hoy"}
+                      </Text>
+                    </View>
+                    <View style={styles.priorityRewards}>
+                      <View style={styles.rewardPill}>
+                        <Text style={styles.rewardText}>+{rw.xp} XP</Text>
+                      </View>
+                      <View style={styles.rewardPill}>
+                        <Text style={styles.rewardText}>+{rw.mana} Maná</Text>
+                      </View>
+                    </View>
                   </Pressable>
-
                 );
               })}
             </View>
 
             <Text style={styles.sectionLabel}>Dificultad</Text>
-            <View style={styles.row}>
-              {difficultyOptions.map((opt, index) => {
-                const active = newDifficulty === opt.key;
+            <View style={styles.chipsContainer}>
+              {DIFFS.map((d) => {
+                const val = DIFF_VALUES[d];
+                const selected = newDifficulty === val;
                 return (
-                  <TouchableOpacity
-                    key={opt.key}
+                  <Pressable
+                    key={d}
+                    onPress={() => setNewDifficulty(val)}
+                    style={[styles.chip, selected && styles.chipActive]}
                     accessibilityRole="button"
-                    style={[
-                      styles.segmentButton,
-                      index === difficultyOptions.length - 1 && {
-                        marginRight: 0,
-                      },
-                      active && [
-                        styles.segmentButtonActive,
-                        { borderColor: opt.color, backgroundColor: opt.color },
-                      ],
-
-                    ]}
-                    onPress={() => setNewDifficulty(opt.key)}
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={`Dificultad ${d}`}
                   >
                     <Text
                       style={[
-                        styles.segmentLabel,
-                        { marginLeft: 0 },
-                        active && [
-                          styles.segmentLabelActive,
-                          { color: Colors.background },
-                        ],
-
+                        styles.chipLabel,
+                        selected && styles.chipLabelActive,
                       ]}
                     >
-                      {opt.label}
+                      {d}
                     </Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 );
               })}
             </View>
@@ -526,27 +465,13 @@ export default function CreateTaskModal({
               <Text style={styles.sectionLabel}>Mis Etiquetas</Text>
             )}
             {uniqueTags.length > 0 && (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.chipScrollContent}
-              >
+              <View style={styles.tagsList}>
                 {uniqueTags.map((tagKey) => {
                   const active = newTags.includes(tagKey);
                   return (
-                    <TouchableOpacity
+                    <Pressable
                       key={tagKey}
                       accessibilityRole="button"
-                      style={[
-                        styles.chip,
-                        active && [
-                          styles.chipActive,
-                          {
-                            borderColor: Colors.accent,
-                            backgroundColor: Colors.accent,
-                          },
-                        ],
-                      ]}
                       onPress={() => {
                         setNewTags((prev) =>
                           prev.includes(tagKey)
@@ -554,35 +479,32 @@ export default function CreateTaskModal({
                             : [...prev, tagKey]
                         );
                       }}
+                      style={[
+                        styles.tagChip,
+                        active && styles.chipActive,
+                      ]}
                     >
                       <Text
                         style={[
-                          styles.chipLabel,
-                          active && [
-                            styles.chipLabelActive,
-                            { color: Colors.background },
-                          ],
+                          styles.tagText,
+                          active && styles.chipLabelActive,
                         ]}
                       >
                         {tagKey}
                       </Text>
-                    </TouchableOpacity>
+                    </Pressable>
                   );
                 })}
-              </ScrollView>
+              </View>
             )}
 
             {newTags.length > 0 && (
               <>
                 <Text style={styles.sectionLabel}>Etiquetas seleccionadas</Text>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.chipScrollContent}
-                >
+                <View style={styles.tagsList}>
                   {newTags.map((tag) => (
-                    <View key={tag} style={styles.chip}>
-                      <Text style={styles.chipLabel}>{tag}</Text>
+                    <View key={tag} style={styles.tagChip}>
+                      <Text style={styles.tagText}>{tag}</Text>
                       <TouchableOpacity
                         accessibilityRole="button"
                         onPress={() =>
@@ -598,7 +520,7 @@ export default function CreateTaskModal({
                       </TouchableOpacity>
                     </View>
                   ))}
-                </ScrollView>
+                </View>
               </>
             )}
 
