@@ -37,6 +37,12 @@ import {
 } from "../storage";
 import { DAILY_REWARDS } from "../constants/dailyRewards";
 import { SHOP_CATALOG } from "../constants/shopCatalog";
+import { CHALLENGE_TEMPLATES } from "../constants/challengeTemplates";
+import {
+  hashStringToInt,
+  mulberry32,
+  pickWeightedDeterministic,
+} from "../utils/rand";
 
 function getLocalISODate(date = new Date()) {
   return date.toLocaleDateString("en-CA");
@@ -55,60 +61,38 @@ function xpMultiplier(buffs, t = now()) {
   return active.some((b) => b.type === "xp_double") ? 2 : 1;
 }
 
-function hashStringToInt(str) {
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
+function generateDailyChallenges(todayKey, lastTypes = new Set(), userId = "guest") {
+  const seedBase = `${userId || "guest"}:${todayKey}:challenges`;
+  const selected = [];
+  const used = new Set();
+  for (let idx = 0; idx < 3; idx++) {
+    let candidates = CHALLENGE_TEMPLATES.filter((t) => {
+      const key = `${t.type}:${t.param || ""}`;
+      return !used.has(key) && !lastTypes.has(key);
+    });
+    if (candidates.length === 0) {
+      candidates = CHALLENGE_TEMPLATES.filter((t) => {
+        const key = `${t.type}:${t.param || ""}`;
+        return !used.has(key);
+      });
+    }
+    const weights = candidates.map((c) => c.weight);
+    const template = pickWeightedDeterministic(
+      candidates,
+      weights,
+      `${seedBase}#${idx + 1}`
+    );
+    selected.push(template);
+    used.add(`${template.type}:${template.param || ""}`);
   }
-  return h >>> 0;
-}
-function mulberry32(a) {
-  return function () {
-    let t = (a += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-function pickWeightedDeterministic(items, weights, seedStr) {
-  const seed = hashStringToInt(seedStr);
-  const rnd = mulberry32(seed)();
-  const total = weights.reduce((a, b) => a + b, 0);
-  let r = rnd * total;
-  for (let i = 0; i < items.length; i++) {
-    r -= weights[i];
-    if (r <= 0) return items[i];
-  }
-  return items[items.length - 1];
-}
-
-function generateDefaultDailyChallenges() {
-  const base = [
-    {
-      title: "Completa 3 tareas",
-      type: "complete_tasks",
-      goal: 3,
-      reward: { xp: 25, mana: 10 },
-    },
-    {
-      title: "Termina 1 tarea Urgente",
-      type: "complete_priority",
-      param: "Urgente",
-      goal: 1,
-      reward: { xp: 30, mana: 15 },
-    },
-    {
-      title: "Completa 2 tareas",
-      type: "complete_tasks",
-      goal: 2,
-      reward: { xp: 20, mana: 8 },
-    },
-  ];
-  return base.map((item) => ({
-    ...item,
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  return selected.map((t, idx) => ({
+    id: `${Date.now().toString()}_${idx}`,
+    title: t.title,
+    type: t.type,
+    param: t.param,
+    goal: t.goal,
     progress: 0,
+    reward: t.reward,
     claimed: false,
   }));
 }
@@ -441,10 +425,13 @@ export function AppProvider({ children }) {
       const todayKey = getLocalISODate();
       let dailyChallenges = storedDailyChallenges;
       if (!dailyChallenges || dailyChallenges.dateKey !== todayKey) {
-        dailyChallenges = {
-          dateKey: todayKey,
-          items: generateDefaultDailyChallenges(),
-        };
+        const lastTypes = new Set(
+          (dailyChallenges?.items || []).map(
+            (i) => `${i.type}:${i.param || ""}`
+          )
+        );
+        const items = generateDailyChallenges(todayKey, lastTypes);
+        dailyChallenges = { dateKey: todayKey, items };
         await setDailyChallengesState(dailyChallenges);
       }
       dispatch({
