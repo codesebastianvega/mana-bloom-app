@@ -1,16 +1,24 @@
-// src/components/AdvancedFilters/AdvancedFilters.js
+// [MB] Módulo: Tasks / Sección: Filtros avanzados
+// Afecta: TaskFilters (modal de filtros)
+// Propósito: Ajustar estilo y accesibilidad de los filtros avanzados
+// Puntos de edición futura: tokens de color y animaciones
+// Autor: Codex - Fecha: 2025-08-13
 
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-} from "react-native";
+import { View, Text, Pressable, ScrollView, TextInput } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./AdvancedFilters.styles";
 import { Colors, Spacing } from "../../theme";
+
+// Utilidad para aplicar alpha a un color hex.
+function withAlpha(hex, alpha) {
+  const clean = hex.replace("#", "");
+  const rgb = clean.length === 8 ? clean.slice(0, 6) : clean;
+  const a = Math.round(alpha * 255)
+    .toString(16)
+    .padStart(2, "0");
+  return `#${rgb}${a}`;
+}
 
 /**
  * Renderiza la cuadrícula de elementos.
@@ -22,31 +30,24 @@ function renderElementGrid(options, activeKey, setActive, overrideStyle) {
       {options.map((opt) => {
         const isActive = activeKey === opt.key;
         return (
-          <TouchableOpacity
+          <Pressable
             key={opt.key}
-            style={[
+            accessibilityRole="button"
+            accessibilityState={{ selected: isActive }}
+            style={({ pressed }) => [
               styles.elementGridBtn,
               overrideStyle,
-              isActive && {
-                backgroundColor: opt.color,
-                borderColor: opt.color,
-              },
+              { borderColor: opt.color },
+              isActive && { backgroundColor: withAlpha(opt.color, 0.2) },
+              pressed && styles.pressed,
             ]}
             onPress={() => setActive(opt.key)}
           >
             {opt.icon && (
-              <FontAwesome5
-                name={opt.icon}
-                size={18}
-                color={isActive ? Colors.background : opt.color}
-              />
+              <FontAwesome5 name={opt.icon} size={18} color={opt.color} />
             )}
-            <Text
-              style={[styles.text, isActive && { color: Colors.background }]}
-            >
-              {opt.label}
-            </Text>
-          </TouchableOpacity>
+            <Text style={[styles.text, { color: opt.color }]}>{opt.label}</Text>
+          </Pressable>
         );
       })}
     </View>
@@ -69,39 +70,30 @@ function renderFullRow(
       {options.map((opt, index) => {
         const isActive = activeKey === opt.key;
         return (
-          <TouchableOpacity
+          <Pressable
             key={opt.key}
-            style={[
+            accessibilityRole="button"
+            accessibilityState={{ selected: isActive }}
+            style={({ pressed }) => [
               baseStyle,
               overrideStyle,
               {
                 flex: 1,
                 marginRight: index === options.length - 1 ? 0 : Spacing.small,
-              },
-              isActive && {
-                backgroundColor: opt.color,
                 borderColor: opt.color,
               },
+              isActive && { backgroundColor: withAlpha(opt.color, 0.2) },
+              pressed && styles.pressed,
             ]}
             onPress={() => setActive(opt.key)}
           >
             {opt.icon && (
-              <FontAwesome5
-                name={opt.icon}
-                size={14}
-                color={isActive ? Colors.background : opt.color}
-              />
+              <FontAwesome5 name={opt.icon} size={14} color={opt.color} />
             )}
-            <Text
-              style={[
-                styles.text,
-                !opt.icon && styles.centerText,
-                isActive && { color: Colors.background },
-              ]}
-            >
+            <Text style={[styles.text, !opt.icon && styles.centerText, { color: opt.color }]}>
               {opt.label}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         );
       })}
     </View>
@@ -122,24 +114,21 @@ function renderTagRow(options, activeKey, setActive, baseStyle, overrideStyle) {
       {options.map((opt) => {
         const isActive = activeKey === opt.key;
         return (
-          <TouchableOpacity
+          <Pressable
             key={opt.key}
-            style={[
+            accessibilityRole="button"
+            accessibilityState={{ selected: isActive }}
+            style={({ pressed }) => [
               baseStyle,
               overrideStyle,
-              isActive && {
-                backgroundColor: opt.color,
-                borderColor: opt.color,
-              },
+              { borderColor: opt.color },
+              isActive && { backgroundColor: withAlpha(opt.color, 0.2) },
+              pressed && styles.pressed,
             ]}
             onPress={() => setActive(opt.key)}
           >
-            <Text
-              style={[styles.tagText, isActive && { color: Colors.background }]}
-            >
-              {opt.label}
-            </Text>
-          </TouchableOpacity>
+            <Text style={[styles.tagText, { color: opt.color }]}>{opt.label}</Text>
+          </Pressable>
         );
       })}
     </ScrollView>
@@ -178,7 +167,7 @@ export default function AdvancedFilters({
   );
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityRole="dialog">
       {/* Sección del modal para seleccionar el elemento del hechizo */}
       <Text style={styles.sectionTitle}>Elemento</Text>
       {renderElementGrid(
@@ -223,12 +212,13 @@ export default function AdvancedFilters({
           onBlur={() => setTagSearchFocused(false)}
         />
         {tagSearch.length > 0 && (
-          <TouchableOpacity
+          <Pressable
             onPress={() => setTagSearch("")}
-            style={styles.clearBtn}
+            style={({ pressed }) => [styles.clearBtn, pressed && styles.pressed]}
+            accessibilityRole="button"
           >
             <FontAwesome5 name="times" size={14} color={Colors.text} />
-          </TouchableOpacity>
+          </Pressable>
         )}
       </View>
       {renderTagRow(
