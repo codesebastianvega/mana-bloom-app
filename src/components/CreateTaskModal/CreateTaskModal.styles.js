@@ -18,6 +18,7 @@ export default StyleSheet.create({
   title: {
     ...(Typography?.h2 || { fontSize: 22, fontWeight: "700" }),
     color: Colors.text,
+    marginTop: Spacing.large,
     marginBottom: Spacing.small,
   },
 
@@ -99,37 +100,31 @@ export default StyleSheet.create({
   elementGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
     marginTop: Spacing.small,
   },
   elementCard: {
     position: "relative",
-    flexBasis: "48%",
-    maxWidth: "48%",
     borderWidth: 2,
     borderRadius: Radii.lg,
     backgroundColor: Colors.surface,
-    paddingVertical: Spacing.base,
-    paddingHorizontal: Spacing.base,
+    padding: Spacing.base,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: Spacing.base,
+    overflow: "hidden",
     ...(Elevation?.card || {}),
   },
-  elementCardLeft: {
-    marginRight: Spacing.base / 2,
-  },
   elementCardActive: {
-    shadowColor: "#000",
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.45,
     shadowRadius: 12,
     elevation: 6,
-    borderWidth: 2.5,
+    borderWidth: 3,
   },
   elementGradient: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: Radii.lg,
     opacity: 0.35,
+    pointerEvents: "none",
   },
   elementEmoji: { fontSize: 32, marginBottom: Spacing.tiny },
   elementTitle: {
