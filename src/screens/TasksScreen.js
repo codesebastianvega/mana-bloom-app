@@ -5,16 +5,24 @@
 // Autor: Codex - Fecha: 2025-08-13
 
 import React, { useState, useEffect, useMemo } from "react";
-import { SafeAreaView, FlatList, Modal, View, StatusBar } from "react-native";
+import {
+  SafeAreaView,
+  FlatList,
+  Modal,
+  View,
+  StatusBar,
+  TouchableOpacity,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { FontAwesome } from "@expo/vector-icons";
 import { getTasks as getStoredTasks, setTasks as setStoredTasks } from "../storage";
 
 import StatsHeader from "../components/StatsHeader";
 import SearchBar from "../components/SearchBar/SearchBar";
 import TaskFilters from "../components/TaskFilters";
-import SwipeableTaskItem from "../components/SwipeableTaskItem/SwipeableTaskItem";
-import AddTaskButton, { FAB_SIZE } from "../components/AddTaskButton/AddTaskButton";
-import FilterBar from "../components/FilterBar/FilterBar";
+import TaskCard from "../components/TaskCard/TaskCard";
+import TaskFilterBar from "../components/TaskFilterBar/TaskFilterBar";
 import styles from "./TasksScreen.styles";
 import { Colors, Spacing } from "../theme";
 import CreateTaskModal from "../components/CreateTaskModal/CreateTaskModal";
@@ -141,6 +149,8 @@ const elementInfo = {
 export default function TasksScreen() {
   const dispatch = useAppDispatch();
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight?.() ?? 56;
+  const fabOffset = tabBarHeight + insets.bottom + Spacing.large;
   // ——— 2) Estados ———
   const [tasks, setTasks] = useState([]);
   const uniqueTags = Array.from(new Set(tasks.flatMap((t) => t.tags || [])));
@@ -358,11 +368,13 @@ export default function TasksScreen() {
         renderItem={({ item }) => {
           if (item.renderType === "filters") {
             return (
-              <FilterBar
-                filters={statusFilters}
-                active={activeFilter}
-                onSelect={setActiveFilter}
-              />
+              <View style={{ backgroundColor: Colors.surface }}>
+                <TaskFilterBar
+                  filters={statusFilters}
+                  active={activeFilter}
+                  onSelect={setActiveFilter}
+                />
+              </View>
             );
           }
           if (item.renderType === "search") {
@@ -377,8 +389,7 @@ export default function TasksScreen() {
             );
           }
           return (
-
-            <SwipeableTaskItem
+            <TaskCard
               task={item}
               onToggleComplete={toggleTaskDone}
               onSoftDeleteTask={onSoftDeleteTask}
@@ -401,11 +412,7 @@ export default function TasksScreen() {
           paddingHorizontal: Spacing.large,
           paddingTop: Spacing.base,
         }}
-        ListFooterComponent={
-          <View
-            style={{ height: FAB_SIZE + insets.bottom + Spacing.large }}
-          />
-        }
+        ListFooterComponent={<View style={{ height: fabOffset + Spacing.large }} />}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         removeClippedSubviews={false}
@@ -416,7 +423,14 @@ export default function TasksScreen() {
         accessibilityRole="list"
       />
 
-      <AddTaskButton onPress={onAddTask} />
+      <TouchableOpacity
+        style={[styles.fab, { bottom: fabOffset }]}
+        onPress={onAddTask}
+        accessibilityRole="button"
+        accessibilityLabel="Añadir tarea"
+      >
+        <FontAwesome name="plus" size={20} color={Colors.onAccent} />
+      </TouchableOpacity>
 
       <Modal
         visible={filtersVisible}
