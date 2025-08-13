@@ -31,9 +31,9 @@ export default function HomeWelcomeCard() {
 
   return (
     <LinearGradient
-      colors={[Colors.primaryFantasy, Colors.secondaryFantasy]}
+      colors={[Colors.primary, Colors.secondary]}
       start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
+      end={{ x: 2, y: 2 }}
       style={styles.container}
     >
       <View style={styles.badge}>
