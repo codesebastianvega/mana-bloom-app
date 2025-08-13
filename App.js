@@ -7,6 +7,7 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Colors } from "./src/theme";
 
 import Footer from "./src/components/Footer";
@@ -14,25 +15,40 @@ import HomeScreen from "./src/screens/HomeScreen";
 import TasksScreen from "./src/screens/TasksScreen";
 import PlantScreen from "./src/screens/PlantScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
+import InventoryScreen from "./src/screens/InventoryScreen";
 import { AppProvider } from "./src/state/AppContext";
 
 const Tab = createBottomTabNavigator();
+const RootStack = createNativeStackNavigator();
+
+function Tabs() {
+  return (
+    <Tab.Navigator
+      initialRouteName="HomeScreen"
+      screenOptions={{ headerShown: false }}
+      tabBar={(props) => <Footer {...props} />}
+      sceneContainerStyle={{ backgroundColor: Colors.background }}
+    >
+      <Tab.Screen name="HomeScreen" component={HomeScreen} />
+      <Tab.Screen name="TasksScreen" component={TasksScreen} />
+      <Tab.Screen name="PlantScreen" component={PlantScreen} />
+      <Tab.Screen name="ProfileScreen" component={ProfileScreen} />
+    </Tab.Navigator>
+  );
+}
 
 export default function App() {
   return (
     <AppProvider>
       <NavigationContainer>
-        <Tab.Navigator
-          initialRouteName="HomeScreen"
-          screenOptions={{ headerShown: false }}
-          tabBar={(props) => <Footer {...props} />}
-          sceneContainerStyle={{ backgroundColor: Colors.background }}
-        >
-          <Tab.Screen name="HomeScreen" component={HomeScreen} />
-          <Tab.Screen name="TasksScreen" component={TasksScreen} />
-          <Tab.Screen name="PlantScreen" component={PlantScreen} />
-          <Tab.Screen name="ProfileScreen" component={ProfileScreen} />
-        </Tab.Navigator>
+        <RootStack.Navigator screenOptions={{ headerShown: false }}>
+          <RootStack.Screen name="Tabs" component={Tabs} />
+          <RootStack.Screen
+            name="InventoryModal"
+            component={InventoryScreen}
+            options={{ presentation: "modal", headerShown: false }}
+          />
+        </RootStack.Navigator>
       </NavigationContainer>
     </AppProvider>
   );

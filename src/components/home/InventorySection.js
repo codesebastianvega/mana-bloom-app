@@ -6,6 +6,7 @@
 
 import React from "react";
 import { View, Text, Pressable, Alert } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import styles from "./InventorySection.styles";
 import {
   useAppState,
@@ -22,6 +23,7 @@ export default function InventorySection({ onShopPress }) {
   const counts = useInventoryCounts();
   const hydration = useHydrationStatus();
   const topItems = inventory.slice(0, 3);
+  const navigation = useNavigation();
 
   const handleUse = (item) => {
     const current = inventory.find((it) => it.sku === item.sku);
@@ -111,7 +113,7 @@ export default function InventorySection({ onShopPress }) {
       </View>
 
       <Pressable
-        onPress={() => {}}
+        onPress={() => navigation.navigate("InventoryModal")}
         style={styles.viewAllButton}
         accessibilityRole="button"
         accessibilityLabel="Ver inventario completo"
