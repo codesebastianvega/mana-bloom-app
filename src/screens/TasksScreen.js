@@ -335,7 +335,12 @@ export default function TasksScreen() {
 
   // ——— 5) Render ———
   const listData = useMemo(
-    () => [{ renderType: "filters" }, ...filteredTasks],
+    () => [
+      { renderType: "filters" },
+      { renderType: "search" },
+      ...filteredTasks,
+    ],
+
     [filteredTasks]
   );
 
@@ -350,14 +355,29 @@ export default function TasksScreen() {
       <FlatList
         data={listData}
         keyExtractor={(item) => item.id || item.renderType}
-        renderItem={({ item }) =>
-          item.renderType === "filters" ? (
-            <FilterBar
-              filters={statusFilters}
-              active={activeFilter}
-              onSelect={setActiveFilter}
-            />
-          ) : (
+        renderItem={({ item }) => {
+          if (item.renderType === "filters") {
+            return (
+              <FilterBar
+                filters={statusFilters}
+                active={activeFilter}
+                onSelect={setActiveFilter}
+              />
+            );
+          }
+          if (item.renderType === "search") {
+            return (
+              <View style={{ marginVertical: Spacing.small }}>
+                <SearchBar
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  onToggleAdvanced={() => setFiltersVisible(true)}
+                />
+              </View>
+            );
+          }
+          return (
+
             <SwipeableTaskItem
               task={item}
               onToggleComplete={toggleTaskDone}
@@ -368,23 +388,15 @@ export default function TasksScreen() {
               onToggleSubtask={onToggleSubtask}
               activeFilter={activeFilter}
             />
-          )
-        }
+          );
+        }}
         ListHeaderComponent={
-          <>
-            <View style={{ marginVertical: Spacing.small }}>
-              <StatsHeader />
-            </View>
-            <View style={{ marginVertical: Spacing.small }}>
-              <SearchBar
-                value={searchQuery}
-                onChange={setSearchQuery}
-                onToggleAdvanced={() => setFiltersVisible(true)}
-              />
-            </View>
-          </>
+          <View style={{ marginVertical: Spacing.small }}>
+            <StatsHeader />
+          </View>
         }
-        stickyHeaderIndices={[0]}
+        stickyHeaderIndices={[1]}
+
         contentContainerStyle={{
           paddingHorizontal: Spacing.large,
           paddingTop: Spacing.base,
