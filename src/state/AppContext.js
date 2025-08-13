@@ -793,3 +793,7 @@ export function useAchievementToast() {
   const { achievementToast } = useAppState();
   return achievementToast;
 }
+
+export function canUseItem(sku) {
+  return sku === "shop/potions/p1" || sku === "shop/potions/p2";
+}

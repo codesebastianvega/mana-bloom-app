@@ -77,7 +77,9 @@ export default StyleSheet.create({
     backgroundColor: Colors.surfaceElevated,
     borderRadius: Radii.lg,
     padding: Spacing.base,
-    marginBottom: Spacing.small,
+    marginBottom: Spacing.base,
+    borderWidth: 1,
+    borderColor: Colors.textMuted + "33",
     ...Elevation.card,
   },
   itemHeader: {
@@ -85,6 +87,15 @@ export default StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: Spacing.small,
+  },
+  itemMain: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+    flex: 1,
+  },
+  itemIcon: {
+    fontSize: 20,
   },
   itemInfo: {
     flex: 1,

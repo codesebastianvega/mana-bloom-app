@@ -19,6 +19,7 @@ import {
   useAppState,
   useAppDispatch,
   useInventoryCounts,
+  canUseItem,
 } from "../state/AppContext";
 import { Opacity, Colors, Spacing } from "../theme";
 
@@ -29,6 +30,8 @@ const TABS = [
   { key: "all", label: "Todos" },
 ];
 
+const CATEGORY_EMOJI = { potions: "🧪", tools: "🛠️", cosmetics: "🎩" };
+
 export default function InventoryScreen() {
   const { inventory } = useAppState();
   const dispatch = useAppDispatch();
@@ -36,13 +39,22 @@ export default function InventoryScreen() {
   const [tab, setTab] = useState("all");
   const [query, setQuery] = useState("");
 
+  const sorted = useMemo(() => {
+    return [...inventory].sort((a, b) => {
+      if (b.quantity !== a.quantity) {
+        return b.quantity - a.quantity;
+      }
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+  }, [inventory]);
+
   const filtered = useMemo(() => {
-    return inventory.filter((it) => {
+    return sorted.filter((it) => {
       const byTab = tab === "all" || it.category === tab;
       const bySearch = it.title.toLowerCase().includes(query.toLowerCase());
       return byTab && bySearch;
     });
-  }, [inventory, tab, query]);
+  }, [sorted, tab, query]);
 
   const handleUse = (item) => {
     const current = inventory.find((it) => it.sku === item.sku);
@@ -74,17 +86,19 @@ export default function InventoryScreen() {
   };
 
   const renderItem = ({ item }) => {
-    const isUsable =
-      item.category === "potions" &&
-      item.quantity > 0 &&
-      (item.sku === "shop/potions/p2" || item.sku === "shop/potions/p1");
+    const isUsable = canUseItem(item.sku) && item.quantity > 0;
 
     return (
-      <View style={styles.itemRow}>
+      <View style={styles.itemRow} accessibilityRole="listitem">
         <View style={styles.itemHeader}>
-          <View style={styles.itemInfo}>
-            <Text style={styles.itemTitle}>{item.title}</Text>
-            <Text style={styles.itemSku}>{item.sku}</Text>
+          <View style={styles.itemMain}>
+            <Text style={styles.itemIcon}>{
+              CATEGORY_EMOJI[item.category] || "📦"
+            }</Text>
+            <View style={styles.itemInfo}>
+              <Text style={styles.itemTitle}>{item.title}</Text>
+              <Text style={styles.itemSku}>{item.sku}</Text>
+            </View>
           </View>
           <Text style={styles.itemQty}>{`× ${item.quantity}`}</Text>
         </View>
@@ -96,7 +110,9 @@ export default function InventoryScreen() {
             accessibilityRole="button"
             accessibilityLabel={`Usar ${item.title}`}
           >
-            <Text style={styles.useButtonText}>Usar</Text>
+            <Text style={styles.useButtonText}>
+              {isUsable ? "Usar" : "Próximamente"}
+            </Text>
           </Pressable>
           <Pressable
             onPress={() => handleDiscard(item)}
@@ -121,6 +137,7 @@ export default function InventoryScreen() {
         data={filtered}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
+        accessibilityRole="list"
         ListHeaderComponent={
           <View>
             <Text style={styles.title} accessibilityRole="header">

@@ -38,30 +38,27 @@ export default StyleSheet.create({
   list: {
     marginTop: Spacing.base,
   },
-  itemCard: {
+  itemRow: {
     backgroundColor: Colors.surfaceElevated,
     borderRadius: Radii.lg,
-    padding: Spacing.small,
+    padding: Spacing.base,
     marginBottom: Spacing.small,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     ...Elevation.card,
   },
-  itemText: {
+  itemIcon: {
+    marginRight: Spacing.small,
+    fontSize: 18,
+  },
+  itemTitle: {
+    flex: 1,
     ...Typography.body,
     color: Colors.text,
   },
-  useButton: {
-    backgroundColor: Colors.buttonBg,
-    paddingVertical: Spacing.tiny,
-    paddingHorizontal: Spacing.small,
-    borderRadius: Radii.sm,
-    marginLeft: Spacing.small,
-  },
-  useButtonText: {
-    ...Typography.caption,
-    color: Colors.textInverse,
+  itemQty: {
+    ...Typography.body,
+    color: Colors.textMuted,
   },
   viewAllButton: {
     marginTop: Spacing.base,
