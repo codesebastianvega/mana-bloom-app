@@ -9,7 +9,7 @@ import { View, ScrollView, Pressable, Text } from "react-native";
 import { FontAwesome5, FontAwesome } from "@expo/vector-icons";
 // Los estilos de la barra de filtros residen en FilterBar.styles.js
 import styles from "./FilterBar.styles";
-import { Colors } from "../../theme";
+import { Colors, Spacing } from "../../theme";
 
 export default function FilterBar({ filters, active, onSelect }) {
   return (
@@ -29,23 +29,30 @@ export default function FilterBar({ filters, active, onSelect }) {
             return (
               <Pressable
                 key={f.key}
-                style={[styles.tab, isActive && styles.tabActive]}
+                style={({ pressed }) => [
+                  styles.tab,
+                  isActive && styles.tabActive,
+                  pressed && { opacity: 0.9 },
+                ]}
                 onPress={() => onSelect(f.key)}
-                accessibilityRole="tab"
+                accessibilityRole="button"
+                accessibilityLabel={`Filtrar por ${f.label}`}
                 accessibilityState={{ selected: isActive }}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                hitSlop={{
+                  top: Spacing.small,
+                  bottom: Spacing.small,
+                  left: Spacing.small,
+                  right: Spacing.small,
+                }}
               >
                 <Icon
                   name={f.icon}
                   size={14}
-                  color={isActive ? Colors.text : Colors.textMuted}
+                  color={isActive ? Colors.background : Colors.textMuted}
                   style={styles.icon}
                 />
                 <Text
-                  style={[
-                    styles.tabLabel,
-                    !isActive && styles.tabLabelMuted,
-                  ]}
+                  style={[styles.tabLabel, !isActive && styles.tabLabelInactive]}
                 >
                   {f.label}
                 </Text>

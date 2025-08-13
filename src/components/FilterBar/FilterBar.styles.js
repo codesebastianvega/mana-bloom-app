@@ -19,9 +19,9 @@ export default StyleSheet.create({
     backgroundColor: Colors.surface,
     borderRadius: Radii.lg,
     paddingHorizontal: Spacing.base,
-    minHeight: 44,
+    minHeight: 40,
     borderWidth: 1,
-    borderColor: Colors.textMuted + "40",
+    borderColor: Colors.separator,
   },
 
   // Scroll horizontal
@@ -40,28 +40,27 @@ export default StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: Spacing.base,
-    minHeight: 36,
+    height: 36,
     borderRadius: Radii.pill,
     borderWidth: 1,
-    borderColor: Colors.textMuted,
-    backgroundColor: Colors.surface,
+    borderColor: Colors.separator,
+    backgroundColor: Colors.surfaceElevated,
     marginRight: Spacing.small,
   },
   tabActive: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.surfaceElevated || Colors.surface,
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
   },
   icon: {
-    marginRight: 6,
+    marginRight: Spacing.small,
   },
   tabLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: Colors.text,
+    color: Colors.background,
     textAlign: "center",
   },
-  tabLabelMuted: {
+  tabLabelInactive: {
     color: Colors.textMuted,
-    fontWeight: "500",
   },
 });

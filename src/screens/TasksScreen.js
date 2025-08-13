@@ -5,7 +5,14 @@
 // Autor: Codex - Fecha: 2025-08-13
 
 import React, { useState, useEffect } from "react";
-import { SafeAreaView, FlatList, Modal, View } from "react-native";
+import {
+  SafeAreaView,
+  FlatList,
+  Modal,
+  View,
+  StatusBar,
+  Platform,
+} from "react-native";
 import { getTasks as getStoredTasks, setTasks as setStoredTasks } from "../storage";
 
 import StatsHeader from "../components/StatsHeader";
@@ -323,19 +330,21 @@ export default function TasksScreen() {
 
   // ——— 5) Render ———
   return (
-    <SafeAreaView style={styles.container}>
-      <StatsHeader />
-
-      <FilterBar
-        filters={statusFilters}
-        active={statusFilter}
-        onSelect={setStatusFilter}
-      />
-
-      <SearchBar
-        value={searchQuery}
-        onChange={setSearchQuery}
-        onToggleAdvanced={() => setFiltersVisible(true)}
+    <SafeAreaView
+      style={[
+        styles.container,
+        {
+          paddingTop: Platform.select({
+            android: (StatusBar.currentHeight || 0) + Spacing.small,
+            ios: Spacing.small,
+          }),
+        },
+      ]}
+    >
+      <StatusBar
+        translucent
+        barStyle="light-content"
+        backgroundColor="transparent"
       />
 
       <FlatList
@@ -353,12 +362,35 @@ export default function TasksScreen() {
             activeFilter={statusFilter}
           />
         )}
+        ListHeaderComponent={() => [
+          <View key="stats" style={{ marginBottom: Spacing.small }}>
+            <StatsHeader />
+          </View>,
+          <FilterBar
+            key="filter"
+            filters={statusFilters}
+            active={statusFilter}
+            onSelect={setStatusFilter}
+          />,
+          <SearchBar
+            key="search"
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onToggleAdvanced={() => setFiltersVisible(true)}
+          />,
+        ]}
+        stickyHeaderIndices={[1]}
         contentContainerStyle={{
-          paddingHorizontal: Spacing.base,
-          paddingTop: Spacing.base,
-          paddingBottom: 120,
+          paddingHorizontal: Spacing.large,
+          paddingTop: Spacing.small + Spacing.tiny,
+          paddingBottom: Spacing.xlarge * 2,
         }}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        removeClippedSubviews={true}
+        initialNumToRender={8}
+        windowSize={11}
+        contentInsetAdjustmentBehavior="automatic"
         accessibilityRole="list"
       />
 

@@ -9,7 +9,7 @@ import { TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome } from "@expo/vector-icons";
 import styles from "./AddTaskButton.styles";
-import { Colors } from "../../theme";
+import { Colors, Gradients } from "../../theme";
 
 export default function AddTaskButton({ onPress }) {
   const [isPressed, setIsPressed] = useState(false);
@@ -19,11 +19,10 @@ export default function AddTaskButton({ onPress }) {
       onPress={onPress}
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}
+      accessibilityRole="button"
+      accessibilityLabel="Añadir tarea"
     >
-      <LinearGradient
-        colors={["#6d56d3ff", "#0ca790ff"]} // Nueva paleta de colores para el degradado
-        style={styles.gradient}
-      >
+      <LinearGradient colors={Gradients.mana} style={styles.gradient}>
         <FontAwesome name="plus" size={20} color={Colors.text} />
       </LinearGradient>
     </TouchableOpacity>
