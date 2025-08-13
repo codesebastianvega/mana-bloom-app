@@ -1,8 +1,8 @@
 // [MB] Módulo: Home / Estilos: NewsFeedSection
 // Afecta: HomeScreen
-// Propósito: Estilos para feed de noticias con marcas de leído
+// Propósito: Estilos para feed de noticias con acceso a la bandeja completa
 // Puntos de edición futura: ajustar layout y variantes de ítems
-// Autor: Codex - Fecha: 2025-08-12
+// Autor: Codex - Fecha: 2025-08-13
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
@@ -25,7 +25,7 @@ export default StyleSheet.create({
     ...Typography.h2,
     color: Colors.text,
   },
-  markAll: {
+  viewAll: {
     ...Typography.caption,
     color: Colors.accent,
   },

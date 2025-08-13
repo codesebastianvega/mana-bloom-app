@@ -2,7 +2,7 @@
 // Afecta: navegación global
 // Propósito: Configurar navegación y proveer contexto global
 // Puntos de edición futura: agregar providers adicionales
-// Autor: Codex - Fecha: 2025-08-12
+// Autor: Codex - Fecha: 2025-08-13
 
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
@@ -53,8 +53,7 @@ export default function App() {
           <RootStack.Screen
             name="NewsInboxModal"
             component={NewsInboxScreen}
-            options={{ presentation: "modal" }}
-
+            options={{ presentation: "modal", headerShown: false }}
           />
         </RootStack.Navigator>
       </NavigationContainer>
