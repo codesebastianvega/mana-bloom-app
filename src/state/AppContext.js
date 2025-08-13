@@ -2,7 +2,7 @@
 // Afecta: toda la app
 // Propósito: Proveer estado global (maná, progreso, racha, desafíos y noticias)
 // Puntos de edición futura: extender persistencia a otros campos y acciones
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-08-17
 
 import React, {
   createContext,
@@ -34,6 +34,8 @@ import {
   setNewsFeed,
   getWallet,
   setWallet,
+  getAchievementsState,
+  setAchievementsState,
 } from "../storage";
 import { DAILY_REWARDS } from "../constants/dailyRewards";
 import { SHOP_CATALOG } from "../constants/shopCatalog";
@@ -43,6 +45,7 @@ import {
   mulberry32,
   pickWeightedDeterministic,
 } from "../utils/rand";
+import { ACHIEVEMENTS } from "../constants/achievements";
 
 function getLocalISODate(date = new Date()) {
   return date.toLocaleDateString("en-CA");
@@ -59,6 +62,20 @@ function cleanupExpired(buffs, t = now()) {
 function xpMultiplier(buffs, t = now()) {
   const active = cleanupExpired(buffs, t);
   return active.some((b) => b.type === "xp_double") ? 2 : 1;
+}
+
+function clampWindow(ts = [], days = 20, nowMs = Date.now()) {
+  const minMs = nowMs - days * 86400000;
+  return ts.filter((iso) => new Date(iso).getTime() >= minMs);
+}
+
+function markUnlocked(state, id) {
+  if (!state.unlocked[id]) {
+    state.unlocked[id] = {
+      achievedAt: new Date().toISOString(),
+      claimed: false,
+    };
+  }
 }
 
 function generateDailyChallenges(todayKey, lastTypes = new Set(), userId = "guest") {
@@ -147,6 +164,7 @@ const initialState = {
   dailyChallenges: { dateKey: null, items: [] },
   news: { items: [] },
   dailyReward: { dateKey: null, rewardId: null, claimed: false },
+  achievements: { progress: {}, unlocked: {} },
 };
 
 function roundToNearest10(n) {
@@ -202,6 +220,8 @@ function appReducer(state, action) {
       return { ...state, news: action.payload };
     case "SET_DAILY_REWARD":
       return { ...state, dailyReward: action.payload };
+    case "SET_ACHIEVEMENTS":
+      return { ...state, achievements: action.payload };
     case "MARK_NEWS_READ": {
       const items = state.news.items.map((it) =>
         it.id === action.payload.id ? { ...it, read: true } : it
@@ -352,6 +372,59 @@ function appReducer(state, action) {
         .filter((it) => it.quantity > 0);
       return { ...state, mana, inventory };
     }
+    case "ACHIEVEMENT_EVENT": {
+      const { type, payload } = action.payload;
+      const progress = { ...state.achievements.progress };
+      const unlocked = { ...state.achievements.unlocked };
+      const nowIso = new Date().toISOString();
+      ACHIEVEMENTS.forEach((a) => {
+        if (a.type === "count_event" && a.event === type) {
+          if (a.id === "t_urgent_10" && payload?.priority !== "Urgente") {
+            return;
+          }
+          const prev = progress[a.id]?.count || 0;
+          const next = prev + 1;
+          progress[a.id] = { ...progress[a.id], count: next };
+          if (next >= a.goal) markUnlocked({ unlocked }, a.id);
+        } else if (a.type === "reach_value") {
+          if (a.metric === "level" && type === "level_up") {
+            if (payload?.level >= a.goal) markUnlocked({ unlocked }, a.id);
+          }
+          if (a.metric === "streak" && type === "streak_update") {
+            if (payload?.streak >= a.goal) markUnlocked({ unlocked }, a.id);
+          }
+        } else if (a.type === "window_count" && a.event === type) {
+          if (a.toolId && payload?.toolId !== a.toolId) return;
+          const prevTs = progress[a.id]?.timestamps || [];
+          const ts = clampWindow([...prevTs, nowIso], a.windowDays || 20);
+          progress[a.id] = { ...progress[a.id], timestamps: ts };
+          if (ts.length >= a.goal) markUnlocked({ unlocked }, a.id);
+        }
+      });
+      return { ...state, achievements: { progress, unlocked } };
+    }
+    case "CLAIM_ACHIEVEMENT": {
+      const { id } = action.payload;
+      const unlocked = state.achievements.unlocked[id];
+      const template = ACHIEVEMENTS.find((a) => a.id === id);
+      if (!unlocked || unlocked.claimed || !template) return state;
+      let mana = state.mana;
+      let wallet = { ...state.wallet };
+      const reward = template.reward || {};
+      if (reward.mana) mana += reward.mana;
+      if (reward.coin) wallet.coin += reward.coin;
+      if (reward.gem) wallet.gem += reward.gem;
+      const newUnlocked = {
+        ...state.achievements.unlocked,
+        [id]: { ...unlocked, claimed: true },
+      };
+      return {
+        ...state,
+        mana,
+        wallet,
+        achievements: { ...state.achievements, unlocked: newUnlocked },
+      };
+    }
     case "ACTIVATE_BUFF": {
       const { type, durationMs } = action.payload;
       const startedAt = now();
@@ -373,6 +446,8 @@ function appReducer(state, action) {
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const isHydrating = useRef(true);
+  const prevLevel = useRef(initialState.level);
+  const prevStreak = useRef(initialState.streak);
   const [hydration, setHydration] = useState({
     mana: true,
     wallet: true,
@@ -381,6 +456,7 @@ export function AppProvider({ children }) {
     news: true,
     challenges: true,
     dailyReward: true,
+    achievements: true,
   });
 
   useEffect(() => {
@@ -396,6 +472,7 @@ export function AppProvider({ children }) {
         storedNews,
         storedWallet,
         storedDailyReward,
+        storedAchievements,
       ] = await Promise.all([
         getMana(),
         getStreak(),
@@ -407,6 +484,7 @@ export function AppProvider({ children }) {
         getNewsFeed(),
         getWallet(),
         getDailyRewardState(),
+        getAchievementsState(),
       ]);
       dispatch({ type: "SET_MANA", payload: storedMana });
       setHydration((h) => ({ ...h, mana: false }));
@@ -422,6 +500,8 @@ export function AppProvider({ children }) {
       setHydration((h) => ({ ...h, inventory: false }));
       dispatch({ type: "SET_WALLET", payload: storedWallet });
       setHydration((h) => ({ ...h, wallet: false }));
+      dispatch({ type: "SET_ACHIEVEMENTS", payload: storedAchievements });
+      setHydration((h) => ({ ...h, achievements: false }));
       const todayKey = getLocalISODate();
       let dailyChallenges = storedDailyChallenges;
       if (!dailyChallenges || dailyChallenges.dateKey !== todayKey) {
@@ -520,6 +600,39 @@ export function AppProvider({ children }) {
     setDailyRewardState(state.dailyReward);
   }, [state.dailyReward]);
 
+  useEffect(() => {
+    if (isHydrating.current) return;
+    setAchievementsState(state.achievements);
+  }, [state.achievements]);
+
+  useEffect(() => {
+    if (isHydrating.current) {
+      prevLevel.current = state.level;
+      return;
+    }
+    if (state.level > prevLevel.current) {
+      dispatch({
+        type: "ACHIEVEMENT_EVENT",
+        payload: { type: "level_up", payload: { level: state.level } },
+      });
+    }
+    prevLevel.current = state.level;
+  }, [state.level]);
+
+  useEffect(() => {
+    if (isHydrating.current) {
+      prevStreak.current = state.streak;
+      return;
+    }
+    if (state.streak !== prevStreak.current) {
+      dispatch({
+        type: "ACHIEVEMENT_EVENT",
+        payload: { type: "streak_update", payload: { streak: state.streak } },
+      });
+    }
+    prevStreak.current = state.streak;
+  }, [state.streak]);
+
   return (
     <AppStateContext.Provider value={state}>
       <AppDispatchContext.Provider value={dispatch}>
@@ -616,4 +729,32 @@ export function useHydrationStatus() {
   }
   const isHydratingGlobal = Object.values(context).some(Boolean);
   return { ...context, isHydratingGlobal };
+}
+
+export function useAchievements() {
+  const { achievements } = useAppState();
+  return achievements;
+}
+
+export function useTopAchievements() {
+  const state = useAppState();
+  const list = ACHIEVEMENTS.map((a) => {
+    let progress = 0;
+    if (a.type === "count_event") {
+      progress = state.achievements.progress[a.id]?.count || 0;
+    } else if (a.type === "window_count") {
+      progress =
+        state.achievements.progress[a.id]?.timestamps?.length || 0;
+    } else if (a.type === "reach_value") {
+      progress = a.metric === "level" ? state.level : state.streak;
+    }
+    const unlocked = !!state.achievements.unlocked[a.id];
+    const claimed = state.achievements.unlocked[a.id]?.claimed;
+    return { ...a, progress, unlocked, claimed };
+  });
+  const unclaimed = list.filter((a) => a.unlocked && !a.claimed);
+  const locked = list.filter((a) => !a.unlocked);
+  locked.sort((a, b) => b.progress / b.goal - a.progress / a.goal);
+  const combined = [...unclaimed, ...locked];
+  return combined.slice(0, 3);
 }

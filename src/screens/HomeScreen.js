@@ -2,7 +2,7 @@
 // Afecta: HomeScreen (layout principal)
 // Propósito: Renderizar secciones de inicio y mostrar estado global
 // Puntos de edición futura: conectar datos reales y navegación
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-08-17
 
 import React, { useRef, useState } from "react";
 import { StyleSheet, ScrollView } from "react-native";
@@ -12,6 +12,7 @@ import HomeScreenHeader from "../components/HomeScreenHeader";
 import HomeWelcomeCard from "../components/home/HomeWelcomeCard";
 import DailyRewardSection from "../components/home/DailyRewardSection";
 import DailyChallengesSection from "../components/home/DailyChallengesSection";
+import AchievementsSection from "../components/home/AchievementsSection";
 import MagicShopSection from "../components/home/MagicShopSection";
 import InventorySection from "../components/home/InventorySection";
 import NewsFeedSection from "../components/home/NewsFeedSection";
@@ -43,6 +44,7 @@ export default function HomeScreen() {
         <HomeWelcomeCard />
         <DailyRewardSection />
         <DailyChallengesSection />
+        <AchievementsSection />
         <MagicShopSection onLayout={handleShopLayout} />
         <InventorySection onShopPress={scrollToShop} />
         <NewsFeedSection />

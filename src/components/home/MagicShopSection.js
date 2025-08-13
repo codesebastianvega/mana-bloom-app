@@ -2,7 +2,7 @@
 // Afecta: HomeScreen
 // Propósito: Sección de tienda mágica con tabs y maná disponible
 // Puntos de edición futura: integrar productos, navegación y retirar debug
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-08-17
 
 import React, { useState } from "react";
 import { View, Text, Pressable, Alert } from "react-native";
@@ -196,6 +196,16 @@ export default function MagicShopSection({ onLayout }) {
                       sku: `shop/${activeTab}/${item.id}`,
                       title: item.title,
                       category: activeTab,
+                    },
+                  });
+                  dispatch({
+                    type: "ACHIEVEMENT_EVENT",
+                    payload: {
+                      type: "purchase",
+                      payload: {
+                        sku: `shop/${activeTab}/${item.id}`,
+                        category: activeTab,
+                      },
                     },
                   });
                   Alert.alert("Compra exitosa — añadido al inventario");

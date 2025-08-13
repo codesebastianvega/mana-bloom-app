@@ -1,0 +1,90 @@
+// [MB] Módulo: Achievements / Sección: Plantillas
+// Afecta: motor de logros
+// Propósito: Definir plantillas de logros iniciales
+// Puntos de edición futura: añadir nuevos logros y ajustar metas/recompensas
+// Autor: Codex - Fecha: 2025-08-17
+
+export const ACHIEVEMENTS = [
+  {
+    id: "t_tasks_10",
+    title: "Productivo I",
+    group: "progreso",
+    type: "count_event",
+    event: "task_done",
+    goal: 10,
+    reward: { mana: 20, coin: 50 },
+  },
+  {
+    id: "t_tasks_50",
+    title: "Productivo II",
+    group: "progreso",
+    type: "count_event",
+    event: "task_done",
+    goal: 50,
+    reward: { mana: 50, coin: 150 },
+  },
+  {
+    id: "t_urgent_10",
+    title: "Apaga-incendios",
+    group: "retos",
+    type: "count_event",
+    event: "task_done",
+    goal: 10,
+  },
+  {
+    id: "t_chal_7",
+    title: "Cazador de Retos",
+    group: "retos",
+    type: "count_event",
+    event: "challenge_claimed",
+    goal: 7,
+    reward: { coin: 150 },
+  },
+  {
+    id: "t_streak_7",
+    title: "Constancia I",
+    group: "progreso",
+    type: "reach_value",
+    metric: "streak",
+    goal: 7,
+    reward: { mana: 30 },
+  },
+  {
+    id: "t_streak_30",
+    title: "Constancia II",
+    group: "progreso",
+    type: "reach_value",
+    metric: "streak",
+    goal: 30,
+    reward: { gem: 1 },
+  },
+  {
+    id: "t_level_5",
+    title: "Cultivador I",
+    group: "progreso",
+    type: "reach_value",
+    metric: "level",
+    goal: 5,
+    reward: { mana: 40 },
+  },
+  {
+    id: "t_buys_10",
+    title: "Cliente Frecuente",
+    group: "econ",
+    type: "count_event",
+    event: "purchase",
+    goal: 10,
+    reward: { coin: 200 },
+  },
+  {
+    id: "t_pomo_15_20",
+    title: "Pomodoro Maestro",
+    group: "herramientas",
+    type: "window_count",
+    event: "tool_usage",
+    toolId: "pomodoro",
+    windowDays: 20,
+    goal: 15,
+    reward: { coin: 300 },
+  },
+];

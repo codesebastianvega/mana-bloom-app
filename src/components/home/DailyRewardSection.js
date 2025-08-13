@@ -2,7 +2,7 @@
 // Afecta: HomeScreen
 // Propósito: Mostrar recompensa diaria y permitir su reclamo
 // Puntos de edición futura: integrar animaciones y estados visuales
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-08-17
 
 import React from "react";
 import { View, Text, Pressable } from "react-native";

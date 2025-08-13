@@ -2,7 +2,7 @@
 // Afecta: HomeScreen
 // Propósito: Mostrar desafíos diarios con progreso y reclamo de recompensas
 // Puntos de edición futura: animaciones y estados avanzados
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-08-17
 
 import React from "react";
 import { View, Text, Pressable } from "react-native";
@@ -23,6 +23,7 @@ export default function DailyChallengesSection() {
 
   const handleClaim = (id) => {
     dispatch({ type: "CLAIM_DAILY_CHALLENGE", payload: { id } });
+    dispatch({ type: "ACHIEVEMENT_EVENT", payload: { type: "challenge_claimed" } });
   };
 
   if (hydration.challenges) {
