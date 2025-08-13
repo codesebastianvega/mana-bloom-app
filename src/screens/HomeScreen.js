@@ -27,7 +27,12 @@ export default function HomeScreen() {
   const [anchors, setAnchors] = useState({});
 
   const setAnchor = useCallback(
-    (key) => (e) => setAnchors((a) => ({ ...a, [key]: e.nativeEvent.layout.y })),
+    (key) => (e) => {
+      const y = e?.nativeEvent?.layout?.y;
+      if (typeof y === "number") {
+        setAnchors((a) => ({ ...a, [key]: y }));
+      }
+    },
     []
   );
   const scrollToShop = useCallback(() => {
