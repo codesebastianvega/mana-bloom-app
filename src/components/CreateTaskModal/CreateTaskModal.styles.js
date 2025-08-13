@@ -1,118 +1,102 @@
-// [MB] Módulo: Tasks / Estilos: CreateTaskModal
+// [MB] Módulo: Tasks / Sección: CreateTaskModal
 // Afecta: CreateTaskModal
-// Propósito: Estilos para modal de crear/editar tareas
-// Puntos de edición futura: ajustar tokens o layout
+// Propósito: Estilos del modal para crear y editar tareas
+// Puntos de edición futura: tokens en theme y ajustes de spacing
 // Autor: Codex - Fecha: 2025-08-13
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
+import { Colors, Spacing, Radii, Elevation /*, Typography*/ } from "../../theme";
 
 export default StyleSheet.create({
-  background: {
-    flex: 1,
-    backgroundColor: Colors.overlay,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  container: {
-    width: "90%",
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: Radii.xl,
+  // Contenedor raíz del modal (usa este en el wrapper principal del modal)
+  root: {
+    backgroundColor: Colors.surfaceElevated || Colors.surface,
+    borderRadius: Radii?.xl ?? 20,
     padding: Spacing.large,
-    maxHeight: "90%",
-    ...Elevation.card,
+    ...(Elevation?.modal || {}),
+
   },
+
+  // Encabezado / título del modal
   title: {
-    ...Typography.h1,
+    // Typography.h2 si existe; fallback manual:
+    fontSize: 22,
+    fontWeight: "700",
     color: Colors.text,
     marginBottom: Spacing.small,
   },
-  input: {
-    height: 48,
-    borderRadius: Radii.lg,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.textMuted + "40",
-    paddingHorizontal: Spacing.base,
-    color: Colors.text,
+
+  // Subtítulo o labels de secciones (ej. "Tipo", "Elemento", "Prioridad")
+  sectionLabel: {
     fontSize: 14,
-  },
-  button: {
-    borderRadius: Radii.pill,
-    minHeight: 44,
-    paddingHorizontal: Spacing.large,
-    justifyContent: "center",
-    alignItems: "center",
-    ...Elevation.card,
-  },
-  buttonPrimary: {
-    backgroundColor: Colors.primary,
-  },
-  buttonSecondary: {
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.textMuted + "40",
-  },
-  buttonText: {
-    color: Colors.text,
+
     fontWeight: "600",
-  },
-  label: {
     color: Colors.text,
-    fontSize: 14,
-    fontWeight: "600",
     marginTop: Spacing.base,
     marginBottom: Spacing.small,
   },
-  subtaskHint: {
-    color: Colors.textMuted,
+
+  // Etiquetas pequeñas (debajo de inputs)
+  helperText: {
     fontSize: 12,
+    color: Colors.textMuted,
+    marginTop: Spacing.tiny,
   },
+
+  // Filas genéricas para alinear controles en horizontal
   row: {
     flexDirection: "row",
-    marginBottom: Spacing.base,
-    width: "100%",
-  },
-  optionBtn: {
-    paddingVertical: Spacing.tiny,
-    paddingHorizontal: Spacing.tiny,
-    borderRadius: Radii.md,
-    borderWidth: 1,
-    borderColor: Colors.textMuted + "40",
-    marginRight: Spacing.tiny,
-    flexDirection: "row",
+
     alignItems: "center",
+    justifyContent: "space-between",
   },
-  optionText: {
+
+  // Contenedor con separación vertical entre grupos
+  group: {
+    marginTop: Spacing.base,
+
+  },
+
+  // Input de una línea (título, etiqueta, etc.)
+  input: {
+    height: 48,
+    borderRadius: Radii?.lg ?? 14,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.textMuted,
+    paddingHorizontal: Spacing.base,
     color: Colors.text,
-    fontSize: 12,
-    marginLeft: 4,
   },
-  difficultyOptionBtn: {
-    flex: 1,
-    paddingVertical: Spacing.small,
-    borderRadius: Radii.lg,
+
+  // Input multilínea (notas / descripción)
+  inputMultiline: {
+    minHeight: 96,
+    borderRadius: Radii?.lg ?? 14,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.textMuted + "40",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: Spacing.small,
+    borderColor: Colors.textMuted,
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.base,
+    color: Colors.text,
+    textAlignVertical: "top",
+
   },
   typeOptionBtn: {
     flex: 1,
     minHeight: 40,
+
     paddingHorizontal: Spacing.base,
-    borderRadius: Radii.pill,
+    borderRadius: Radii?.pill ?? 999,
     borderWidth: 1,
-    borderColor: Colors.textMuted + "40",
-    alignItems: "center",
+    borderColor: Colors.textMuted,
+    backgroundColor: Colors.surface,
     justifyContent: "center",
-    marginRight: Spacing.small,
+    alignItems: "center",
   },
-  typeOptionText: {
-    color: Colors.textMuted,
-    fontSize: 14,
-    fontWeight: "600",
+  chipLabel: {
+    fontSize: 13,
+    color: Colors.text,
+    fontWeight: "500",
   },
   elementGrid: {
     flexDirection: "row",
@@ -174,147 +158,92 @@ export default StyleSheet.create({
     color: Colors.textMuted,
     textAlign: "center",
     marginTop: 2,
+
   },
-  tagInputRow: {
+
+  // Subtareas: fila input + botón "+"
+  subtaskRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: Spacing.base,
-  },
-  tagInput: {
-    flex: 1,
-    height: 48,
-    borderRadius: Radii.lg,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.textMuted + "40",
-    paddingHorizontal: Spacing.base,
-    color: Colors.text,
-    fontSize: 14,
-  },
-  addTagButton: {
-    marginLeft: Spacing.small,
-    backgroundColor: Colors.primary,
-    padding: Spacing.small,
-    borderRadius: Radii.lg,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  tagChip: {
-    backgroundColor: Colors.surface,
-    borderRadius: 12,
-    borderWidth: 0.5,
-    borderColor: Colors.textMuted,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: 4,
-    marginRight: Spacing.small,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  tagText: {
-    color: Colors.text,
-    fontSize: 12,
-  },
-  selectedTagsLabel: {
-    color: Colors.text,
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: Spacing.small,
-  },
-  subtaskInputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: Spacing.base,
+    gap: Spacing.small,
+    marginTop: Spacing.small,
   },
   subtaskInput: {
     flex: 1,
-    height: 48,
-    borderRadius: Radii.lg,
+    height: 44,
+    borderRadius: Radii?.lg ?? 14,
     backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.textMuted + "40",
+    borderColor: Colors.textMuted,
     paddingHorizontal: Spacing.base,
     color: Colors.text,
-    fontSize: 14,
   },
-  addSubtaskButton: {
-    marginLeft: Spacing.small,
-    backgroundColor: Colors.primary,
-    padding: Spacing.small,
-    borderRadius: Radii.lg,
+  subtaskAddBtn: {
+    minHeight: 44,
+    paddingHorizontal: Spacing.base,
+    borderRadius: Radii?.pill ?? 999,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    backgroundColor: Colors.surfaceElevated || Colors.surface,
+
     justifyContent: "center",
     alignItems: "center",
+    ...(Elevation?.card || {}),
   },
-  subtaskList: {
-    marginTop: Spacing.small,
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  subtaskItem: {
-    backgroundColor: Colors.surface,
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    borderColor: Colors.textMuted + "40",
-    paddingHorizontal: Spacing.small,
-    paddingVertical: 4,
-    marginRight: Spacing.small,
-    marginBottom: Spacing.small,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  subtaskText: {
+  subtaskAddLabel: {
+    fontSize: 16,
+    fontWeight: "700",
     color: Colors.text,
-    fontSize: 12,
   },
-  removeIcon: {
-    marginLeft: Spacing.tiny,
-  },
-  elementInfoBox: {
-    backgroundColor: Colors.surface,
-    borderRadius: Radii.lg,
-    padding: Spacing.small,
-    marginBottom: Spacing.base,
-  },
-  elementInfoTitle: {
-    color: Colors.text,
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: Spacing.tiny,
-  },
-  elementInfoDescription: {
-    color: Colors.text,
-    fontSize: 12,
-    marginBottom: Spacing.tiny,
-  },
-  elementInfoExamples: {
-    color: Colors.text,
-    fontSize: 12,
-    marginBottom: Spacing.tiny,
-  },
-  elementInfoPurpose: {
-    color: Colors.text,
-    fontSize: 12,
-  },
-  alertContainer: {
-    position: "absolute",
-    bottom: Spacing.xlarge,
 
-    left: Spacing.base,
-    right: Spacing.base,
-    paddingVertical: Spacing.small,
-    paddingHorizontal: Spacing.base,
-    borderRadius: 8,
-    zIndex: 2,
+  // Botonera inferior
+  actions: {
+
+    flexDirection: "row",
     alignItems: "center",
+    gap: Spacing.small,
+    marginTop: Spacing.large,
   },
-  alertText: {
-    color: Colors.text,
-    fontSize: 14,
+  primaryButton: {
+    flex: 1,
+    minHeight: 44,
+    paddingHorizontal: Spacing.large,
+    borderRadius: Radii?.pill ?? 999,
+    backgroundColor: Colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    ...(Elevation?.card || {}),
+  },
+  primaryButtonLabel: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: Colors.text, // si prefieres contraste: usa un Colors.onPrimary si existe
+  },
+  secondaryButton: {
+    flex: 1,
+    minHeight: 44,
+    paddingHorizontal: Spacing.large,
+    borderRadius: Radii?.pill ?? 999,
+    borderWidth: 1,
+    borderColor: Colors.textMuted,
+    backgroundColor: Colors.surface,
+    justifyContent: "center",
+    alignItems: "center",
+
+  },
+  secondaryButtonLabel: {
+    fontSize: 16,
     fontWeight: "600",
+    color: Colors.text,
   },
-  alertSuccess: {
-    backgroundColor: Colors.secondary,
-  },
-  alertError: {
-    backgroundColor: Colors.danger,
+
+  // Separadores suaves entre bloques dentro del modal (si los usas)
+  divider: {
+    height: 1,
+    backgroundColor: Colors.textMuted,
+    opacity: 0.2,
+    marginVertical: Spacing.base,
+    borderRadius: 1,
   },
 });
+
