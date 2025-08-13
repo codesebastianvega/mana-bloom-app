@@ -42,7 +42,7 @@ export default StyleSheet.create({
   chipRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    columnGap: Spacing.small,
+    columnGap: Spacing.tiny,
     rowGap: Spacing.tiny,
   },
   chip: {
