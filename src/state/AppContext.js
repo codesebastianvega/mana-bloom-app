@@ -69,11 +69,20 @@ function clampWindow(ts = [], days = 20, nowMs = Date.now()) {
   return ts.filter((iso) => new Date(iso).getTime() >= minMs);
 }
 
+function resolveTitleFrom(list, id) {
+  return list.find((a) => a.id === id)?.title || id;
+}
+
 function markUnlocked(state, id) {
   if (!state.unlocked[id]) {
     state.unlocked[id] = {
       achievedAt: new Date().toISOString(),
       claimed: false,
+    };
+    state.achievementToast = {
+      id,
+      title: resolveTitleFrom(ACHIEVEMENTS, id),
+      ts: Date.now(),
     };
   }
 }
@@ -165,6 +174,7 @@ const initialState = {
   news: { items: [] },
   dailyReward: { dateKey: null, rewardId: null, claimed: false },
   achievements: { progress: {}, unlocked: {} },
+  achievementToast: null,
 };
 
 function roundToNearest10(n) {
@@ -389,6 +399,7 @@ function appReducer(state, action) {
       const { type, payload } = action.payload;
       const progress = { ...state.achievements.progress };
       const unlocked = { ...state.achievements.unlocked };
+      const wrapper = { unlocked, achievementToast: null };
       const nowIso = new Date().toISOString();
       ACHIEVEMENTS.forEach((a) => {
         if (a.type === "count_event" && a.event === type) {
@@ -398,23 +409,27 @@ function appReducer(state, action) {
           const prev = progress[a.id]?.count || 0;
           const next = prev + 1;
           progress[a.id] = { ...progress[a.id], count: next };
-          if (next >= a.goal) markUnlocked({ unlocked }, a.id);
+          if (next >= a.goal) markUnlocked(wrapper, a.id);
         } else if (a.type === "reach_value") {
           if (a.metric === "level" && type === "level_up") {
-            if (payload?.level >= a.goal) markUnlocked({ unlocked }, a.id);
+            if (payload?.level >= a.goal) markUnlocked(wrapper, a.id);
           }
           if (a.metric === "streak" && type === "streak_update") {
-            if (payload?.streak >= a.goal) markUnlocked({ unlocked }, a.id);
+            if (payload?.streak >= a.goal) markUnlocked(wrapper, a.id);
           }
         } else if (a.type === "window_count" && a.event === type) {
           if (a.toolId && payload?.toolId !== a.toolId) return;
           const prevTs = progress[a.id]?.timestamps || [];
           const ts = clampWindow([...prevTs, nowIso], a.windowDays || 20);
           progress[a.id] = { ...progress[a.id], timestamps: ts };
-          if (ts.length >= a.goal) markUnlocked({ unlocked }, a.id);
+          if (ts.length >= a.goal) markUnlocked(wrapper, a.id);
         }
       });
-      return { ...state, achievements: { progress, unlocked } };
+      return {
+        ...state,
+        achievements: { progress, unlocked: wrapper.unlocked },
+        achievementToast: wrapper.achievementToast || state.achievementToast,
+      };
     }
     case "CLAIM_ACHIEVEMENT": {
       const { id } = action.payload;
@@ -438,6 +453,8 @@ function appReducer(state, action) {
         achievements: { ...state.achievements, unlocked: newUnlocked },
       };
     }
+    case "CLEAR_ACHIEVEMENT_TOAST":
+      return { ...state, achievementToast: null };
     case "ACTIVATE_BUFF": {
       const { type, durationMs } = action.payload;
       const startedAt = now();
@@ -770,4 +787,9 @@ export function useTopAchievements() {
   locked.sort((a, b) => b.progress / b.goal - a.progress / a.goal);
   const combined = [...unclaimed, ...locked];
   return combined.slice(0, 3);
+}
+
+export function useAchievementToast() {
+  const { achievementToast } = useAppState();
+  return achievementToast;
 }

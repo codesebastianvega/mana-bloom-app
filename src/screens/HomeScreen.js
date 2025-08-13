@@ -12,16 +12,22 @@ import HomeScreenHeader from "../components/HomeScreenHeader";
 import HomeWelcomeCard from "../components/home/HomeWelcomeCard";
 import DailyRewardSection from "../components/home/DailyRewardSection";
 import DailyChallengesSection from "../components/home/DailyChallengesSection";
-import AchievementsSection from "../components/home/AchievementsSection";
 import MagicShopSection from "../components/home/MagicShopSection";
 import InventorySection from "../components/home/InventorySection";
 import NewsFeedSection from "../components/home/NewsFeedSection";
 import StatsQuickTiles from "../components/home/StatsQuickTiles";
 import EventBanner from "../components/home/EventBanner";
-import { useAppState } from "../state/AppContext";
+import AchievementToast from "../components/common/AchievementToast";
+import {
+  useAppState,
+  useAppDispatch,
+  useAchievementToast,
+} from "../state/AppContext";
 
 export default function HomeScreen() {
   const { mana, plantState } = useAppState();
+  const achievementToast = useAchievementToast();
+  const dispatch = useAppDispatch();
   const scrollRef = useRef(null);
   const [shopY, setShopY] = useState(0);
 
@@ -31,6 +37,13 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {achievementToast && (
+        <AchievementToast
+          visible
+          title={achievementToast.title}
+          onClose={() => dispatch({ type: "CLEAR_ACHIEVEMENT_TOAST" })}
+        />
+      )}
       <HomeScreenHeader userName="Jugador" manaCount={mana} plantState={plantState} />
       <ScrollView
         ref={scrollRef}
@@ -44,7 +57,6 @@ export default function HomeScreen() {
         <HomeWelcomeCard />
         <DailyRewardSection />
         <DailyChallengesSection />
-        <AchievementsSection />
         <MagicShopSection onLayout={handleShopLayout} />
         <InventorySection onShopPress={scrollToShop} />
         <NewsFeedSection />
