@@ -324,7 +324,7 @@ export default function CreateTaskModal({
             <View style={styles.elementGrid}>
               {ELEMENTS.map((key) => {
                 const accent = ELEMENT_ACCENTS[key];
-                const selected = newElement === key;
+                const isActive = newElement === key;
                 return (
                   <Pressable
                     key={key}
@@ -332,11 +332,11 @@ export default function CreateTaskModal({
                     style={[
                       styles.elementCard,
                       { borderColor: accent.border },
-                      selected && styles.elementCardActive,
+                      isActive && styles.elementCardActive,
 
                     ]}
                     accessibilityRole="button"
-                    accessibilityState={{ selected }}
+                    accessibilityState={{ selected: isActive }}
                     accessibilityLabel={`Seleccionar elemento ${accent.label}`}
                   >
                     <Text style={styles.elementEmoji}>{accent.emoji}</Text>
@@ -425,7 +425,7 @@ export default function CreateTaskModal({
             <Text style={styles.label}>Prioridad</Text>
             <View style={styles.priorityList}>
               {PRIORITIES.map((p) => {
-                const selected = newPriority === p;
+                const isActive = newPriority === p;
                 const accent = PRIORITY_ACCENTS[p];
 
                 return (
@@ -436,18 +436,14 @@ export default function CreateTaskModal({
                       styles.priorityRow,
                       {
                         borderColor: accent.border,
-                        backgroundColor: selected
+                        backgroundColor: isActive
                           ? Colors.surfaceElevated || Colors.surface
                           : Colors.surface,
 
                       },
-                      active && [
-                        styles.chipActive,
-                        { borderColor: pr.color, backgroundColor: pr.color },
-                      ],
                     ]}
                     accessibilityRole="button"
-                    accessibilityState={{ selected }}
+                    accessibilityState={{ selected: isActive }}
                     accessibilityLabel={`Prioridad ${accent.label}`}
                   >
                     <Text style={styles.priorityTitle}>{accent.label}</Text>
