@@ -485,6 +485,7 @@ export function AppProvider({ children }) {
     inventory: true,
     news: true,
     challenges: true,
+    buffs: true,
     dailyReward: true,
     achievements: true,
   });
@@ -525,7 +526,7 @@ export function AppProvider({ children }) {
         type: "SET_BUFFS",
         payload: cleanupExpired(storedBuffs),
       });
-      setHydration((h) => ({ ...h, progress: false }));
+      setHydration((h) => ({ ...h, progress: false, buffs: false }));
       dispatch({ type: "SET_INVENTORY", payload: storedInventory });
       setHydration((h) => ({ ...h, inventory: false }));
       dispatch({ type: "SET_WALLET", payload: storedWallet });
@@ -757,8 +758,16 @@ export function useHydrationStatus() {
   if (context === undefined) {
     throw new Error("useHydrationStatus must be used within an AppProvider");
   }
-  const isHydratingGlobal = Object.values(context).some(Boolean);
-  return { ...context, isHydratingGlobal };
+  const modules = {
+    wallet: context.wallet,
+    progress: context.progress,
+    inventory: context.inventory,
+    news: context.news,
+    challenges: context.challenges,
+    buffs: context.buffs,
+  };
+  const isHydratingGlobal = Object.values(modules).some(Boolean);
+  return { isHydratingGlobal, modules };
 }
 
 export function useAchievements() {

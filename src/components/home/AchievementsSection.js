@@ -12,14 +12,14 @@ import {
   useAppDispatch,
   useHydrationStatus,
 } from "../../state/AppContext";
-import SectionPlaceholder from "./SectionPlaceholder";
+import SectionPlaceholder from "../common/SectionPlaceholder";
 
 export default function AchievementsSection() {
   const dispatch = useAppDispatch();
   const achievements = useTopAchievements();
-  const hydration = useHydrationStatus();
+  const { isHydratingGlobal } = useHydrationStatus();
 
-  if (hydration.achievements) {
+  if (isHydratingGlobal) {
     return <SectionPlaceholder height={220} />;
   }
 

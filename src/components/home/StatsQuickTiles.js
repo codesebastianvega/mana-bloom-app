@@ -13,16 +13,16 @@ import {
   useHydrationStatus,
   useAppDispatch,
 } from "../../state/AppContext";
-import SectionPlaceholder from "./SectionPlaceholder";
+import SectionPlaceholder from "../common/SectionPlaceholder";
 
-export default function StatsQuickTiles() {
+function StatsQuickTiles() {
   const { streak, mana } = useAppState();
   const { level } = useProgress();
-  const hydration = useHydrationStatus();
+  const { modules } = useHydrationStatus();
   const dispatch = useAppDispatch();
 
-  if (hydration.mana || hydration.progress) {
-    return <SectionPlaceholder height={140} />;
+  if (modules.wallet || modules.progress) {
+    return <SectionPlaceholder height={84} />;
   }
 
   return (
@@ -62,3 +62,5 @@ export default function StatsQuickTiles() {
     </View>
   );
 }
+
+export default React.memo(StatsQuickTiles);

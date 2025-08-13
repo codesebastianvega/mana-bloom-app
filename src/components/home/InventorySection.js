@@ -13,14 +13,14 @@ import {
   useInventoryCounts,
   useHydrationStatus,
 } from "../../state/AppContext";
-import SectionPlaceholder from "./SectionPlaceholder";
+import SectionPlaceholder from "../common/SectionPlaceholder";
 
 const CATEGORY_EMOJI = { potions: "🧪", tools: "🛠️", cosmetics: "🎩" };
 
-export default function InventorySection({ onGoToShop }) {
+function InventorySection({ onGoToShop }) {
   const { inventory } = useAppState();
   const counts = useInventoryCounts();
-  const hydration = useHydrationStatus();
+  const { modules } = useHydrationStatus();
   const navigation = useNavigation();
   const scale = useRef(new Animated.Value(1)).current;
 
@@ -45,8 +45,8 @@ export default function InventorySection({ onGoToShop }) {
     }).start();
   };
 
-  if (hydration.inventory) {
-    return <SectionPlaceholder height={220} />;
+  if (modules.inventory) {
+    return <SectionPlaceholder height={160} />;
   }
 
   if (counts.total === 0) {
@@ -58,7 +58,10 @@ export default function InventorySection({ onGoToShop }) {
         <Text style={styles.emptyText}>Tu inventario está vacío</Text>
         <Pressable
           onPress={() => onGoToShop?.()}
-          style={styles.viewAllButton}
+          style={({ pressed }) => [
+            styles.viewAllButton,
+            pressed && { transform: [{ scale: 0.98 }] },
+          ]}
           accessibilityRole="button"
           accessibilityLabel="Ir a la Tienda"
         >
@@ -86,12 +89,12 @@ export default function InventorySection({ onGoToShop }) {
         </View>
       </View>
 
-      <View style={styles.list}>
+      <View style={styles.list} accessibilityRole="list">
         {preview.map((item) => (
-          <View key={item.id} style={styles.itemRow}>
-            <Text style={styles.itemIcon}>{
-              CATEGORY_EMOJI[item.category] || "📦"
-            }</Text>
+          <View key={item.id} style={styles.itemRow} accessibilityRole="listitem">
+            <Text style={styles.itemIcon}>
+              {CATEGORY_EMOJI[item.category] || "📦"}
+            </Text>
             <Text style={styles.itemTitle}>{item.title}</Text>
             <Text style={styles.itemQty}>{`× ${item.quantity}`}</Text>
           </View>
@@ -114,3 +117,4 @@ export default function InventorySection({ onGoToShop }) {
   );
 }
 
+export default React.memo(InventorySection);

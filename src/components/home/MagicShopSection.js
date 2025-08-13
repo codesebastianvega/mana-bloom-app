@@ -4,7 +4,7 @@
 // Puntos de edición futura: integrar productos, navegación y retirar debug
 // Autor: Codex - Fecha: 2025-08-17
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, Pressable, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -19,7 +19,7 @@ import {
   useHydrationStatus,
   useWallet,
 } from "../../state/AppContext";
-import SectionPlaceholder from "./SectionPlaceholder";
+import SectionPlaceholder from "../common/SectionPlaceholder";
 
 const TABS = [
   { key: "potions", label: "Pociones" },
@@ -78,23 +78,53 @@ const SHOP_ITEMS = {
   ],
 };
 
-export default function MagicShopSection({ onLayout }) {
+function MagicShopSection() {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState("potions");
   const { mana } = useAppState();
   const dispatch = useAppDispatch();
   const canAfford = useCanAfford();
-  const hydration = useHydrationStatus();
+  const { modules } = useHydrationStatus();
   const { coin, gem } = useWallet();
 
-  const addDebugMana = () => dispatch({ type: "SET_MANA", payload: mana + 5 });
+  const addDebugMana = useCallback(
+    () => dispatch({ type: "SET_MANA", payload: mana + 5 }),
+    [dispatch, mana]
+  );
 
-  if (hydration.mana || hydration.wallet) {
-    return <SectionPlaceholder height={300} />;
+  const handleBuy = useCallback(
+    (item, category) => {
+      if (canAfford(item.price)) {
+        dispatch({ type: "PURCHASE_WITH_MANA", payload: item.price });
+        dispatch({
+          type: "ADD_TO_INVENTORY",
+          payload: {
+            sku: `shop/${category}/${item.id}`,
+            title: item.title,
+            category,
+          },
+        });
+        dispatch({
+          type: "ACHIEVEMENT_EVENT",
+          payload: {
+            type: "purchase",
+            payload: { sku: `shop/${category}/${item.id}`, category },
+          },
+        });
+        Alert.alert("Compra exitosa — añadido al inventario");
+      } else {
+        Alert.alert("Sin maná", "Maná insuficiente");
+      }
+    },
+    [canAfford, dispatch]
+  );
+
+  if (modules.wallet) {
+    return <SectionPlaceholder height={240} />;
   }
 
   return (
-    <View style={styles.container} onLayout={onLayout}>
+    <View style={styles.container}>
       <Text style={styles.title} accessibilityRole="header">
         Tienda Mágica
       </Text>
@@ -146,7 +176,10 @@ export default function MagicShopSection({ onLayout }) {
       {__DEV__ && (
         <Pressable
           onPress={addDebugMana}
-          style={styles.debugButton}
+          style={({ pressed }) => [
+            styles.debugButton,
+            pressed && { transform: [{ scale: 0.98 }] },
+          ]}
           accessibilityRole="button"
           accessibilityLabel="Agregar 5 maná"
         >
@@ -154,7 +187,7 @@ export default function MagicShopSection({ onLayout }) {
         </Pressable>
       )}
 
-      <View style={styles.tabsRow}>
+      <View style={styles.tabsRow} accessibilityRole="tablist">
         {TABS.map((tab, index) => {
           const isActive = tab.key === activeTab;
           const accent = ShopColors[tab.key];
@@ -170,7 +203,8 @@ export default function MagicShopSection({ onLayout }) {
                   borderColor: accent.border,
                 },
               ]}
-              accessibilityRole="button"
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isActive }}
               accessibilityLabel={`Mostrar ${tab.label}`}
             >
               <Text style={styles.tabText}>{tab.label}</Text>
@@ -179,54 +213,34 @@ export default function MagicShopSection({ onLayout }) {
         })}
       </View>
 
-      {SHOP_ITEMS[activeTab].map((item) => {
-        const affordable = canAfford(item.price);
-        return (
-          <View key={item.id} style={styles.itemWrapper}>
-            <ShopItemCard
-              title={item.title}
-              description={item.description}
-              price={item.price}
-              iconName={item.iconName}
-              accent={ShopColors[activeTab]}
-              disabled={!affordable}
-              onPress={() => {
-                if (canAfford(item.price)) {
-                  dispatch({ type: "PURCHASE_WITH_MANA", payload: item.price });
-                  dispatch({
-                    type: "ADD_TO_INVENTORY",
-                    payload: {
-                      sku: `shop/${activeTab}/${item.id}`,
-                      title: item.title,
-                      category: activeTab,
-                    },
-                  });
-                  dispatch({
-                    type: "ACHIEVEMENT_EVENT",
-                    payload: {
-                      type: "purchase",
-                      payload: {
-                        sku: `shop/${activeTab}/${item.id}`,
-                        category: activeTab,
-                      },
-                    },
-                  });
-                  Alert.alert("Compra exitosa — añadido al inventario");
-                } else {
-                  Alert.alert("Sin maná", "Maná insuficiente");
-                }
-              }}
-              accessibilityLabel={`Comprar ${item.title} por ${item.price} maná`}
-            />
-          </View>
-        );
-      })}
+      <View accessibilityRole="list">
+        {SHOP_ITEMS[activeTab].map((item) => {
+          const affordable = canAfford(item.price);
+          return (
+            <View key={item.id} style={styles.itemWrapper} accessibilityRole="listitem">
+              <ShopItemCard
+                title={item.title}
+                description={item.description}
+                price={item.price}
+                iconName={item.iconName}
+                accent={ShopColors[activeTab]}
+                disabled={!affordable}
+                onPress={() => handleBuy(item, activeTab)}
+                accessibilityLabel={`Comprar ${item.title} por ${item.price} maná`}
+              />
+            </View>
+          );
+        })}
+      </View>
 
       <Pressable
         onPress={() =>
           navigation.navigate("ShopScreen", { initialTab: "potions" })
         }
-        style={styles.viewAllButton}
+        style={({ pressed }) => [
+          styles.viewAllButton,
+          pressed && { transform: [{ scale: 0.98 }] },
+        ]}
         accessibilityRole="button"
         accessibilityLabel="Ver todos los artículos"
       >
@@ -235,3 +249,5 @@ export default function MagicShopSection({ onLayout }) {
     </View>
   );
 }
+
+export default React.memo(MagicShopSection);
