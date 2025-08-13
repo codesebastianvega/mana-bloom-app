@@ -25,7 +25,7 @@ export default function ShopItemCard({
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      style={[
+      style={({ pressed }) => [
         styles.card,
         { borderColor: accent.border },
         selected && {
@@ -35,6 +35,7 @@ export default function ShopItemCard({
           shadowRadius: 6,
         },
         disabled && { opacity: Opacity.disabled },
+        pressed && { transform: [{ scale: 0.98 }] },
       ]}
       accessibilityRole="button"
       accessibilityState={{ disabled }}

@@ -25,10 +25,11 @@ export default StyleSheet.create({
     ...Typography.h2,
     color: Colors.text,
   },
-  viewAll: {
+    viewAll: {
     ...Typography.caption,
     color: Colors.accent,
   },
+  viewAllButton: {},
   row: {
     flexDirection: "row",
     alignItems: "center",

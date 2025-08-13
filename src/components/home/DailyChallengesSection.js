@@ -4,7 +4,7 @@
 // Puntos de edición futura: animaciones y estados avanzados
 // Autor: Codex - Fecha: 2025-08-17
 
-import React from "react";
+import React, { useCallback } from "react";
 import { View, Text, Pressable } from "react-native";
 import styles from "./DailyChallengesSection.styles";
 import {
@@ -12,26 +12,29 @@ import {
   useAppDispatch,
   useHydrationStatus,
 } from "../../state/AppContext";
-import SectionPlaceholder from "./SectionPlaceholder";
+import SectionPlaceholder from "../common/SectionPlaceholder";
 
-export default function DailyChallengesSection() {
+function DailyChallengesSection() {
   const dispatch = useAppDispatch();
   const { items } = useDailyChallenges();
-  const hydration = useHydrationStatus();
+  const { modules } = useHydrationStatus();
 
   const allClaimed = items.every((item) => item.claimed);
 
-  const handleClaim = (id) => {
-    dispatch({ type: "CLAIM_DAILY_CHALLENGE", payload: { id } });
-    dispatch({ type: "ACHIEVEMENT_EVENT", payload: { type: "challenge_claimed" } });
-  };
+  const handleClaim = useCallback(
+    (id) => {
+      dispatch({ type: "CLAIM_DAILY_CHALLENGE", payload: { id } });
+      dispatch({ type: "ACHIEVEMENT_EVENT", payload: { type: "challenge_claimed" } });
+    },
+    [dispatch]
+  );
 
-  if (hydration.challenges) {
-    return <SectionPlaceholder height={220} />;
+  if (modules.challenges) {
+    return <SectionPlaceholder height={200} />;
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityRole="list">
       <Text style={styles.title} accessibilityRole="header">
         Desafíos Diarios
       </Text>
@@ -47,7 +50,7 @@ export default function DailyChallengesSection() {
             ? "Reclamado"
             : "En progreso";
           return (
-            <View key={item.id} style={styles.card}>
+            <View key={item.id} style={styles.card} accessibilityRole="listitem">
               <View style={styles.headerRow}>
                 <Text style={styles.challengeTitle}>{item.title}</Text>
                 <View style={styles.rewardPill}>
@@ -66,12 +69,20 @@ export default function DailyChallengesSection() {
               <Pressable
                 onPress={() => handleClaim(item.id)}
                 disabled={!canClaim}
-                style={[
+                style={({ pressed }) => [
                   styles.claimButton,
                   canClaim ? styles.claimButtonEnabled : styles.claimButtonDisabled,
+                  pressed && { transform: [{ scale: 0.98 }] },
                 ]}
                 accessibilityRole="button"
-                accessibilityLabel={`${buttonLabel} desafío ${item.title}`}
+                accessibilityState={{ disabled: !canClaim }}
+                accessibilityLabel={
+                  canClaim
+                    ? `Reclamar desafío ${item.title}`
+                    : item.claimed
+                    ? `Desafío ${item.title} reclamado`
+                    : `Progreso desafío ${item.title}`
+                }
               >
                 <Text
                   style={[
@@ -89,3 +100,5 @@ export default function DailyChallengesSection() {
     </View>
   );
 }
+
+export default DailyChallengesSection;

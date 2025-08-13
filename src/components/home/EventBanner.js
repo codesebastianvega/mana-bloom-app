@@ -7,14 +7,21 @@
 import React from "react";
 import { View, Text } from "react-native";
 import styles from "./EventBanner.styles";
+import SectionPlaceholder from "../common/SectionPlaceholder";
+import { useHydrationStatus } from "../../state/AppContext";
 
 const EVENT_DATE = "2025-12-31T23:59:59.000Z";
 
-export default function EventBanner() {
+function EventBanner() {
+  const { modules } = useHydrationStatus();
   const daysRemaining = Math.max(
     0,
     Math.ceil((new Date(EVENT_DATE) - Date.now()) / 86400000)
   );
+
+  if (modules.buffs) {
+    return <SectionPlaceholder height={72} />;
+  }
 
   return (
     <View style={styles.container}>
@@ -27,3 +34,5 @@ export default function EventBanner() {
     </View>
   );
 }
+
+export default React.memo(EventBanner);

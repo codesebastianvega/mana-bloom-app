@@ -4,8 +4,8 @@
 // Puntos de edición futura: conectar datos reales y navegación
 // Autor: Codex - Fecha: 2025-08-13
 
-import React, { useRef, useState } from "react";
-import { StyleSheet, ScrollView } from "react-native";
+import React, { useRef, useState, useCallback } from "react";
+import { StyleSheet, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors, Spacing } from "../theme";
 import HomeScreenHeader from "../components/HomeScreenHeader";
@@ -18,22 +18,21 @@ import NewsFeedSection from "../components/home/NewsFeedSection";
 import StatsQuickTiles from "../components/home/StatsQuickTiles";
 import EventBanner from "../components/home/EventBanner";
 import AchievementToast from "../components/common/AchievementToast";
-import {
-  useAppState,
-  useAppDispatch,
-  useAchievementToast,
-} from "../state/AppContext";
+import { useAppDispatch, useAchievementToast } from "../state/AppContext";
 
 export default function HomeScreen() {
-  const { mana, plantState } = useAppState();
   const achievementToast = useAchievementToast();
   const dispatch = useAppDispatch();
   const scrollRef = useRef(null);
-  const [shopY, setShopY] = useState(0);
+  const [anchors, setAnchors] = useState({});
 
-  const handleShopLayout = (e) => setShopY(e.nativeEvent.layout.y);
-  const scrollToShop = () =>
-    scrollRef.current?.scrollTo({ y: shopY, animated: true });
+  const setAnchor = useCallback(
+    (key) => (e) => setAnchors((a) => ({ ...a, [key]: e.nativeEvent.layout.y })),
+    []
+  );
+  const scrollToShop = useCallback(() => {
+    scrollRef.current?.scrollTo({ y: anchors.shop, animated: true });
+  }, [anchors.shop]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -47,21 +46,33 @@ export default function HomeScreen() {
       <HomeScreenHeader />
       <ScrollView
         ref={scrollRef}
-        contentContainerStyle={{
-          paddingHorizontal: Spacing.base,
-          paddingTop: Spacing.base,
-          paddingBottom: 96,
-          gap: Spacing.large,
-        }}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
       >
-        <HomeWelcomeCard />
-        <DailyRewardSection />
-        <DailyChallengesSection />
-        <MagicShopSection onLayout={handleShopLayout} />
-        <InventorySection onGoToShop={scrollToShop} />
-        <NewsFeedSection />
-        <StatsQuickTiles />
-        <EventBanner />
+        <View onLayout={setAnchor("welcome")}>
+          <HomeWelcomeCard />
+        </View>
+        <View onLayout={setAnchor("reward")}>
+          <DailyRewardSection />
+        </View>
+        <View onLayout={setAnchor("challenges")}>
+          <DailyChallengesSection />
+        </View>
+        <View onLayout={setAnchor("shop")}>
+          <MagicShopSection />
+        </View>
+        <View onLayout={setAnchor("inventory")}>
+          <InventorySection onGoToShop={scrollToShop} />
+        </View>
+        <View onLayout={setAnchor("news")}>
+          <NewsFeedSection />
+        </View>
+        <View onLayout={setAnchor("stats")}>
+          <StatsQuickTiles />
+        </View>
+        <View onLayout={setAnchor("event")}>
+          <EventBanner />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -73,5 +84,11 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "stretch",
     backgroundColor: Colors.background,
+  },
+  content: {
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.base,
+    paddingBottom: 96,
+    gap: Spacing.large,
   },
 });

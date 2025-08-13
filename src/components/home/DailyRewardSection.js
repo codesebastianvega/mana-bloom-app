@@ -4,7 +4,7 @@
 // Puntos de edición futura: integrar animaciones y estados visuales
 // Autor: Codex - Fecha: 2025-08-17
 
-import React from "react";
+import React, { useCallback } from "react";
 import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import styles from "./DailyRewardSection.styles";
@@ -15,20 +15,20 @@ import {
   useHydrationStatus,
 } from "../../state/AppContext";
 import { Colors, Opacity } from "../../theme";
-import SectionPlaceholder from "./SectionPlaceholder";
+import SectionPlaceholder from "../common/SectionPlaceholder";
 
-export default function DailyRewardSection() {
+function DailyRewardSection() {
   const dispatch = useAppDispatch();
   const { streak } = useAppState();
   const dailyReward = useDailyReward();
-  const hydration = useHydrationStatus();
+  const { modules } = useHydrationStatus();
 
-  const handleClaim = () => {
+  const handleClaim = useCallback(() => {
     dispatch({ type: "CLAIM_TODAY_REWARD" });
-  };
+  }, [dispatch]);
 
-  if (hydration.dailyReward) {
-    return <SectionPlaceholder height={110} />;
+  if (modules.wallet) {
+    return <SectionPlaceholder height={72} />;
   }
 
   const { claimed, reward } = dailyReward;
@@ -62,7 +62,11 @@ export default function DailyRewardSection() {
       <Pressable
         onPress={handleClaim}
         disabled={claimed}
-        style={[styles.claimButton, claimed && { opacity: Opacity.disabled }]}
+        style={({ pressed }) => [
+          styles.claimButton,
+          claimed && { opacity: Opacity.disabled },
+          pressed && { transform: [{ scale: 0.98 }] },
+        ]}
         accessibilityRole="button"
         accessibilityState={{ disabled: claimed }}
         accessibilityLabel={
@@ -79,3 +83,5 @@ export default function DailyRewardSection() {
     </View>
   );
 }
+
+export default DailyRewardSection;
