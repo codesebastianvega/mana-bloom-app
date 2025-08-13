@@ -1,29 +1,36 @@
-// src/components/AdvancedFilters/AdvancedFilters.styles.js
+// [MB] Módulo: Tasks / Sección: Filtros avanzados
+// Afecta: TaskFilters (modal de filtros)
+// Propósito: Tokens y estilos alineados al tema
+// Puntos de edición futura: tipografías y variantes de elevación
+// Autor: Codex - Fecha: 2025-08-13
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing } from "../../theme";
+import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
 
 // Un solo estilo base para todos los botones.
 // Esto evita la repetición de código.
 const baseBtn = {
   flexDirection: "row",
   alignItems: "center",
-  padding: Spacing.tiny,
-  paddingHorizontal: Spacing.small,
-  borderRadius: 8,
-  borderWidth: 0.5,
-  borderColor: Colors.text,
+  justifyContent: "center",
+  paddingVertical: Spacing.tiny,
+  paddingHorizontal: Spacing.base,
+  minHeight: 36,
+  borderRadius: Radii.pill,
+  borderWidth: 1,
+  borderColor: Colors.border,
   marginRight: Spacing.small,
-  backgroundColor: "transparent", // Botones transparentes por defecto
+  backgroundColor: "transparent",
 };
 
 export default StyleSheet.create({
   container: {
-    backgroundColor: Colors.surface,
-    borderRadius: 12,
-    padding: Spacing.base,
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: Radii.xl,
+    padding: Spacing.large,
     marginTop: 0,
     marginBottom: Spacing.small,
+    ...Elevation.raised,
   },
   row: {
     flexDirection: "row",
@@ -52,35 +59,34 @@ export default StyleSheet.create({
   },
   tagBtn: {
     ...baseBtn,
-    paddingVertical: 2,
-    paddingHorizontal: Spacing.tiny,
-    borderRadius: 6,
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.small,
     marginRight: Spacing.tiny,
   },
   // Texto dentro de cada etiqueta del filtro
   tagText: {
+    ...Typography.body,
     color: Colors.text,
-    fontSize: 12,
   },
   // Contenedor del campo de búsqueda de etiquetas
   tagSearchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.filterBtnBg,
-    borderRadius: 8,
-    borderWidth: 0.5,
-    borderColor: Colors.text,
+    backgroundColor: Colors.background,
+    borderRadius: Radii.md,
     paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny,
+    paddingVertical: Spacing.small,
     marginBottom: Spacing.base,
   },
   tagSearchContainerFocused: {
     borderColor: Colors.accent,
+    borderWidth: 1,
   },
   // Campo de texto para buscar etiquetas
   tagSearchInput: {
     flex: 1,
     color: Colors.text,
+    ...Typography.body,
     paddingVertical: 0,
   },
   // Botón que limpia el texto del buscador
@@ -88,20 +94,23 @@ export default StyleSheet.create({
     marginLeft: Spacing.small,
   },
   sectionTitle: {
+    ...Typography.body,
     color: Colors.text,
-    fontSize: 14,
     fontWeight: "600",
     marginTop: Spacing.small,
     marginBottom: Spacing.tiny,
   },
   text: {
+    ...Typography.body,
     color: Colors.text,
-    fontSize: 14,
     marginLeft: Spacing.small,
   },
   centerText: {
     marginLeft: 0,
     textAlign: "center",
     flex: 1,
+  },
+  pressed: {
+    transform: [{ scale: 0.97 }],
   },
 });
