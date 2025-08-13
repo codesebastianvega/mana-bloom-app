@@ -85,6 +85,7 @@ export default function CreateTaskModal({
   const [newSubtaskInput, setNewSubtaskInput] = useState("");
   const [newSubtasks, setNewSubtasks] = useState([]); // [{id,text,completed}]
   const [alert, setAlert] = useState(null); // { message, type }
+  const [gridWidth, setGridWidth] = useState(0);
 
   useEffect(() => {
     if (task) {
@@ -279,19 +280,32 @@ export default function CreateTaskModal({
             </View>
 
             <Text style={styles.sectionLabel}>Elemento</Text>
-            <View style={styles.elementGrid}>
+            <View
+              style={styles.elementGrid}
+              onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)}
+            >
               {ELEMENTS.map((name, idx) => {
                 const accent = ELEMENT_ACCENTS[name];
                 const selected = newElement === accent.value;
+                const cardSize = gridWidth
+                  ? (gridWidth - Spacing.base) / 2
+                  : 0;
                 return (
                   <Pressable
                     key={name}
                     onPress={() => setNewElement(accent.value)}
                     style={[
                       styles.elementCard,
-                      { borderColor: accent.border },
-                      selected && styles.elementCardActive,
-                      idx % 2 === 0 && styles.elementCardLeft,
+                      {
+                        borderColor: accent.border,
+                        width: cardSize,
+                        height: cardSize,
+                        marginRight: idx % 2 === 0 ? Spacing.base : 0,
+                      },
+                      selected && [
+                        styles.elementCardActive,
+                        { shadowColor: accent.border },
+                      ],
                     ]}
                     accessibilityRole="button"
                     accessibilityState={{ selected }}
