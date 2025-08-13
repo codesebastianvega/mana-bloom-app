@@ -14,8 +14,7 @@ export default StyleSheet.create({
     backgroundColor: Colors.surfaceElevated,
     paddingHorizontal: Spacing.base,
     borderRadius: Radii.lg,
-    marginTop: Spacing.small,
-    marginBottom: Spacing.small,
+    marginVertical: Spacing.small,
     justifyContent: "space-between",
     minHeight: 48,
     borderWidth: 1,
@@ -25,6 +24,7 @@ export default StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
+    gap: Spacing.small,
   },
   input: {
     flex: 1,
@@ -34,7 +34,7 @@ export default StyleSheet.create({
   },
   button: {
     // Botón para filtros avanzados
-    marginLeft: Spacing.base,
+    marginLeft: Spacing.small,
     opacity: 0.9,
   },
 });
