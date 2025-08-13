@@ -21,7 +21,7 @@ import {
   useWallet,
   useHydrationStatus,
 } from "../state/AppContext";
-import SectionPlaceholder from "../components/home/SectionPlaceholder";
+import SectionPlaceholder from "../components/common/SectionPlaceholder";
 
 const TABS = [
   { key: "potions", label: "Pociones" },
