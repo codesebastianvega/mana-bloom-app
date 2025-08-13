@@ -91,7 +91,7 @@ function InventorySection({ onGoToShop }) {
 
       <View style={styles.list} accessibilityRole="list">
         {preview.map((item) => (
-          <View key={item.id} style={styles.itemRow} accessibilityRole="listitem">
+          <View key={item.id} style={styles.itemRow}>
             <Text style={styles.itemIcon}>
               {CATEGORY_EMOJI[item.category] || "📦"}
             </Text>

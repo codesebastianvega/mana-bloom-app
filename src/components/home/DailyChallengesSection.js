@@ -50,7 +50,7 @@ function DailyChallengesSection() {
             ? "Reclamado"
             : "En progreso";
           return (
-            <View key={item.id} style={styles.card} accessibilityRole="listitem">
+            <View key={item.id} style={styles.card}>
               <View style={styles.headerRow}>
                 <Text style={styles.challengeTitle}>{item.title}</Text>
                 <View style={styles.rewardPill}>
