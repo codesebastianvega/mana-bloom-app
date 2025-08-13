@@ -507,8 +507,7 @@ export default function CreateTaskModal({
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                style={styles.row}
-                contentContainerStyle={{ alignItems: "center" }}
+                contentContainerStyle={styles.chipScrollContent}
               >
                 {uniqueTags.map((tagKey) => {
                   const active = newTags.includes(tagKey);
@@ -557,8 +556,7 @@ export default function CreateTaskModal({
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  style={styles.row}
-                  contentContainerStyle={{ alignItems: "center" }}
+                  contentContainerStyle={styles.chipScrollContent}
                 >
                   {newTags.map((tag) => (
                     <View key={tag} style={styles.chip}>
