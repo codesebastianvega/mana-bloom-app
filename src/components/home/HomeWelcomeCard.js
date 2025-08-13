@@ -41,7 +41,7 @@ export default function HomeWelcomeCard() {
       </View>
       <View style={styles.content}>
         <Text accessibilityRole="header" style={styles.title}>
-          ¡Hola, {displayName || "Jugador"}!
+          ¡Hola, {displayName || "Day"}!
         </Text>
         <Text style={styles.subtitle}>
           Planta: {plantState} · Nivel {level} · Racha {streak}
