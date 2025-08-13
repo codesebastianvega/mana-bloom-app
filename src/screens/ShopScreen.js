@@ -2,21 +2,17 @@
 // Afecta: Tienda completa
 // Propósito: Pantalla dedicada de tienda con grid y suscripciones
 // Puntos de edición futura: conectar IAP y expandir catálogo
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-08-24
 
 import React, { useState, useCallback, useMemo } from "react";
 import { View, Text, FlatList, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import styles from "./ShopScreen.styles";
 import ShopGridItem from "../components/shop/ShopGridItem";
 import SubscriptionCard from "../components/shop/SubscriptionCard";
-import {
-  SHOP_CATALOG,
-  ShopColors,
-  CURRENCIES,
-} from "../constants/shopCatalog";
+import { SHOP_CATALOG, ShopColors, CURRENCIES } from "../constants/shopCatalog";
 import { Spacing, Colors } from "../theme";
 import {
   useAppState,
@@ -25,7 +21,7 @@ import {
   useWallet,
   useHydrationStatus,
 } from "../state/AppContext";
-import SectionPlaceholder from "../components/common/SectionPlaceholder";
+import SectionPlaceholder from "../components/home/SectionPlaceholder";
 
 const TABS = [
   { key: "potions", label: "Pociones" },
@@ -58,14 +54,13 @@ const SUBSCRIPTION_PLANS = [
 
 export default function ShopScreen() {
   const route = useRoute();
-  const navigation = useNavigation();
   const initialTab = route.params?.initialTab || "potions";
   const [activeTab, setActiveTab] = useState(initialTab);
   const { mana } = useAppState();
   const wallet = useWallet();
   const dispatch = useAppDispatch();
   const canAffordMana = useCanAfford();
-  const { modules } = useHydrationStatus();
+  const hydration = useHydrationStatus();
 
   const canAffordCurrency = useCallback(
     (currency, amount) => wallet[currency] >= amount,
@@ -95,10 +90,7 @@ export default function ShopScreen() {
           return;
         }
       } else if (item.currency === CURRENCIES.GEM) {
-        Alert.alert(
-          "Próximamente",
-          "Las compras con diamantes requieren IAP"
-        );
+        Alert.alert("Próximamente", "Las compras con diamantes requieren IAP");
         return;
       }
 
@@ -108,7 +100,10 @@ export default function ShopScreen() {
       });
       dispatch({
         type: "ACHIEVEMENT_EVENT",
-        payload: { type: "purchase", payload: { sku: item.sku, category: activeTab } },
+        payload: {
+          type: "purchase",
+          payload: { sku: item.sku, category: activeTab },
+        },
       });
       Alert.alert("Compra exitosa — añadido al inventario");
     },
@@ -159,9 +154,10 @@ export default function ShopScreen() {
     [activeTab, canAffordCurrency, canAffordMana, handleBuy]
   );
 
-  const data = activeTab === "subs" ? SUBSCRIPTION_PLANS : SHOP_CATALOG[activeTab];
+  const data =
+    activeTab === "subs" ? SUBSCRIPTION_PLANS : SHOP_CATALOG[activeTab];
 
-  if (modules.wallet) {
+  if (hydration.mana || hydration.wallet) {
     return (
       <SafeAreaView style={styles.container}>
         <SectionPlaceholder height={300} />
@@ -176,18 +172,13 @@ export default function ShopScreen() {
         accessible
         accessibilityLabel={`Saldo: ${mana} maná, ${wallet.coin} monedas, ${wallet.gem} diamantes`}
       >
-        <Pressable
-          onPress={() => navigation.goBack()}
-          style={styles.closeButton}
-          accessibilityLabel="Cerrar tienda"
-          accessibilityRole="button"
-        >
-          <Ionicons name="close" size={20} color={Colors.text} />
-        </Pressable>
         <Text style={styles.headerTitle}>Tienda Mágica</Text>
         <View style={styles.walletRow}>
           <View
-            style={[styles.manaPill, { borderColor: ShopColors[activeTab].pill }]}
+            style={[
+              styles.manaPill,
+              { borderColor: ShopColors[activeTab].pill },
+            ]}
           >
             <Ionicons
               name="sparkles"
@@ -242,7 +233,6 @@ export default function ShopScreen() {
         })}
       </View>
       <FlatList
-        key={activeTab === "subs" ? "subs" : "grid"}
         data={data}
         keyExtractor={(item) => item.sku || item.id}
         renderItem={renderItem}
@@ -252,9 +242,7 @@ export default function ShopScreen() {
         initialNumToRender={6}
         removeClippedSubviews
         windowSize={5}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>Sin artículos</Text>
-        }
+        ListEmptyComponent={<Text style={styles.emptyText}>Sin artículos</Text>}
         ListFooterComponent={
           <View style={styles.footer}>
             <Text style={styles.footerText}>
