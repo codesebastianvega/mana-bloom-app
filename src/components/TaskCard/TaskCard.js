@@ -13,7 +13,7 @@ import {
   PanResponder,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
-import styles from "./TaskCard.styles";
+import styles from "./TaskCardStyles";
 import { Colors, Spacing } from "../../theme";
 
 const getElementColor = (element) => {
