@@ -6,12 +6,12 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  SafeAreaView,
   View,
   Text,
   TouchableOpacity,
   FlatList,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 import { useNewsFeed, useAppDispatch } from "../state/AppContext";
@@ -25,25 +25,28 @@ export default function NewsInboxScreen() {
   const dispatch = useAppDispatch();
   const route = useRoute();
   const [filter, setFilter] = useState("all");
-  const [selected, setSelected] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
 
   const filteredItems =
-    filter === "unread" ? items.filter((it) => !it.read) : items;
+    filter === "unread" ? items.filter((i) => !i.read) : items;
 
   const markAll = () => dispatch({ type: "MARK_ALL_NEWS_READ" });
 
   useEffect(() => {
     const initialId = route.params?.initialId;
-    if (initialId) {
-      const found = items.find((it) => it.id === initialId);
-      if (found) setSelected(found);
-    }
-  }, [route.params, items]);
+    if (initialId) setSelectedId(initialId);
+  }, [route.params]);
+
+  const onPressItem = (id) => {
+    const item = items.find((n) => n.id === id);
+    if (!item) return; // evita crash
+    setSelectedId(id);
+  };
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.row}
-      onPress={() => setSelected(item)}
+      onPress={() => onPressItem(item.id)}
       accessibilityRole="button"
       accessibilityLabel={`Abrir noticia: ${item.title}`}
     >
@@ -62,11 +65,7 @@ export default function NewsInboxScreen() {
         data={filteredItems}
         keyExtractor={(it) => it.id}
         renderItem={renderItem}
-        contentContainerStyle={{
-          padding: Spacing.base,
-          paddingBottom: 96,
-          gap: Spacing.small,
-        }}
+        contentContainerStyle={{ padding: Spacing.base, paddingBottom: 96 }}
         ListHeaderComponent={
           <View style={styles.headerWrapper}>
             <View style={styles.headerRow}>
@@ -109,10 +108,14 @@ export default function NewsInboxScreen() {
         }
         accessibilityRole="list"
       />
-      {selected && (
+      {selectedId && (
         <NewsDetailModal
-          news={selected}
-          onClose={() => setSelected(null)}
+          visible={!!selectedId}
+          news={items.find((n) => n.id === selectedId)}
+          onClose={() => setSelectedId(null)}
+          onMarkRead={(id) =>
+            dispatch({ type: "MARK_NEWS_READ", payload: { id } })
+          }
         />
       )}
     </SafeAreaView>

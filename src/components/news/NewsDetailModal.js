@@ -14,34 +14,51 @@ import {
   findNodeHandle,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useAppDispatch } from "../../state/AppContext";
 import { Colors } from "../../theme";
+import { timeAgo } from "../../utils/time";
 import styles from "./NewsDetailModal.styles";
 
-export default function NewsDetailModal({ news, onClose }) {
-  const dispatch = useAppDispatch();
+export default function NewsDetailModal({ visible, news, onClose, onMarkRead }) {
   const titleRef = useRef(null);
 
   useEffect(() => {
-    if (!news.read) {
-      dispatch({ type: "MARK_NEWS_READ", payload: { id: news.id } });
-    }
     const node = findNodeHandle(titleRef.current);
     if (node) {
       AccessibilityInfo.setAccessibilityFocus(node);
     }
-  }, [news, dispatch]);
+  }, [news]);
+
+  if (!news) {
+    return (
+      <Modal
+        visible={visible}
+        transparent
+        animationType="fade"
+        onRequestClose={onClose}
+      >
+        <View style={styles.overlay}>
+          <View style={styles.content} accessibilityRole="dialog">
+            <TouchableOpacity
+              onPress={onClose}
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar detalle de noticia"
+            >
+              <Text style={styles.actionText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
 
   const handleMark = () => {
-    dispatch({ type: "MARK_NEWS_READ", payload: { id: news.id } });
+    onMarkRead(news.id);
     onClose();
   };
 
-  const formattedDate = new Date(news.timestamp).toLocaleDateString("es-ES");
-
   return (
     <Modal
-      visible
+      visible={visible}
       transparent
       animationType="fade"
       onRequestClose={onClose}
@@ -57,32 +74,34 @@ export default function NewsDetailModal({ news, onClose }) {
           <Text ref={titleRef} style={styles.title} accessibilityRole="header">
             {news.title}
           </Text>
-          <Text style={styles.date}>{formattedDate}</Text>
+          <Text style={styles.date}>{timeAgo(news.timestamp)}</Text>
           <Text style={styles.body} accessibilityRole="text">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            Vestibulum id ligula porta felis euismod semper.
-            Donec id elit non mi porta gravida at eget metus.
+            Vestibulum id ligula porta felis euismod semper. Donec id elit
+            non mi porta gravida at eget metus.
 
-            Sed posuere consectetur est at lobortis. Maecenas faucibus
-            mollis interdum. Integer posuere erat a ante venenatis dapibus.
+            Sed posuere consectetur est at lobortis. Maecenas faucibus mollis
+            interdum. Integer posuere erat a ante venenatis dapibus.
 
-            Cras mattis consectetur purus sit amet fermentum. Praesent
-            commodo cursus magna, vel scelerisque nisl consectetur et.
+            Cras mattis consectetur purus sit amet fermentum. Praesent commodo
+            cursus magna, vel scelerisque nisl consectetur et.
           </Text>
           <View style={styles.actions}>
+            {!news.read && (
+              <TouchableOpacity
+                onPress={handleMark}
+                accessibilityRole="button"
+                accessibilityLabel="Marcar noticia como leída"
+              >
+                <Text style={styles.actionText}>Marcar leído</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               onPress={onClose}
               accessibilityRole="button"
               accessibilityLabel="Cerrar detalle de noticia"
             >
               <Text style={styles.actionText}>Cerrar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleMark}
-              accessibilityRole="button"
-              accessibilityLabel="Marcar noticia como leída"
-            >
-              <Text style={styles.actionText}>Marcar leído</Text>
             </TouchableOpacity>
           </View>
         </View>
