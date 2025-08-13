@@ -25,7 +25,9 @@ export default function StatsQuickTiles() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Estadísticas</Text>
+      <Text style={styles.title} accessibilityRole="header">
+        Estadísticas
+      </Text>
       <View style={styles.tiles}>
         <View style={styles.tile}>
           <Text style={styles.tileValue}>{streak}</Text>

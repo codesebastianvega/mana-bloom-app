@@ -18,7 +18,9 @@ export default function EventBanner() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Próximo Evento</Text>
+      <Text style={styles.title} accessibilityRole="header">
+        Próximo Evento
+      </Text>
       <View style={styles.chip} accessibilityRole="text">
         <Text style={styles.chipText}>{`${daysRemaining} días restantes`}</Text>
       </View>

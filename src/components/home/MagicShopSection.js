@@ -90,7 +90,9 @@ export default function MagicShopSection({ onLayout }) {
 
   return (
     <View style={styles.container} onLayout={onLayout}>
-      <Text style={styles.title}>Tienda Mágica</Text>
+      <Text style={styles.title} accessibilityRole="header">
+        Tienda Mágica
+      </Text>
       <Text style={styles.subtitle}>
         Las pociones compradas se guardan en Inventario
       </Text>
@@ -184,6 +186,7 @@ export default function MagicShopSection({ onLayout }) {
       })}
 
       <Pressable
+        onPress={() => {}}
         style={styles.viewAllButton}
         accessibilityRole="button"
         accessibilityLabel="Ver todos los artículos"
