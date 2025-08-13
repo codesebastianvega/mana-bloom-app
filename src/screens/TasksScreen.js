@@ -2,7 +2,7 @@
 // Afecta: TasksScreen (listado y gestión de tareas)
 // Propósito: Listar, filtrar y persistir tareas con recompensas seguras
 // Puntos de edición futura: manejo remoto y estilos de filtros
-// Autor: Codex - Fecha: 2025-08-12
+// Autor: Codex - Fecha: 2025-08-17
 
 import React, { useState, useEffect } from "react";
 import { SafeAreaView, FlatList, Modal, View } from "react-native";
@@ -234,12 +234,16 @@ export default function TasksScreen() {
         type: "APPLY_TASK_REWARD",
         payload: { xpDelta: xp, manaDelta: mana },
       });
-      dispatch({
-        type: "UPDATE_DAILY_CHALLENGES_ON_TASK_DONE",
-        payload: { priority: priorityLabel },
-      });
-    }
-  };
+        dispatch({
+          type: "UPDATE_DAILY_CHALLENGES_ON_TASK_DONE",
+          payload: { priority: priorityLabel },
+        });
+        dispatch({
+          type: "ACHIEVEMENT_EVENT",
+          payload: { type: "task_done", payload: { priority: priorityLabel } },
+        });
+      }
+    };
 
   const onSoftDeleteTask = (id) =>
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, isDeleted: true } : t)));

@@ -2,7 +2,7 @@
 // Afecta: AppContext (persistencia de maná, rachas, progreso, tareas, desafíos y noticias)
 // Propósito: Persistir datos básicos de usuario en AsyncStorage
 // Puntos de edición futura: extender a otros campos y manejo de errores
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-08-17
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -16,6 +16,7 @@ const DAILY_CHALLENGES_KEY = "mb:dailyChallenges";
 const NEWS_KEY = "mb:news";
 const WALLET_KEY = "mb:wallet";
 const DAILY_REWARD_KEY = "mb:dailyReward";
+const ACHIEVEMENTS_KEY = "mb:achievements";
 
 export async function getMana() {
   try {
@@ -238,6 +239,27 @@ export async function setNewsFeed(feed) {
     await AsyncStorage.setItem(NEWS_KEY, JSON.stringify(feed));
   } catch (e) {
     console.warn("Error guardando noticias en storage", e);
+  }
+}
+
+// [MB] Helpers de logros
+export async function getAchievementsState() {
+  try {
+    const value = await AsyncStorage.getItem(ACHIEVEMENTS_KEY);
+    if (value) {
+      return JSON.parse(value);
+    }
+  } catch (e) {
+    console.warn("Error leyendo logros de storage", e);
+  }
+  return { progress: {}, unlocked: {} };
+}
+
+export async function setAchievementsState(state) {
+  try {
+    await AsyncStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn("Error guardando logros en storage", e);
   }
 }
 

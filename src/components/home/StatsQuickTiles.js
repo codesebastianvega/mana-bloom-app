@@ -2,15 +2,16 @@
 // Afecta: HomeScreen
 // Propósito: Mostrar racha, nivel y maná desde el contexto
 // Puntos de edición futura: añadir más estadísticas o gráficos
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-08-17
 
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import styles from "./StatsQuickTiles.styles";
 import {
   useAppState,
   useProgress,
   useHydrationStatus,
+  useAppDispatch,
 } from "../../state/AppContext";
 import SectionPlaceholder from "./SectionPlaceholder";
 
@@ -18,6 +19,7 @@ export default function StatsQuickTiles() {
   const { streak, mana } = useAppState();
   const { level } = useProgress();
   const hydration = useHydrationStatus();
+  const dispatch = useAppDispatch();
 
   if (hydration.mana || hydration.progress) {
     return <SectionPlaceholder height={140} />;
@@ -42,6 +44,21 @@ export default function StatsQuickTiles() {
           <Text style={styles.tileLabel}>Maná</Text>
         </View>
       </View>
+      {__DEV__ && (
+        <Pressable
+          onPress={() =>
+            dispatch({
+              type: "ACHIEVEMENT_EVENT",
+              payload: { type: "tool_usage", payload: { toolId: "pomodoro" } },
+            })
+          }
+          style={styles.debugButton}
+          accessibilityRole="button"
+          accessibilityLabel="Disparar uso de pomodoro"
+        >
+          <Text style={styles.debugButtonText}>Debug Pomodoro</Text>
+        </Pressable>
+      )}
     </View>
   );
 }

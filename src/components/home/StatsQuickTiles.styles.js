@@ -2,7 +2,7 @@
 // Afecta: HomeScreen
 // Propósito: Estilos para racha, nivel y maná en mosaicos
 // Puntos de edición futura: ajustar layout o añadir animaciones
-// Autor: Codex - Fecha: 2025-08-12
+// Autor: Codex - Fecha: 2025-08-17
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
@@ -44,6 +44,19 @@ export default StyleSheet.create({
     color: Colors.text,
   },
   tileLabel: {
+    ...Typography.caption,
+    color: Colors.text,
+  },
+  debugButton: {
+    alignSelf: "flex-end",
+    marginTop: Spacing.base,
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.base,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  debugButtonText: {
     ...Typography.caption,
     color: Colors.text,
   },
