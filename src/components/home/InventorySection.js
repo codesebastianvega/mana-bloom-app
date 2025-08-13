@@ -2,7 +2,7 @@
 // Afecta: HomeScreen
 // Propósito: Resumen de inventario con conteos y lista corta
 // Puntos de edición futura: navegación a inventario completo
-// Autor: Codex - Fecha: 2025-08-12
+// Autor: Codex - Fecha: 2025-08-13
 
 import React from "react";
 import { View, Text, Pressable, Alert } from "react-native";
@@ -11,13 +11,16 @@ import {
   useAppState,
   useAppDispatch,
   useInventoryCounts,
+  useHydrationStatus,
 } from "../../state/AppContext";
 import { Opacity } from "../../theme";
+import SectionPlaceholder from "./SectionPlaceholder";
 
 export default function InventorySection({ onShopPress }) {
   const { inventory } = useAppState();
   const dispatch = useAppDispatch();
   const counts = useInventoryCounts();
+  const hydration = useHydrationStatus();
   const topItems = inventory.slice(0, 3);
 
   const handleUse = (item) => {
@@ -37,6 +40,10 @@ export default function InventorySection({ onShopPress }) {
       Alert.alert("Poción usada", "Cristal de Maná +100");
     }
   };
+
+  if (hydration.inventory) {
+    return <SectionPlaceholder height={220} />;
+  }
 
   if (counts.total === 0) {
     return (

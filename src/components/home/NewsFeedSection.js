@@ -2,14 +2,19 @@
 // Afecta: HomeScreen
 // Propósito: Mostrar noticias con marca de leído y persistencia
 // Puntos de edición futura: conectar con feed real y ajustar estilos
-// Autor: Codex - Fecha: 2025-08-12
+// Autor: Codex - Fecha: 2025-08-13
 
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../theme";
 import styles from "./NewsFeedSection.styles";
-import { useNewsFeed, useAppDispatch } from "../../state/AppContext";
+import {
+  useNewsFeed,
+  useAppDispatch,
+  useHydrationStatus,
+} from "../../state/AppContext";
+import SectionPlaceholder from "./SectionPlaceholder";
 
 function timeAgo(iso) {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -25,11 +30,16 @@ function timeAgo(iso) {
 export default function NewsFeedSection() {
   const { items } = useNewsFeed();
   const dispatch = useAppDispatch();
+  const hydration = useHydrationStatus();
 
   const markAll = () => dispatch({ type: "MARK_ALL_NEWS_READ" });
   const handlePress = (id) => {
     dispatch({ type: "MARK_NEWS_READ", payload: { id } });
   };
+
+  if (hydration.news) {
+    return <SectionPlaceholder height={220} />;
+  }
 
   return (
     <View style={styles.container}>
