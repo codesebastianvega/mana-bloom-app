@@ -1,56 +1,80 @@
 // [MB] Módulo: Home / Sección: Recompensa Diaria
 // Afecta: HomeScreen
-// Propósito: Mostrar botón para reclamar recompensa diaria
+// Propósito: Mostrar recompensa diaria y permitir su reclamo
 // Puntos de edición futura: integrar animaciones y estados visuales
 // Autor: Codex - Fecha: 2025-08-13
 
 import React from "react";
 import { View, Text, Pressable } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import styles from "./DailyRewardSection.styles";
 import {
   useAppDispatch,
   useAppState,
-  useCanClaimToday,
-  DAILY_REWARD_MANA,
+  useDailyReward,
   useHydrationStatus,
 } from "../../state/AppContext";
+import { Colors, Opacity } from "../../theme";
 import SectionPlaceholder from "./SectionPlaceholder";
 
 export default function DailyRewardSection() {
   const dispatch = useAppDispatch();
   const { streak } = useAppState();
-  const canClaimToday = useCanClaimToday();
+  const dailyReward = useDailyReward();
   const hydration = useHydrationStatus();
 
   const handleClaim = () => {
-    dispatch({ type: "CLAIM_DAILY_REWARD" });
+    dispatch({ type: "CLAIM_TODAY_REWARD" });
   };
 
-  if (hydration.progress) {
+  if (hydration.dailyReward) {
     return <SectionPlaceholder height={110} />;
   }
+
+  const { claimed, reward } = dailyReward;
+  const iconName =
+    reward?.kind === "mana"
+      ? "sparkles"
+      : reward?.kind === "coin"
+      ? "pricetag"
+      : reward?.kind === "gem"
+      ? "diamond"
+      : reward?.kind === "item" && reward?.sku?.includes("potions")
+      ? "flask"
+      : "cube";
 
   return (
     <View style={styles.container}>
       <Text style={styles.title} accessibilityRole="header">
         Recompensa diaria
       </Text>
-      {canClaimToday ? (
-        <Pressable
-          onPress={handleClaim}
-          style={styles.claimButton}
-          accessibilityRole="button"
-          accessibilityLabel="Reclamar recompensa diaria"
-        >
-          <Text style={styles.claimButtonText}>
-            {`Reclamar recompensa diaria (+${DAILY_REWARD_MANA})`}
-          </Text>
-        </Pressable>
-      ) : (
-        <View>
-          <Text style={styles.claimedText}>Ya reclamaste hoy</Text>
-          <Text style={styles.streakText}>{`Racha: ${streak} días`}</Text>
+      {reward && (
+        <View style={styles.rewardPill} accessible accessibilityLabel={reward.title}>
+          <Ionicons
+            name={iconName}
+            size={16}
+            color={Colors.text}
+            style={styles.rewardIcon}
+          />
+          <Text style={styles.rewardText}>{reward.title}</Text>
         </View>
+      )}
+      <Pressable
+        onPress={handleClaim}
+        disabled={claimed}
+        style={[styles.claimButton, claimed && { opacity: Opacity.disabled }]}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: claimed }}
+        accessibilityLabel={
+          claimed ? "Recompensa diaria reclamada" : "Reclamar recompensa diaria"
+        }
+      >
+        <Text style={styles.claimButtonText}>
+          {claimed ? "Reclamado" : "Reclamar"}
+        </Text>
+      </Pressable>
+      {claimed && (
+        <Text style={styles.streakText}>{`Racha: ${streak} días`}</Text>
       )}
     </View>
   );

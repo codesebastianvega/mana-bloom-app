@@ -15,6 +15,7 @@ const INVENTORY_KEY = "mb:inventory";
 const DAILY_CHALLENGES_KEY = "mb:dailyChallenges";
 const NEWS_KEY = "mb:news";
 const WALLET_KEY = "mb:wallet";
+const DAILY_REWARD_KEY = "mb:dailyReward";
 
 export async function getMana() {
   try {
@@ -178,6 +179,25 @@ export async function setDailyChallengesState(state) {
     await AsyncStorage.setItem(DAILY_CHALLENGES_KEY, JSON.stringify(state));
   } catch (e) {
     console.warn("Error guardando desafíos diarios en storage", e);
+  }
+}
+
+// [MB] Helpers de recompensa diaria
+export async function getDailyRewardState() {
+  try {
+    const value = await AsyncStorage.getItem(DAILY_REWARD_KEY);
+    return value ? JSON.parse(value) : null;
+  } catch (e) {
+    console.warn("Error leyendo recompensa diaria de storage", e);
+    return null;
+  }
+}
+
+export async function setDailyRewardState(state) {
+  try {
+    await AsyncStorage.setItem(DAILY_REWARD_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn("Error guardando recompensa diaria en storage", e);
   }
 }
 

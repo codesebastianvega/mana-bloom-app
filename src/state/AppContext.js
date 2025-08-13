@@ -28,13 +28,15 @@ import {
   setBuffs,
   getDailyChallengesState,
   setDailyChallengesState,
+  getDailyRewardState,
+  setDailyRewardState,
   getNewsFeed,
   setNewsFeed,
   getWallet,
   setWallet,
 } from "../storage";
-
-export const DAILY_REWARD_MANA = 10;
+import { DAILY_REWARDS } from "../constants/dailyRewards";
+import { SHOP_CATALOG } from "../constants/shopCatalog";
 
 function getLocalISODate(date = new Date()) {
   return date.toLocaleDateString("en-CA");
@@ -51,6 +53,34 @@ function cleanupExpired(buffs, t = now()) {
 function xpMultiplier(buffs, t = now()) {
   const active = cleanupExpired(buffs, t);
   return active.some((b) => b.type === "xp_double") ? 2 : 1;
+}
+
+function hashStringToInt(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+function mulberry32(a) {
+  return function () {
+    let t = (a += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function pickWeightedDeterministic(items, weights, seedStr) {
+  const seed = hashStringToInt(seedStr);
+  const rnd = mulberry32(seed)();
+  const total = weights.reduce((a, b) => a + b, 0);
+  let r = rnd * total;
+  for (let i = 0; i < items.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return items[i];
+  }
+  return items[items.length - 1];
 }
 
 function generateDefaultDailyChallenges() {
@@ -132,6 +162,7 @@ const initialState = {
   buffs: [],
   dailyChallenges: { dateKey: null, items: [] },
   news: { items: [] },
+  dailyReward: { dateKey: null, rewardId: null, claimed: false },
 };
 
 function roundToNearest10(n) {
@@ -185,6 +216,8 @@ function appReducer(state, action) {
       return { ...state, dailyChallenges: action.payload };
     case "SET_NEWS":
       return { ...state, news: action.payload };
+    case "SET_DAILY_REWARD":
+      return { ...state, dailyReward: action.payload };
     case "MARK_NEWS_READ": {
       const items = state.news.items.map((it) =>
         it.id === action.payload.id ? { ...it, read: true } : it
@@ -265,18 +298,50 @@ function appReducer(state, action) {
         dailyChallenges: { ...state.dailyChallenges, items },
       };
     }
-    case "CLAIM_DAILY_REWARD": {
+    case "CLAIM_TODAY_REWARD": {
       const today = getLocalISODate();
-      if (state.lastClaimDate === today) {
+      if (
+        state.dailyReward.dateKey !== today ||
+        state.dailyReward.claimed
+      ) {
         return state;
       }
+      const reward = DAILY_REWARDS.find(
+        (r) => r.id === state.dailyReward.rewardId
+      );
+      if (!reward) return state;
+      let withReward = state;
+      if (reward.kind === "mana") {
+        withReward = { ...state, mana: state.mana + (reward.amount || 0) };
+      } else if (reward.kind === "coin") {
+        withReward = appReducer(state, {
+          type: "ADD_COIN",
+          payload: reward.amount || 0,
+        });
+      } else if (reward.kind === "gem") {
+        withReward = appReducer(state, {
+          type: "ADD_GEM",
+          payload: reward.amount || 0,
+        });
+      } else if (reward.kind === "item" && reward.sku) {
+        const info =
+          SHOP_CATALOG[reward.sku] || {
+            title: "Ítem misterioso",
+            category: "potions",
+          };
+        withReward = appReducer(state, {
+          type: "ADD_TO_INVENTORY",
+          payload: { sku: reward.sku, title: info.title, category: info.category },
+        });
+      }
       const yesterday = getLocalISODate(new Date(Date.now() - 86400000));
-      const newStreak = state.lastClaimDate === yesterday ? state.streak + 1 : 1;
+      const newStreak =
+        state.lastClaimDate === yesterday ? state.streak + 1 : 1;
       return {
-        ...state,
-        mana: state.mana + DAILY_REWARD_MANA,
+        ...withReward,
         streak: newStreak,
         lastClaimDate: today,
+        dailyReward: { ...state.dailyReward, claimed: true },
       };
     }
     case "PURCHASE_WITH_MANA": {
@@ -331,6 +396,7 @@ export function AppProvider({ children }) {
     inventory: true,
     news: true,
     challenges: true,
+    dailyReward: true,
   });
 
   useEffect(() => {
@@ -345,6 +411,7 @@ export function AppProvider({ children }) {
         storedDailyChallenges,
         storedNews,
         storedWallet,
+        storedDailyReward,
       ] = await Promise.all([
         getMana(),
         getStreak(),
@@ -355,6 +422,7 @@ export function AppProvider({ children }) {
         getDailyChallengesState(),
         getNewsFeed(),
         getWallet(),
+        getDailyRewardState(),
       ]);
       dispatch({ type: "SET_MANA", payload: storedMana });
       setHydration((h) => ({ ...h, mana: false }));
@@ -391,6 +459,23 @@ export function AppProvider({ children }) {
       }
       dispatch({ type: "SET_NEWS", payload: news });
       setHydration((h) => ({ ...h, news: false }));
+      let dailyReward = storedDailyReward;
+      if (!dailyReward || dailyReward.dateKey !== todayKey) {
+        const weights = DAILY_REWARDS.map((r) => r.weight);
+        const reward = pickWeightedDeterministic(
+          DAILY_REWARDS,
+          weights,
+          `guest:${todayKey}`
+        );
+        dailyReward = {
+          dateKey: todayKey,
+          rewardId: reward.id,
+          claimed: false,
+        };
+        await setDailyRewardState(dailyReward);
+      }
+      dispatch({ type: "SET_DAILY_REWARD", payload: dailyReward });
+      setHydration((h) => ({ ...h, dailyReward: false }));
       isHydrating.current = false;
     }
     hydrate();
@@ -443,6 +528,11 @@ export function AppProvider({ children }) {
     setNewsFeed(state.news);
   }, [state.news]);
 
+  useEffect(() => {
+    if (isHydrating.current) return;
+    setDailyRewardState(state.dailyReward);
+  }, [state.dailyReward]);
+
   return (
     <AppStateContext.Provider value={state}>
       <AppDispatchContext.Provider value={dispatch}>
@@ -468,11 +558,6 @@ export function useAppDispatch() {
     throw new Error("useAppDispatch must be used within an AppProvider");
   }
   return context;
-}
-
-export function useCanClaimToday() {
-  const { lastClaimDate } = useAppState();
-  return lastClaimDate !== getLocalISODate();
 }
 
 export function useCanAfford() {
@@ -519,6 +604,12 @@ export function useXpMultiplier() {
   const multiplier = xpMultiplier(buffs);
   const buff = buffs.find((b) => b.type === "xp_double");
   return { multiplier, expiresAt: buff?.expiresAt };
+}
+
+export function useDailyReward() {
+  const { dailyReward } = useAppState();
+  const reward = DAILY_REWARDS.find((r) => r.id === dailyReward.rewardId);
+  return { ...dailyReward, reward };
 }
 
 export function useDailyChallenges() {
