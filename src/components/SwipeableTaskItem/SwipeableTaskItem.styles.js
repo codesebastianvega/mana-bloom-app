@@ -1,11 +1,21 @@
-// src/components/SwipeableTaskItem/SwipeableTaskItem.styles.js
+// [MB] Módulo: Tasks / Sección: Tarea swipeable
+// Afecta: SwipeableTaskItem
+// Propósito: estilos de tarjeta y chips
+// Puntos de edición futura: animaciones y badges
+// Autor: Codex - Fecha: 2025-08-13
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing } from "../../theme";
+import {
+  Colors,
+  Spacing,
+  Radii,
+  Elevation,
+  Typography,
+} from "../../theme";
 
 export default StyleSheet.create({
   container: {
-    marginBottom: Spacing.small,
+    marginVertical: Spacing.small,
   },
   actionsOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -40,17 +50,11 @@ export default StyleSheet.create({
     fontSize: 12,
   },
   taskItem: {
-    // tarjeta de tarea
-    backgroundColor: Colors.surface,
-    borderRadius: Spacing.small,
-    padding: Spacing.base,
-    borderLeftWidth: 2,
-    shadowColor: Colors.shadow,
-
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: Radii.lg,
+    padding: Spacing.small + Spacing.tiny,
+    borderLeftWidth: Spacing.tiny / 2,
+    ...Elevation.card,
   },
   contentRow: {
     flexDirection: "row",
@@ -61,13 +65,12 @@ export default StyleSheet.create({
     marginLeft: 1,
   },
   title: {
+    ...Typography.title,
     color: Colors.text,
-    fontSize: 17,
-    fontWeight: "600",
   },
   note: {
+    ...Typography.body,
     color: Colors.textMuted,
-    fontSize: 14,
     marginTop: Spacing.tiny,
     marginBottom: Spacing.small,
   },
@@ -128,19 +131,16 @@ export default StyleSheet.create({
     marginTop: Spacing.small,
   },
   tagChip: {
-    // chip de etiqueta en tarjeta de tarea
-    backgroundColor: Colors.background,
-    borderRadius: 5,
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.pill,
     paddingHorizontal: Spacing.small,
-    paddingVertical: 3,
+    paddingVertical: Spacing.tiny,
     marginRight: Spacing.tiny,
-    marginTop: 0.1,
+    marginTop: Spacing.tiny,
   },
   tagText: {
+    ...Typography.caption,
     color: Colors.text,
-    fontSize: 11,
-    alignContent: "center",
-    paddingBottom: 1,
   },
 
   // badge de elemento (círculo con icono)
@@ -169,30 +169,30 @@ export default StyleSheet.create({
   badge: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 8,
+    borderRadius: Radii.md,
     paddingHorizontal: Spacing.small,
     paddingVertical: Spacing.tiny,
     marginRight: Spacing.small,
-    marginTop: 1,
+    marginTop: Spacing.tiny,
   },
   badgeIcon: {
     marginRight: Spacing.tiny,
   },
   badgeText: {
-    fontSize: 12,
+    ...Typography.caption,
     fontWeight: "600",
   },
   // chip de prioridad:
   priorityChip: {
-    borderWidth: 0.5,
-    borderRadius: 8,
+    borderRadius: Radii.pill,
     paddingHorizontal: Spacing.small,
-    paddingVertical: 4,
+    paddingVertical: Spacing.tiny,
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: StyleSheet.hairlineWidth,
   },
   priorityChipText: {
-    fontSize: 12,
+    ...Typography.caption,
     fontWeight: "500",
     textTransform: "capitalize",
   },

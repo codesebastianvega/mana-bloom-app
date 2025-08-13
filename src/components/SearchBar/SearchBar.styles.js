@@ -11,15 +11,15 @@ export default StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.surfaceElevated,
     paddingHorizontal: Spacing.base,
     borderRadius: Radii.lg,
     marginTop: Spacing.small,
     marginBottom: Spacing.small,
     justifyContent: "space-between",
-    minHeight: 44,
+    minHeight: 48,
     borderWidth: 1,
-    borderColor: Colors.textMuted + "40",
+    borderColor: Colors.separator,
   },
   inner: {
     flexDirection: "row",

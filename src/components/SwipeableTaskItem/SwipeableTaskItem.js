@@ -83,6 +83,7 @@ export default function SwipeableTaskItem({
   if (!task) return null;
 
   const pan = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(1)).current;
   const threshold = 80;
   const isDeletedView = activeFilter === "deleted";
   const isCompletedView = activeFilter === "completed";
@@ -114,6 +115,12 @@ export default function SwipeableTaskItem({
       },
     })
   ).current;
+  const handlePressIn = () => {
+    Animated.spring(scale, { toValue: 0.98, useNativeDriver: true }).start();
+  };
+  const handlePressOut = () => {
+    Animated.spring(scale, { toValue: 1, useNativeDriver: true }).start();
+  };
   // Información del elemento (icono y color)
   // se usa una función para evitar lógica compleja en el render
   const elementInfo = getElementColor(task.element);
@@ -181,12 +188,14 @@ export default function SwipeableTaskItem({
         style={[
           styles.taskItem,
           {
-            transform: [{ translateX: pan }],
+            transform: [{ translateX: pan }, { scale }],
             opacity: task.completed || task.isDeleted ? 0.5 : 1,
             borderLeftColor: getPriorityColor(task.priority),
           },
         ]}
         {...panResponder.panHandlers}
+        onTouchStart={handlePressIn}
+        onTouchEnd={handlePressOut}
       >
         <TouchableOpacity
           style={styles.contentRow}
@@ -198,7 +207,11 @@ export default function SwipeableTaskItem({
             >
               {task.title}
             </Text>
-            <Text style={[styles.note, task.completed && styles.textCompleted]}>
+            <Text
+              style={[styles.note, task.completed && styles.textCompleted]}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
               {task.note}
             </Text>
           </View>
