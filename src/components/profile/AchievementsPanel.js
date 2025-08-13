@@ -9,14 +9,14 @@ import { View, Text, Pressable } from "react-native";
 import styles from "./AchievementsPanel.styles";
 import { useAppState, useAppDispatch, useHydrationStatus } from "../../state/AppContext";
 import { ACHIEVEMENTS } from "../../constants/achievements";
-import SectionPlaceholder from "../home/SectionPlaceholder";
+import SectionPlaceholder from "../common/SectionPlaceholder";
 
 export default function AchievementsPanel() {
   const { achievements, level, streak } = useAppState();
   const dispatch = useAppDispatch();
-  const hydration = useHydrationStatus();
+  const { isHydratingGlobal } = useHydrationStatus();
 
-  if (hydration.achievements) {
+  if (isHydratingGlobal) {
     return <SectionPlaceholder height={220} />;
   }
 
@@ -91,4 +91,3 @@ export default function AchievementsPanel() {
     </View>
   );
 }
-

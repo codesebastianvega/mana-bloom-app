@@ -5,45 +5,46 @@
 // Autor: Codex - Fecha: 2025-08-13
 
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { Colors } from "../../theme";
 import styles from "./NewsFeedSection.styles";
 import { useNewsFeed, useHydrationStatus } from "../../state/AppContext";
 import { timeAgo } from "../../utils/time";
-import SectionPlaceholder from "./SectionPlaceholder";
+import SectionPlaceholder from "../common/SectionPlaceholder";
 
-export default function NewsFeedSection() {
+function NewsFeedSection() {
   const { items } = useNewsFeed();
   const navigation = useNavigation();
-  const hydration = useHydrationStatus();
+  const { modules } = useHydrationStatus();
 
-  if (hydration.news) {
-    return <SectionPlaceholder height={220} />;
+  if (modules.news) {
+    return <SectionPlaceholder height={200} />;
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityRole="list">
       <View style={styles.header}>
         <Text style={styles.title} accessibilityRole="header">
           Noticias
         </Text>
-        <TouchableOpacity
+        <Pressable
           onPress={() => navigation.navigate("NewsInboxModal")}
+          style={({ pressed }) => [styles.viewAllButton, pressed && { transform: [{ scale: 0.98 }] }]}
           accessibilityRole="button"
           accessibilityLabel="Ver todas las noticias"
         >
           <Text style={styles.viewAll}>Ver todo</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
       {items.length === 0 ? (
         <Text style={styles.emptyText}>No hay noticias por ahora</Text>
       ) : (
         items.map((item) => (
-          <TouchableOpacity
+          <Pressable
             key={item.id}
-            style={styles.row}
+            style={({ pressed }) => [styles.row, pressed && { transform: [{ scale: 0.98 }] }]}
             onPress={() =>
               navigation.navigate("NewsInboxModal", { initialId: item.id })
             }
@@ -56,9 +57,11 @@ export default function NewsFeedSection() {
               <Text style={styles.time}>{timeAgo(item.timestamp)}</Text>
             </View>
             {!item.read && <View style={styles.unreadDot} />}
-          </TouchableOpacity>
+          </Pressable>
         ))
       )}
     </View>
   );
 }
+
+export default React.memo(NewsFeedSection);

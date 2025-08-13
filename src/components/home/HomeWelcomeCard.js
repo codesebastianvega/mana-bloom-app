@@ -4,8 +4,8 @@
 // Puntos de edición futura: animar badge o añadir nuevos chips
 // Autor: Codex - Fecha: 2025-02-14
 
-import React from "react";
-import { View, Text } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View, Text, Animated } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import styles from "./HomeWelcomeCard.styles";
@@ -15,18 +15,27 @@ import {
   useHydrationStatus,
   useXpMultiplier,
 } from "../../state/AppContext";
-import SectionPlaceholder from "./SectionPlaceholder";
+import SectionPlaceholder from "../common/SectionPlaceholder";
 import { Colors } from "../../theme";
 
-export default function HomeWelcomeCard() {
+function HomeWelcomeCard() {
   const { plantState, streak, mana, displayName } = useAppState();
   const { level } = useProgress();
-  const hydration = useHydrationStatus();
+  const { modules } = useHydrationStatus();
   const { multiplier } = useXpMultiplier();
   const hasXpBuff = multiplier === 2;
+  const chipsAnim = useRef(new Animated.Value(0)).current;
 
-  if (hydration.mana || hydration.progress) {
-    return <SectionPlaceholder height={120} />;
+  useEffect(() => {
+    Animated.timing(chipsAnim, {
+      toValue: 1,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
+  }, [chipsAnim]);
+
+  if (modules.wallet || modules.progress) {
+    return <SectionPlaceholder height={110} />;
   }
 
   return (
@@ -46,7 +55,15 @@ export default function HomeWelcomeCard() {
         <Text style={styles.subtitle}>
           Planta: {plantState} · Nivel {level} · Racha {streak}
         </Text>
-        <View style={styles.chipRow}>
+        <Animated.View
+          style={[
+            styles.chipRow,
+            {
+              opacity: chipsAnim,
+              transform: [{ translateY: chipsAnim.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }],
+            },
+          ]}
+        >
           <View accessibilityRole="text" style={styles.chip}>
             <Text style={styles.chipText}>Nivel {level}</Text>
           </View>
@@ -63,8 +80,10 @@ export default function HomeWelcomeCard() {
               <Text style={styles.chipText}>XP×2 activo</Text>
             </View>
           )}
-        </View>
+        </Animated.View>
       </View>
     </LinearGradient>
   );
 }
+
+export default React.memo(HomeWelcomeCard);
