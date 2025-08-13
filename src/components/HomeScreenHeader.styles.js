@@ -1,5 +1,11 @@
+// [MB] Módulo: Home / Sección: Encabezado
+// Afecta: HomeScreenHeader
+// Propósito: Estilos para saludo y pills de recursos
+// Puntos de edición futura: ajustar tokens y responsive wrap
+// Autor: Codex - Fecha: 2025-08-13
+
 import { StyleSheet } from "react-native";
-import { Colors, Spacing } from "../theme";
+import { Colors, Spacing, Radii, Typography } from "../theme";
 
 export default StyleSheet.create({
   container: {
@@ -15,14 +21,10 @@ export default StyleSheet.create({
     fontWeight: "bold",
     color: Colors.text,
   },
-  statusContainer: {
+  plantStatus: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  statusItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginLeft: Spacing.base,
+    marginTop: Spacing.small,
   },
   iconBackground: {
     padding: Spacing.tiny,
@@ -32,5 +34,27 @@ export default StyleSheet.create({
   statusText: {
     color: Colors.text,
     fontSize: 16,
+  },
+  statusContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    columnGap: Spacing.tiny,
+    rowGap: Spacing.tiny,
+  },
+  pill: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.surfaceElevated || Colors.surface,
+    borderColor: `${Colors.accent}55`,
+    borderWidth: 1,
+    borderRadius: Radii.pill,
+    paddingHorizontal: Spacing.base,
+    height: 28,
+    gap: Spacing.tiny,
+  },
+  pillText: {
+    ...Typography.caption,
+    color: Colors.text,
   },
 });
