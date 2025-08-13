@@ -2,7 +2,7 @@
 // Afecta: HomeScreen
 // Propósito: Estilos para sección de tienda mágica con tabs y cards
 // Puntos de edición futura: diferenciar categorías y tarjetas, retirar debug
-// Autor: Codex - Fecha: 2025-08-12
+// Autor: Codex - Fecha: 2025-08-13
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
@@ -49,6 +49,27 @@ export default StyleSheet.create({
   },
   manaValue: {
     ...Typography.body,
+    color: Colors.text,
+  },
+  walletPills: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  currencyPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Radii.pill,
+    paddingHorizontal: Spacing.small,
+    height: 24,
+    marginLeft: Spacing.small,
+  },
+  currencyIcon: {
+    marginRight: Spacing.tiny,
+  },
+  currencyValue: {
+    ...Typography.caption,
     color: Colors.text,
   },
   tabsRow: {
