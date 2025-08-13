@@ -2,7 +2,7 @@
 // Afecta: HomeScreen (layout principal)
 // Propósito: Renderizar secciones de inicio y mostrar estado global
 // Puntos de edición futura: conectar datos reales y navegación
-// Autor: Codex - Fecha: 2025-08-17
+// Autor: Codex - Fecha: 2025-08-13
 
 import React, { useRef, useState } from "react";
 import { StyleSheet, ScrollView } from "react-native";
@@ -44,7 +44,7 @@ export default function HomeScreen() {
           onClose={() => dispatch({ type: "CLEAR_ACHIEVEMENT_TOAST" })}
         />
       )}
-      <HomeScreenHeader userName="Jugador" manaCount={mana} plantState={plantState} />
+      <HomeScreenHeader />
       <ScrollView
         ref={scrollRef}
         contentContainerStyle={{
