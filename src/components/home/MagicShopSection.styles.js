@@ -5,13 +5,7 @@
 // Autor: Codex - Fecha: 2025-08-12
 
 import { StyleSheet } from "react-native";
-import {
-  Colors,
-  Spacing,
-  Radii,
-  Elevation,
-  Typography,
-} from "../../theme";
+import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
 
 export default StyleSheet.create({
   container: {
@@ -36,7 +30,7 @@ export default StyleSheet.create({
     justifyContent: "space-between",
     marginTop: Spacing.small,
     paddingVertical: Spacing.small,
-    marginBottom: Spacing.base,
+    marginBottom: Spacing.tiny,
   },
   manaLabel: {
     ...Typography.caption,
@@ -51,7 +45,7 @@ export default StyleSheet.create({
     height: 28,
   },
   manaIcon: {
-    marginRight: Spacing.tiny,
+    marginRight: Spacing.small,
   },
   manaValue: {
     ...Typography.body,
@@ -72,8 +66,10 @@ export default StyleSheet.create({
     marginRight: Spacing.small,
   },
   tabText: {
+    // Texto de la pestaña
     ...Typography.body,
     color: Colors.text,
+    fontSize: 12,
   },
   itemWrapper: {
     marginTop: Spacing.base,
@@ -92,7 +88,7 @@ export default StyleSheet.create({
   },
   debugButton: {
     alignSelf: "flex-end",
-    marginTop: Spacing.tiny,
+    marginBottom: Spacing.small,
     paddingVertical: Spacing.tiny,
     paddingHorizontal: Spacing.base,
     borderRadius: Radii.pill,
