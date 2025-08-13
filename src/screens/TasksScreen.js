@@ -340,6 +340,7 @@ export default function TasksScreen() {
       { renderType: "search" },
       ...filteredTasks,
     ],
+
     [filteredTasks]
   );
 
@@ -376,6 +377,7 @@ export default function TasksScreen() {
             );
           }
           return (
+
             <SwipeableTaskItem
               task={item}
               onToggleComplete={toggleTaskDone}
@@ -394,6 +396,7 @@ export default function TasksScreen() {
           </View>
         }
         stickyHeaderIndices={[1]}
+
         contentContainerStyle={{
           paddingHorizontal: Spacing.large,
           paddingTop: Spacing.base,
