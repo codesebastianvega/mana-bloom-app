@@ -38,6 +38,7 @@ export default function DailyChallengesSection() {
         <Text style={styles.emptyText}>¡Todo al día! Vuelve mañana</Text>
       ) : (
         items.map((item) => {
+          const { xp, mana } = item.reward;
           const canClaim = item.progress >= item.goal && !item.claimed;
           const buttonLabel = canClaim
             ? "Reclamar"
@@ -49,7 +50,7 @@ export default function DailyChallengesSection() {
               <View style={styles.headerRow}>
                 <Text style={styles.challengeTitle}>{item.title}</Text>
                 <View style={styles.rewardPill}>
-                  <Text style={styles.rewardText}>{`+${item.reward.xp} XP / +${item.reward.mana} Maná`}</Text>
+                  <Text style={styles.rewardText}>{`+${xp} XP / +${mana} Maná`}</Text>
                 </View>
               </View>
               <View style={styles.progressBar}>
