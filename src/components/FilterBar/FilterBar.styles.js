@@ -5,16 +5,17 @@
 // Autor: Codex - Fecha: 2025-08-13
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii } from "../../theme";
+import { Colors, Spacing, Radii, Typography } from "../../theme";
 
 export default StyleSheet.create({
   container: {
     flexDirection: "row",
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: Radii.lg,
-    padding: Spacing.tiny,
     gap: Spacing.tiny,
-    marginVertical: Spacing.small,
+    paddingHorizontal: Spacing.large,
+    paddingVertical: Spacing.tiny,
+    backgroundColor: Colors.surface,
+    zIndex: 50,
+    elevation: 4,
   },
   button: {
     flex: 1,
@@ -27,18 +28,17 @@ export default StyleSheet.create({
     backgroundColor: Colors.accent,
   },
   buttonInactive: {
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.surfaceElevated,
     borderWidth: 1,
     borderColor: Colors.separator,
   },
-  label: {
-    fontSize: 14,
+  textActive: {
+    ...Typography.caption,
+    color: Colors.onAccent,
     fontWeight: "600",
   },
-  labelActive: {
-    color: Colors.onAccent,
-  },
-  labelInactive: {
+  textInactive: {
+    ...Typography.caption,
     color: Colors.textMuted,
   },
 });

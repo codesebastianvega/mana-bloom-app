@@ -1,4 +1,4 @@
-// [MB] Módulo: Tasks / Sección: Tarea swipeable
+// [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: SwipeableTaskItem
 // Propósito: estilos de tarjeta y chips
 // Puntos de edición futura: animaciones y badges
@@ -14,9 +14,7 @@ import {
 } from "../../theme";
 
 export default StyleSheet.create({
-  container: {
-    marginVertical: Spacing.small,
-  },
+  container: {},
   actionsOverlay: {
     ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
@@ -49,12 +47,21 @@ export default StyleSheet.create({
     marginTop: Spacing.tiny,
     fontSize: 12,
   },
-  taskItem: {
+  card: {
+    width: "100%",
     backgroundColor: Colors.surfaceElevated,
     borderRadius: Radii.lg,
-    padding: Spacing.small + Spacing.tiny,
-    borderLeftWidth: Spacing.tiny / 2,
+    padding: Spacing.base,
+    paddingLeft: Spacing.large,
+    marginVertical: Spacing.small,
     ...Elevation.card,
+  },
+  accentBar: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: Spacing.tiny,
   },
   contentRow: {
     flexDirection: "row",
@@ -62,7 +69,6 @@ export default StyleSheet.create({
   },
   textContainer: {
     flex: 1,
-    marginLeft: 1,
   },
   title: {
     ...Typography.title,
@@ -124,11 +130,13 @@ export default StyleSheet.create({
     textDecorationLine: "line-through",
   },
 
-  chipRow: {
+  metaRow: {
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
     gap: Spacing.tiny,
+  },
+  labelRow: {
     marginTop: Spacing.tiny,
   },
   elementChip: {
@@ -150,14 +158,12 @@ export default StyleSheet.create({
     lineHeight: Typography.caption.fontSize,
     color: Colors.text,
   },
-  typeChipText: {
-    transform: [{ scale: 0.95 }],
-  },
   priorityChip: {
     borderWidth: StyleSheet.hairlineWidth,
   },
   tagChip: {
     backgroundColor: Colors.surface,
+    transform: [{ scale: 0.95 }],
   },
   priorityChipText: {
     fontWeight: "500",

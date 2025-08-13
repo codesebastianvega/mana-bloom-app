@@ -21,9 +21,7 @@ export default function FilterBar({ filters, active, onSelect }) {
             accessibilityRole="button"
             accessibilityState={{ selected: isActive }}
           >
-            <Text
-              style={[styles.label, isActive ? styles.labelActive : styles.labelInactive]}
-            >
+            <Text style={isActive ? styles.textActive : styles.textInactive}>
               {f.label}
             </Text>
           </Pressable>
