@@ -2,7 +2,7 @@
 // Afecta: TasksScreen (listado y gestión de tareas)
 // Propósito: Listar, filtrar y persistir tareas con recompensas seguras
 // Puntos de edición futura: manejo remoto y estilos de filtros
-// Autor: Codex - Fecha: 2025-08-17
+// Autor: Codex - Fecha: 2025-08-13
 
 import React, { useState, useEffect } from "react";
 import { SafeAreaView, FlatList, Modal, View } from "react-native";
@@ -15,7 +15,7 @@ import SwipeableTaskItem from "../components/SwipeableTaskItem/SwipeableTaskItem
 import AddTaskButton from "../components/AddTaskButton/AddTaskButton";
 import FilterBar from "../components/FilterBar/FilterBar";
 import styles from "./TasksScreen.styles";
-import { Colors } from "../theme";
+import { Colors, Spacing } from "../theme";
 import CreateTaskModal from "../components/CreateTaskModal/CreateTaskModal";
 import { useAppDispatch } from "../state/AppContext";
 import { XP_REWARD_BY_PRIORITY } from "../constants/rewards";
@@ -353,8 +353,12 @@ export default function TasksScreen() {
             activeFilter={statusFilter}
           />
         )}
-        style={styles.list}
-        contentContainerStyle={{ paddingBottom: 96 }}
+        contentContainerStyle={{
+          paddingHorizontal: Spacing.base,
+          paddingTop: Spacing.base,
+          paddingBottom: 120,
+        }}
+        keyboardShouldPersistTaps="handled"
         accessibilityRole="list"
       />
 

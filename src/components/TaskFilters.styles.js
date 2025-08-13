@@ -1,5 +1,11 @@
+// [MB] Módulo: Tasks / Sección: Filtros avanzados
+// Afecta: TaskFilters (modal de filtros)
+// Propósito: Botones y layout alineados al tema
+// Puntos de edición futura: variantes deshabilitadas
+// Autor: Codex - Fecha: 2025-08-13
+
 import { StyleSheet } from "react-native";
-import { Colors, Spacing } from "../theme";
+import { Colors, Spacing, Radii, Elevation } from "../theme";
 
 export default StyleSheet.create({
   closeBtn: {
@@ -12,26 +18,40 @@ export default StyleSheet.create({
     fontWeight: "600",
     marginBottom: Spacing.small,
   },
-  buttons: {
+  actions: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: Spacing.base,
+    gap: Spacing.small,
+    marginTop: Spacing.large,
   },
-  button: {
+  primaryButton: {
     flex: 1,
-    padding: Spacing.small,
-    borderRadius: 8,
-    alignItems: "center",
-    marginHorizontal: Spacing.tiny,
-  },
-  apply: {
+    minHeight: 44,
+    paddingHorizontal: Spacing.large,
+    borderRadius: Radii.pill,
     backgroundColor: Colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    ...(Elevation?.card || {}),
   },
-  reset: {
-    backgroundColor: Colors.danger,
+  primaryButtonLabel: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: Colors.text,
   },
-  buttonText: {
-    color: Colors.background,
+  secondaryButton: {
+    flex: 1,
+    minHeight: 44,
+    paddingHorizontal: Spacing.large,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    borderColor: Colors.textMuted,
+    backgroundColor: Colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  secondaryButtonLabel: {
+    fontSize: 16,
     fontWeight: "600",
+    color: Colors.text,
   },
 });

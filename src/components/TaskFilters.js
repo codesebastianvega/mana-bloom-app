@@ -1,5 +1,11 @@
+// [MB] Módulo: Tasks / Sección: Filtros avanzados
+// Afecta: TaskFilters (modal de filtros)
+// Propósito: Tabs y acciones con estilo del tema
+// Puntos de edición futura: animaciones y validaciones
+// Autor: Codex - Fecha: 2025-08-13
+
 import React, { useState } from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, Pressable, Text } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import FilterBar from "./FilterBar/FilterBar";
 import AdvancedFilters from "./AdvancedFilters/AdvancedFilters";
@@ -56,9 +62,13 @@ export default function TaskFilters({
     <View>
       {/* Sección de cierre del modal */}
       {onClose && (
-        <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
+        <Pressable
+          style={styles.closeBtn}
+          onPress={onClose}
+          accessibilityRole="button"
+        >
           <FontAwesome5 name="times" size={16} color={Colors.text} />
-        </TouchableOpacity>
+        </Pressable>
       )}
       {/* Barra superior con filtros rápidos */}
       <Text style={styles.title}>Filtros avanzados</Text>
@@ -79,21 +89,21 @@ export default function TaskFilters({
         setTagFilter={setTagFilter}
       />
       {/* Botones de acción para aplicar o resetear los filtros */}
-      <View style={styles.buttons}>
-        {/* Botón para aplicar la selección de filtros */}
-        <TouchableOpacity
-          style={[styles.button, styles.apply]}
+      <View style={styles.actions}>
+        <Pressable
+          style={styles.primaryButton}
           onPress={onApply}
+          accessibilityRole="button"
         >
-          <Text style={styles.buttonText}>Aplicar Filtros</Text>
-        </TouchableOpacity>
-        {/* Botón para resetear todos los filtros */}
-        <TouchableOpacity
-          style={[styles.button, styles.reset]}
+          <Text style={styles.primaryButtonLabel}>Aplicar filtros</Text>
+        </Pressable>
+        <Pressable
+          style={styles.secondaryButton}
           onPress={onReset}
+          accessibilityRole="button"
         >
-          <Text style={styles.buttonText}>Limpiar Filtros</Text>
-        </TouchableOpacity>
+          <Text style={styles.secondaryButtonLabel}>Limpiar</Text>
+        </Pressable>
       </View>
     </View>
   );

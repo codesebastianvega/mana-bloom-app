@@ -1,20 +1,16 @@
-// src/screens/TasksScreen.styles.js
+// [MB] Módulo: Tasks / Sección: Pantalla de tareas
+// Afecta: TasksScreen
+// Propósito: Estilos base alineados al home
+// Puntos de edición futura: ajustes de layout y modales
+// Autor: Codex - Fecha: 2025-08-13
 
-import { StyleSheet, Platform, StatusBar } from "react-native";
+import { StyleSheet } from "react-native";
 import { Colors, Spacing } from "../theme";
 
 export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
-    padding: Spacing.base,
-    paddingTop:
-      Platform.OS === "android"
-        ? StatusBar.currentHeight + Spacing.small
-        : Spacing.small,
-  },
-  list: {
-    marginTop: Spacing.small,
   },
   filterModalBackground: {
     flex: 1,

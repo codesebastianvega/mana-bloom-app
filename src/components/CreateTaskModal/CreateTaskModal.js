@@ -10,6 +10,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Pressable,
   TextInput,
   ScrollView,
   Alert,
@@ -18,8 +19,8 @@ import {
 
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { Colors, Spacing, Radii } from "../../theme";
+import { Colors, Spacing } from "../../theme";
+
 import styles from "./CreateTaskModal.styles";
 
 const typeOptions = [
@@ -65,6 +66,47 @@ const elementInfo = {
       'Propósito: "Le da a la planta el espacio para respirar y expandirse."',
   },
 };
+
+const ELEMENT_ACCENTS = {
+  water: {
+    border: Colors.elementWater,
+    bg: Colors.surface,
+    pill: Colors.elementWaterLight,
+    emoji: "💧",
+    label: "Agua",
+  },
+  fire: {
+    border: Colors.elementFire,
+    bg: Colors.surface,
+    pill: Colors.elementFireLight,
+    emoji: "🔥",
+    label: "Fuego",
+  },
+  earth: {
+    border: Colors.elementEarth,
+    bg: Colors.surface,
+    pill: Colors.elementEarthLight,
+    emoji: "🌱",
+    label: "Tierra",
+  },
+  air: {
+    border: Colors.elementAir,
+    bg: Colors.surface,
+    pill: Colors.elementAirLight,
+    emoji: "💨",
+    label: "Aire",
+  },
+};
+
+const ELEMENTS = ["water", "fire", "earth", "air"];
+
+const PRIORITY_ACCENTS = {
+  easy: { label: "Baja", border: Colors.elementAir, fill: Colors.elementAirLight },
+  medium: { label: "Media", border: Colors.elementEarth, fill: Colors.elementEarthLight },
+  hard: { label: "Urgente", border: Colors.elementFire, fill: Colors.elementFireLight },
+};
+
+const PRIORITIES = ["easy", "medium", "hard"];
 
 export default function CreateTaskModal({
   visible,
@@ -278,47 +320,38 @@ export default function CreateTaskModal({
               })}
             </View>
 
-            <Text style={styles.sectionLabel}>Elemento</Text>
-            <View style={styles.segmentContainer}>
-              {elementOptions.map((el) => {
-                const active = newElement === el.key;
+            <Text style={styles.label}>Elemento</Text>
+            <View style={styles.elementGrid}>
+              {ELEMENTS.map((key) => {
+                const accent = ELEMENT_ACCENTS[key];
+                const selected = newElement === key;
                 return (
-                  <TouchableOpacity
-                    key={el.key}
+                  <Pressable
+                    key={key}
+                    onPress={() => setNewElement(key)}
                     style={[
-                      styles.segmentButton,
-                      active && styles.segmentButtonActive,
+                      styles.elementCard,
+                      { borderColor: accent.border },
+                      selected && styles.elementCardActive,
 
                     ]}
-                    onPress={() => setNewElement(el.key)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={`Seleccionar elemento ${accent.label}`}
                   >
-                    <LinearGradient
-                      colors={
-                        active ? el.gradient : [Colors.surface, Colors.surface]
-                      }
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={styles.segmentButton}
-                    >
-                      <FontAwesome5
-                        name={el.icon}
-                        size={16}
-                        color={Colors.text}
-                      />
-                      <Text
-                        style={[
-                          styles.segmentLabel,
-                          active && [
-                            styles.segmentLabelActive,
-                            { color: Colors.background },
-                          ],
-                        ]}
-                      >
+                    <Text style={styles.elementEmoji}>{accent.emoji}</Text>
+                    <Text style={styles.elementTitle}>{accent.label}</Text>
+                    <Text style={styles.elementCaption}>
+                      {key === "water"
+                        ? "Fluye y enfoca"
+                        : key === "fire"
+                        ? "Energía y empuje"
+                        : key === "earth"
+                        ? "Constancia y base"
+                        : "Ligereza y ritmo"}
+                    </Text>
+                  </Pressable>
 
-                        {el.label}
-                      </Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
                 );
               })}
             </View>
@@ -389,20 +422,23 @@ export default function CreateTaskModal({
               </View>
             )}
 
-            <Text style={styles.sectionLabel}>Prioridad</Text>
-            <View style={styles.group}>
-              {priorityOptions.map((pr) => {
-                const active = newPriority === pr.key;
+            <Text style={styles.label}>Prioridad</Text>
+            <View style={styles.priorityList}>
+              {PRIORITIES.map((p) => {
+                const selected = newPriority === p;
+                const accent = PRIORITY_ACCENTS[p];
+
                 return (
-                  <TouchableOpacity
-                    key={pr.key}
-                    accessibilityRole="button"
+                  <Pressable
+                    key={p}
+                    onPress={() => setNewPriority(p)}
                     style={[
-                      styles.chip,
+                      styles.priorityRow,
                       {
-                        width: "100%",
-                        borderRightWidth: 4,
-                        borderRightColor: pr.color,
+                        borderColor: accent.border,
+                        backgroundColor: selected
+                          ? Colors.surfaceElevated || Colors.surface
+                          : Colors.surface,
 
                       },
                       active && [
@@ -410,30 +446,20 @@ export default function CreateTaskModal({
                         { borderColor: pr.color, backgroundColor: pr.color },
                       ],
                     ]}
-                    onPress={() => setNewPriority(pr.key)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={`Prioridad ${accent.label}`}
                   >
-                    <Text
-                      style={[
-                        styles.segmentLabel,
-                        active && [
-                          styles.segmentLabelActive,
-                          { color: Colors.background },
-                        ],
-
-                      ]}
-                    >
-                      {pr.label}
+                    <Text style={styles.priorityTitle}>{accent.label}</Text>
+                    <Text style={styles.priorityCaption}>
+                      {p === "easy"
+                        ? "Tranquila, sin apuro"
+                        : p === "medium"
+                        ? "Importante esta semana"
+                        : "Hazlo hoy"}
                     </Text>
-                    <Text
-                      style={[
-                        styles.helperText,
-                        active && { color: Colors.background },
+                  </Pressable>
 
-                      ]}
-                    >
-                      {`+${pr.xp} XP • +${pr.mana} Maná`}
-                    </Text>
-                  </TouchableOpacity>
                 );
               })}
             </View>

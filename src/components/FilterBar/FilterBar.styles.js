@@ -1,6 +1,10 @@
-// src/components/FilterBar/FilterBar.styles.js
+// [MB] Módulo: Tasks / Sección: Barra de filtros
+// Afecta: FilterBar (tabs principales)
+// Propósito: Estilos de tabs y contenedor
+// Puntos de edición futura: scroll y variantes
+// Autor: Codex - Fecha: 2025-08-13
 import { StyleSheet } from "react-native";
-import { Colors, Spacing } from "../../theme";
+import { Colors, Spacing, Radii } from "../../theme";
 
 export default StyleSheet.create({
   // wrapper externo para margen
@@ -8,14 +12,16 @@ export default StyleSheet.create({
     marginVertical: Spacing.small,
   },
 
-  // barra “glass”
+  // barra contenedora
   glassBar: {
-    backgroundColor: "rgba(255,255,255,0.04)", // traslúcido
-    borderColor: "rgba(255,255,255,0.08)",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.lg,
+    paddingHorizontal: Spacing.base,
+    minHeight: 44,
     borderWidth: 1,
-    borderRadius: 16,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
+    borderColor: Colors.textMuted + "40",
   },
 
   // Scroll horizontal
@@ -28,41 +34,34 @@ export default StyleSheet.create({
     alignItems: "center",
   },
 
-  // “botón” transparente (solo texto/ícono cambian)
-  btn: {
+  // tab individual
+  tab: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 14,
+    justifyContent: "center",
+    paddingHorizontal: Spacing.base,
+    minHeight: 36,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    borderColor: Colors.textMuted,
+    backgroundColor: Colors.surface,
     marginRight: Spacing.small,
-    backgroundColor: "transparent",
   },
-
+  tabActive: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.surfaceElevated || Colors.surface,
+  },
   icon: {
     marginRight: 6,
   },
-
-  // texto base
-  text: {
+  tabLabel: {
     fontSize: 14,
+    fontWeight: "600",
+    color: Colors.text,
+    textAlign: "center",
+  },
+  tabLabelMuted: {
     color: Colors.textMuted,
     fontWeight: "500",
-  },
-
-  // refuerzo para activo
-  textActive: {
-    fontWeight: "700",
-    // “glow” suave (iOS). En Android se nota menos, pero no molesta.
-    textShadowColor: "rgba(255,255,255,0.15)",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 4,
-  },
-
-  // subrayado bajo la palabra
-  underline: {
-    height: 2,
-    borderRadius: 2,
-    marginTop: 3,
   },
 });

@@ -81,56 +81,10 @@ export default StyleSheet.create({
     textAlignVertical: "top",
 
   },
+  typeOptionBtn: {
+    flex: 1,
+    minHeight: 40,
 
-  // Contenedor de "segmentos" (p. ej. Tarea / Hábito)
-  segmentContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: Spacing.small,
-    marginTop: Spacing.small,
-
-  },
-
-  // Botón de segmento (estado base)
-  segmentButton: {
-    minHeight: 36,
-    paddingHorizontal: Spacing.base,
-    borderRadius: Radii?.pill ?? 999,
-    borderWidth: 1,
-    borderColor: Colors.textMuted,
-    backgroundColor: Colors.surface,
-    justifyContent: "center",
-
-    alignItems: "center",
-  },
-  // Texto del segmento
-  segmentLabel: {
-
-    fontSize: 14,
-    color: Colors.text,
-    fontWeight: "500",
-  },
-  // Estado activo del segmento
-  segmentButtonActive: {
-    borderColor: Colors.primary,
-    // Si quieres leve fill activo sin alpha utils, usa surfaceElevated:
-    backgroundColor: Colors.surfaceElevated || Colors.surface,
-
-  },
-  segmentLabelActive: {
-    color: Colors.text,
-    fontWeight: "700",
-  },
-
-  // Chips (Prioridad / Elemento / Etiquetas seleccionables)
-  chipsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: Spacing.small,
-    marginTop: Spacing.small,
-  },
-  chip: {
-    minHeight: 28,
     paddingHorizontal: Spacing.base,
     borderRadius: Radii?.pill ?? 999,
     borderWidth: 1,
@@ -144,19 +98,67 @@ export default StyleSheet.create({
     color: Colors.text,
     fontWeight: "500",
   },
-  chipActive: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.surfaceElevated || Colors.surface,
-  },
-  chipLabelActive: {
-    color: Colors.text,
-    fontWeight: "700",
-  },
-
-  chipScrollContent: {
+  elementGrid: {
     flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.base,
+    marginTop: Spacing.small,
+  },
+  elementCard: {
+    width: "48%",
+    borderWidth: 2,
+    borderRadius: Radii.lg,
+    backgroundColor: Colors.surface,
+    paddingVertical: Spacing.base,
     alignItems: "center",
+    justifyContent: "center",
+    ...(Elevation?.card || {}),
+  },
+  elementCardActive: {
+    shadowOpacity: 0.35,
+  },
+  elementEmoji: {
+    fontSize: 32,
+    marginBottom: Spacing.tiny,
+  },
+  elementTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: Colors.text,
+    textAlign: "center",
+  },
+  elementCaption: {
+    fontSize: 12,
+    color: Colors.textMuted,
+    textAlign: "center",
+    marginTop: Spacing.tiny,
+  },
+  priorityList: {
+    marginTop: Spacing.small,
     gap: Spacing.small,
+  },
+  priorityRow: {
+    width: "100%",
+    minHeight: 56,
+    borderWidth: 2,
+    borderRadius: Radii.lg,
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.base,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  priorityTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: Colors.text,
+    textAlign: "center",
+  },
+  priorityCaption: {
+    fontSize: 12,
+    color: Colors.textMuted,
+    textAlign: "center",
+    marginTop: 2,
+
   },
 
   // Subtareas: fila input + botón "+"

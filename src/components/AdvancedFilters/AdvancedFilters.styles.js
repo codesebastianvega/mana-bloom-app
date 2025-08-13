@@ -25,12 +25,10 @@ const baseBtn = {
 
 export default StyleSheet.create({
   container: {
-    backgroundColor: Colors.surfaceElevated,
+    backgroundColor: Colors.surfaceElevated || Colors.surface,
     borderRadius: Radii.xl,
     padding: Spacing.large,
-    marginTop: 0,
-    marginBottom: Spacing.small,
-    ...Elevation.raised,
+    ...(Elevation?.modal || {}),
   },
   row: {
     flexDirection: "row",
