@@ -23,6 +23,7 @@ const Tab = createBottomTabNavigator();
 const RootStack = createNativeStackNavigator();
 
 function TabsNavigator() {
+
   return (
     <Tab.Navigator
       initialRouteName="HomeScreen"
@@ -53,6 +54,7 @@ export default function App() {
             name="NewsInboxModal"
             component={NewsInboxScreen}
             options={{ presentation: "modal" }}
+
           />
         </RootStack.Navigator>
       </NavigationContainer>
