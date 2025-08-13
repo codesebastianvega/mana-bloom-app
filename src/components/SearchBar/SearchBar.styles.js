@@ -1,7 +1,11 @@
-// src/components/SearchBar/SearchBar.styles.js
+// [MB] Módulo: Tasks / Sección: Barra de búsqueda
+// Afecta: SearchBar
+// Propósito: Estilo alineado al tema
+// Puntos de edición futura: focos y estados deshabilitados
+// Autor: Codex - Fecha: 2025-08-13
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing } from "../../theme";
+import { Colors, Spacing, Radii } from "../../theme";
 
 export default StyleSheet.create({
   container: {
@@ -9,20 +13,13 @@ export default StyleSheet.create({
     alignItems: "center",
     backgroundColor: Colors.surface,
     paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    borderRadius: 15,
+    borderRadius: Radii.lg,
     marginTop: Spacing.small,
     marginBottom: Spacing.small,
-    shadowColor: Colors.text,
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
-    elevation: 5,
     justifyContent: "space-between",
-    minHeight: 50,
-    maxHeight: 50,
-    borderWidth: 0,
-    borderColor: Colors.textMuted,
+    minHeight: 44,
+    borderWidth: 1,
+    borderColor: Colors.textMuted + "40",
   },
   inner: {
     flexDirection: "row",

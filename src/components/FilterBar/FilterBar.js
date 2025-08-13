@@ -1,7 +1,11 @@
-// src/components/FilterBar/FilterBar.js
+// [MB] Módulo: Tasks / Sección: Barra de filtros
+// Afecta: FilterBar (tabs principales)
+// Propósito: Tabs accesibles alineadas al tema
+// Puntos de edición futura: animaciones y desplazamiento
+// Autor: Codex - Fecha: 2025-08-13
 
 import React from "react";
-import { View, ScrollView, TouchableOpacity, Text } from "react-native";
+import { View, ScrollView, Pressable, Text } from "react-native";
 import { FontAwesome5, FontAwesome } from "@expo/vector-icons";
 // Los estilos de la barra de filtros residen en FilterBar.styles.js
 import styles from "./FilterBar.styles";
@@ -22,40 +26,30 @@ export default function FilterBar({ filters, active, onSelect }) {
               ? FontAwesome
               : FontAwesome5;
             const isActive = active === f.key;
-
             return (
-              <TouchableOpacity
+              <Pressable
                 key={f.key}
-                style={styles.btn}
+                style={[styles.tab, isActive && styles.tabActive]}
                 onPress={() => onSelect(f.key)}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: isActive }}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
                 <Icon
                   name={f.icon}
                   size={14}
-                  color={isActive ? f.color : Colors.textMuted}
+                  color={isActive ? Colors.text : Colors.textMuted}
                   style={styles.icon}
                 />
-                <View>
-                  <Text
-                    style={[
-                      styles.text,
-                      isActive && styles.textActive,
-                      isActive
-                        ? { color: f.color }
-                        : { color: Colors.textMuted },
-                    ]}
-                  >
-                    {f.label}
-                  </Text>
-                  <View
-                    style={[
-                      styles.underline,
-                      { backgroundColor: isActive ? f.color : "transparent" },
-                    ]}
-                  />
-                </View>
-              </TouchableOpacity>
+                <Text
+                  style={[
+                    styles.tabLabel,
+                    !isActive && styles.tabLabelMuted,
+                  ]}
+                >
+                  {f.label}
+                </Text>
+              </Pressable>
             );
           })}
         </ScrollView>
