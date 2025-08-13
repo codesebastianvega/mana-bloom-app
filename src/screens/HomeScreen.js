@@ -58,7 +58,7 @@ export default function HomeScreen() {
         <DailyRewardSection />
         <DailyChallengesSection />
         <MagicShopSection onLayout={handleShopLayout} />
-        <InventorySection onShopPress={scrollToShop} />
+        <InventorySection onGoToShop={scrollToShop} />
         <NewsFeedSection />
         <StatsQuickTiles />
         <EventBanner />

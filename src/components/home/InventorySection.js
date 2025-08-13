@@ -4,43 +4,45 @@
 // Puntos de edición futura: navegación a inventario completo
 // Autor: Codex - Fecha: 2025-08-13
 
-import React from "react";
-import { View, Text, Pressable, Alert } from "react-native";
+import React, { useRef } from "react";
+import { View, Text, Pressable, Animated } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import styles from "./InventorySection.styles";
 import {
   useAppState,
-  useAppDispatch,
   useInventoryCounts,
   useHydrationStatus,
 } from "../../state/AppContext";
-import { Opacity } from "../../theme";
 import SectionPlaceholder from "./SectionPlaceholder";
 
-export default function InventorySection({ onShopPress }) {
+const CATEGORY_EMOJI = { potions: "🧪", tools: "🛠️", cosmetics: "🎩" };
+
+export default function InventorySection({ onGoToShop }) {
   const { inventory } = useAppState();
-  const dispatch = useAppDispatch();
   const counts = useInventoryCounts();
   const hydration = useHydrationStatus();
-  const topItems = inventory.slice(0, 3);
   const navigation = useNavigation();
+  const scale = useRef(new Animated.Value(1)).current;
 
-  const handleUse = (item) => {
-    const current = inventory.find((it) => it.sku === item.sku);
-    if (!current || current.quantity <= 0) return;
-    dispatch({ type: "CONSUME_ITEM", payload: { sku: item.sku } });
-    if (item.sku === "shop/potions/p1") {
-      dispatch({
-        type: "ACTIVATE_BUFF",
-        payload: { type: "xp_double", durationMs: 2 * 60 * 60 * 1000 },
-      });
-      Alert.alert(
-        "Poción usada",
-        "Sabiduría activa: XP x2 por 2 horas"
-      );
-    } else if (item.sku === "shop/potions/p2") {
-      Alert.alert("Poción usada", "Cristal de Maná +100");
+  const itemsSorted = [...inventory].sort((a, b) => {
+    if (b.quantity !== a.quantity) {
+      return b.quantity - a.quantity;
     }
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
+  const preview = itemsSorted.slice(0, 3);
+
+  const handlePressIn = () => {
+    Animated.spring(scale, {
+      toValue: 0.98,
+      useNativeDriver: true,
+    }).start();
+  };
+  const handlePressOut = () => {
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
   };
 
   if (hydration.inventory) {
@@ -55,7 +57,7 @@ export default function InventorySection({ onShopPress }) {
         </Text>
         <Text style={styles.emptyText}>Tu inventario está vacío</Text>
         <Pressable
-          onPress={onShopPress}
+          onPress={() => onGoToShop?.()}
           style={styles.viewAllButton}
           accessibilityRole="button"
           accessibilityLabel="Ir a la Tienda"
@@ -85,41 +87,30 @@ export default function InventorySection({ onShopPress }) {
       </View>
 
       <View style={styles.list}>
-        {topItems.map((item) => {
-          const isUsable =
-            item.category === "potions" &&
-            item.quantity > 0 &&
-            (item.sku === "shop/potions/p2" || item.sku === "shop/potions/p1");
-          return (
-            <View key={item.id} style={styles.itemCard}>
-              <Text style={styles.itemText}>{`${item.title} × ${item.quantity}`}</Text>
-              <Pressable
-                onPress={() => handleUse(item)}
-                disabled={!isUsable}
-                style={[
-                  styles.useButton,
-                  !isUsable && { opacity: Opacity.disabled },
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel={`${isUsable ? "Usar" : "No usable"} ${item.title}`}
-              >
-                <Text style={styles.useButtonText}>
-                  {isUsable ? "Usar" : "No usable"}
-                </Text>
-              </Pressable>
-            </View>
-          );
-        })}
+        {preview.map((item) => (
+          <View key={item.id} style={styles.itemRow}>
+            <Text style={styles.itemIcon}>{
+              CATEGORY_EMOJI[item.category] || "📦"
+            }</Text>
+            <Text style={styles.itemTitle}>{item.title}</Text>
+            <Text style={styles.itemQty}>{`× ${item.quantity}`}</Text>
+          </View>
+        ))}
       </View>
 
-      <Pressable
-        onPress={() => navigation.navigate("InventoryModal")}
-        style={styles.viewAllButton}
-        accessibilityRole="button"
-        accessibilityLabel="Ver inventario completo"
-      >
-        <Text style={styles.viewAllText}>Ver todo</Text>
-      </Pressable>
+      <Animated.View style={{ transform: [{ scale }] }}>
+        <Pressable
+          onPress={() => navigation.navigate("InventoryModal")}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          style={styles.viewAllButton}
+          accessibilityRole="button"
+          accessibilityLabel="Abrir inventario completo"
+        >
+          <Text style={styles.viewAllText}>Ver todo</Text>
+        </Pressable>
+      </Animated.View>
     </View>
   );
 }
+
