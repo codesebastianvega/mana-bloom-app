@@ -73,7 +73,7 @@ const SHOP_ITEMS = {
   ],
 };
 
-export default function MagicShopSection() {
+export default function MagicShopSection({ onLayout }) {
   const [activeTab, setActiveTab] = useState("potions");
   const { mana } = useAppState();
   const dispatch = useAppDispatch();
@@ -82,7 +82,7 @@ export default function MagicShopSection() {
   const addDebugMana = () => dispatch({ type: "SET_MANA", payload: mana + 5 });
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={onLayout}>
       <Text style={styles.title}>Tienda Mágica</Text>
       <Text style={styles.subtitle}>
         Las pociones compradas se guardan en Inventario

@@ -39,20 +39,24 @@ export default function NewsFeedSection() {
           <Text style={styles.markAll}>Marcar todo como leído</Text>
         </TouchableOpacity>
       </View>
-      {items.map((item) => (
-        <TouchableOpacity
-          key={item.id}
-          style={styles.row}
-          onPress={() => handlePress(item.id)}
-        >
-          <Ionicons name={item.iconName} size={20} color={Colors.text} />
-          <View style={styles.rowText}>
-            <Text style={styles.rowTitle}>{item.title}</Text>
-            <Text style={styles.time}>{timeAgo(item.timestamp)}</Text>
-          </View>
-          {!item.read && <View style={styles.unreadDot} />}
-        </TouchableOpacity>
-      ))}
+      {items.length === 0 ? (
+        <Text style={styles.emptyText}>No hay noticias por ahora</Text>
+      ) : (
+        items.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={styles.row}
+            onPress={() => handlePress(item.id)}
+          >
+            <Ionicons name={item.iconName} size={20} color={Colors.text} />
+            <View style={styles.rowText}>
+              <Text style={styles.rowTitle}>{item.title}</Text>
+              <Text style={styles.time}>{timeAgo(item.timestamp)}</Text>
+            </View>
+            {!item.read && <View style={styles.unreadDot} />}
+          </TouchableOpacity>
+        ))
+      )}
     </View>
   );
 }

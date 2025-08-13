@@ -88,4 +88,10 @@ export default StyleSheet.create({
   claimButtonTextDisabled: {
     color: Colors.textMuted,
   },
+  emptyText: {
+    ...Typography.body,
+    color: Colors.textMuted,
+    textAlign: "center",
+    marginTop: Spacing.base,
+  },
 });

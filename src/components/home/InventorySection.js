@@ -14,7 +14,7 @@ import {
 } from "../../state/AppContext";
 import { Opacity } from "../../theme";
 
-export default function InventorySection() {
+export default function InventorySection({ onShopPress }) {
   const { inventory } = useAppState();
   const dispatch = useAppDispatch();
   const counts = useInventoryCounts();
@@ -37,6 +37,23 @@ export default function InventorySection() {
       Alert.alert("Poción usada", "Cristal de Maná +100");
     }
   };
+
+  if (counts.total === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Inventario</Text>
+        <Text style={styles.emptyText}>Tu inventario está vacío</Text>
+        <Pressable
+          onPress={onShopPress}
+          style={styles.viewAllButton}
+          accessibilityRole="button"
+          accessibilityLabel="Ir a la Tienda"
+        >
+          <Text style={styles.viewAllText}>Ir a la Tienda</Text>
+        </Pressable>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

@@ -13,6 +13,8 @@ export default function DailyChallengesSection() {
   const dispatch = useAppDispatch();
   const { items } = useDailyChallenges();
 
+  const allClaimed = items.every((item) => item.claimed);
+
   const handleClaim = (id) => {
     dispatch({ type: "CLAIM_DAILY_CHALLENGE", payload: { id } });
   };
@@ -20,52 +22,56 @@ export default function DailyChallengesSection() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Desafíos Diarios</Text>
-      {items.map((item) => {
-        const canClaim = item.progress >= item.goal && !item.claimed;
-        const buttonLabel = canClaim
-          ? "Reclamar"
-          : item.claimed
-          ? "Reclamado"
-          : "En progreso";
-        return (
-          <View key={item.id} style={styles.card}>
-            <View style={styles.headerRow}>
-              <Text style={styles.challengeTitle}>{item.title}</Text>
-              <View style={styles.rewardPill}>
-                <Text style={styles.rewardText}>{`+${item.reward.xp} XP / +${item.reward.mana} Maná`}</Text>
+      {allClaimed ? (
+        <Text style={styles.emptyText}>¡Todo al día! Vuelve mañana</Text>
+      ) : (
+        items.map((item) => {
+          const canClaim = item.progress >= item.goal && !item.claimed;
+          const buttonLabel = canClaim
+            ? "Reclamar"
+            : item.claimed
+            ? "Reclamado"
+            : "En progreso";
+          return (
+            <View key={item.id} style={styles.card}>
+              <View style={styles.headerRow}>
+                <Text style={styles.challengeTitle}>{item.title}</Text>
+                <View style={styles.rewardPill}>
+                  <Text style={styles.rewardText}>{`+${item.reward.xp} XP / +${item.reward.mana} Maná`}</Text>
+                </View>
               </View>
-            </View>
-            <View style={styles.progressBar}>
-              <View
+              <View style={styles.progressBar}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    { width: `${(item.progress / item.goal) * 100}%` },
+                  ]}
+                />
+              </View>
+              <Text style={styles.progressText}>{`${item.progress}/${item.goal}`}</Text>
+              <Pressable
+                onPress={() => handleClaim(item.id)}
+                disabled={!canClaim}
                 style={[
-                  styles.progressFill,
-                  { width: `${(item.progress / item.goal) * 100}%` },
+                  styles.claimButton,
+                  canClaim ? styles.claimButtonEnabled : styles.claimButtonDisabled,
                 ]}
-              />
-            </View>
-            <Text style={styles.progressText}>{`${item.progress}/${item.goal}`}</Text>
-            <Pressable
-              onPress={() => handleClaim(item.id)}
-              disabled={!canClaim}
-              style={[
-                styles.claimButton,
-                canClaim ? styles.claimButtonEnabled : styles.claimButtonDisabled,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel={`${buttonLabel} desafío ${item.title}`}
-            >
-              <Text
-                style={[
-                  styles.claimButtonText,
-                  !canClaim && styles.claimButtonTextDisabled,
-                ]}
+                accessibilityRole="button"
+                accessibilityLabel={`${buttonLabel} desafío ${item.title}`}
               >
-                {buttonLabel}
-              </Text>
-            </Pressable>
-          </View>
-        );
-      })}
+                <Text
+                  style={[
+                    styles.claimButtonText,
+                    !canClaim && styles.claimButtonTextDisabled,
+                  ]}
+                >
+                  {buttonLabel}
+                </Text>
+              </Pressable>
+            </View>
+          );
+        })
+      )}
     </View>
   );
 }
