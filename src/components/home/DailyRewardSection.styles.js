@@ -52,5 +52,6 @@ export default StyleSheet.create({
   streakText: {
     ...Typography.caption,
     color: Colors.textMuted,
+    marginTop: Spacing.small,
   },
 });
