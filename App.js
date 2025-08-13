@@ -17,6 +17,7 @@ import PlantScreen from "./src/screens/PlantScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
 import InventoryScreen from "./src/screens/InventoryScreen";
 import NewsInboxScreen from "./src/screens/NewsInboxScreen";
+import ShopScreen from "./src/screens/ShopScreen";
 import { AppProvider } from "./src/state/AppContext";
 
 const Tab = createBottomTabNavigator();
@@ -54,6 +55,11 @@ export default function App() {
             name="NewsInboxModal"
             component={NewsInboxScreen}
             options={{ presentation: "modal", headerShown: false }}
+          />
+          <RootStack.Screen
+            name="ShopScreen"
+            component={ShopScreen}
+            options={{ headerShown: false }}
           />
         </RootStack.Navigator>
       </NavigationContainer>

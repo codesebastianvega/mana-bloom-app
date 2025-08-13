@@ -38,7 +38,7 @@ import {
   setAchievementsState,
 } from "../storage";
 import { DAILY_REWARDS } from "../constants/dailyRewards";
-import { SHOP_CATALOG } from "../constants/shopCatalog";
+import { SHOP_LOOKUP } from "../constants/shopCatalog";
 import { CHALLENGE_TEMPLATES } from "../constants/challengeTemplates";
 import {
   hashStringToInt,
@@ -339,7 +339,7 @@ function appReducer(state, action) {
         });
       } else if (reward.kind === "item" && reward.sku) {
         const info =
-          SHOP_CATALOG[reward.sku] || {
+          SHOP_LOOKUP[reward.sku] || {
             title: "Ítem misterioso",
             category: "potions",
           };

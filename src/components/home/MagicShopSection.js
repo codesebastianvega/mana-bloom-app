@@ -7,9 +7,11 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import styles from "./MagicShopSection.styles";
 import ShopItemCard from "./ShopItemCard";
-import { ShopColors, Colors } from "../../theme";
+import { Colors } from "../../theme";
+import { ShopColors } from "../../constants/shopCatalog";
 import {
   useAppState,
   useAppDispatch,
@@ -77,6 +79,7 @@ const SHOP_ITEMS = {
 };
 
 export default function MagicShopSection({ onLayout }) {
+  const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState("potions");
   const { mana } = useAppState();
   const dispatch = useAppDispatch();
@@ -220,7 +223,9 @@ export default function MagicShopSection({ onLayout }) {
       })}
 
       <Pressable
-        onPress={() => {}}
+        onPress={() =>
+          navigation.navigate("ShopScreen", { initialTab: "potions" })
+        }
         style={styles.viewAllButton}
         accessibilityRole="button"
         accessibilityLabel="Ver todos los artículos"

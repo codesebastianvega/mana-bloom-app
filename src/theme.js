@@ -1,8 +1,8 @@
 // src/theme.js
 /* [MB] Módulo: Sistema de diseño / Sección: Tokens globales
-   Afecta: toda la app (colores, espaciado, tipografía, radios, elevación, acentos tienda)
+   Afecta: toda la app (colores, espaciado, tipografía, radios, elevación)
    Propósito: unificar estilos y facilitar que Codex y yo creemos UI coherente
-   Puntos de edición futura: ShopColors, Typography, Radii
+   Puntos de edición futura: Typography, Radii
 */
 
 export const Colors = {
@@ -100,12 +100,6 @@ export const Gradients = {
   xp: [Colors.primary, Colors.primaryLight],
 };
 
-// Acentos por pestaña de la Tienda (ajústalos a tu gusto)
-export const ShopColors = {
-  potions: { bg: "#2F1B4C", border: "#8060D0", pill: "#7442FF" },
-  tools: { bg: "#0F2A46", border: "#2D6DB2", pill: "#1E90FF" },
-  cosmetics: { bg: "#3A2A0F", border: "#C7A039", pill: "#E2C36A" },
-};
 
 export const Opacity = {
   disabled: 0.5,
