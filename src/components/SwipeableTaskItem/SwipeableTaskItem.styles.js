@@ -124,75 +124,42 @@ export default StyleSheet.create({
     textDecorationLine: "line-through",
   },
 
-  // etiquetas (chips) existentes:
-  tagContainer: {
+  chipRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginTop: Spacing.small,
+    alignItems: "center",
+    gap: Spacing.tiny,
+    marginTop: Spacing.tiny,
+  },
+  elementChip: {
+    width: 24,
+    height: 24,
+    borderRadius: Radii.pill,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  chip: {
+    minHeight: 24,
+    paddingHorizontal: Spacing.small,
+    borderRadius: Radii.pill,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  chipText: {
+    ...Typography.caption,
+    lineHeight: Typography.caption.fontSize,
+    color: Colors.text,
+  },
+  typeChipText: {
+    transform: [{ scale: 0.95 }],
+  },
+  priorityChip: {
+    borderWidth: StyleSheet.hairlineWidth,
   },
   tagChip: {
     backgroundColor: Colors.surface,
-    borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny,
-    marginRight: Spacing.tiny,
-    marginTop: Spacing.tiny,
-  },
-  tagText: {
-    ...Typography.caption,
-    color: Colors.text,
-  },
-
-  // badge de elemento (círculo con icono)
-  elementBadge: {
-    width: 22,
-    height: 22,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: Spacing.small,
-    marginTop: 1,
-    // opcional: un poco de relieve
-    shadowColor: Colors.shadow,
-
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.5,
-    elevation: 2,
-  },
-
-  // badges de dificultad:
-  badgeRow: {
-    flexDirection: "row",
-    marginTop: Spacing.small,
-  },
-  badge: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderRadius: Radii.md,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny,
-    marginRight: Spacing.small,
-    marginTop: Spacing.tiny,
-  },
-  badgeIcon: {
-    marginRight: Spacing.tiny,
-  },
-  badgeText: {
-    ...Typography.caption,
-    fontWeight: "600",
-  },
-  // chip de prioridad:
-  priorityChip: {
-    borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: StyleSheet.hairlineWidth,
   },
   priorityChipText: {
-    ...Typography.caption,
     fontWeight: "500",
     textTransform: "capitalize",
   },

@@ -23,6 +23,7 @@ export const Colors = {
   secondary: "#1cd47bff", // Turquesa etéreo (con alpha)
   secondaryLight: "#80deea",
   accent: "#ffca28", // Dorado suave para acentos
+  onAccent: "#0e0a1e",
 
   // Fantasía (gradientes/decor)
   primaryFantasy: "#B542F6",

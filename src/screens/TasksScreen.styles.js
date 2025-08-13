@@ -5,7 +5,7 @@
 // Autor: Codex - Fecha: 2025-08-13
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing } from "../theme";
+import { Colors, Spacing, Radii } from "../theme";
 
 export default StyleSheet.create({
   container: {
@@ -14,14 +14,14 @@ export default StyleSheet.create({
   },
   filterModalBackground: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: Colors.overlay,
     justifyContent: "center",
     alignItems: "center",
   },
   filterModalContainer: {
     width: "90%",
     backgroundColor: Colors.surface,
-    borderRadius: 12,
+    borderRadius: Radii.md,
     padding: Spacing.base,
     maxHeight: "90%",
   },
