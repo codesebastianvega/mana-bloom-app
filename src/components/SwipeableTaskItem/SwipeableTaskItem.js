@@ -326,14 +326,10 @@ export default function SwipeableTaskItem({
           </>
         )}
 
-        {/* ——— Badges de Elemento y Tipo ——— */}
-        <View style={styles.badgeRow}>
-          {/* Elemento (solo icono) */}
+        {/* ——— Chips de metadatos ——— */}
+        <View style={styles.chipRow}>
           <View
-            style={[
-              styles.elementBadge,
-              { backgroundColor: elementInfo.color },
-            ]}
+            style={[styles.elementChip, { backgroundColor: elementInfo.color }]}
             accessible
             accessibilityLabel={`Elemento ${elementInfo.label}`}
           >
@@ -343,21 +339,21 @@ export default function SwipeableTaskItem({
               color={Colors.background}
             />
           </View>
-          {/* Tipo */}
-          <View style={[styles.badge, { backgroundColor: typeConfig.color }]}>
-            <Text style={[styles.badgeText, { color: Colors.text }]}>
+          <View style={[styles.chip, { backgroundColor: typeConfig.color }]}>
+            <Text style={[styles.chipText, styles.typeChipText]}>
               {typeConfig.label}
             </Text>
           </View>
-          {/* Prioridad (chip con borde) */}
           <View
             style={[
+              styles.chip,
               styles.priorityChip,
               { borderColor: getPriorityColor(task.priority) },
             ]}
           >
             <Text
               style={[
+                styles.chipText,
                 styles.priorityChipText,
                 { color: getPriorityColor(task.priority) },
               ]}
@@ -365,18 +361,12 @@ export default function SwipeableTaskItem({
               {getPriorityLabel(task.priority)}
             </Text>
           </View>
+          {task.tags?.map((tag) => (
+            <View key={tag} style={[styles.chip, styles.tagChip]}>
+              <Text style={styles.chipText}>{tag}</Text>
+            </View>
+          ))}
         </View>
-
-        {/* Etiquetas de la tarea */}
-        {task.tags?.length > 0 && (
-          <View style={styles.tagContainer}>
-            {task.tags.map((tag) => (
-              <View key={tag} style={styles.tagChip}>
-                <Text style={styles.tagText}>{tag}</Text>
-              </View>
-            ))}
-          </View>
-        )}
       </Animated.View>
     </View>
   );

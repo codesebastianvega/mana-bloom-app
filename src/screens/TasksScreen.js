@@ -4,22 +4,16 @@
 // Puntos de edición futura: manejo remoto y estilos de filtros
 // Autor: Codex - Fecha: 2025-08-13
 
-import React, { useState, useEffect } from "react";
-import {
-  SafeAreaView,
-  FlatList,
-  Modal,
-  View,
-  StatusBar,
-  Platform,
-} from "react-native";
+import React, { useState, useEffect, useMemo } from "react";
+import { SafeAreaView, FlatList, Modal, View, StatusBar } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getTasks as getStoredTasks, setTasks as setStoredTasks } from "../storage";
 
 import StatsHeader from "../components/StatsHeader";
 import SearchBar from "../components/SearchBar/SearchBar";
 import TaskFilters from "../components/TaskFilters";
 import SwipeableTaskItem from "../components/SwipeableTaskItem/SwipeableTaskItem";
-import AddTaskButton from "../components/AddTaskButton/AddTaskButton";
+import AddTaskButton, { FAB_SIZE } from "../components/AddTaskButton/AddTaskButton";
 import FilterBar from "../components/FilterBar/FilterBar";
 import styles from "./TasksScreen.styles";
 import { Colors, Spacing } from "../theme";
@@ -146,16 +140,16 @@ const elementInfo = {
 
 export default function TasksScreen() {
   const dispatch = useAppDispatch();
+  const insets = useSafeAreaInsets();
   // ——— 2) Estados ———
   const [tasks, setTasks] = useState([]);
   const uniqueTags = Array.from(new Set(tasks.flatMap((t) => t.tags || [])));
-  // useState para manejar el estado de los filtros
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [elementFilter, setElementFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [tagFilter, setTagFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("pending");
+  const [activeFilter, setActiveFilter] = useState("pending");
   const [filtersVisible, setFiltersVisible] = useState(false); // BottomSheet de filtros
   const [showAddModal, setShowAddModal] = useState(false); // Para el botón de añadir tarea
   const [editingTask, setEditingTask] = useState(null);
@@ -300,47 +294,57 @@ export default function TasksScreen() {
   };
 
   // ——— 4) Filtrado combinado ———
-  const filteredTasks = tasks.filter((task) => {
-    let stateOK;
-    switch (statusFilter) {
-      case "completed":
-        stateOK = task.done && !task.isDeleted;
-        break;
-      case "deleted":
-        stateOK = task.isDeleted;
-        break;
-      default:
-        stateOK = !task.done && !task.isDeleted;
-    }
-    const typeOK = activeFilter === "all" || task.type === activeFilter;
-    const elementOK = elementFilter === "all" || task.element === elementFilter;
-    const q = searchQuery.toLowerCase();
-    const searchOK =
-      task.title.toLowerCase().includes(q) ||
-      task.note.toLowerCase().includes(q);
-    const prioOK = priorityFilter === "all" || task.priority === priorityFilter;
-    const tagOK = tagFilter === "all" || (task.tags || []).includes(tagFilter);
-    const diffOK =
-      difficultyFilter === "all" || task.difficulty === difficultyFilter;
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      let stateOK;
+      switch (activeFilter) {
+        case "completed":
+          stateOK = task.done && !task.isDeleted;
+          break;
+        case "deleted":
+          stateOK = task.isDeleted;
+          break;
+        default:
+          stateOK = !task.done && !task.isDeleted;
+      }
+      const typeOK = typeFilter === "all" || task.type === typeFilter;
+      const elementOK = elementFilter === "all" || task.element === elementFilter;
+      const q = searchQuery.toLowerCase();
+      const searchOK =
+        task.title.toLowerCase().includes(q) ||
+        task.note.toLowerCase().includes(q);
+      const prioOK = priorityFilter === "all" || task.priority === priorityFilter;
+      const tagOK = tagFilter === "all" || (task.tags || []).includes(tagFilter);
+      const diffOK =
+        difficultyFilter === "all" || task.difficulty === difficultyFilter;
 
-    return (
-      stateOK && typeOK && elementOK && searchOK && prioOK && tagOK && diffOK
-    );
-  });
+      return (
+        stateOK && typeOK && elementOK && searchOK && prioOK && tagOK && diffOK
+      );
+    });
+  }, [
+    tasks,
+    activeFilter,
+    typeFilter,
+    elementFilter,
+    searchQuery,
+    priorityFilter,
+    tagFilter,
+    difficultyFilter,
+  ]);
 
   // ——— 5) Render ———
+  const listData = useMemo(
+    () => [
+      { renderType: "filters" },
+      { renderType: "search" },
+      ...filteredTasks,
+    ],
+    [filteredTasks]
+  );
+
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        {
-          paddingTop: Platform.select({
-            android: (StatusBar.currentHeight || 0) + Spacing.small,
-            ios: Spacing.small,
-          }),
-        },
-      ]}
-    >
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar
         translucent
         barStyle="light-content"
@@ -348,49 +352,64 @@ export default function TasksScreen() {
       />
 
       <FlatList
-        data={filteredTasks}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <SwipeableTaskItem
-            task={item}
-            onToggleComplete={toggleTaskDone}
-            onSoftDeleteTask={onSoftDeleteTask}
-            onRestoreTask={onRestoreTask}
-            onPermanentDeleteTask={onPermanentDeleteTask}
-            onEditTask={onEditTask}
-            onToggleSubtask={onToggleSubtask}
-            activeFilter={statusFilter}
-          />
-        )}
-        ListHeaderComponent={() => [
-          <View key="stats" style={{ marginBottom: Spacing.small }}>
+        data={listData}
+        keyExtractor={(item) => item.id || item.renderType}
+        renderItem={({ item }) => {
+          if (item.renderType === "filters") {
+            return (
+              <FilterBar
+                filters={statusFilters}
+                active={activeFilter}
+                onSelect={setActiveFilter}
+              />
+            );
+          }
+          if (item.renderType === "search") {
+            return (
+              <View style={{ marginVertical: Spacing.small }}>
+                <SearchBar
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  onToggleAdvanced={() => setFiltersVisible(true)}
+                />
+              </View>
+            );
+          }
+          return (
+            <SwipeableTaskItem
+              task={item}
+              onToggleComplete={toggleTaskDone}
+              onSoftDeleteTask={onSoftDeleteTask}
+              onRestoreTask={onRestoreTask}
+              onPermanentDeleteTask={onPermanentDeleteTask}
+              onEditTask={onEditTask}
+              onToggleSubtask={onToggleSubtask}
+              activeFilter={activeFilter}
+            />
+          );
+        }}
+        ListHeaderComponent={
+          <View style={{ marginVertical: Spacing.small }}>
             <StatsHeader />
-          </View>,
-          <FilterBar
-            key="filter"
-            filters={statusFilters}
-            active={statusFilter}
-            onSelect={setStatusFilter}
-          />,
-          <SearchBar
-            key="search"
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onToggleAdvanced={() => setFiltersVisible(true)}
-          />,
-        ]}
+          </View>
+        }
         stickyHeaderIndices={[1]}
         contentContainerStyle={{
           paddingHorizontal: Spacing.large,
-          paddingTop: Spacing.small + Spacing.tiny,
-          paddingBottom: Spacing.xlarge * 2,
+          paddingTop: Spacing.base,
         }}
+        ListFooterComponent={
+          <View
+            style={{ height: FAB_SIZE + insets.bottom + Spacing.large }}
+          />
+        }
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        removeClippedSubviews={true}
+        removeClippedSubviews={false}
         initialNumToRender={8}
         windowSize={11}
         contentInsetAdjustmentBehavior="automatic"
+        extraData={{ tasks, activeFilter, searchQuery }}
         accessibilityRole="list"
       />
 
@@ -417,7 +436,7 @@ export default function TasksScreen() {
                 difficultyFilter,
                 tagFilter,
               }) => {
-                setActiveFilter(active);
+                setTypeFilter(active);
                 setElementFilter(elementFilter);
                 setPriorityFilter(priorityFilter);
                 setDifficultyFilter(difficultyFilter);
