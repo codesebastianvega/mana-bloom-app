@@ -3,6 +3,7 @@
    Afecta: toda la app (colores, espaciado, tipografía, radios, elevación)
    Propósito: unificar estilos y facilitar que Codex y yo creemos UI coherente
    Puntos de edición futura: Typography, Radii
+   Autor: Codex - Fecha: 2025-08-13
 */
 
 export const Colors = {
@@ -25,8 +26,7 @@ export const Colors = {
 
   // Fantasía (gradientes/decor)
   primaryFantasy: "#B542F6",
-  secondaryFantasy: "#F8329D",
-  tertiaryFantasy: "#FFD700",
+  secondaryFantasy: "#FFD700",
 
   // Estados
   success: "#1db954",

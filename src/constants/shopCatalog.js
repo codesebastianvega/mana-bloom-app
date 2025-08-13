@@ -2,7 +2,7 @@
 // Afecta: inventario y recompensas
 // Propósito: Definir catálogo por categoría y acentos
 // Puntos de edición futura: ampliar catálogo, agregar suscripciones
-// Autor: Codex - Fecha: 2025-08-24
+// Autor: Codex - Fecha: 2025-08-13
 
 export const CURRENCIES = { MANA: "mana", COIN: "coin", GEM: "gem" };
 
@@ -23,7 +23,7 @@ export const SHOP_CATALOG = {
 export const ShopColors = {
   potions:   { bg: "#1b1231", border: "#7e57c2", pill: "#B542F6" },
   tools:     { bg: "#10251c", border: "#1cd47b", pill: "#1cd47b" },
-  cosmetics: { bg: "#2a1022", border: "#F8329D", pill: "#F8329D" },
+  cosmetics: { bg: "#281e00", border: "#FFD700", pill: "#FFD700" },
   subs:      { bg: "#281e00", border: "#FFD700", pill: "#FFD700" },
 };
 
