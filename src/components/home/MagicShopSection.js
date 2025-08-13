@@ -9,12 +9,13 @@ import { View, Text, Pressable, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import styles from "./MagicShopSection.styles";
 import ShopItemCard from "./ShopItemCard";
-import { ShopColors } from "../../theme";
+import { ShopColors, Colors } from "../../theme";
 import {
   useAppState,
   useAppDispatch,
   useCanAfford,
   useHydrationStatus,
+  useWallet,
 } from "../../state/AppContext";
 import SectionPlaceholder from "./SectionPlaceholder";
 
@@ -81,10 +82,11 @@ export default function MagicShopSection({ onLayout }) {
   const dispatch = useAppDispatch();
   const canAfford = useCanAfford();
   const hydration = useHydrationStatus();
+  const { coin, gem } = useWallet();
 
   const addDebugMana = () => dispatch({ type: "SET_MANA", payload: mana + 5 });
 
-  if (hydration.mana) {
+  if (hydration.mana || hydration.wallet) {
     return <SectionPlaceholder height={300} />;
   }
 
@@ -102,17 +104,39 @@ export default function MagicShopSection({ onLayout }) {
           Maná disponible
         </Text>
         <View
+          style={styles.walletPills}
           accessible
-          accessibilityLabel={`Maná disponible: ${mana}`}
-          style={[styles.manaPill, { borderColor: ShopColors[activeTab].pill }]}
+          accessibilityLabel={`Saldo: ${mana} maná, ${coin} monedas, ${gem} diamantes`}
         >
-          <Ionicons
-            name="sparkles"
-            size={16}
-            color={ShopColors[activeTab].pill}
-            style={styles.manaIcon}
-          />
-          <Text style={styles.manaValue}>{mana}</Text>
+          <View
+            style={[styles.manaPill, { borderColor: ShopColors[activeTab].pill }]}
+          >
+            <Ionicons
+              name="sparkles"
+              size={16}
+              color={ShopColors[activeTab].pill}
+              style={styles.manaIcon}
+            />
+            <Text style={styles.manaValue}>{mana}</Text>
+          </View>
+          <View style={styles.currencyPill}>
+            <Ionicons
+              name="logo-bitcoin"
+              size={14}
+              color={Colors.text}
+              style={styles.currencyIcon}
+            />
+            <Text style={styles.currencyValue}>{coin}</Text>
+          </View>
+          <View style={styles.currencyPill}>
+            <Ionicons
+              name="diamond"
+              size={14}
+              color={Colors.text}
+              style={styles.currencyIcon}
+            />
+            <Text style={styles.currencyValue}>{gem}</Text>
+          </View>
         </View>
       </View>
 

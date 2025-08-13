@@ -30,6 +30,8 @@ import {
   setDailyChallengesState,
   getNewsFeed,
   setNewsFeed,
+  getWallet,
+  setWallet,
 } from "../storage";
 
 export const DAILY_REWARD_MANA = 10;
@@ -122,6 +124,7 @@ const initialState = {
   plantState: "Floreciendo",
   streak: 0,
   lastClaimDate: null,
+  wallet: { coin: 0, gem: 0 },
   xp: 0,
   level: 1,
   xpGoal: 100,
@@ -145,6 +148,28 @@ function appReducer(state, action) {
       return { ...state, streak: action.payload };
     case "SET_LAST_CLAIM_DATE":
       return { ...state, lastClaimDate: action.payload };
+    case "SET_WALLET":
+      return { ...state, wallet: { ...state.wallet, ...action.payload } };
+    case "ADD_COIN":
+      return {
+        ...state,
+        wallet: { ...state.wallet, coin: state.wallet.coin + action.payload },
+      };
+    case "SPEND_COIN": {
+      const newCoin = state.wallet.coin - action.payload;
+      if (newCoin < 0) return state;
+      return { ...state, wallet: { ...state.wallet, coin: newCoin } };
+    }
+    case "ADD_GEM":
+      return {
+        ...state,
+        wallet: { ...state.wallet, gem: state.wallet.gem + action.payload },
+      };
+    case "SPEND_GEM": {
+      const newGem = state.wallet.gem - action.payload;
+      if (newGem < 0) return state;
+      return { ...state, wallet: { ...state.wallet, gem: newGem } };
+    }
     case "SET_PROGRESS":
       return {
         ...state,
@@ -301,6 +326,7 @@ export function AppProvider({ children }) {
   const isHydrating = useRef(true);
   const [hydration, setHydration] = useState({
     mana: true,
+    wallet: true,
     progress: true,
     inventory: true,
     news: true,
@@ -318,6 +344,7 @@ export function AppProvider({ children }) {
         storedBuffs,
         storedDailyChallenges,
         storedNews,
+        storedWallet,
       ] = await Promise.all([
         getMana(),
         getStreak(),
@@ -327,6 +354,7 @@ export function AppProvider({ children }) {
         getBuffs(),
         getDailyChallengesState(),
         getNewsFeed(),
+        getWallet(),
       ]);
       dispatch({ type: "SET_MANA", payload: storedMana });
       setHydration((h) => ({ ...h, mana: false }));
@@ -340,6 +368,8 @@ export function AppProvider({ children }) {
       setHydration((h) => ({ ...h, progress: false }));
       dispatch({ type: "SET_INVENTORY", payload: storedInventory });
       setHydration((h) => ({ ...h, inventory: false }));
+      dispatch({ type: "SET_WALLET", payload: storedWallet });
+      setHydration((h) => ({ ...h, wallet: false }));
       const todayKey = getLocalISODate();
       let dailyChallenges = storedDailyChallenges;
       if (!dailyChallenges || dailyChallenges.dateKey !== todayKey) {
@@ -395,6 +425,11 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     if (isHydrating.current) return;
+    setWallet(state.wallet);
+  }, [state.wallet]);
+
+  useEffect(() => {
+    if (isHydrating.current) return;
     setBuffs(state.buffs);
   }, [state.buffs]);
 
@@ -443,6 +478,16 @@ export function useCanClaimToday() {
 export function useCanAfford() {
   const { mana } = useAppState();
   return useCallback((cost) => mana >= cost, [mana]);
+}
+
+export function useWallet() {
+  const { wallet } = useAppState();
+  return wallet;
+}
+
+export function useCanAffordCurrency(currency, amount) {
+  const { wallet } = useAppState();
+  return wallet[currency] >= amount;
 }
 
 export function useProgress() {

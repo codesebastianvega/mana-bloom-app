@@ -2,7 +2,7 @@
 // Afecta: AppContext (persistencia de maná, rachas, progreso, tareas, desafíos y noticias)
 // Propósito: Persistir datos básicos de usuario en AsyncStorage
 // Puntos de edición futura: extender a otros campos y manejo de errores
-// Autor: Codex - Fecha: 2025-08-12
+// Autor: Codex - Fecha: 2025-08-13
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -14,6 +14,7 @@ const TASKS_KEY = "mb:tasks";
 const INVENTORY_KEY = "mb:inventory";
 const DAILY_CHALLENGES_KEY = "mb:dailyChallenges";
 const NEWS_KEY = "mb:news";
+const WALLET_KEY = "mb:wallet";
 
 export async function getMana() {
   try {
@@ -72,6 +73,30 @@ export async function setLastClaimDate(value) {
     await AsyncStorage.setItem(LAST_CLAIM_DATE_KEY, value);
   } catch (e) {
     console.warn("Error guardando fecha de reclamo en storage", e);
+  }
+}
+
+// [MB] Helpers de wallet (monedas y diamantes)
+const DEFAULT_WALLET = { coin: 0, gem: 0 };
+
+export async function getWallet() {
+  try {
+    const value = await AsyncStorage.getItem(WALLET_KEY);
+    if (value) {
+      const parsed = JSON.parse(value);
+      return { ...DEFAULT_WALLET, ...parsed };
+    }
+  } catch (e) {
+    console.warn("Error leyendo wallet de storage", e);
+  }
+  return { ...DEFAULT_WALLET };
+}
+
+export async function setWallet(wallet) {
+  try {
+    await AsyncStorage.setItem(WALLET_KEY, JSON.stringify(wallet));
+  } catch (e) {
+    console.warn("Error guardando wallet en storage", e);
   }
 }
 
