@@ -1,4 +1,8 @@
-// src/components/AddTaskButton/AddTaskButton.js
+// [MB] Módulo: Tasks / Sección: AddTaskButton
+// Afecta: creación de tareas (botón flotante)
+// Propósito: Botón flotante para agregar tareas nuevas
+// Puntos de edición futura: animaciones y estilos de gradiente
+// Autor: Codex - Fecha: 2025-08-13
 
 import React, { useState } from "react";
 import { TouchableOpacity } from "react-native";
@@ -16,13 +20,12 @@ export default function AddTaskButton({ onPress }) {
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}
     >
-      {" "}
       <LinearGradient
         colors={["#6d56d3ff", "#0ca790ff"]} // Nueva paleta de colores para el degradado
         style={styles.gradient}
       >
-        <FontAwesome name="plus" size={20} color={Colors.text} />{" "}
-      </LinearGradient>{" "}
+        <FontAwesome name="plus" size={20} color={Colors.text} />
+      </LinearGradient>
     </TouchableOpacity>
   );
 }
