@@ -5,13 +5,7 @@
 // Autor: Codex - Fecha: 2025-08-12
 
 import { StyleSheet } from "react-native";
-import {
-  Colors,
-  Spacing,
-  Radii,
-  Elevation,
-  Typography,
-} from "../../theme";
+import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
 
 export default StyleSheet.create({
   card: {
