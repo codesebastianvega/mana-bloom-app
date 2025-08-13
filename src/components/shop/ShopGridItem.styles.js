@@ -10,6 +10,8 @@ import { Colors, Spacing, Radii, Typography, Elevation } from "../../theme";
 export default StyleSheet.create({
   card: {
     flex: 1,
+    justifyContent: "space-between",
+    minHeight: Spacing.xlarge * 5,
     backgroundColor: Colors.surfaceElevated,
     borderWidth: 1,
     borderRadius: Radii.lg,
@@ -32,6 +34,8 @@ export default StyleSheet.create({
   },
   pricePill: {
     alignSelf: "flex-end",
+    minWidth: Spacing.xlarge * 2,
+    alignItems: "center",
     borderRadius: Radii.pill,
     paddingHorizontal: Spacing.small,
     paddingVertical: Spacing.tiny,
