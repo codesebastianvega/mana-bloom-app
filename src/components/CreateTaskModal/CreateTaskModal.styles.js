@@ -1,6 +1,8 @@
-// [MB] CreateTaskModal.styles.js — estilos del modal de tareas alineados al tema (solo estilos, sin tocar la estructura)
-// Módulo: Tasks > CreateTaskModal
-// Propósito: Unificar visual con Home (fondos, radios, tipografías, paddings, chips y botones) usando tokens.
+// [MB] Módulo: Tasks / Sección: CreateTaskModal
+// Afecta: CreateTaskModal
+// Propósito: Estilos del modal para crear y editar tareas
+// Puntos de edición futura: tokens en theme y ajustes de spacing
+// Autor: Codex - Fecha: 2025-08-13
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Elevation /*, Typography*/ } from "../../theme";
@@ -149,6 +151,12 @@ export default StyleSheet.create({
   chipLabelActive: {
     color: Colors.text,
     fontWeight: "700",
+  },
+
+  chipScrollContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
   },
 
   // Subtareas: fila input + botón "+"
