@@ -2,7 +2,7 @@
 // Afecta: TasksScreen
 // Propósito: Estilos base alineados al home
 // Puntos de edición futura: ajustes de layout y modales
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-02-14
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Elevation } from "../theme";
@@ -16,8 +16,6 @@ export default StyleSheet.create({
   content: {
     paddingHorizontal: Spacing.base,
     paddingTop: Spacing.base,
-    gap: Spacing.large,
-    paddingBottom: FAB_SIZE + Spacing.large * 2,
   },
   filterModalBackground: {
     flex: 1,
@@ -32,17 +30,21 @@ export default StyleSheet.create({
     padding: Spacing.base,
     maxHeight: "90%",
   },
-  fab: {
+  fabContainer: {
     position: "absolute",
     right: Spacing.large,
     width: FAB_SIZE,
     height: FAB_SIZE,
     borderRadius: FAB_SIZE / 2,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.accent,
+    overflow: "hidden",
     zIndex: 60,
     ...Elevation.card,
     elevation: 8,
+  },
+  fabGradient: {
+    flex: 1,
+    borderRadius: FAB_SIZE / 2,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

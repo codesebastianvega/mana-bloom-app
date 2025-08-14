@@ -2,7 +2,7 @@
 // Afecta: SearchBar
 // Propósito: Campo de búsqueda con acceso a filtros avanzados
 // Puntos de edición futura: estados de focus y validaciones
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-02-14
 
 import React from "react";
 import { View, TextInput, TouchableOpacity } from "react-native";
