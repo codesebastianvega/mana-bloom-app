@@ -8,7 +8,7 @@ import React, { useRef, useState, useCallback } from "react";
 import { StyleSheet, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors, Spacing } from "../theme";
-import HomeScreenHeader from "../components/HomeScreenHeader";
+import HomeHeader from "../components/home/HomeHeader";
 import HomeWelcomeCard from "../components/home/HomeWelcomeCard";
 import DailyRewardSection from "../components/home/DailyRewardSection";
 import DailyChallengesSection from "../components/home/DailyChallengesSection";
@@ -19,12 +19,14 @@ import StatsQuickTiles from "../components/home/StatsQuickTiles";
 import EventBanner from "../components/home/EventBanner";
 import AchievementToast from "../components/common/AchievementToast";
 import { useAppDispatch, useAchievementToast } from "../state/AppContext";
+import { useNavigation } from "@react-navigation/native";
 
 export default function HomeScreen() {
   const achievementToast = useAchievementToast();
   const dispatch = useAppDispatch();
   const scrollRef = useRef(null);
   const [anchors, setAnchors] = useState({});
+  const navigation = useNavigation();
 
   const setAnchor = useCallback(
     (key) => (e) => {
@@ -39,6 +41,14 @@ export default function HomeScreen() {
     scrollRef.current?.scrollTo({ y: anchors.shop, animated: true });
   }, [anchors.shop]);
 
+  const scrollToReward = useCallback(() => {
+    scrollRef.current?.scrollTo({ y: anchors.reward, animated: true });
+  }, [anchors.reward]);
+
+  const goToTasks = useCallback(() => {
+    navigation.navigate("Tasks");
+  }, [navigation]);
+
   return (
     <SafeAreaView style={styles.container}>
       {achievementToast && (
@@ -48,14 +58,14 @@ export default function HomeScreen() {
           onClose={() => dispatch({ type: "CLEAR_ACHIEVEMENT_TOAST" })}
         />
       )}
-      <HomeScreenHeader />
+      <HomeHeader onPressDailyReward={scrollToReward} />
       <ScrollView
         ref={scrollRef}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
         <View onLayout={setAnchor("welcome")}>
-          <HomeWelcomeCard />
+          <HomeWelcomeCard onNext={goToTasks} />
         </View>
         <View onLayout={setAnchor("reward")}>
           <DailyRewardSection />
