@@ -402,16 +402,12 @@ export default function TasksScreen() {
           );
         }}
         ListHeaderComponent={
-          <View style={{ marginVertical: Spacing.small }}>
+          <View style={{ marginBottom: Spacing.large }}>
             <StatsHeader />
           </View>
         }
         stickyHeaderIndices={[1]}
-
-        contentContainerStyle={{
-          paddingHorizontal: Spacing.large,
-          paddingTop: Spacing.base,
-        }}
+        contentContainerStyle={styles.content}
         ListFooterComponent={<View style={{ height: fabOffset + Spacing.large }} />}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
