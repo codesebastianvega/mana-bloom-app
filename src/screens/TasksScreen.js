@@ -2,7 +2,7 @@
 // Afecta: TasksScreen (listado y gestión de tareas)
 // Propósito: Listar, filtrar y persistir tareas con recompensas seguras
 // Puntos de edición futura: manejo remoto y estilos de filtros
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-02-14
 
 import React, { useState, useEffect, useMemo } from "react";
 import {
@@ -16,13 +16,13 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { FontAwesome } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { getTasks as getStoredTasks, setTasks as setStoredTasks } from "../storage";
 
 import StatsHeader from "../components/StatsHeader";
-import SearchBar from "../components/SearchBar/SearchBar";
 import TaskFilters from "../components/TaskFilters";
 import TaskCard from "../components/TaskCard/TaskCard";
-import TaskFilterBar from "../components/TaskFilterBar/TaskFilterBar";
+import FiltersHeader from "../components/FilterBar/FiltersHeader";
 import styles from "./TasksScreen.styles";
 import { Colors, Spacing } from "../theme";
 import CreateTaskModal from "../components/CreateTaskModal/CreateTaskModal";
@@ -344,15 +344,7 @@ export default function TasksScreen() {
   ]);
 
   // ——— 5) Render ———
-  const listData = useMemo(
-    () => [
-      { renderType: "filters" },
-      { renderType: "search" },
-      ...filteredTasks,
-    ],
-
-    [filteredTasks]
-  );
+  const listData = useMemo(() => filteredTasks, [filteredTasks]);
 
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
@@ -364,48 +356,34 @@ export default function TasksScreen() {
 
       <FlatList
         data={listData}
-        keyExtractor={(item) => item.id || item.renderType}
-        renderItem={({ item }) => {
-          if (item.renderType === "filters") {
-            return (
-              <View style={{ backgroundColor: Colors.surface }}>
-                <TaskFilterBar
-                  filters={statusFilters}
-                  active={activeFilter}
-                  onSelect={setActiveFilter}
-                />
-              </View>
-            );
-          }
-          if (item.renderType === "search") {
-            return (
-              <View style={{ marginVertical: Spacing.small }}>
-                <SearchBar
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                  onToggleAdvanced={() => setFiltersVisible(true)}
-                />
-              </View>
-            );
-          }
-          return (
-            <TaskCard
-              task={item}
-              onToggleComplete={toggleTaskDone}
-              onSoftDeleteTask={onSoftDeleteTask}
-              onRestoreTask={onRestoreTask}
-              onPermanentDeleteTask={onPermanentDeleteTask}
-              onEditTask={onEditTask}
-              onToggleSubtask={onToggleSubtask}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TaskCard
+            task={item}
+            onToggleComplete={toggleTaskDone}
+            onSoftDeleteTask={onSoftDeleteTask}
+            onRestoreTask={onRestoreTask}
+            onPermanentDeleteTask={onPermanentDeleteTask}
+            onEditTask={onEditTask}
+            onToggleSubtask={onToggleSubtask}
+            activeFilter={activeFilter}
+          />
+        )}
+        ListHeaderComponent={() => (
+          <>
+            <View style={{ marginBottom: Spacing.small }}>
+              <StatsHeader />
+            </View>
+            <FiltersHeader
+              statusFilters={statusFilters}
               activeFilter={activeFilter}
+              onSelectFilter={setActiveFilter}
+              searchQuery={searchQuery}
+              onChangeSearch={setSearchQuery}
+              onToggleAdvanced={() => setFiltersVisible(true)}
             />
-          );
-        }}
-        ListHeaderComponent={
-          <View style={{ marginBottom: Spacing.large }}>
-            <StatsHeader />
-          </View>
-        }
+          </>
+        )}
         stickyHeaderIndices={[1]}
         contentContainerStyle={styles.content}
         ListFooterComponent={<View style={{ height: fabOffset + Spacing.large }} />}
@@ -420,12 +398,19 @@ export default function TasksScreen() {
       />
 
       <TouchableOpacity
-        style={[styles.fab, { bottom: fabOffset }]}
+        style={[styles.fabContainer, { bottom: fabOffset }]}
         onPress={onAddTask}
         accessibilityRole="button"
         accessibilityLabel="Añadir tarea"
       >
-        <FontAwesome name="plus" size={20} color={Colors.onAccent} />
+        <LinearGradient
+          colors={[Colors.secondary, Colors.primary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.fabGradient}
+        >
+          <FontAwesome name="plus" size={20} color={Colors.onAccent} />
+        </LinearGradient>
       </TouchableOpacity>
 
       <Modal

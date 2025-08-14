@@ -2,7 +2,7 @@
 // Afecta: SearchBar
 // Propósito: Estilo alineado al tema
 // Puntos de edición futura: focos y estados deshabilitados
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-02-14
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii } from "../../theme";
@@ -11,12 +11,12 @@ export default StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.surfaceElevated,
-    paddingHorizontal: Spacing.base,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: Spacing.small + Spacing.tiny,
+    paddingVertical: Spacing.small,
     borderRadius: Radii.lg,
-    marginVertical: Spacing.small,
     justifyContent: "space-between",
-    minHeight: 48,
+    minHeight: Spacing.xlarge + Spacing.tiny,
     borderWidth: 1,
     borderColor: Colors.separator,
   },

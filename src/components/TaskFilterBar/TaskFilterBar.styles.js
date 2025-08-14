@@ -2,43 +2,47 @@
 // Afecta: TaskFilterBar (tabs principales)
 // Propósito: Estilos de control segmentado para estado de tareas
 // Puntos de edición futura: animaciones y accesibilidad
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-02-14
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Elevation } from "../../theme";
+import { Colors, Spacing, Radii } from "../../theme";
 
 export default StyleSheet.create({
   container: {
     flexDirection: "row",
-    backgroundColor: Colors.surface,
-    borderRadius: Radii.sm,
-    paddingHorizontal: Spacing.tiny,
-    paddingVertical: Spacing.tiny,
-    gap: Spacing.tiny,
-    zIndex: 50,
-    ...Elevation.raised,
+    gap: Spacing.small,
   },
   button: {
     flex: 1,
-    height: 40,
-    borderRadius: Radii.lg,
+    height: Spacing.xlarge + Spacing.tiny,
+    borderRadius: Radii.md,
     alignItems: "center",
     justifyContent: "center",
-  },
-  buttonActive: {
-    backgroundColor: Colors.secondary,
-  },
-  buttonInactive: {
     backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.separator,
+    position: "relative",
+  },
+  buttonActive: {},
+  buttonInactive: {},
+  tabContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
+  },
+  underline: {
+    position: "absolute",
+    left: Spacing.small,
+    right: Spacing.small,
+    bottom: 0,
+    height: 2,
+    backgroundColor: Colors.secondary,
+    borderRadius: 1,
   },
   label: {
     fontSize: 14,
     fontWeight: "600",
   },
   labelActive: {
-    color: Colors.onAccent,
+    color: Colors.text,
   },
   labelInactive: {
     color: Colors.textMuted,

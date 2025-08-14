@@ -2,7 +2,7 @@
 // Afecta: TaskCard
 // Propósito: estilos de tarjeta y chips
 // Puntos de edición futura: animaciones y badges
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-02-14
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
@@ -43,22 +43,15 @@ export default StyleSheet.create({
   },
   card: {
     width: "100%",
-    backgroundColor: Colors.surfaceElevated,
+    backgroundColor: Colors.surface,
     borderRadius: Radii.lg,
-    paddingVertical: Spacing.base,
-    paddingHorizontal: Spacing.large,
-    marginBottom: Spacing.tiny,
-
+    paddingVertical: Spacing.small + Spacing.tiny,
+    paddingHorizontal: Spacing.small + Spacing.tiny,
+    marginBottom: Spacing.small,
+    borderLeftWidth: 3,
     flexDirection: "column",
-    gap: Spacing.tiny,
+    gap: Spacing.small,
     ...Elevation.card,
-  },
-  accentBar: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: Spacing.tiny,
   },
   contentRow: {
     flexDirection: "row",
@@ -73,6 +66,7 @@ export default StyleSheet.create({
   },
   note: {
     ...Typography.body,
+    fontSize: Typography.caption.fontSize + 1,
     color: Colors.textMuted,
     marginTop: Spacing.tiny,
     marginBottom: Spacing.tiny,
@@ -147,15 +141,15 @@ export default StyleSheet.create({
     marginTop: Spacing.tiny,
   },
   elementChip: {
-    width: 24,
-    height: 24,
+    width: Spacing.base * 2,
+    height: Spacing.base * 2,
     borderRadius: Radii.pill,
     alignItems: "center",
     justifyContent: "center",
   },
   chip: {
-    minHeight: 24,
-    paddingHorizontal: Spacing.small,
+    minHeight: Spacing.base * 2,
+    paddingHorizontal: Spacing.small + Spacing.tiny,
     borderRadius: Radii.pill,
     justifyContent: "center",
     alignItems: "center",
@@ -171,6 +165,8 @@ export default StyleSheet.create({
   tagChip: {
     backgroundColor: Colors.surface,
     transform: [{ scale: 0.95 }],
+    minHeight: Spacing.base + Spacing.small + Spacing.tiny,
+    paddingHorizontal: Spacing.small,
   },
   priorityChipText: {
     fontWeight: "500",

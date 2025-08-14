@@ -2,11 +2,13 @@
 // Afecta: TaskFilterBar (tabs principales)
 // Propósito: Tabs accesibles alineadas al tema
 // Puntos de edición futura: animaciones y desplazamiento
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-02-14
 
 import React from "react";
 import { View, Pressable, Text } from "react-native";
+import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./TaskFilterBar.styles";
+import { Colors } from "../../theme";
 
 export default function TaskFilterBar({ filters, active, onSelect }) {
   return (
@@ -21,11 +23,21 @@ export default function TaskFilterBar({ filters, active, onSelect }) {
             accessibilityRole="button"
             accessibilityState={{ selected: isActive }}
           >
-            <Text
-              style={[styles.label, isActive ? styles.labelActive : styles.labelInactive]}
-            >
-              {f.label}
-            </Text>
+            <View style={styles.tabContent}>
+              {f.icon && (
+                <FontAwesome5
+                  name={f.icon}
+                  size={14}
+                  color={isActive ? Colors.text : Colors.textMuted}
+                />
+              )}
+              <Text
+                style={[styles.label, isActive ? styles.labelActive : styles.labelInactive]}
+              >
+                {f.label}
+              </Text>
+            </View>
+            {isActive && <View style={styles.underline} />}
           </Pressable>
         );
       })}

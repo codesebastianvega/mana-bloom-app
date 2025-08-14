@@ -2,7 +2,7 @@
 // Afecta: TasksScreen (interacción de completar y eliminar tareas)
 // Propósito: Item de tarea deslizable con acciones y recompensas
 // Puntos de edición futura: animaciones y estilos en TaskCard
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-02-14
 
 import React, { useRef, useState } from "react";
 import {
@@ -67,6 +67,19 @@ const getTypeConfig = (type) => {
 
     default:
       return { label: "Tarea", color: Colors.primaryLight };
+  }
+};
+
+const getDifficultyColor = (d) => {
+  switch (d) {
+    case "easy":
+      return Colors.info;
+    case "medium":
+      return Colors.warning;
+    case "hard":
+      return Colors.danger;
+    default:
+      return Colors.separator;
   }
 };
 
@@ -191,15 +204,13 @@ export default function TaskCard({
           {
             transform: [{ translateX: pan }, { scale }],
             opacity: task.completed || task.isDeleted ? 0.5 : 1,
+            borderLeftColor: getDifficultyColor(task.difficulty),
           },
         ]}
         {...panResponder.panHandlers}
         onTouchStart={handlePressIn}
         onTouchEnd={handlePressOut}
       >
-        <View
-          style={[styles.accentBar, { backgroundColor: elementInfo.color }]}
-        />
         <TouchableOpacity
           style={styles.contentRow}
           onPress={() => onEditTask(task)}
