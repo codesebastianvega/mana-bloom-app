@@ -374,15 +374,28 @@ export default function TaskCard({
           <View style={styles.chip} accessibilityRole="text">
             <Text style={styles.chipText}>{typeLabel}</Text>
           </View>
-          <View style={styles.chip} accessibilityRole="text">
-            <Text style={styles.chipText}>{getPriorityLabel(task.priority)}</Text>
+          <View
+            style={[
+              styles.chip,
+              { borderColor: getPriorityColor(task.priority) },
+            ]}
+            accessibilityRole="text"
+          >
+            <Text
+              style={[
+                styles.chipText,
+                { color: getPriorityColor(task.priority) },
+              ]}
+            >
+              {getPriorityLabel(task.priority)}
+            </Text>
           </View>
           {task.tags?.length > 0 && (
             <View style={styles.tagsContainer}>
               {task.tags.map((tag) => (
                 <View key={tag} style={styles.tagChip} accessibilityRole="text">
                   <Text
-                    style={styles.chipText}
+                    style={styles.tagText}
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
