@@ -13,6 +13,12 @@ export default StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  content: {
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.base,
+    gap: Spacing.large,
+    paddingBottom: FAB_SIZE + Spacing.large * 2,
+  },
   filterModalBackground: {
     flex: 1,
     backgroundColor: Colors.overlay,
