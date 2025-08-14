@@ -1,8 +1,9 @@
+// [MB] TasksScreen.styles — ajustes de layout y FAB
 // [MB] Módulo: Tasks / Sección: Pantalla de tareas
 // Afecta: TasksScreen
 // Propósito: Estilos base alineados al home
 // Puntos de edición futura: ajustes de layout y modales
-// Autor: Codex - Fecha: 2025-02-14
+// Autor: Codex - Fecha: 2025-08-14
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Elevation } from "../theme";
@@ -38,8 +39,7 @@ export default StyleSheet.create({
     borderRadius: FAB_SIZE / 2,
     overflow: "hidden",
     zIndex: 60,
-    ...Elevation.card,
-    elevation: 8,
+    ...Elevation.raised,
   },
   fabGradient: {
     flex: 1,

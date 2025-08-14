@@ -1,8 +1,9 @@
+// [MB] FiltersHeader — bloque de tabs y buscador
 // [MB] Módulo: Tasks / Sección: Encabezado de filtros
 // Afecta: TasksScreen (bloque sticky de filtros)
 // Propósito: Agrupar tabs de estado y barra de búsqueda
 // Puntos de edición futura: animaciones y estados vacíos
-// Autor: Codex - Fecha: 2025-02-14
+// Autor: Codex - Fecha: 2025-08-14
 
 import React from "react";
 import { View } from "react-native";
@@ -19,7 +20,7 @@ export default function FiltersHeader({
   onToggleAdvanced,
 }) {
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityRole="header">
       <TaskFilterBar filters={statusFilters} active={activeFilter} onSelect={onSelectFilter} />
       <SearchBar
         value={searchQuery}

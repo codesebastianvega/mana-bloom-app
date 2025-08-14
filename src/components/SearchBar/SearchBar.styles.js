@@ -1,8 +1,9 @@
+// [MB] SearchBar.styles — ajusta buscador full-width
 // [MB] Módulo: Tasks / Sección: Barra de búsqueda
 // Afecta: SearchBar
 // Propósito: Estilo alineado al tema
 // Puntos de edición futura: focos y estados deshabilitados
-// Autor: Codex - Fecha: 2025-02-14
+// Autor: Codex - Fecha: 2025-08-14
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii } from "../../theme";
@@ -11,19 +12,20 @@ export default StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.surface,
-    paddingHorizontal: Spacing.small + Spacing.tiny,
-    paddingVertical: Spacing.small,
-    borderRadius: Radii.lg,
-    justifyContent: "space-between",
-    minHeight: Spacing.xlarge + Spacing.tiny,
-    borderWidth: 1,
-    borderColor: Colors.separator,
+    width: "100%",
+    gap: Spacing.small,
   },
-  inner: {
+  searchBox: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: Spacing.base - Spacing.tiny,
+    paddingVertical: Spacing.small,
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    borderColor: Colors.separator,
+    minHeight: Spacing.large + Spacing.base + Spacing.tiny,
     gap: Spacing.small,
   },
   input: {
@@ -32,9 +34,14 @@ export default StyleSheet.create({
     fontSize: 14,
     padding: 0,
   },
-  button: {
-    // Botón para filtros avanzados
-    marginLeft: Spacing.small,
-    opacity: 0.9,
+  filterButton: {
+    width: Spacing.base * 2,
+    height: Spacing.base * 2,
+    borderRadius: Radii.lg,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.separator,
   },
 });

@@ -1,8 +1,9 @@
+// [MB] TaskCard — tarjeta con borde por dificultad
 // [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: TasksScreen (interacción de completar y eliminar tareas)
 // Propósito: Item de tarea deslizable con acciones y recompensas
 // Puntos de edición futura: animaciones y estilos en TaskCard
-// Autor: Codex - Fecha: 2025-02-14
+// Autor: Codex - Fecha: 2025-08-14
 
 import React, { useRef, useState } from "react";
 import {
