@@ -2,19 +2,44 @@
 // Afecta: HomeScreen
 // Propósito: Encabezado con top bar, chips y popovers informativos
 // Puntos de edición futura: conectar datos reales y estilos responsivos
-// Autor: Codex - Fecha: 2025-08-30
+// Autor: Codex - Fecha: 2025-08-14
 
-import React, { useState, useRef } from "react";
-import { View, Text, Pressable, Animated } from "react-native";
+import React, {
+  useState,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+  useEffect,
+} from "react";
+import {
+  View,
+  Text,
+  Pressable,
+  Animated,
+  AccessibilityInfo,
+  findNodeHandle,
+} from "react-native";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 
 import styles from "./HomeHeader.styles";
 import { Colors, Gradients } from "../../theme";
-import { useAppState, useWallet, useProgress, useActiveBuffs } from "../../state/AppContext";
+import {
+  useAppState,
+  useWallet,
+  useProgress,
+  useActiveBuffs,
+} from "../../state/AppContext";
 
-export default function HomeHeader({ onPressNotifications, onPressSettings }) {
+function HomeHeader(
+  {
+    onPressNotifications = () => {},
+    onHeaderLayout,
+    onChipPopoverToggle,
+  },
+  ref
+) {
   const { plantState, streak, mana } = useAppState();
   const { coin, gem } = useWallet();
   const { level, progress } = useProgress();
@@ -23,9 +48,11 @@ export default function HomeHeader({ onPressNotifications, onPressSettings }) {
 
   const [activeChip, setActiveChip] = useState(null);
   const anim = useRef(new Animated.Value(0)).current;
+  const titleRef = useRef(null);
 
   const openChip = (key) => {
     setActiveChip(key);
+    onChipPopoverToggle?.(true);
     Animated.timing(anim, {
       toValue: 1,
       duration: 200,
@@ -33,62 +60,150 @@ export default function HomeHeader({ onPressNotifications, onPressSettings }) {
     }).start();
   };
 
-  const closeChip = () => {
+  const closePopover = () => {
     Animated.timing(anim, {
       toValue: 0,
       duration: 180,
       useNativeDriver: true,
-    }).start(() => setActiveChip(null));
+    }).start(() => {
+      setActiveChip(null);
+      onChipPopoverToggle?.(false);
+    });
   };
 
-  const goToRewards = () => {
-    closeChip();
-    navigation.navigate("Rewards");
-  };
-
-  const chips = [
-    {
+  const chipConfig = {
+    plant: {
       key: "plant",
-      icon: <Ionicons name="leaf" size={14} color={Colors.text} style={styles.chipIcon} />, // plant icon
+      icon: (
+        <Ionicons
+          name="leaf"
+          size={14}
+          color={Colors.text}
+          style={styles.chipIcon}
+        />
+      ),
       label: plantState || "--",
       title: "Planta",
       desc: `Estado actual: ${plantState || "--"}.`,
       a11y: "Estado de planta",
     },
-    {
+    mana: {
+      key: "mana",
+      icon: (
+        <Ionicons
+          name="water"
+          size={14}
+          color={Colors.text}
+          style={styles.chipIcon}
+        />
+      ),
+      label: String(mana),
+      title: "Maná",
+      desc: `Tienes ${mana} de maná disponible.`,
+      a11y: "Maná",
+    },
+    coins: {
+      key: "coins",
+      icon: (
+        <FontAwesome5
+          name="coins"
+          size={12}
+          color={Colors.text}
+          style={styles.chipIcon}
+        />
+      ),
+      label: String(coin),
+      title: "Monedas",
+      desc: `Tienes ${coin} monedas.`,
+      a11y: "Monedas",
+    },
+    diamonds: {
+      key: "diamonds",
+      icon: (
+        <FontAwesome5
+          name="gem"
+          size={12}
+          color={Colors.text}
+          style={styles.chipIcon}
+        />
+      ),
+      label: String(gem),
+      title: "Diamantes",
+      desc: `Tienes ${gem} diamantes.`,
+      a11y: "Diamantes",
+    },
+    streak: {
       key: "streak",
-      icon: <FontAwesome5 name="fire" size={12} color={Colors.text} style={styles.chipIcon} />, // streak icon
+      icon: (
+        <FontAwesome5
+          name="fire"
+          size={12}
+          color={Colors.text}
+          style={styles.chipIcon}
+        />
+      ),
       label: String(streak),
       title: "Racha",
       desc: `Racha activa de ${streak} días.`,
       a11y: "Racha activa",
     },
-    {
-      key: "resources",
-      icon: <Ionicons name="sparkles" size={14} color={Colors.text} style={styles.chipIcon} />, // resources icon
-      label: `${mana}/${coin}/${gem}`,
-      title: "Recursos",
-      desc: `Maná ${mana}, monedas ${coin}, diamantes ${gem}.`,
-      a11y: "Recursos",
-    },
-    {
+    buffs: {
       key: "buffs",
-      icon: <Ionicons name="flask" size={14} color={Colors.text} style={styles.chipIcon} />, // buffs icon
+      icon: (
+        <Ionicons
+          name="flask"
+          size={14}
+          color={Colors.text}
+          style={styles.chipIcon}
+        />
+      ),
       label: String(buffs.length),
       title: "Buffs",
-      desc: buffs.length ? `${buffs.length} buffs activos.` : "Sin buffs activos.",
+      desc: buffs.length
+        ? `${buffs.length} buffs activos.`
+        : "Sin buffs activos.",
       a11y: "Buffs activos",
     },
-    {
+    rewards: {
       key: "rewards",
-      icon: <Ionicons name="gift" size={14} color={Colors.text} style={styles.chipIcon} />, // rewards icon
+      icon: (
+        <Ionicons
+          name="gift"
+          size={14}
+          color={Colors.text}
+          style={styles.chipIcon}
+        />
+      ),
       label: "Ver",
       title: "Recompensas",
       desc: "Explora recompensas disponibles.",
       a11y: "Recompensas",
-      onPress: goToRewards,
+      onPress: () => {
+        closePopover();
+        navigation.navigate("Rewards");
+      },
     },
+  };
+
+  const rowChips = [
+    "mana",
+    "coins",
+    "diamonds",
+    "streak",
+    "buffs",
+    "rewards",
   ];
+
+  useEffect(() => {
+    if (activeChip && titleRef.current) {
+      const tag = findNodeHandle(titleRef.current);
+      if (tag) {
+        AccessibilityInfo.setAccessibilityFocus(tag);
+      }
+    }
+  }, [activeChip]);
+
+  useImperativeHandle(ref, () => ({ closePopover }));
 
   const animatedStyle = {
     opacity: anim,
@@ -105,64 +220,85 @@ export default function HomeHeader({ onPressNotifications, onPressSettings }) {
   return (
     <View
       style={styles.container}
+      onLayout={onHeaderLayout}
       accessibilityRole="header"
-      accessibilityLabel="Encabezado de inicio: Mana Bloom"
+      accessibilityLabel="Encabezado: Mana Bloom"
     >
       <View style={styles.topBar}>
-        <Text style={styles.title}>Mana Bloom</Text>
-        <View style={styles.topBarRight}>
+        <View style={styles.titleRow}>
+          <Text style={styles.title}>Mana Bloom</Text>
           <Pressable
-            onPress={onPressNotifications}
-            style={styles.iconButton}
+            onPress={() => openChip("plant")}
+            style={styles.plantChip}
+            disabled={!!activeChip && activeChip !== "plant"}
             accessibilityRole="button"
-            accessibilityLabel="Abrir notificaciones"
+            accessibilityLabel={chipConfig.plant.a11y}
+            accessibilityState={
+              activeChip === "plant" ? { expanded: true } : undefined
+            }
           >
-            <Ionicons name="notifications-outline" size={18} color={Colors.text} />
-          </Pressable>
-          <Pressable
-            onPress={onPressSettings}
-            style={styles.iconButton}
-            accessibilityRole="button"
-            accessibilityLabel="Abrir configuración"
-          >
-            <Ionicons name="settings-outline" size={18} color={Colors.text} />
+            {chipConfig.plant.icon}
+            <Text style={styles.chipText}>{chipConfig.plant.label}</Text>
           </Pressable>
         </View>
+        <Pressable
+          onPress={onPressNotifications}
+          style={styles.iconButton}
+          accessibilityRole="button"
+          accessibilityLabel="Abrir notificaciones"
+        >
+          <Ionicons
+            name="notifications-outline"
+            size={18}
+            color={Colors.text}
+          />
+        </Pressable>
       </View>
 
       <View style={styles.chipBlock}>
         <View style={styles.chipRow}>
-          {chips.map((c) => (
-            <Pressable
-              key={c.key}
-              onPress={() => (c.onPress ? c.onPress() : openChip(c.key))}
-              style={styles.chip}
-              accessibilityRole="button"
-              accessibilityLabel={c.a11y}
-            >
-              {c.icon}
-              <Text style={styles.chipText}>{c.label}</Text>
-            </Pressable>
-          ))}
+          {rowChips.map((key) => {
+            const c = chipConfig[key];
+            return (
+              <Pressable
+                key={c.key}
+                onPress={() => (c.onPress ? c.onPress() : openChip(c.key))}
+                style={styles.chip}
+                disabled={!!activeChip && activeChip !== c.key}
+                accessibilityRole="button"
+                accessibilityLabel={c.a11y}
+                accessibilityState={
+                  activeChip === c.key ? { expanded: true } : undefined
+                }
+              >
+                {c.icon}
+                <Text style={styles.chipText}>{c.label}</Text>
+              </Pressable>
+            );
+          })}
         </View>
         {activeChip && (
-          <View style={styles.popoverRow}>
-            {chips.map((c) => (
-              <View key={c.key} style={styles.popoverSlot}>
-                {activeChip === c.key && (
-                  <Animated.View style={[styles.popover, animatedStyle]} accessibilityViewIsModal>
-                    <Text style={styles.popoverTitle}>{c.title}</Text>
-                    <Text style={styles.popoverDesc}>{c.desc}</Text>
-                  </Animated.View>
-                )}
-              </View>
-            ))}
-          </View>
+          <Animated.View
+            style={[styles.popoverContainer, animatedStyle]}
+            accessibilityRole="dialog"
+            accessibilityViewIsModal
+          >
+            <Text ref={titleRef} style={styles.popoverTitle}>
+              {chipConfig[activeChip].title}
+            </Text>
+            <Text style={styles.popoverDesc}>
+              {chipConfig[activeChip].desc}
+            </Text>
+          </Animated.View>
         )}
       </View>
 
       <View style={styles.levelRow}>
-        <View style={styles.levelContainer} accessibilityRole="text" accessibilityLabel={`Nivel ${level}`}>
+        <View
+          style={styles.levelContainer}
+          accessibilityRole="text"
+          accessibilityLabel={`Nivel ${level}`}
+        >
           <Text style={styles.levelText}>{`Nivel ${level}`}</Text>
           <View style={styles.xpBar}>
             <LinearGradient
@@ -190,16 +326,8 @@ export default function HomeHeader({ onPressNotifications, onPressSettings }) {
           ))}
         </View>
       </View>
-
-      {activeChip && (
-        <Pressable
-          style={styles.overlay}
-          onPress={closeChip}
-          accessibilityRole="button"
-          accessibilityLabel="Cerrar popover"
-        />
-      )}
     </View>
   );
 }
 
+export default forwardRef(HomeHeader);

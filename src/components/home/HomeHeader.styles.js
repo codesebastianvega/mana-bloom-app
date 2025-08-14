@@ -2,7 +2,7 @@
 // Afecta: HomeHeader
 // Propósito: Estilos para top bar, chips y popovers del encabezado
 // Puntos de edición futura: ajustar tamaños de chip y responsividad
-// Autor: Codex - Fecha: 2025-08-30
+// Autor: Codex - Fecha: 2025-08-14
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Typography, Elevation } from "../../theme";
@@ -20,14 +20,22 @@ export default StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  topBarRight: {
+  titleRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Spacing.tiny,
+    gap: Spacing.small,
   },
   title: {
     ...Typography.title,
     color: Colors.text,
+  },
+  plantChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.lg,
+    paddingHorizontal: Spacing.small,
+    height: 28,
   },
   iconButton: {
     padding: Spacing.tiny,
@@ -43,15 +51,15 @@ export default StyleSheet.create({
   },
   chipRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    flexWrap: "wrap",
     alignItems: "center",
-    gap: Spacing.small,
+    gap: Spacing.tiny,
   },
   chip: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: Colors.surface,
-    borderRadius: Radii.lg,
+    borderRadius: Radii.md,
     paddingHorizontal: Spacing.small,
     height: 28,
   },
@@ -62,16 +70,9 @@ export default StyleSheet.create({
     ...Typography.caption,
     color: Colors.text,
   },
-  popoverRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  popoverContainer: {
     marginTop: Spacing.small,
-  },
-  popoverSlot: {
-    flex: 1,
-    alignItems: "center",
-  },
-  popover: {
+    width: "100%",
     backgroundColor: Colors.surfaceElevated,
     borderColor: Colors.border,
     borderWidth: 1,
@@ -127,9 +128,4 @@ export default StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: Colors.overlay,
-  },
 });
-
