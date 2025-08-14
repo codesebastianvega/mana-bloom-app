@@ -1,4 +1,4 @@
-// [MB] TaskCardStyles — acciones y subtareas reordenadas
+// [MB] TaskCardStyles — limpieza acciones, recompensas y subtareas.
 // [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: TaskCard
 // Propósito: estilos de tarjeta y chips
@@ -66,14 +66,9 @@ export default StyleSheet.create({
     gap: Spacing.small,
     paddingLeft: Spacing.small,
   },
-  actionRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.small,
-  },
-  actionChip: {
-    width: Spacing.xlarge,
-    height: Spacing.xlarge,
+  editButton: {
+    width: Spacing.large,
+    height: Spacing.large,
     borderRadius: Radii.pill,
     justifyContent: "center",
     alignItems: "center",
@@ -81,13 +76,10 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  completeButton: {
-    backgroundColor: Colors.secondary,
-    borderWidth: 0,
-  },
   reminderButton: {
     position: "relative",
-    padding: Spacing.tiny,
+    width: Spacing.large,
+    height: Spacing.large,
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "flex-end",
@@ -148,9 +140,8 @@ export default StyleSheet.create({
     fontSize: 12,
   },
   subtaskCountChip: {
-    minHeight: Spacing.base + Spacing.small + Spacing.tiny,
+    height: Spacing.base + Spacing.tiny,
     paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny,
     borderRadius: Radii.pill,
     backgroundColor: Colors.secondary,
     justifyContent: "center",
@@ -158,6 +149,8 @@ export default StyleSheet.create({
   },
   subtaskCountText: {
     ...Typography.caption,
+    fontSize: Typography.caption.fontSize - 2,
+    lineHeight: Typography.caption.fontSize,
     color: Colors.background,
   },
   subtaskList: {
@@ -244,11 +237,11 @@ export default StyleSheet.create({
   },
   rewardInlineText: {
     ...Typography.caption,
-    color: Colors.textMuted,
     flexShrink: 1,
-  },
-  rewardInlineSpacing: {
-    marginLeft: Spacing.small,
+    marginLeft: "auto",
+    textShadowColor: "rgba(0,0,0,0.15)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   },
   priorityChipText: {
     fontWeight: "500",
