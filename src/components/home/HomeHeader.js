@@ -24,13 +24,20 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 
 import styles from "./HomeHeader.styles";
-import { Colors, Gradients } from "../../theme";
+import { Colors, Gradients, Spacing } from "../../theme";
 import {
   useAppState,
   useWallet,
   useProgress,
   useActiveBuffs,
 } from "../../state/AppContext";
+
+const chipHitSlop = {
+  top: Spacing.small,
+  bottom: Spacing.small,
+  left: Spacing.small,
+  right: Spacing.small,
+};
 
 function HomeHeader(
   {
@@ -49,6 +56,7 @@ function HomeHeader(
   const [activeChip, setActiveChip] = useState(null);
   const anim = useRef(new Animated.Value(0)).current;
   const titleRef = useRef(null);
+  const popoverOpen = activeChip !== null;
 
   const openChip = (key) => {
     setActiveChip(key);
@@ -198,7 +206,7 @@ function HomeHeader(
     if (activeChip && titleRef.current) {
       const tag = findNodeHandle(titleRef.current);
       if (tag) {
-        AccessibilityInfo.setAccessibilityFocus(tag);
+        AccessibilityInfo.setFocus(tag);
       }
     }
   }, [activeChip]);
@@ -228,17 +236,26 @@ function HomeHeader(
         <View style={styles.titleRow}>
           <Text style={styles.title}>Mana Bloom</Text>
           <Pressable
-            onPress={() => openChip("plant")}
+            onPress={() =>
+              activeChip === "plant" ? closePopover() : openChip("plant")
+            }
             style={styles.plantChip}
-            disabled={!!activeChip && activeChip !== "plant"}
+            disabled={popoverOpen && activeChip !== "plant"}
             accessibilityRole="button"
             accessibilityLabel={chipConfig.plant.a11y}
             accessibilityState={
               activeChip === "plant" ? { expanded: true } : undefined
             }
+            hitSlop={chipHitSlop}
           >
             {chipConfig.plant.icon}
-            <Text style={styles.chipText}>{chipConfig.plant.label}</Text>
+            <Text
+              style={styles.chipText}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {chipConfig.plant.label}
+            </Text>
           </Pressable>
         </View>
         <Pressable
@@ -262,17 +279,30 @@ function HomeHeader(
             return (
               <Pressable
                 key={c.key}
-                onPress={() => (c.onPress ? c.onPress() : openChip(c.key))}
+                onPress={() =>
+                  c.onPress
+                    ? c.onPress()
+                    : activeChip === c.key
+                    ? closePopover()
+                    : openChip(c.key)
+                }
                 style={styles.chip}
-                disabled={!!activeChip && activeChip !== c.key}
+                disabled={popoverOpen && activeChip !== c.key}
                 accessibilityRole="button"
                 accessibilityLabel={c.a11y}
                 accessibilityState={
                   activeChip === c.key ? { expanded: true } : undefined
                 }
+                hitSlop={chipHitSlop}
               >
                 {c.icon}
-                <Text style={styles.chipText}>{c.label}</Text>
+                <Text
+                  style={styles.chipText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {c.label}
+                </Text>
               </Pressable>
             );
           })}
@@ -280,8 +310,7 @@ function HomeHeader(
         {activeChip && (
           <Animated.View
             style={[styles.popoverContainer, animatedStyle]}
-            accessibilityRole="dialog"
-            accessibilityViewIsModal
+            accessibilityViewIsModal={true}
           >
             <Text ref={titleRef} style={styles.popoverTitle}>
               {chipConfig[activeChip].title}

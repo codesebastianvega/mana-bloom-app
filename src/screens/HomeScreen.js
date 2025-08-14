@@ -68,6 +68,10 @@ export default function HomeScreen() {
         ref={scrollRef}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
+        importantForAccessibility={
+          isChipPopoverOpen ? "no-hide-descendants" : "auto"
+        }
+        accessibilityElementsHidden={isChipPopoverOpen}
       >
         <View onLayout={setAnchor("welcome")}>
           <HomeWelcomeCard onNext={goToTasks} />
@@ -96,9 +100,10 @@ export default function HomeScreen() {
       </ScrollView>
       {isChipPopoverOpen && (
         <Pressable
-          style={[styles.overlay, { top: headerHeight }]}
+          accessible={false}
+          pointerEvents="auto"
+          style={[StyleSheet.absoluteFillObject, styles.overlay, { top: headerHeight }]}
           onPress={() => headerRef.current?.closePopover()}
-          accessibilityRole="button"
           accessibilityLabel="Capa de fondo: toque para cerrar popover"
         />
       )}
@@ -120,10 +125,6 @@ const styles = StyleSheet.create({
     gap: Spacing.large,
   },
   overlay: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
     backgroundColor: Colors.overlay,
   },
 });
