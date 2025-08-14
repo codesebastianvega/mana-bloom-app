@@ -18,8 +18,6 @@ import styles from "./TaskCardStyles";
 
 import { Colors, Spacing } from "../../theme";
 
-const CHIP_GAP = Spacing.small - Spacing.tiny / 2;
-
 const ElementAccents = {
   water: Colors.elementWater,
   earth: Colors.elementEarth,
@@ -369,7 +367,7 @@ export default function TaskCard({
           </>
         )}
 
-        {/* ——— Chips de metadatos, etiquetas y recompensas ——— */}
+        {/* ——— Chips de metadatos y recompensas ——— */}
         <View style={styles.metaRow}>
           <View style={styles.chip} accessibilityRole="text">
             <Text style={styles.chipText}>{typeLabel}</Text>
@@ -390,33 +388,30 @@ export default function TaskCard({
               {getPriorityLabel(task.priority)}
             </Text>
           </View>
-          {task.tags?.length > 0 && (
-            <View style={styles.tagsContainer}>
-              {task.tags.map((tag) => (
-                <View key={tag} style={styles.tagChip} accessibilityRole="text">
-                  <Text
-                    style={styles.tagText}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {tag}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
           <Text
             style={[
               styles.rewardInlineText,
-              {
-                color: getPriorityColor(task.priority),
-                marginLeft: task.tags?.length ? CHIP_GAP : "auto",
-              },
+              { color: getPriorityColor(task.priority) },
             ]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >{`+${xp} XP · +${mana} ⚡`}</Text>
         </View>
+        {task.tags?.length > 0 && (
+          <View style={styles.tagsRow}>
+            {task.tags.map((tag) => (
+              <View key={tag} style={styles.tagChip} accessibilityRole="text">
+                <Text
+                  style={styles.tagText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {tag}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
         </View>
         <View style={styles.rightColumn}>
           <TouchableOpacity
