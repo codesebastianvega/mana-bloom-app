@@ -1,4 +1,4 @@
-// [MB] TaskCard — elemento como editar, recompensas fantasma, sin campana
+// [MB] TaskCard — micro-chips informativos y jerarquía de Subtareas
 // [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: TaskCard
 // Propósito: estilos de tarjeta y chips
@@ -111,6 +111,7 @@ export default StyleSheet.create({
     color: Colors.secondary,
     marginLeft: Spacing.small,
     fontSize: 12,
+    fontWeight: "600",
   },
   subtaskCountChip: {
     height: Spacing.base + Spacing.tiny,
@@ -171,33 +172,44 @@ export default StyleSheet.create({
 
   metaRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
     alignItems: "center",
-    gap: Spacing.small,
+    flexWrap: "nowrap",
+    gap: Spacing.small - Spacing.tiny / 2,
   },
-  
+
   chip: {
-    minHeight: Spacing.base + Spacing.small + Spacing.tiny,
-    paddingHorizontal: Spacing.small + Spacing.tiny,
-    paddingVertical: Spacing.tiny,
+    height: Spacing.base + Spacing.tiny,
+    paddingHorizontal: Spacing.small - Spacing.tiny / 2,
     borderRadius: Radii.pill,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "transparent",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: Colors.border,
   },
   chipText: {
     ...Typography.caption,
-    lineHeight: Typography.caption.fontSize,
-    color: Colors.text,
-  },
-  priorityChip: {
-    borderWidth: 1,
+    fontSize: Typography.caption.fontSize - 2,
+    lineHeight: Typography.caption.fontSize - 2,
+    color: Colors.textMuted,
   },
   tagChip: {
-    backgroundColor: Colors.surfaceElevated,
-    borderWidth: 1,
+    height: Spacing.base + Spacing.tiny,
+    paddingHorizontal: 0,
+    borderRadius: Radii.pill,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "transparent",
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: Colors.border,
-    minHeight: Spacing.base + Spacing.small + Spacing.tiny,
-    paddingHorizontal: Spacing.small,
+    flexShrink: 1,
+    maxWidth: "100%",
+  },
+  tagsContainer: {
+    flexDirection: "row",
+    flexShrink: 1,
+    gap: Spacing.small - Spacing.tiny / 2,
+    overflow: "hidden",
   },
   rewardInlineText: {
     ...Typography.caption,
@@ -205,9 +217,5 @@ export default StyleSheet.create({
     textShadowColor: "rgba(0,0,0,0.15)",
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
-  },
-  priorityChipText: {
-    fontWeight: "500",
-    textTransform: "capitalize",
   },
 });

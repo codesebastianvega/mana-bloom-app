@@ -1,4 +1,4 @@
-// [MB] TaskCard — elemento como editar, recompensas fantasma, sin campana
+// [MB] TaskCard — micro-chips informativos y jerarquía de Subtareas
 // [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: TasksScreen (interacción de completar y eliminar tareas)
 // Propósito: Item de tarea deslizable con acciones y recompensas
@@ -17,6 +17,8 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./TaskCardStyles";
 
 import { Colors, Spacing } from "../../theme";
+
+const CHIP_GAP = Spacing.small - Spacing.tiny / 2;
 
 const ElementAccents = {
   water: Colors.elementWater,
@@ -66,15 +68,14 @@ const getPriorityLabel = (p) => {
   }
 };
 
-const getTypeConfig = (type) => {
+const getTypeLabel = (type) => {
   switch (type) {
     case "habit":
-      return { label: "Hábito", color: Colors.buttonBg };
+      return "Hábito";
     case "single":
-      return { label: "Tarea", color: Colors.primaryLight };
-
+      return "Tarea";
     default:
-      return { label: "Tarea", color: Colors.primaryLight };
+      return "Tarea";
   }
 };
 
@@ -160,7 +161,7 @@ export default function TaskCard({
   // Información del elemento (icono y color)
   // se usa una función para evitar lógica compleja en el render
   const elementInfo = getElementColor(task.element);
-  const typeConfig = getTypeConfig(task.type);
+  const typeLabel = getTypeLabel(task.type);
   const [showSubtasks, setShowSubtasks] = useState(false);
 
   // Estilos de acción al deslizar
@@ -370,37 +371,33 @@ export default function TaskCard({
 
         {/* ——— Chips de metadatos, etiquetas y recompensas ——— */}
         <View style={styles.metaRow}>
-          <View style={[styles.chip, { backgroundColor: typeConfig.color }]}>
-            <Text style={styles.chipText}>{typeConfig.label}</Text>
+          <View style={styles.chip} accessibilityRole="text">
+            <Text style={styles.chipText}>{typeLabel}</Text>
           </View>
-          <View
-            style={[
-              styles.chip,
-              styles.priorityChip,
-              { borderColor: getPriorityColor(task.priority) },
-            ]}
-          >
-            <Text
-              style={[
-                styles.chipText,
-                styles.priorityChipText,
-                { color: getPriorityColor(task.priority) },
-              ]}
-            >
-              {getPriorityLabel(task.priority)}
-            </Text>
+          <View style={styles.chip} accessibilityRole="text">
+            <Text style={styles.chipText}>{getPriorityLabel(task.priority)}</Text>
           </View>
-          {task.tags?.map((tag) => (
-            <View key={tag} style={[styles.chip, styles.tagChip]}>
-              <Text style={styles.chipText}>{tag}</Text>
+          {task.tags?.length > 0 && (
+            <View style={styles.tagsContainer}>
+              {task.tags.map((tag) => (
+                <View key={tag} style={styles.tagChip} accessibilityRole="text">
+                  <Text
+                    style={styles.chipText}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {tag}
+                  </Text>
+                </View>
+              ))}
             </View>
-          ))}
+          )}
           <Text
             style={[
               styles.rewardInlineText,
               {
                 color: getPriorityColor(task.priority),
-                marginLeft: task.tags?.length ? Spacing.small : "auto",
+                marginLeft: task.tags?.length ? CHIP_GAP : "auto",
               },
             ]}
             numberOfLines={1}
