@@ -1,4 +1,4 @@
-// [MB] TaskCardStyles — limpieza acciones, recompensas y subtareas.
+// [MB] TaskCard — elemento como editar, recompensas fantasma, sin campana
 // [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: TaskCard
 // Propósito: estilos de tarjeta y chips
@@ -61,12 +61,10 @@ export default StyleSheet.create({
     gap: Spacing.small,
   },
   rightColumn: {
-    width: Spacing.base * 4 + Spacing.small,
+    width: Spacing.large,
     alignItems: "flex-end",
-    gap: Spacing.small,
-    paddingLeft: Spacing.small,
   },
-  editButton: {
+  elementButton: {
     width: Spacing.large,
     height: Spacing.large,
     borderRadius: Radii.pill,
@@ -75,31 +73,6 @@ export default StyleSheet.create({
     backgroundColor: Colors.surfaceElevated,
     borderWidth: 1,
     borderColor: Colors.border,
-  },
-  reminderButton: {
-    position: "relative",
-    width: Spacing.large,
-    height: Spacing.large,
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "flex-end",
-  },
-  badge: {
-    position: "absolute",
-    top: -2,
-    right: -2,
-    minWidth: Spacing.base,
-    height: Spacing.base,
-    borderRadius: Radii.pill,
-    backgroundColor: Colors.accent,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  badgeText: {
-    ...Typography.caption,
-    fontSize: Typography.caption.fontSize - 2,
-    color: Colors.onAccent,
-    lineHeight: Typography.caption.fontSize,
   },
   contentRow: {
     flexDirection: "row",
@@ -202,16 +175,7 @@ export default StyleSheet.create({
     alignItems: "center",
     gap: Spacing.small,
   },
-  labelRow: {
-    marginTop: Spacing.small,
-  },
-  elementChip: {
-    width: Spacing.base + Spacing.small + Spacing.tiny,
-    height: Spacing.base + Spacing.small + Spacing.tiny,
-    borderRadius: Radii.pill,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  
   chip: {
     minHeight: Spacing.base + Spacing.small + Spacing.tiny,
     paddingHorizontal: Spacing.small + Spacing.tiny,
@@ -238,7 +202,6 @@ export default StyleSheet.create({
   rewardInlineText: {
     ...Typography.caption,
     flexShrink: 1,
-    marginLeft: "auto",
     textShadowColor: "rgba(0,0,0,0.15)",
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
