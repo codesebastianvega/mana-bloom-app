@@ -1,61 +1,72 @@
 // [MB] Módulo: Home / Estilos: HomeWelcomeCard
-// Afecta: HomeScreen
-// Propósito: Estilos para tarjeta de bienvenida tipo hero card
-// Puntos de edición futura: ajustar sombras o tamaños de chips
-// Autor: Codex - Fecha: 2025-02-14
+// Afecta: HomeWelcomeCard
+// Propósito: Estilos para tarjeta de bienvenida con KPIs
+// Puntos de edición futura: sombras y blur avanzado
+// Autor: Codex - Fecha: 2025-02-15
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
+import { Colors, Spacing, Radii, Typography, Elevation } from "../../theme";
 
 export default StyleSheet.create({
+  wrapper: {
+    position: "relative",
+    borderRadius: Radii.xl,
+    overflow: "visible",
+  },
+  blur: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: Radii.xl,
+  },
+  blurFallback: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: Radii.xl,
+    backgroundColor: Colors.overlay,
+  },
   container: {
     borderRadius: Radii.xl,
     padding: Spacing.large,
-    minHeight: 120,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.large,
+    paddingBottom: Spacing.base,
     ...Elevation.card,
   },
-  badge: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.surfaceElevated + "cc",
-    borderWidth: 2,
-    borderColor: Colors.secondary,
+  title: {
+    ...Typography.title,
+    color: Colors.text,
   },
-  content: {
-    flex: 1,
+  kpiRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: Spacing.small,
+    marginBottom: Spacing.base,
     gap: Spacing.small,
   },
-  title: {
-    ...Typography.h2,
-    color: Colors.text,
-  },
-  subtitle: {
-    ...Typography.body,
-    color: Colors.text,
-  },
-  chipRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    columnGap: Spacing.tiny,
-    rowGap: Spacing.tiny,
-  },
-  chip: {
+  kpiBox: {
+    flex: 1,
     height: 30,
-    borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.base,
+    borderRadius: Radii.md,
+    backgroundColor: Colors.surface + "80",
     justifyContent: "center",
-    backgroundColor: Colors.surface + "b3",
-    borderWidth: 1,
-    borderColor: Colors.textMuted + "40",
+    alignItems: "center",
   },
-  chipText: {
-    ...Typography.caption,
+  kpiNumber: {
+    ...Typography.title,
+    fontSize: 16,
     color: Colors.text,
+  },
+  kpiLabel: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  nextButton: {
+    alignSelf: "flex-end",
+    backgroundColor: Colors.accent,
+    paddingHorizontal: Spacing.base,
+    height: 30,
+    borderRadius: Radii.md,
+    justifyContent: "center",
+  },
+  nextText: {
+    ...Typography.caption,
+    color: Colors.onAccent,
   },
 });
+

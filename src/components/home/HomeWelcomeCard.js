@@ -1,29 +1,29 @@
 // [MB] Módulo: Home / Sección: HomeWelcomeCard
 // Afecta: HomeScreen
-// Propósito: Tarjeta de bienvenida con degradé, saludo y chips de progreso
-// Puntos de edición futura: animar badge o añadir nuevos chips
-// Autor: Codex - Fecha: 2025-02-14
+// Propósito: Tarjeta de bienvenida con saludo y KPIs diarios
+// Puntos de edición futura: animaciones y origen de datos real
+// Autor: Codex - Fecha: 2025-02-15
 
-import React, { useEffect, useRef } from "react";
-import { View, Text, Animated } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { View, Text, Pressable, Animated } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import styles from "./HomeWelcomeCard.styles";
-import {
-  useAppState,
-  useProgress,
-  useHydrationStatus,
-  useXpMultiplier,
-} from "../../state/AppContext";
-import SectionPlaceholder from "../common/SectionPlaceholder";
-import { Colors } from "../../theme";
 
-function HomeWelcomeCard() {
-  const { plantState, streak, mana, displayName } = useAppState();
-  const { level } = useProgress();
-  const { modules } = useHydrationStatus();
-  const { multiplier } = useXpMultiplier();
-  const hasXpBuff = multiplier === 2;
+import styles from "./HomeWelcomeCard.styles";
+import { Gradients } from "../../theme";
+import { useAppState, useDailyChallenges } from "../../state/AppContext";
+import { getTasks } from "../../storage";
+
+let BlurView;
+try {
+  BlurView = require("expo-blur").BlurView;
+} catch (e) {
+  BlurView = null;
+}
+
+export default function HomeWelcomeCard({ onNext }) {
+  const { displayName } = useAppState();
+  const { items } = useDailyChallenges();
+  const [taskCounts, setTaskCounts] = useState({ tasks: null, habits: null });
   const chipsAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -34,56 +34,70 @@ function HomeWelcomeCard() {
     }).start();
   }, [chipsAnim]);
 
-  if (modules.wallet || modules.progress) {
-    return <SectionPlaceholder height={110} />;
-  }
+  useEffect(() => {
+    getTasks().then((ts) => {
+      const tasks = ts.filter((t) => t.type === "single" && !t.completed).length;
+      const habits = ts.filter((t) => t.type === "habit" && !t.completed).length;
+      setTaskCounts({ tasks, habits });
+    });
+  }, []);
+
+  const completedChallenges = items.filter((it) => it.claimed).length;
+  const totalChallenges = items.length;
 
   return (
-    <LinearGradient
-      colors={[Colors.primary, Colors.secondary]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 2, y: 2 }}
-      style={styles.container}
-    >
-      <View style={styles.badge}>
-        <Ionicons name="leaf" size={28} color={Colors.secondary} />
-      </View>
-      <View style={styles.content}>
-        <Text accessibilityRole="header" style={styles.title}>
-          ¡Hola, {displayName || "Day"}!
-        </Text>
-        <Text style={styles.subtitle}>
-          Planta: {plantState} · Nivel {level} · Racha {streak}
-        </Text>
+    <View style={styles.wrapper}>
+      {BlurView ? (
+        <BlurView intensity={20} tint="dark" style={styles.blur} />
+      ) : (
+        <View style={styles.blurFallback} />
+      )}
+      <LinearGradient
+        colors={Gradients.xp}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.container}
+      >
+        <Text accessibilityRole="header" style={styles.title}>{`¡Hola, ${displayName || "explorador"}!`}</Text>
         <Animated.View
           style={[
-            styles.chipRow,
+            styles.kpiRow,
             {
               opacity: chipsAnim,
-              transform: [{ translateY: chipsAnim.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }],
+              transform: [
+                {
+                  translateY: chipsAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [8, 0],
+                  }),
+                },
+              ],
             },
           ]}
         >
-          <View accessibilityRole="text" style={styles.chip}>
-            <Text style={styles.chipText}>Nivel {level}</Text>
+          <View style={styles.kpiBox} accessibilityRole="text" accessibilityLabel={`Tareas para hoy: ${taskCounts.tasks ?? 0}`}>
+            <Text style={styles.kpiNumber}>{taskCounts.tasks ?? "--"}</Text>
+            <Text style={styles.kpiLabel}>Tareas</Text>
           </View>
-          <View accessibilityRole="text" style={styles.chip}>
-            <Text style={styles.chipText}>Racha {streak}</Text>
+          <View style={styles.kpiBox} accessibilityRole="text" accessibilityLabel={`Hábitos pendientes: ${taskCounts.habits ?? 0}`}>
+            <Text style={styles.kpiNumber}>{taskCounts.habits ?? "--"}</Text>
+            <Text style={styles.kpiLabel}>Hábitos</Text>
           </View>
-          {mana !== undefined && (
-            <View accessibilityRole="text" style={styles.chip}>
-              <Text style={styles.chipText}>Maná {mana}</Text>
-            </View>
-          )}
-          {hasXpBuff && (
-            <View accessibilityRole="text" style={styles.chip}>
-              <Text style={styles.chipText}>XP×2 activo</Text>
-            </View>
-          )}
+          <View style={styles.kpiBox} accessibilityRole="text" accessibilityLabel={`Desafíos diarios: ${completedChallenges}/${totalChallenges}`}>
+            <Text style={styles.kpiNumber}>{`${completedChallenges}/${totalChallenges}`}</Text>
+            <Text style={styles.kpiLabel}>Desafíos</Text>
+          </View>
         </Animated.View>
-      </View>
-    </LinearGradient>
+        <Pressable
+          onPress={onNext}
+          style={styles.nextButton}
+          accessibilityRole="button"
+          accessibilityLabel="Siguiente"
+        >
+          <Text style={styles.nextText}>Siguiente</Text>
+        </Pressable>
+      </LinearGradient>
+    </View>
   );
 }
 
-export default React.memo(HomeWelcomeCard);
