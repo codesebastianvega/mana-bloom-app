@@ -1,8 +1,9 @@
+// [MB] TaskFilterBar.styles — tabs segmentadas
 // [MB] Módulo: Tasks / Sección: Barra de filtros
 // Afecta: TaskFilterBar (tabs principales)
 // Propósito: Estilos de control segmentado para estado de tareas
 // Puntos de edición futura: animaciones y accesibilidad
-// Autor: Codex - Fecha: 2025-02-14
+// Autor: Codex - Fecha: 2025-08-14
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii } from "../../theme";

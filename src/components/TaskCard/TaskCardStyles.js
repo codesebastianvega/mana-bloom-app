@@ -1,8 +1,9 @@
+// [MB] TaskCardStyles — tarjeta con borde por dificultad
 // [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: TaskCard
 // Propósito: estilos de tarjeta y chips
 // Puntos de edición futura: animaciones y badges
-// Autor: Codex - Fecha: 2025-02-14
+// Autor: Codex - Fecha: 2025-08-14
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
@@ -47,7 +48,6 @@ export default StyleSheet.create({
     borderRadius: Radii.lg,
     paddingVertical: Spacing.small + Spacing.tiny,
     paddingHorizontal: Spacing.small + Spacing.tiny,
-    marginBottom: Spacing.small,
     borderLeftWidth: 3,
     flexDirection: "column",
     gap: Spacing.small,
@@ -135,10 +135,10 @@ export default StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
-    gap: Spacing.tiny,
+    gap: Spacing.small,
   },
   labelRow: {
-    marginTop: Spacing.tiny,
+    marginTop: Spacing.small,
   },
   elementChip: {
     width: Spacing.base * 2,

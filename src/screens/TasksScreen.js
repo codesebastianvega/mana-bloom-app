@@ -1,8 +1,9 @@
+// [MB] TasksScreen — filtros sticky y FAB en gradiente
 // [MB] Módulo: Tasks / Sección: Pantalla de tareas
 // Afecta: TasksScreen (listado y gestión de tareas)
 // Propósito: Listar, filtrar y persistir tareas con recompensas seguras
 // Puntos de edición futura: manejo remoto y estilos de filtros
-// Autor: Codex - Fecha: 2025-02-14
+// Autor: Codex - Fecha: 2025-08-14
 
 import React, { useState, useEffect, useMemo } from "react";
 import {
@@ -24,7 +25,7 @@ import TaskFilters from "../components/TaskFilters";
 import TaskCard from "../components/TaskCard/TaskCard";
 import FiltersHeader from "../components/FilterBar/FiltersHeader";
 import styles from "./TasksScreen.styles";
-import { Colors, Spacing } from "../theme";
+import { Colors, Spacing, Gradients } from "../theme";
 import CreateTaskModal from "../components/CreateTaskModal/CreateTaskModal";
 import { useAppDispatch } from "../state/AppContext";
 import { XP_REWARD_BY_PRIORITY } from "../constants/rewards";
@@ -344,7 +345,10 @@ export default function TasksScreen() {
   ]);
 
   // ——— 5) Render ———
-  const listData = useMemo(() => filteredTasks, [filteredTasks]);
+  const listData = useMemo(
+    () => [{ type: "filters", key: "filters" }, ...filteredTasks],
+    [filteredTasks]
+  );
 
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
@@ -356,24 +360,9 @@ export default function TasksScreen() {
 
       <FlatList
         data={listData}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TaskCard
-            task={item}
-            onToggleComplete={toggleTaskDone}
-            onSoftDeleteTask={onSoftDeleteTask}
-            onRestoreTask={onRestoreTask}
-            onPermanentDeleteTask={onPermanentDeleteTask}
-            onEditTask={onEditTask}
-            onToggleSubtask={onToggleSubtask}
-            activeFilter={activeFilter}
-          />
-        )}
-        ListHeaderComponent={() => (
-          <>
-            <View style={{ marginBottom: Spacing.small }}>
-              <StatsHeader />
-            </View>
+        keyExtractor={(item) => item.id || item.key}
+        renderItem={({ item }) =>
+          item.type === "filters" ? (
             <FiltersHeader
               statusFilters={statusFilters}
               activeFilter={activeFilter}
@@ -382,11 +371,29 @@ export default function TasksScreen() {
               onChangeSearch={setSearchQuery}
               onToggleAdvanced={() => setFiltersVisible(true)}
             />
-          </>
+          ) : (
+            <TaskCard
+              task={item}
+              onToggleComplete={toggleTaskDone}
+              onSoftDeleteTask={onSoftDeleteTask}
+              onRestoreTask={onRestoreTask}
+              onPermanentDeleteTask={onPermanentDeleteTask}
+              onEditTask={onEditTask}
+              onToggleSubtask={onToggleSubtask}
+              activeFilter={activeFilter}
+            />
+          )
+        }
+        ListHeaderComponent={() => (
+          <View style={{ marginBottom: Spacing.small }}>
+            <StatsHeader />
+          </View>
         )}
         stickyHeaderIndices={[1]}
-        contentContainerStyle={styles.content}
-        ListFooterComponent={<View style={{ height: fabOffset + Spacing.large }} />}
+        contentContainerStyle={[styles.content, { paddingBottom: fabOffset }]}
+        ItemSeparatorComponent={() => (
+          <View style={{ height: Spacing.small + Spacing.tiny }} />
+        )}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         removeClippedSubviews={false}
@@ -404,9 +411,9 @@ export default function TasksScreen() {
         accessibilityLabel="Añadir tarea"
       >
         <LinearGradient
-          colors={[Colors.secondary, Colors.primary]}
+          colors={Gradients.xp}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          end={{ x: 1, y: 0 }}
           style={styles.fabGradient}
         >
           <FontAwesome name="plus" size={20} color={Colors.onAccent} />

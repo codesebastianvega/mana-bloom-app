@@ -1,8 +1,9 @@
+// [MB] TaskFilterBar — tabs de estado segmentadas
 // [MB] Módulo: Tasks / Sección: Barra de filtros
 // Afecta: TaskFilterBar (tabs principales)
 // Propósito: Tabs accesibles alineadas al tema
 // Puntos de edición futura: animaciones y desplazamiento
-// Autor: Codex - Fecha: 2025-02-14
+// Autor: Codex - Fecha: 2025-08-14
 
 import React from "react";
 import { View, Pressable, Text } from "react-native";
