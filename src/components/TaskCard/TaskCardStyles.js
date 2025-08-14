@@ -5,13 +5,7 @@
 // Autor: Codex - Fecha: 2025-08-13
 
 import { StyleSheet } from "react-native";
-import {
-  Colors,
-  Spacing,
-  Radii,
-  Elevation,
-  Typography,
-} from "../../theme";
+import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
 
 export default StyleSheet.create({
   container: {},
@@ -28,7 +22,7 @@ export default StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     minWidth: 170, // ancho mínimo más largo
-    minHeight: 60, // alto mínimo más alto
+    minHeight: 50, // alto mínimo más alto
   },
   leftAction: {
     position: "absolute",
@@ -53,7 +47,10 @@ export default StyleSheet.create({
     borderRadius: Radii.lg,
     paddingVertical: Spacing.base,
     paddingHorizontal: Spacing.large,
-    marginBottom: Spacing.large,
+    marginBottom: Spacing.tiny,
+
+    flexDirection: "column",
+    gap: Spacing.tiny,
     ...Elevation.card,
   },
   accentBar: {
@@ -78,7 +75,7 @@ export default StyleSheet.create({
     ...Typography.body,
     color: Colors.textMuted,
     marginTop: Spacing.tiny,
-    marginBottom: Spacing.small,
+    marginBottom: Spacing.tiny,
   },
   textCompleted: {
     color: Colors.textMuted,
@@ -88,14 +85,22 @@ export default StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginTop: Spacing.tiny,
+    marginBottom: Spacing.tiny,
+    paddingHorizontal: Spacing.tiny,
   },
   subtaskToggleText: {
     color: Colors.textMuted,
-    marginLeft: Spacing.tiny,
+    marginLeft: Spacing.small,
     fontSize: 12,
+    marginBottom: Spacing.tiny,
   },
   subtaskList: {
-    marginTop: Spacing.small,
+    marginTop: 1,
+    marginBottom: Spacing.tiny,
+    paddingRight: Spacing.large,
+    paddingVertical: Spacing.tiny,
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.sm,
     paddingLeft: Spacing.small,
   },
   subtaskColumns: {
@@ -108,13 +113,15 @@ export default StyleSheet.create({
   subtaskItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: Spacing.tiny,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.tiny,
   },
   checkbox: {
     width: 16,
     height: 16,
     borderRadius: 4,
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: Colors.text,
     alignItems: "center",
     justifyContent: "center",
@@ -123,7 +130,7 @@ export default StyleSheet.create({
   subtaskText: {
     color: Colors.textMuted,
     marginLeft: Spacing.small,
-    fontSize: 14,
+    fontSize: 13,
   },
   subtaskTextCompleted: {
     color: Colors.textMuted,
