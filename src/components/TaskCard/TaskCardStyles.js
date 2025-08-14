@@ -1,4 +1,4 @@
-// [MB] TaskCardStyles — chips más bajos y columna derecha
+// [MB] TaskCardStyles — acciones y subtareas reordenadas
 // [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: TaskCard
 // Propósito: estilos de tarjeta y chips
@@ -61,31 +61,53 @@ export default StyleSheet.create({
     gap: Spacing.small,
   },
   rightColumn: {
-    width: Spacing.base * 5 + Spacing.small,
+    width: Spacing.base * 4 + Spacing.small,
     alignItems: "flex-end",
     gap: Spacing.small,
     paddingLeft: Spacing.small,
   },
-  rewardBox: {
-    alignItems: "flex-end",
-  },
-  rewardText: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  progressText: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  iconButton: {
+  actionRow: {
     flexDirection: "row",
     alignItems: "center",
-    alignSelf: "flex-end",
-    gap: Spacing.tiny,
+    gap: Spacing.small,
   },
-  iconBadge: {
+  actionChip: {
+    width: Spacing.xlarge,
+    height: Spacing.xlarge,
+    borderRadius: Radii.pill,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  completeButton: {
+    backgroundColor: Colors.secondary,
+    borderWidth: 0,
+  },
+  reminderButton: {
+    position: "relative",
+    padding: Spacing.tiny,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "flex-end",
+  },
+  badge: {
+    position: "absolute",
+    top: -2,
+    right: -2,
+    minWidth: Spacing.base,
+    height: Spacing.base,
+    borderRadius: Radii.pill,
+    backgroundColor: Colors.accent,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  badgeText: {
     ...Typography.caption,
-    color: Colors.text,
+    fontSize: Typography.caption.fontSize - 2,
+    color: Colors.onAccent,
+    lineHeight: Typography.caption.fontSize,
   },
   contentRow: {
     flexDirection: "row",
@@ -109,18 +131,34 @@ export default StyleSheet.create({
     color: Colors.textMuted,
     textDecorationLine: "line-through",
   },
+  subtaskHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+    marginTop: Spacing.tiny,
+    marginBottom: Spacing.tiny,
+  },
   subtaskToggle: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: Spacing.tiny,
-    marginBottom: Spacing.tiny,
-    paddingHorizontal: Spacing.tiny,
   },
   subtaskToggleText: {
-    color: Colors.textMuted,
+    color: Colors.secondary,
     marginLeft: Spacing.small,
     fontSize: 12,
-    marginBottom: Spacing.tiny,
+  },
+  subtaskCountChip: {
+    minHeight: Spacing.base + Spacing.small + Spacing.tiny,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    borderRadius: Radii.pill,
+    backgroundColor: Colors.secondary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  subtaskCountText: {
+    ...Typography.caption,
+    color: Colors.background,
   },
   subtaskList: {
     marginTop: 1,
@@ -203,6 +241,14 @@ export default StyleSheet.create({
     borderColor: Colors.border,
     minHeight: Spacing.base + Spacing.small + Spacing.tiny,
     paddingHorizontal: Spacing.small,
+  },
+  rewardInlineText: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    flexShrink: 1,
+  },
+  rewardInlineSpacing: {
+    marginLeft: Spacing.small,
   },
   priorityChipText: {
     fontWeight: "500",
