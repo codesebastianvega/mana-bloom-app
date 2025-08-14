@@ -1,4 +1,4 @@
-// [MB] TaskCardStyles — tarjeta con borde por dificultad
+// [MB] TaskCardStyles — chips más bajos y columna derecha
 // [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: TaskCard
 // Propósito: estilos de tarjeta y chips
@@ -9,7 +9,9 @@ import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
 
 export default StyleSheet.create({
-  container: {},
+  container: {
+    marginBottom: Spacing.base,
+  },
   actionsOverlay: {
     ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
@@ -49,9 +51,41 @@ export default StyleSheet.create({
     paddingVertical: Spacing.small + Spacing.tiny,
     paddingHorizontal: Spacing.small + Spacing.tiny,
     borderLeftWidth: 3,
-    flexDirection: "column",
+    flexDirection: "row",
     gap: Spacing.small,
     ...Elevation.card,
+  },
+  mainColumn: {
+    flex: 1,
+    flexDirection: "column",
+    gap: Spacing.small,
+  },
+  rightColumn: {
+    width: Spacing.base * 5 + Spacing.small,
+    alignItems: "flex-end",
+    gap: Spacing.small,
+    paddingLeft: Spacing.small,
+  },
+  rewardBox: {
+    alignItems: "flex-end",
+  },
+  rewardText: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  progressText: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  iconButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-end",
+    gap: Spacing.tiny,
+  },
+  iconBadge: {
+    ...Typography.caption,
+    color: Colors.text,
   },
   contentRow: {
     flexDirection: "row",
@@ -141,15 +175,16 @@ export default StyleSheet.create({
     marginTop: Spacing.small,
   },
   elementChip: {
-    width: Spacing.base * 2,
-    height: Spacing.base * 2,
+    width: Spacing.base + Spacing.small + Spacing.tiny,
+    height: Spacing.base + Spacing.small + Spacing.tiny,
     borderRadius: Radii.pill,
     alignItems: "center",
     justifyContent: "center",
   },
   chip: {
-    minHeight: Spacing.base * 2,
+    minHeight: Spacing.base + Spacing.small + Spacing.tiny,
     paddingHorizontal: Spacing.small + Spacing.tiny,
+    paddingVertical: Spacing.tiny,
     borderRadius: Radii.pill,
     justifyContent: "center",
     alignItems: "center",
@@ -160,11 +195,12 @@ export default StyleSheet.create({
     color: Colors.text,
   },
   priorityChip: {
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 1,
   },
   tagChip: {
-    backgroundColor: Colors.surface,
-    transform: [{ scale: 0.95 }],
+    backgroundColor: Colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: Colors.border,
     minHeight: Spacing.base + Spacing.small + Spacing.tiny,
     paddingHorizontal: Spacing.small,
   },
