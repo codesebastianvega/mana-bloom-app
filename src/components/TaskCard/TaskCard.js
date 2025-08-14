@@ -1,4 +1,4 @@
-// [MB] TaskCard — limpieza acciones, recompensas y subtareas.
+// [MB] TaskCard — elemento como editar, recompensas fantasma, sin campana
 // [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: TasksScreen (interacción de completar y eliminar tareas)
 // Propósito: Item de tarea deslizable con acciones y recompensas
@@ -18,18 +18,25 @@ import styles from "./TaskCardStyles";
 
 import { Colors, Spacing } from "../../theme";
 
+const ElementAccents = {
+  water: Colors.elementWater,
+  earth: Colors.elementEarth,
+  fire: Colors.elementFire,
+  air: Colors.elementAir,
+};
+
 const getElementColor = (element) => {
   switch (element) {
     case "water":
-      return { name: "tint", color: Colors.elementWater, label: "agua" };
+      return { name: "tint", color: ElementAccents.water, label: "Agua" };
     case "earth":
-      return { name: "pagelines", color: Colors.elementEarth, label: "earth" };
+      return { name: "pagelines", color: ElementAccents.earth, label: "Tierra" };
     case "fire":
-      return { name: "fire", color: Colors.elementFire, label: "fire" };
+      return { name: "fire", color: ElementAccents.fire, label: "Fuego" };
     case "air":
-      return { name: "wind", color: Colors.elementAir, label: "air" };
+      return { name: "wind", color: ElementAccents.air, label: "Aire" };
     default:
-      return { name: "star", color: Colors.text, label: "all" };
+      return { name: "star", color: Colors.text, label: "Elemento" };
   }
 };
 
@@ -116,7 +123,6 @@ export default function TaskCard({
   const mana = manaReward[task.priority] || 0;
   const totalSubtasks = task.subtasks?.length || 0;
   const completedSubtasks = task.subtasks?.filter((st) => st.completed).length || 0;
-  const reminderCount = task.reminders?.length || 0;
 
   // PanResponder para manejar el swipe
   // se usa useRef para evitar recrear el objeto en cada render
@@ -362,19 +368,8 @@ export default function TaskCard({
           </>
         )}
 
-        {/* ——— Chips de metadatos y recompensas ——— */}
+        {/* ——— Chips de metadatos, etiquetas y recompensas ——— */}
         <View style={styles.metaRow}>
-          <View
-            style={[styles.elementChip, { backgroundColor: elementInfo.color }]}
-            accessible
-            accessibilityLabel={`Elemento ${elementInfo.label}`}
-          >
-            <FontAwesome5
-              name={elementInfo.name}
-              size={14}
-              color={Colors.background}
-            />
-          </View>
           <View style={[styles.chip, { backgroundColor: typeConfig.color }]}>
             <Text style={styles.chipText}>{typeConfig.label}</Text>
           </View>
@@ -395,52 +390,37 @@ export default function TaskCard({
               {getPriorityLabel(task.priority)}
             </Text>
           </View>
+          {task.tags?.map((tag) => (
+            <View key={tag} style={[styles.chip, styles.tagChip]}>
+              <Text style={styles.chipText}>{tag}</Text>
+            </View>
+          ))}
           <Text
             style={[
               styles.rewardInlineText,
-              { color: getPriorityColor(task.priority) },
+              {
+                color: getPriorityColor(task.priority),
+                marginLeft: task.tags?.length ? Spacing.small : "auto",
+              },
             ]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >{`+${xp} XP · +${mana} ⚡`}</Text>
         </View>
-        {task.tags?.length > 0 && (
-          <View style={[styles.metaRow, styles.labelRow]}>
-            {task.tags.map((tag) => (
-              <View key={tag} style={[styles.chip, styles.tagChip]}>
-                <Text style={styles.chipText}>{tag}</Text>
-              </View>
-            ))}
-          </View>
-        )}
         </View>
         <View style={styles.rightColumn}>
           <TouchableOpacity
-            style={styles.editButton}
+            style={styles.elementButton}
             onPress={() => onEditTask(task)}
             accessibilityRole="button"
-            accessibilityLabel="Editar tarea"
-            hitSlop={HIT_SLOP}
-          >
-            <FontAwesome5 name="pen" size={14} color={Colors.text} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.reminderButton}
-            onPress={() => onEditTask(task)}
-            accessibilityRole="button"
-            accessibilityLabel={`Recordatorios de tarea (${reminderCount})`}
+            accessibilityLabel={`Editar tarea (Elemento: ${elementInfo.label})`}
             hitSlop={HIT_SLOP}
           >
             <FontAwesome5
-              name="bell"
+              name={elementInfo.name}
               size={14}
-              color={reminderCount > 0 ? Colors.text : Colors.textMuted}
+              color={elementInfo.color}
             />
-            {reminderCount > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{reminderCount}</Text>
-              </View>
-            )}
           </TouchableOpacity>
         </View>
       </Animated.View>
