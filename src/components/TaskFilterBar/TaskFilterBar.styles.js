@@ -11,7 +11,7 @@ export default StyleSheet.create({
   container: {
     flexDirection: "row",
     backgroundColor: Colors.surface,
-    borderRadius: Radii.lg,
+    borderRadius: Radii.sm,
     paddingHorizontal: Spacing.tiny,
     paddingVertical: Spacing.tiny,
     gap: Spacing.tiny,
@@ -26,7 +26,7 @@ export default StyleSheet.create({
     justifyContent: "center",
   },
   buttonActive: {
-    backgroundColor: Colors.accent,
+    backgroundColor: Colors.secondary,
   },
   buttonInactive: {
     backgroundColor: Colors.surface,
