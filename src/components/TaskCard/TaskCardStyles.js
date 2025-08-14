@@ -172,14 +172,14 @@ export default StyleSheet.create({
 
   metaRow: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "baseline",
     flexWrap: "nowrap",
     gap: Spacing.small - Spacing.tiny / 2,
   },
 
   chip: {
-    height: Spacing.base + Spacing.small + Spacing.tiny,
-    paddingHorizontal: Spacing.small + Spacing.tiny,
+    height: Spacing.base + Spacing.small,
+    paddingHorizontal: Spacing.small,
     borderRadius: Radii.pill,
     justifyContent: "center",
     alignItems: "center",
@@ -205,11 +205,11 @@ export default StyleSheet.create({
     flexShrink: 1,
     maxWidth: "100%",
   },
-  tagsContainer: {
+  tagsRow: {
     flexDirection: "row",
-    flexShrink: 1,
     flexWrap: "wrap",
     gap: Spacing.small - Spacing.tiny / 2,
+    marginTop: Spacing.small,
   },
   tagText: {
     ...Typography.caption,
