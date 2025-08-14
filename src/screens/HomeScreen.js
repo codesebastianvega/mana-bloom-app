@@ -2,10 +2,10 @@
 // Afecta: HomeScreen (layout principal)
 // Propósito: Renderizar secciones de inicio y mostrar estado global
 // Puntos de edición futura: conectar datos reales y navegación
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-08-14
 
 import React, { useRef, useState, useCallback } from "react";
-import { StyleSheet, ScrollView, View } from "react-native";
+import { StyleSheet, ScrollView, View, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors, Spacing } from "../theme";
 import HomeHeader from "../components/home/HomeHeader";
@@ -25,7 +25,10 @@ export default function HomeScreen() {
   const achievementToast = useAchievementToast();
   const dispatch = useAppDispatch();
   const scrollRef = useRef(null);
+  const headerRef = useRef(null);
   const [anchors, setAnchors] = useState({});
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [isChipPopoverOpen, setChipPopoverOpen] = useState(false);
   const navigation = useNavigation();
 
   const setAnchor = useCallback(
@@ -54,7 +57,13 @@ export default function HomeScreen() {
           onClose={() => dispatch({ type: "CLEAR_ACHIEVEMENT_TOAST" })}
         />
       )}
-      <HomeHeader />
+      <HomeHeader
+        ref={headerRef}
+        onHeaderLayout={(e) =>
+          setHeaderHeight(e?.nativeEvent?.layout?.height || 0)
+        }
+        onChipPopoverToggle={setChipPopoverOpen}
+      />
       <ScrollView
         ref={scrollRef}
         contentContainerStyle={styles.content}
@@ -85,6 +94,14 @@ export default function HomeScreen() {
           <EventBanner />
         </View>
       </ScrollView>
+      {isChipPopoverOpen && (
+        <Pressable
+          style={[styles.overlay, { top: headerHeight }]}
+          onPress={() => headerRef.current?.closePopover()}
+          accessibilityRole="button"
+          accessibilityLabel="Capa de fondo: toque para cerrar popover"
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -101,5 +118,12 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.base,
     paddingBottom: 96,
     gap: Spacing.large,
+  },
+  overlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: Colors.overlay,
   },
 });
