@@ -1,4 +1,4 @@
-// [MB] TaskCard — chips ajustados y columna derecha
+// [MB] TaskCard — acciones reordenadas, contador y recompensas
 // [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: TasksScreen (interacción de completar y eliminar tareas)
 // Propósito: Item de tarea deslizable con acciones y recompensas
@@ -254,19 +254,24 @@ export default function TaskCard({
           </View>
         </TouchableOpacity>
 
-        {task.subtasks?.length > 0 && (
+        {totalSubtasks > 0 && (
           <>
-            <TouchableOpacity
-              style={styles.subtaskToggle}
-              onPress={() => setShowSubtasks(!showSubtasks)}
-            >
-              <FontAwesome5
-                name={showSubtasks ? "chevron-up" : "chevron-down"}
-                size={12}
-                color={Colors.textMuted}
-              />
-              <Text style={styles.subtaskToggleText}>Subtareas</Text>
-            </TouchableOpacity>
+            <View style={styles.subtaskHeader}>
+              <TouchableOpacity
+                style={styles.subtaskToggle}
+                onPress={() => setShowSubtasks(!showSubtasks)}
+              >
+                <FontAwesome5
+                  name={showSubtasks ? "chevron-up" : "chevron-down"}
+                  size={12}
+                  color={Colors.textMuted}
+                />
+                <Text style={styles.subtaskToggleText}>Subtareas</Text>
+              </TouchableOpacity>
+              <View style={styles.subtaskCountChip}>
+                <Text style={styles.subtaskCountText}>{`${completedSubtasks}/${totalSubtasks}`}</Text>
+              </View>
+            </View>
             {showSubtasks && (
               <View style={styles.subtaskList}>
                 {task.subtasks.length > 5 ? (
@@ -397,53 +402,57 @@ export default function TaskCard({
             </Text>
           </View>
         </View>
-        {task.tags?.length > 0 && (
-          <View style={[styles.metaRow, styles.labelRow]}>
-            {task.tags.map((tag) => (
+        <View style={[styles.metaRow, styles.labelRow]}>
+          {task.tags?.length > 0 &&
+            task.tags.map((tag) => (
               <View key={tag} style={[styles.chip, styles.tagChip]}>
                 <Text style={styles.chipText}>{tag}</Text>
               </View>
             ))}
-          </View>
-        )}
+          <Text
+            style={[
+              styles.rewardInlineText,
+              task.tags?.length > 0 && styles.rewardInlineSpacing,
+            ]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >{`+${xp} XP · +${mana} ⚡`}</Text>
+        </View>
         </View>
         <View style={styles.rightColumn}>
-          <View style={styles.rewardBox}>
-            <Text style={styles.rewardText}>{`+${xp} XP`}</Text>
-            <Text style={styles.rewardText}>{`+${mana} ⚡`}</Text>
+          <View style={styles.actionRow}>
+            <TouchableOpacity
+              style={[styles.actionChip, styles.completeButton]}
+              onPress={handleQuickComplete}
+              accessibilityRole="button"
+              accessibilityLabel="Completar tarea"
+              hitSlop={HIT_SLOP}
+            >
+              <FontAwesome5 name="check" size={14} color={Colors.background} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionChip}
+              onPress={() => onEditTask(task)}
+              accessibilityRole="button"
+              accessibilityLabel="Editar tarea"
+              hitSlop={HIT_SLOP}
+            >
+              <FontAwesome5 name="pen" size={14} color={Colors.text} />
+            </TouchableOpacity>
           </View>
-          {totalSubtasks > 0 && (
-            <Text style={styles.progressText}>{`${completedSubtasks}/${totalSubtasks}`}</Text>
-          )}
           <TouchableOpacity
-            style={styles.iconButton}
+            style={styles.reminderButton}
             onPress={() => onEditTask(task)}
             accessibilityRole="button"
-            accessibilityLabel={`Recordatorios ${reminderCount}`}
+            accessibilityLabel="Recordatorios de tarea"
             hitSlop={HIT_SLOP}
           >
             <FontAwesome5 name="bell" size={14} color={Colors.text} />
             {reminderCount > 0 && (
-              <Text style={styles.iconBadge}>{reminderCount}</Text>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{reminderCount}</Text>
+              </View>
             )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => onEditTask(task)}
-            accessibilityRole="button"
-            accessibilityLabel="Editar tarea"
-            hitSlop={HIT_SLOP}
-          >
-            <FontAwesome5 name="pen" size={14} color={Colors.text} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={handleQuickComplete}
-            accessibilityRole="button"
-            accessibilityLabel={task.completed ? "Marcar incompleta" : "Completar tarea"}
-            hitSlop={HIT_SLOP}
-          >
-            <FontAwesome5 name="check" size={14} color={Colors.text} />
           </TouchableOpacity>
         </View>
       </Animated.View>
