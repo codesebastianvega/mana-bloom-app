@@ -1,4 +1,4 @@
-// [MB] TaskCard — acciones reordenadas, contador y recompensas
+// [MB] TaskCard — limpieza acciones, recompensas y subtareas.
 // [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: TasksScreen (interacción de completar y eliminar tareas)
 // Propósito: Item de tarea deslizable con acciones y recompensas
@@ -150,12 +150,6 @@ export default function TaskCard({
   };
   const handlePressOut = () => {
     Animated.spring(scale, { toValue: 1, useNativeDriver: true }).start();
-  };
-  const handleQuickComplete = () => {
-    if (!task.completed && onTaskCompleted) {
-      onTaskCompleted(task);
-    }
-    onToggleComplete(task.id);
   };
   // Información del elemento (icono y color)
   // se usa una función para evitar lógica compleja en el render
@@ -368,7 +362,7 @@ export default function TaskCard({
           </>
         )}
 
-        {/* ——— Chips de metadatos ——— */}
+        {/* ——— Chips de metadatos y recompensas ——— */}
         <View style={styles.metaRow}>
           <View
             style={[styles.elementChip, { backgroundColor: elementInfo.color }]}
@@ -401,53 +395,47 @@ export default function TaskCard({
               {getPriorityLabel(task.priority)}
             </Text>
           </View>
-        </View>
-        <View style={[styles.metaRow, styles.labelRow]}>
-          {task.tags?.length > 0 &&
-            task.tags.map((tag) => (
-              <View key={tag} style={[styles.chip, styles.tagChip]}>
-                <Text style={styles.chipText}>{tag}</Text>
-              </View>
-            ))}
           <Text
             style={[
               styles.rewardInlineText,
-              task.tags?.length > 0 && styles.rewardInlineSpacing,
+              { color: getPriorityColor(task.priority) },
             ]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >{`+${xp} XP · +${mana} ⚡`}</Text>
         </View>
+        {task.tags?.length > 0 && (
+          <View style={[styles.metaRow, styles.labelRow]}>
+            {task.tags.map((tag) => (
+              <View key={tag} style={[styles.chip, styles.tagChip]}>
+                <Text style={styles.chipText}>{tag}</Text>
+              </View>
+            ))}
+          </View>
+        )}
         </View>
         <View style={styles.rightColumn}>
-          <View style={styles.actionRow}>
-            <TouchableOpacity
-              style={[styles.actionChip, styles.completeButton]}
-              onPress={handleQuickComplete}
-              accessibilityRole="button"
-              accessibilityLabel="Completar tarea"
-              hitSlop={HIT_SLOP}
-            >
-              <FontAwesome5 name="check" size={14} color={Colors.background} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionChip}
-              onPress={() => onEditTask(task)}
-              accessibilityRole="button"
-              accessibilityLabel="Editar tarea"
-              hitSlop={HIT_SLOP}
-            >
-              <FontAwesome5 name="pen" size={14} color={Colors.text} />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => onEditTask(task)}
+            accessibilityRole="button"
+            accessibilityLabel="Editar tarea"
+            hitSlop={HIT_SLOP}
+          >
+            <FontAwesome5 name="pen" size={14} color={Colors.text} />
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.reminderButton}
             onPress={() => onEditTask(task)}
             accessibilityRole="button"
-            accessibilityLabel="Recordatorios de tarea"
+            accessibilityLabel={`Recordatorios de tarea (${reminderCount})`}
             hitSlop={HIT_SLOP}
           >
-            <FontAwesome5 name="bell" size={14} color={Colors.text} />
+            <FontAwesome5
+              name="bell"
+              size={14}
+              color={reminderCount > 0 ? Colors.text : Colors.textMuted}
+            />
             {reminderCount > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{reminderCount}</Text>
