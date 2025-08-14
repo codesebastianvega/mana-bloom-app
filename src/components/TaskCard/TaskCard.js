@@ -1,4 +1,4 @@
-// [MB] TaskCard — tarjeta con borde por dificultad
+// [MB] TaskCard — chips ajustados y columna derecha
 // [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: TasksScreen (interacción de completar y eliminar tareas)
 // Propósito: Item de tarea deslizable con acciones y recompensas
@@ -84,6 +84,16 @@ const getDifficultyColor = (d) => {
   }
 };
 
+const xpReward = { easy: 5, medium: 10, hard: 20 };
+const manaReward = { easy: 1, medium: 2, hard: 3 };
+
+const HIT_SLOP = {
+  top: Spacing.tiny,
+  bottom: Spacing.tiny,
+  left: Spacing.tiny,
+  right: Spacing.tiny,
+};
+
 export default function TaskCard({
   task,
   onToggleComplete,
@@ -102,6 +112,11 @@ export default function TaskCard({
   const threshold = 80;
   const isDeletedView = activeFilter === "deleted";
   const isCompletedView = activeFilter === "completed";
+  const xp = xpReward[task.difficulty] || 0;
+  const mana = manaReward[task.priority] || 0;
+  const totalSubtasks = task.subtasks?.length || 0;
+  const completedSubtasks = task.subtasks?.filter((st) => st.completed).length || 0;
+  const reminderCount = task.reminders?.length || 0;
 
   // PanResponder para manejar el swipe
   // se usa useRef para evitar recrear el objeto en cada render
@@ -135,6 +150,12 @@ export default function TaskCard({
   };
   const handlePressOut = () => {
     Animated.spring(scale, { toValue: 1, useNativeDriver: true }).start();
+  };
+  const handleQuickComplete = () => {
+    if (!task.completed && onTaskCompleted) {
+      onTaskCompleted(task);
+    }
+    onToggleComplete(task.id);
   };
   // Información del elemento (icono y color)
   // se usa una función para evitar lógica compleja en el render
@@ -212,11 +233,12 @@ export default function TaskCard({
         onTouchStart={handlePressIn}
         onTouchEnd={handlePressOut}
       >
-        <TouchableOpacity
-          style={styles.contentRow}
-          onPress={() => onEditTask(task)}
-        >
-          <View style={styles.textContainer}>
+        <View style={styles.mainColumn}>
+          <TouchableOpacity
+            style={styles.contentRow}
+            onPress={() => onEditTask(task)}
+          >
+            <View style={styles.textContainer}>
             <Text
               style={[styles.title, task.completed && styles.textCompleted]}
             >
@@ -350,7 +372,7 @@ export default function TaskCard({
           >
             <FontAwesome5
               name={elementInfo.name}
-              size={12}
+              size={14}
               color={Colors.background}
             />
           </View>
@@ -384,6 +406,46 @@ export default function TaskCard({
             ))}
           </View>
         )}
+        </View>
+        <View style={styles.rightColumn}>
+          <View style={styles.rewardBox}>
+            <Text style={styles.rewardText}>{`+${xp} XP`}</Text>
+            <Text style={styles.rewardText}>{`+${mana} ⚡`}</Text>
+          </View>
+          {totalSubtasks > 0 && (
+            <Text style={styles.progressText}>{`${completedSubtasks}/${totalSubtasks}`}</Text>
+          )}
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => onEditTask(task)}
+            accessibilityRole="button"
+            accessibilityLabel={`Recordatorios ${reminderCount}`}
+            hitSlop={HIT_SLOP}
+          >
+            <FontAwesome5 name="bell" size={14} color={Colors.text} />
+            {reminderCount > 0 && (
+              <Text style={styles.iconBadge}>{reminderCount}</Text>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => onEditTask(task)}
+            accessibilityRole="button"
+            accessibilityLabel="Editar tarea"
+            hitSlop={HIT_SLOP}
+          >
+            <FontAwesome5 name="pen" size={14} color={Colors.text} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={handleQuickComplete}
+            accessibilityRole="button"
+            accessibilityLabel={task.completed ? "Marcar incompleta" : "Completar tarea"}
+            hitSlop={HIT_SLOP}
+          >
+            <FontAwesome5 name="check" size={14} color={Colors.text} />
+          </TouchableOpacity>
+        </View>
       </Animated.View>
     </View>
   );
