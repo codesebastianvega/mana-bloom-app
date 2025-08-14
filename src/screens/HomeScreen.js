@@ -41,10 +41,6 @@ export default function HomeScreen() {
     scrollRef.current?.scrollTo({ y: anchors.shop, animated: true });
   }, [anchors.shop]);
 
-  const scrollToReward = useCallback(() => {
-    scrollRef.current?.scrollTo({ y: anchors.reward, animated: true });
-  }, [anchors.reward]);
-
   const goToTasks = useCallback(() => {
     navigation.navigate("Tasks");
   }, [navigation]);
@@ -58,7 +54,7 @@ export default function HomeScreen() {
           onClose={() => dispatch({ type: "CLEAR_ACHIEVEMENT_TOAST" })}
         />
       )}
-      <HomeHeader onPressDailyReward={scrollToReward} />
+      <HomeHeader />
       <ScrollView
         ref={scrollRef}
         contentContainerStyle={styles.content}
@@ -67,7 +63,7 @@ export default function HomeScreen() {
         <View onLayout={setAnchor("welcome")}>
           <HomeWelcomeCard onNext={goToTasks} />
         </View>
-        <View onLayout={setAnchor("reward")}>
+        <View>
           <DailyRewardSection />
         </View>
         <View onLayout={setAnchor("challenges")}>

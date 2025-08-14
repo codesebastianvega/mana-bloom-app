@@ -18,6 +18,7 @@ import ProfileScreen from "./src/screens/ProfileScreen";
 import InventoryScreen from "./src/screens/InventoryScreen";
 import NewsInboxScreen from "./src/screens/NewsInboxScreen";
 import ShopScreen from "./src/screens/ShopScreen";
+import RewardsScreen from "./src/screens/RewardsScreen";
 import { AppProvider } from "./src/state/AppContext";
 
 const Tab = createBottomTabNavigator();
@@ -59,6 +60,11 @@ export default function App() {
           <RootStack.Screen
             name="ShopScreen"
             component={ShopScreen}
+            options={{ headerShown: false }}
+          />
+          <RootStack.Screen
+            name="Rewards"
+            component={RewardsScreen}
             options={{ headerShown: false }}
           />
         </RootStack.Navigator>
