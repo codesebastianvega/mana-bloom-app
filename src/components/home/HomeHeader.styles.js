@@ -1,8 +1,8 @@
 // [MB] Módulo: Home / Sección: HomeHeader
 // Afecta: HomeHeader
-// Propósito: Estilos para encabezado principal en dos filas
-// Puntos de edición futura: ajustar layout responsivo
-// Autor: Codex - Fecha: 2025-02-15
+// Propósito: Estilos para top bar, chips y popovers del encabezado
+// Puntos de edición futura: ajustar tamaños de chip y responsividad
+// Autor: Codex - Fecha: 2025-08-30
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Typography, Elevation } from "../../theme";
@@ -13,37 +13,20 @@ export default StyleSheet.create({
     paddingHorizontal: Spacing.base,
     paddingTop: Spacing.base,
     paddingBottom: Spacing.small,
-    gap: Spacing.small,
     ...Elevation.raised,
   },
-  row1: {
+  topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  title: {
-    ...Typography.h1,
-    color: Colors.text,
-  },
-  row1Right: {
+  topBarRight: {
     flexDirection: "row",
     alignItems: "center",
-    flexWrap: "wrap",
     gap: Spacing.tiny,
   },
-  pill: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.surface,
-    borderRadius: Radii.md,
-    paddingHorizontal: Spacing.small,
-    height: 28,
-  },
-  pillIcon: {
-    marginRight: Spacing.tiny,
-  },
-  pillText: {
-    ...Typography.caption,
+  title: {
+    ...Typography.title,
     color: Colors.text,
   },
   iconButton: {
@@ -55,10 +38,62 @@ export default StyleSheet.create({
     borderRadius: Radii.md,
     backgroundColor: Colors.surface,
   },
-  row2: {
+  chipBlock: {
+    marginTop: Spacing.small,
+  },
+  chipRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    gap: Spacing.small,
+  },
+  chip: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.lg,
+    paddingHorizontal: Spacing.small,
+    height: 28,
+  },
+  chipIcon: {
+    marginRight: Spacing.tiny,
+  },
+  chipText: {
+    ...Typography.caption,
+    color: Colors.text,
+  },
+  popoverRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: Spacing.small,
+  },
+  popoverSlot: {
+    flex: 1,
+    alignItems: "center",
+  },
+  popover: {
+    backgroundColor: Colors.surfaceElevated,
+    borderColor: Colors.border,
+    borderWidth: 1,
+    borderRadius: Radii.lg,
+    padding: Spacing.base,
+    ...Elevation.raised,
+  },
+  popoverTitle: {
+    ...Typography.body,
+    fontWeight: "600",
+    color: Colors.text,
+    marginBottom: Spacing.tiny,
+  },
+  popoverDesc: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  levelRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: Spacing.small,
   },
   levelContainer: {
     flex: 1,
@@ -79,22 +114,10 @@ export default StyleSheet.create({
     height: "100%",
     borderRadius: 3,
   },
-  row2Right: {
+  buffRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.tiny,
-  },
-  rewardPill: {
-    paddingHorizontal: Spacing.small,
-    height: 28,
-    borderRadius: Radii.md,
-    backgroundColor: Colors.surface,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  rewardText: {
-    ...Typography.caption,
-    color: Colors.text,
   },
   buffIcon: {
     height: 28,
@@ -103,6 +126,10 @@ export default StyleSheet.create({
     backgroundColor: Colors.surface,
     justifyContent: "center",
     alignItems: "center",
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: Colors.overlay,
   },
 });
 

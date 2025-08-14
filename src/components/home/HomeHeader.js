@@ -1,86 +1,168 @@
 // [MB] Módulo: Home / Sección: HomeHeader
 // Afecta: HomeScreen
-// Propósito: Encabezado en dos filas con estado, recursos y accesos rápidos
-// Puntos de edición futura: estilos y datos dinámicos
-// Autor: Codex - Fecha: 2025-02-15
+// Propósito: Encabezado con top bar, chips y popovers informativos
+// Puntos de edición futura: conectar datos reales y estilos responsivos
+// Autor: Codex - Fecha: 2025-08-30
 
-import React, { useMemo } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import React, { useState, useRef } from "react";
+import { View, Text, Pressable, Animated } from "react-native";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useNavigation } from "@react-navigation/native";
 
 import styles from "./HomeHeader.styles";
 import { Colors, Gradients } from "../../theme";
-import {
-  useAppState,
-  useWallet,
-  useProgress,
-  useDailyReward,
-  useActiveBuffs,
-} from "../../state/AppContext";
+import { useAppState, useWallet, useProgress, useActiveBuffs } from "../../state/AppContext";
 
-export default function HomeHeader({ onPressNotifications, onPressSettings, onPressDailyReward }) {
+export default function HomeHeader({ onPressNotifications, onPressSettings }) {
   const { plantState, streak, mana } = useAppState();
   const { coin, gem } = useWallet();
   const { level, progress } = useProgress();
-  const { claimed } = useDailyReward();
   const buffs = useActiveBuffs();
+  const navigation = useNavigation();
 
-  const rewardLabel = useMemo(() => {
-    if (!claimed) return "Reclamar";
-    const next = new Date();
-    next.setHours(24, 0, 0, 0);
-    const diff = next.getTime() - Date.now();
-    const mins = Math.floor(diff / 60000);
-    const h = Math.floor(mins / 60);
-    const m = mins % 60;
-    return `${h}h ${m}m`;
-  }, [claimed]);
+  const [activeChip, setActiveChip] = useState(null);
+  const anim = useRef(new Animated.Value(0)).current;
+
+  const openChip = (key) => {
+    setActiveChip(key);
+    Animated.timing(anim, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const closeChip = () => {
+    Animated.timing(anim, {
+      toValue: 0,
+      duration: 180,
+      useNativeDriver: true,
+    }).start(() => setActiveChip(null));
+  };
+
+  const goToRewards = () => {
+    closeChip();
+    navigation.navigate("Rewards");
+  };
+
+  const chips = [
+    {
+      key: "plant",
+      icon: <Ionicons name="leaf" size={14} color={Colors.text} style={styles.chipIcon} />, // plant icon
+      label: plantState || "--",
+      title: "Planta",
+      desc: `Estado actual: ${plantState || "--"}.`,
+      a11y: "Estado de planta",
+    },
+    {
+      key: "streak",
+      icon: <FontAwesome5 name="fire" size={12} color={Colors.text} style={styles.chipIcon} />, // streak icon
+      label: String(streak),
+      title: "Racha",
+      desc: `Racha activa de ${streak} días.`,
+      a11y: "Racha activa",
+    },
+    {
+      key: "resources",
+      icon: <Ionicons name="sparkles" size={14} color={Colors.text} style={styles.chipIcon} />, // resources icon
+      label: `${mana}/${coin}/${gem}`,
+      title: "Recursos",
+      desc: `Maná ${mana}, monedas ${coin}, diamantes ${gem}.`,
+      a11y: "Recursos",
+    },
+    {
+      key: "buffs",
+      icon: <Ionicons name="flask" size={14} color={Colors.text} style={styles.chipIcon} />, // buffs icon
+      label: String(buffs.length),
+      title: "Buffs",
+      desc: buffs.length ? `${buffs.length} buffs activos.` : "Sin buffs activos.",
+      a11y: "Buffs activos",
+    },
+    {
+      key: "rewards",
+      icon: <Ionicons name="gift" size={14} color={Colors.text} style={styles.chipIcon} />, // rewards icon
+      label: "Ver",
+      title: "Recompensas",
+      desc: "Explora recompensas disponibles.",
+      a11y: "Recompensas",
+      onPress: goToRewards,
+    },
+  ];
+
+  const animatedStyle = {
+    opacity: anim,
+    transform: [
+      {
+        translateY: anim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [8, 0],
+        }),
+      },
+    ],
+  };
 
   return (
-    <View style={styles.container} accessibilityRole="header">
-      <View style={styles.row1}>
-        <Text style={styles.title}>Inicio</Text>
-        <View style={styles.row1Right}>
-          <View style={styles.pill} accessibilityRole="text" accessibilityLabel={`Estado de planta: ${plantState || 'desconocido'}`}> 
-            <Text style={styles.pillText}>{plantState || '--'}</Text>
-          </View>
-          <View style={styles.pill} accessibilityRole="text" accessibilityLabel={`Racha: ${streak}`}> 
-            <FontAwesome5 name="fire" size={12} color={Colors.text} style={styles.pillIcon} />
-            <Text style={styles.pillText}>{streak}</Text>
-          </View>
-          <View style={styles.pill} accessibilityRole="text" accessibilityLabel={`Maná: ${mana}`}> 
-            <Ionicons name="sparkles" size={12} color={Colors.text} style={styles.pillIcon} />
-            <Text style={styles.pillText}>{mana}</Text>
-          </View>
-          <View style={styles.pill} accessibilityRole="text" accessibilityLabel={`Monedas: ${coin}`}> 
-            <Ionicons name="pricetag" size={12} color={Colors.text} style={styles.pillIcon} />
-            <Text style={styles.pillText}>{coin}</Text>
-          </View>
-          <View style={styles.pill} accessibilityRole="text" accessibilityLabel={`Diamantes: ${gem}`}> 
-            <Ionicons name="diamond" size={12} color={Colors.text} style={styles.pillIcon} />
-            <Text style={styles.pillText}>{gem}</Text>
-          </View>
-          <TouchableOpacity
+    <View
+      style={styles.container}
+      accessibilityRole="header"
+      accessibilityLabel="Encabezado de inicio: Mana Bloom"
+    >
+      <View style={styles.topBar}>
+        <Text style={styles.title}>Mana Bloom</Text>
+        <View style={styles.topBarRight}>
+          <Pressable
             onPress={onPressNotifications}
             style={styles.iconButton}
             accessibilityRole="button"
-            accessibilityLabel="Ver notificaciones (0)"
+            accessibilityLabel="Abrir notificaciones"
           >
             <Ionicons name="notifications-outline" size={18} color={Colors.text} />
-          </TouchableOpacity>
-          <TouchableOpacity
+          </Pressable>
+          <Pressable
             onPress={onPressSettings}
             style={styles.iconButton}
             accessibilityRole="button"
-            accessibilityLabel="Abrir ajustes"
+            accessibilityLabel="Abrir configuración"
           >
             <Ionicons name="settings-outline" size={18} color={Colors.text} />
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
-      <View style={styles.row2}>
-        <View style={styles.levelContainer} accessibilityRole="text" accessibilityLabel={`Nivel ${level}`}> 
+
+      <View style={styles.chipBlock}>
+        <View style={styles.chipRow}>
+          {chips.map((c) => (
+            <Pressable
+              key={c.key}
+              onPress={() => (c.onPress ? c.onPress() : openChip(c.key))}
+              style={styles.chip}
+              accessibilityRole="button"
+              accessibilityLabel={c.a11y}
+            >
+              {c.icon}
+              <Text style={styles.chipText}>{c.label}</Text>
+            </Pressable>
+          ))}
+        </View>
+        {activeChip && (
+          <View style={styles.popoverRow}>
+            {chips.map((c) => (
+              <View key={c.key} style={styles.popoverSlot}>
+                {activeChip === c.key && (
+                  <Animated.View style={[styles.popover, animatedStyle]} accessibilityViewIsModal>
+                    <Text style={styles.popoverTitle}>{c.title}</Text>
+                    <Text style={styles.popoverDesc}>{c.desc}</Text>
+                  </Animated.View>
+                )}
+              </View>
+            ))}
+          </View>
+        )}
+      </View>
+
+      <View style={styles.levelRow}>
+        <View style={styles.levelContainer} accessibilityRole="text" accessibilityLabel={`Nivel ${level}`}>
           <Text style={styles.levelText}>{`Nivel ${level}`}</Text>
           <View style={styles.xpBar}>
             <LinearGradient
@@ -91,15 +173,7 @@ export default function HomeHeader({ onPressNotifications, onPressSettings, onPr
             />
           </View>
         </View>
-        <View style={styles.row2Right}>
-          <TouchableOpacity
-            onPress={onPressDailyReward}
-            style={styles.rewardPill}
-            accessibilityRole="button"
-            accessibilityLabel="Recompensa diaria"
-          >
-            <Text style={styles.rewardText}>{rewardLabel}</Text>
-          </TouchableOpacity>
+        <View style={styles.buffRow}>
           {buffs.map((b) => (
             <View
               key={b.id || b.type}
@@ -107,11 +181,24 @@ export default function HomeHeader({ onPressNotifications, onPressSettings, onPr
               accessibilityRole="text"
               accessibilityLabel={b.type}
             >
-              <Ionicons name={b.type === 'xp_double' ? 'flask' : 'sparkles'} size={16} color={Colors.accent} />
+              <Ionicons
+                name={b.type === "xp_double" ? "flask" : "sparkles"}
+                size={16}
+                color={Colors.accent}
+              />
             </View>
           ))}
         </View>
       </View>
+
+      {activeChip && (
+        <Pressable
+          style={styles.overlay}
+          onPress={closeChip}
+          accessibilityRole="button"
+          accessibilityLabel="Cerrar popover"
+        />
+      )}
     </View>
   );
 }
