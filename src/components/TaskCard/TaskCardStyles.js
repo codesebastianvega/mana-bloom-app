@@ -51,10 +51,9 @@ export default StyleSheet.create({
     width: "100%",
     backgroundColor: Colors.surfaceElevated,
     borderRadius: Radii.lg,
-    paddingRight: Spacing.base,
     paddingVertical: Spacing.base,
-    paddingLeft: Spacing.large,
-    marginVertical: Spacing.small,
+    paddingHorizontal: Spacing.large,
+    marginBottom: Spacing.large,
     ...Elevation.card,
   },
   accentBar: {
