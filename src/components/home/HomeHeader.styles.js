@@ -74,14 +74,11 @@ export default StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: Spacing.small,
+    gap: Spacing.tiny,
+    position: "relative",
+    zIndex: 2,
   },
-  icon: {
-    color: Colors.icon,
-  },
-  iconOnAccent: {
-    color: Colors.onAccent,
-  },
+  icon: {},
   chipText: {
     ...Typography.caption,
     color: Colors.text,
