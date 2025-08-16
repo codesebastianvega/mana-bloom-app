@@ -40,6 +40,10 @@ const chipHitSlop = {
   right: Spacing.small,
 };
 
+const iconColorSurface = Colors?.icon ?? Colors?.text;
+const iconColorAccent = Colors?.onAccent ?? Colors?.text;
+const ICON_SIZE = 18; // chips de 30px alto
+
 function HomeHeader(
   {
     onPressNotifications = () => {},
@@ -166,6 +170,7 @@ function HomeHeader(
       title: "Recompensas",
       desc: "Explora recompensas disponibles.",
       a11y: "Recompensas",
+      accent: true,
       onPress: () => {
         closePopover();
         navigation.navigate("Rewards");
@@ -232,8 +237,8 @@ function HomeHeader(
             <View style={styles.chipContent}>
               <Icon
                 name={chipConfig.plant.icon}
-                size={18}
-                color={Colors.icon}
+                size={ICON_SIZE}
+                color={iconColorSurface}
                 style={styles.icon}
               />
               <Text
@@ -254,8 +259,8 @@ function HomeHeader(
         >
           <Icon
             name="bell-outline"
-            size={18}
-            color={Colors.icon}
+            size={ICON_SIZE}
+            color={iconColorSurface}
             style={styles.icon}
           />
         </Pressable>
@@ -269,7 +274,7 @@ function HomeHeader(
               <Pressable
                 key={c.key}
                 onPress={c.onPress ? c.onPress : () => onPressChip(c.key)}
-                style={styles.chip}
+                style={[styles.chip, c.accent && styles.chipAccent]}
                 accessibilityRole="button"
                 accessibilityLabel={c.a11y}
                 accessibilityState={
@@ -280,12 +285,12 @@ function HomeHeader(
                 <View style={styles.chipContent}>
                   <Icon
                     name={c.icon}
-                    size={18}
-                    color={Colors.icon}
+                    size={ICON_SIZE}
+                    color={c.accent ? iconColorAccent : iconColorSurface}
                     style={styles.icon}
                   />
                   <Text
-                    style={styles.chipText}
+                    style={c.accent ? styles.chipTextOnAccent : styles.chipText}
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >

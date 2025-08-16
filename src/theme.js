@@ -37,9 +37,9 @@ export const Colors = {
 
   // Texto
   text: "#FFFFFF",
+  icon: "#FFFFFF", // same as text for contrast
   textMuted: "#b0bec5",
   textInverse: "#0e0a1e",
-  icon: "#FFFFFF",
 
   // Controles
   buttonBg: "#00B4D8",
