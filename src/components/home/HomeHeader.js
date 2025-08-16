@@ -2,7 +2,7 @@
 // Afecta: HomeScreen
 // Propósito: Encabezado con top bar, chips y popovers informativos
 // Puntos de edición futura: conectar datos reales y estilos responsivos
-// Autor: Codex - Fecha: 2025-08-14
+// Autor: Codex - Fecha: 2025-08-16
 
 import React, {
   useState,
@@ -18,6 +18,7 @@ import {
   Animated,
   AccessibilityInfo,
   findNodeHandle,
+  Platform,
 } from "react-native";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -55,7 +56,7 @@ function HomeHeader(
 
   const [activeChip, setActiveChip] = useState(null);
   const anim = useRef(new Animated.Value(0)).current;
-  const titleRef = useRef(null);
+  const popoverTitleRef = useRef(null);
   const popoverOpen = activeChip !== null;
 
   const openChip = (key) => {
@@ -203,10 +204,14 @@ function HomeHeader(
   ];
 
   useEffect(() => {
-    if (activeChip && titleRef.current) {
-      const tag = findNodeHandle(titleRef.current);
-      if (tag) {
-        AccessibilityInfo.setFocus(tag);
+    if (activeChip) {
+      const titleText = chipConfig[activeChip]?.title;
+      const node = findNodeHandle(popoverTitleRef.current);
+      const setAF = AccessibilityInfo?.setAccessibilityFocus;
+      if (node && typeof setAF === "function" && Platform.OS !== "web") {
+        setAF(node);
+      } else {
+        AccessibilityInfo?.announceForAccessibility?.(titleText || "Detalles");
       }
     }
   }, [activeChip]);
@@ -312,7 +317,7 @@ function HomeHeader(
             style={[styles.popoverContainer, animatedStyle]}
             accessibilityViewIsModal={true}
           >
-            <Text ref={titleRef} style={styles.popoverTitle}>
+            <Text ref={popoverTitleRef} style={styles.popoverTitle}>
               {chipConfig[activeChip].title}
             </Text>
             <Text style={styles.popoverDesc}>
