@@ -1,9 +1,8 @@
-// [MB] TaskCard — micro-chips informativos y jerarquía de Subtareas
 // [MB] Módulo: Tasks / Sección: Tarjeta de tarea
 // Afecta: TasksScreen (interacción de completar y eliminar tareas)
 // Propósito: Item de tarea deslizable con acciones y recompensas
 // Puntos de edición futura: animaciones y estilos en TaskCard
-// Autor: Codex - Fecha: 2025-08-14
+// Autor: Codex - Fecha: 2025-08-13
 
 import React, { useRef, useState } from "react";
 import {
@@ -18,25 +17,18 @@ import styles from "./TaskCardStyles";
 
 import { Colors, Spacing } from "../../theme";
 
-const ElementAccents = {
-  water: Colors.elementWater,
-  earth: Colors.elementEarth,
-  fire: Colors.elementFire,
-  air: Colors.elementAir,
-};
-
 const getElementColor = (element) => {
   switch (element) {
     case "water":
-      return { name: "tint", color: ElementAccents.water, label: "Agua" };
+      return { name: "tint", color: Colors.elementWater, label: "agua" };
     case "earth":
-      return { name: "pagelines", color: ElementAccents.earth, label: "Tierra" };
+      return { name: "pagelines", color: Colors.elementEarth, label: "earth" };
     case "fire":
-      return { name: "fire", color: ElementAccents.fire, label: "Fuego" };
+      return { name: "fire", color: Colors.elementFire, label: "fire" };
     case "air":
-      return { name: "wind", color: ElementAccents.air, label: "Aire" };
+      return { name: "wind", color: Colors.elementAir, label: "air" };
     default:
-      return { name: "star", color: Colors.text, label: "Elemento" };
+      return { name: "star", color: Colors.text, label: "all" };
   }
 };
 
@@ -66,38 +58,16 @@ const getPriorityLabel = (p) => {
   }
 };
 
-const getTypeLabel = (type) => {
+const getTypeConfig = (type) => {
   switch (type) {
     case "habit":
-      return "Hábito";
+      return { label: "Hábito", color: Colors.buttonBg };
     case "single":
-      return "Tarea";
+      return { label: "Tarea", color: Colors.primaryLight };
+
     default:
-      return "Tarea";
+      return { label: "Tarea", color: Colors.primaryLight };
   }
-};
-
-const getDifficultyColor = (d) => {
-  switch (d) {
-    case "easy":
-      return Colors.info;
-    case "medium":
-      return Colors.warning;
-    case "hard":
-      return Colors.danger;
-    default:
-      return Colors.separator;
-  }
-};
-
-const xpReward = { easy: 5, medium: 10, hard: 20 };
-const manaReward = { easy: 1, medium: 2, hard: 3 };
-
-const HIT_SLOP = {
-  top: Spacing.tiny,
-  bottom: Spacing.tiny,
-  left: Spacing.tiny,
-  right: Spacing.tiny,
 };
 
 export default function TaskCard({
@@ -118,10 +88,6 @@ export default function TaskCard({
   const threshold = 80;
   const isDeletedView = activeFilter === "deleted";
   const isCompletedView = activeFilter === "completed";
-  const xp = xpReward[task.difficulty] || 0;
-  const mana = manaReward[task.priority] || 0;
-  const totalSubtasks = task.subtasks?.length || 0;
-  const completedSubtasks = task.subtasks?.filter((st) => st.completed).length || 0;
 
   // PanResponder para manejar el swipe
   // se usa useRef para evitar recrear el objeto en cada render
@@ -159,7 +125,7 @@ export default function TaskCard({
   // Información del elemento (icono y color)
   // se usa una función para evitar lógica compleja en el render
   const elementInfo = getElementColor(task.element);
-  const typeLabel = getTypeLabel(task.type);
+  const typeConfig = getTypeConfig(task.type);
   const [showSubtasks, setShowSubtasks] = useState(false);
 
   // Estilos de acción al deslizar
@@ -225,19 +191,20 @@ export default function TaskCard({
           {
             transform: [{ translateX: pan }, { scale }],
             opacity: task.completed || task.isDeleted ? 0.5 : 1,
-            borderLeftColor: getDifficultyColor(task.difficulty),
           },
         ]}
         {...panResponder.panHandlers}
         onTouchStart={handlePressIn}
         onTouchEnd={handlePressOut}
       >
-        <View style={styles.mainColumn}>
-          <TouchableOpacity
-            style={styles.contentRow}
-            onPress={() => onEditTask(task)}
-          >
-            <View style={styles.textContainer}>
+        <View
+          style={[styles.accentBar, { backgroundColor: elementInfo.color }]}
+        />
+        <TouchableOpacity
+          style={styles.contentRow}
+          onPress={() => onEditTask(task)}
+        >
+          <View style={styles.textContainer}>
             <Text
               style={[styles.title, task.completed && styles.textCompleted]}
             >
@@ -253,24 +220,19 @@ export default function TaskCard({
           </View>
         </TouchableOpacity>
 
-        {totalSubtasks > 0 && (
+        {task.subtasks?.length > 0 && (
           <>
-            <View style={styles.subtaskHeader}>
-              <TouchableOpacity
-                style={styles.subtaskToggle}
-                onPress={() => setShowSubtasks(!showSubtasks)}
-              >
-                <FontAwesome5
-                  name={showSubtasks ? "chevron-up" : "chevron-down"}
-                  size={12}
-                  color={Colors.textMuted}
-                />
-                <Text style={styles.subtaskToggleText}>Subtareas</Text>
-              </TouchableOpacity>
-              <View style={styles.subtaskCountChip}>
-                <Text style={styles.subtaskCountText}>{`${completedSubtasks}/${totalSubtasks}`}</Text>
-              </View>
-            </View>
+            <TouchableOpacity
+              style={styles.subtaskToggle}
+              onPress={() => setShowSubtasks(!showSubtasks)}
+            >
+              <FontAwesome5
+                name={showSubtasks ? "chevron-up" : "chevron-down"}
+                size={12}
+                color={Colors.textMuted}
+              />
+              <Text style={styles.subtaskToggleText}>Subtareas</Text>
+            </TouchableOpacity>
             {showSubtasks && (
               <View style={styles.subtaskList}>
                 {task.subtasks.length > 5 ? (
@@ -367,67 +329,49 @@ export default function TaskCard({
           </>
         )}
 
-        {/* ——— Chips de metadatos y recompensas ——— */}
+        {/* ——— Chips de metadatos ——— */}
         <View style={styles.metaRow}>
-          <View style={styles.chip} accessibilityRole="text">
-            <Text style={styles.chipText}>{typeLabel}</Text>
+          <View
+            style={[styles.elementChip, { backgroundColor: elementInfo.color }]}
+            accessible
+            accessibilityLabel={`Elemento ${elementInfo.label}`}
+          >
+            <FontAwesome5
+              name={elementInfo.name}
+              size={12}
+              color={Colors.background}
+            />
+          </View>
+          <View style={[styles.chip, { backgroundColor: typeConfig.color }]}>
+            <Text style={styles.chipText}>{typeConfig.label}</Text>
           </View>
           <View
             style={[
               styles.chip,
+              styles.priorityChip,
               { borderColor: getPriorityColor(task.priority) },
             ]}
-            accessibilityRole="text"
           >
             <Text
               style={[
                 styles.chipText,
+                styles.priorityChipText,
                 { color: getPriorityColor(task.priority) },
               ]}
             >
               {getPriorityLabel(task.priority)}
             </Text>
           </View>
-          <Text
-            style={[
-              styles.rewardInlineText,
-              { color: getPriorityColor(task.priority) },
-            ]}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >{`+${xp} XP · +${mana} ⚡`}</Text>
         </View>
         {task.tags?.length > 0 && (
-          <View style={styles.tagsRow}>
+          <View style={[styles.metaRow, styles.labelRow]}>
             {task.tags.map((tag) => (
-              <View key={tag} style={styles.tagChip} accessibilityRole="text">
-                <Text
-                  style={styles.tagText}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {tag}
-                </Text>
+              <View key={tag} style={[styles.chip, styles.tagChip]}>
+                <Text style={styles.chipText}>{tag}</Text>
               </View>
             ))}
           </View>
         )}
-        </View>
-        <View style={styles.rightColumn}>
-          <TouchableOpacity
-            style={styles.elementButton}
-            onPress={() => onEditTask(task)}
-            accessibilityRole="button"
-            accessibilityLabel={`Editar tarea (Elemento: ${elementInfo.label})`}
-            hitSlop={HIT_SLOP}
-          >
-            <FontAwesome5
-              name={elementInfo.name}
-              size={14}
-              color={elementInfo.color}
-            />
-          </TouchableOpacity>
-        </View>
       </Animated.View>
     </View>
   );
