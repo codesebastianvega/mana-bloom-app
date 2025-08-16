@@ -2,7 +2,7 @@
 // Afecta: HomeHeader
 // Propósito: Estilos para top bar, chips y popovers del encabezado
 // Puntos de edición futura: ajustar tamaños de chip y responsividad
-// Autor: Codex - Fecha: 2025-08-16
+// Autor: Codex - Fecha: 2025-08-17
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Typography, Elevation } from "../../theme";
@@ -54,35 +54,10 @@ export default StyleSheet.create({
     fontWeight: "600",
     color: Colors.text,
   },
-  chipBlock: {
-    marginTop: Spacing.small,
-  },
-  chipRow: {
+  resourcesRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    alignSelf: "stretch",
-    width: "100%",
-    alignItems: "center",
     gap: Spacing.small,
-    position: "relative",
-    zIndex: 2,
-  },
-  chip: {
-    backgroundColor: Colors.surface,
-    borderRadius: Radii.lg,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    height: 30,
-    flexBasis: "31%",
-    maxWidth: "31%",
-    flexGrow: 0,
-    marginBottom: Spacing.small,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  chipAccent: {
-    backgroundColor: Colors.accent,
+    marginTop: Spacing.small,
   },
   chipContent: {
     alignItems: "center",
@@ -93,11 +68,6 @@ export default StyleSheet.create({
     ...Typography.caption,
     fontWeight: "600",
     color: Colors.text,
-  },
-  chipTextOnAccent: {
-    ...Typography.caption,
-    fontWeight: "600",
-    color: Colors.onAccent,
   },
   popoverContainer: {
     marginTop: Spacing.small,
