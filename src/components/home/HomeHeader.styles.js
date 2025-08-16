@@ -37,6 +37,8 @@ export default StyleSheet.create({
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.small,
     height: 30,
+    justifyContent: "center",
+    alignItems: "center",
   },
   notificationsButton: {
     backgroundColor: Colors.surface,
@@ -76,6 +78,8 @@ export default StyleSheet.create({
     maxWidth: "31%",
     flexGrow: 0,
     marginBottom: Spacing.small,
+    justifyContent: "center",
+    alignItems: "center",
   },
   chipAccent: {
     backgroundColor: Colors.accent,
@@ -83,8 +87,7 @@ export default StyleSheet.create({
   chipContent: {
     alignItems: "center",
     justifyContent: "center",
-    position: "relative",
-    zIndex: 2,
+    flex: 1,
   },
   chipText: {
     ...Typography.caption,
