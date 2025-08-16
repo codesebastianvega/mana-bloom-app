@@ -20,7 +20,7 @@ import {
   findNodeHandle,
   Platform,
 } from "react-native";
-import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
+import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 
@@ -111,14 +111,7 @@ function HomeHeader(
   const chipConfig = {
     plant: {
       key: "plant",
-      icon: (
-        <Ionicons
-          name="leaf"
-          size={14}
-          color={Colors.icon}
-          style={styles.icon}
-        />
-      ),
+      icon: "leaf",
       label: plantState || "--",
       title: "Planta",
       desc: `Estado actual: ${plantState || "--"}.`,
@@ -126,14 +119,7 @@ function HomeHeader(
     },
     mana: {
       key: "mana",
-      icon: (
-        <Ionicons
-          name="water"
-          size={14}
-          color={Colors.icon}
-          style={styles.icon}
-        />
-      ),
+      icon: "water",
       label: String(mana),
       title: "Maná",
       desc: `Tienes ${mana} de maná disponible.`,
@@ -141,14 +127,7 @@ function HomeHeader(
     },
     coins: {
       key: "coins",
-      icon: (
-        <FontAwesome5
-          name="coins"
-          size={12}
-          color={Colors.icon}
-          style={styles.icon}
-        />
-      ),
+      icon: "currency-usd",
       label: String(coin),
       title: "Monedas",
       desc: `Tienes ${coin} monedas.`,
@@ -156,14 +135,7 @@ function HomeHeader(
     },
     diamonds: {
       key: "diamonds",
-      icon: (
-        <FontAwesome5
-          name="gem"
-          size={12}
-          color={Colors.icon}
-          style={styles.icon}
-        />
-      ),
+      icon: "diamond-stone",
       label: String(gem),
       title: "Diamantes",
       desc: `Tienes ${gem} diamantes.`,
@@ -171,14 +143,7 @@ function HomeHeader(
     },
     streak: {
       key: "streak",
-      icon: (
-        <FontAwesome5
-          name="fire"
-          size={12}
-          color={Colors.icon}
-          style={styles.icon}
-        />
-      ),
+      icon: "fire",
       label: String(streak),
       title: "Racha",
       desc: `Racha activa de ${streak} días.`,
@@ -186,14 +151,7 @@ function HomeHeader(
     },
     buffs: {
       key: "buffs",
-      icon: (
-        <Ionicons
-          name="flask"
-          size={14}
-          color={Colors.icon}
-          style={styles.icon}
-        />
-      ),
+      icon: "flask-outline",
       label: String(buffs.length),
       title: "Buffs",
       desc: buffs.length
@@ -203,14 +161,7 @@ function HomeHeader(
     },
     rewards: {
       key: "rewards",
-      icon: (
-        <Ionicons
-          name="gift"
-          size={14}
-          color={Colors.icon}
-          style={styles.icon}
-        />
-      ),
+      icon: "gift",
       label: "Ver",
       title: "Recompensas",
       desc: "Explora recompensas disponibles.",
@@ -279,7 +230,12 @@ function HomeHeader(
             hitSlop={chipHitSlop}
           >
             <View style={styles.chipContent}>
-              {chipConfig.plant.icon}
+              <Icon
+                name={chipConfig.plant.icon}
+                size={18}
+                color={Colors.icon}
+                style={styles.icon}
+              />
               <Text
                 style={styles.chipText}
                 numberOfLines={1}
@@ -296,8 +252,8 @@ function HomeHeader(
           accessibilityRole="button"
           accessibilityLabel="Abrir notificaciones"
         >
-          <Ionicons
-            name="notifications-outline"
+          <Icon
+            name="bell-outline"
             size={18}
             color={Colors.icon}
             style={styles.icon}
@@ -322,7 +278,12 @@ function HomeHeader(
                 hitSlop={chipHitSlop}
               >
                 <View style={styles.chipContent}>
-                  {c.icon}
+                  <Icon
+                    name={c.icon}
+                    size={18}
+                    color={Colors.icon}
+                    style={styles.icon}
+                  />
                   <Text
                     style={styles.chipText}
                     numberOfLines={1}
@@ -380,8 +341,10 @@ function HomeHeader(
               accessibilityRole="text"
               accessibilityLabel={b.type}
             >
-              <Ionicons
-                name={b.type === "xp_double" ? "flask" : "sparkles"}
+              <Icon
+                name={
+                  b.type === "xp_double" ? "flask-outline" : "auto-fix"
+                }
                 size={16}
                 color={Colors.accent}
               />
