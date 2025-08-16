@@ -37,9 +37,9 @@ export const Colors = {
 
   // Texto
   text: "#FFFFFF",
-  icon: "#FFFFFF", // same as text for contrast
   textMuted: "#b0bec5",
   textInverse: "#0e0a1e",
+  icon: "#FFFFFF", // Icons mirror text color for contrast
 
   // Controles
   buttonBg: "#00B4D8",
@@ -55,6 +55,7 @@ export const Colors = {
   elementAir: "#90a4ae",
   elementAirLight: "#cfd8dc",
 };
+
 
 export const Spacing = {
   tiny: 4,
