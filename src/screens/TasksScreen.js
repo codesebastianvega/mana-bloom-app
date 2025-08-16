@@ -3,7 +3,7 @@
 // Afecta: TasksScreen (listado y gestión de tareas)
 // Propósito: Listar, filtrar y persistir tareas con recompensas seguras
 // Puntos de edición futura: manejo remoto y estilos de filtros
-// Autor: Codex - Fecha: 2025-08-14
+// Autor: Codex - Fecha: 2025-08-16
 
 import React, { useState, useEffect, useMemo } from "react";
 import {
@@ -113,8 +113,15 @@ const elementInfo = {
     title: "Fuego 🔥 (Poder y Pasión)",
     description:
       "Se usa para tareas que requieren alta energía, urgencia o creatividad espontánea.",
-    examples:
-      "Ejemplos: Terminar un proyecto con fecha límite, una sesión de brainstorming intensa, o una tarea que te apasiona y quieres completar rápidamente.",
+    examples: [
+      "Enviar propuesta con deadline hoy",
+      "Pitch rápido/brainstorm",
+      "Entrenamiento intenso",
+      "Resolver bug crítico",
+      "Grabar video/toma creativa",
+      "Lanzar campaña",
+      "Limpiar backlog urgente",
+    ],
     purpose:
       'Propósito: "Inyecta poder y acelera el crecimiento de la planta."',
   },
@@ -122,8 +129,15 @@ const elementInfo = {
     title: "Agua 💧 (Calma y Flujo)",
     description:
       "Se usa para tareas que necesitan atención continua, concentración o un estado de calma.",
-    examples:
-      "Ejemplos: Planificar tu semana, leer un documento largo, o meditar.",
+    examples: [
+      "Planificar semana",
+      "Leer/estudiar 30–60 min",
+      "Redactar documento largo",
+      "Procesar correos",
+      "Meditación/respiración",
+      "Refinar notas",
+      "Revisión tranquila de PRs",
+    ],
     purpose:
       'Propósito: "Mantiene la planta hidratada y en un crecimiento estable."',
   },
@@ -131,8 +145,15 @@ const elementInfo = {
     title: "Tierra 🌱 (Estabilidad y Crecimiento)",
     description:
       "Se usa para tareas fundamentales, repetitivas o que construyen un hábito.",
-    examples:
-      "Ejemplos: Limpiar tu espacio de trabajo, hacer ejercicio, o realizar una tarea diaria de tu rutina.",
+    examples: [
+      "Rutina de ejercicio",
+      "Ordenar escritorio",
+      "Lavar/organizar",
+      "Contabilidad/domésticos",
+      "Repasar vocabulario",
+      "Backup/limpieza sistema",
+      "Hábitos diarios",
+    ],
     purpose:
       'Propósito: "Proporciona una base sólida y nutrientes para un crecimiento sostenible."',
   },
@@ -140,8 +161,15 @@ const elementInfo = {
     title: "Aire 🌬️ (Libertad y Movimiento)",
     description:
       "Se usa para tareas que requieren claridad mental, comunicación o flexibilidad.",
-    examples:
-      "Ejemplos: Escribir un correo importante, organizar ideas, o aprender algo nuevo.",
+    examples: [
+      "Escribir correo importante",
+      "Organizar ideas/Mindmap",
+      "Aprender concepto nuevo",
+      "Llamada breve/agenda",
+      "Revisar roadmap",
+      "Plan de estudio",
+      "Documentar decisiones",
+    ],
     purpose:
       'Propósito: "Le da a la planta el espacio para respirar y expandirse."',
   },
