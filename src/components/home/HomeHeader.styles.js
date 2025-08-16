@@ -43,16 +43,10 @@ export default StyleSheet.create({
   notificationsButton: {
     backgroundColor: Colors.surface,
     borderRadius: Radii.lg,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    height: 30,
+    width: Spacing.base * 2,
+    height: Spacing.base * 2,
     justifyContent: "center",
     alignItems: "center",
-  },
-  notificationsText: {
-    ...Typography.body,
-    fontWeight: "600",
-    color: Colors.text,
   },
   chipBlock: {
     marginTop: Spacing.small,
