@@ -13,6 +13,8 @@ import GrowthProgress from "../components/plant/GrowthProgress";
 import BuffsBar from "../components/plant/BuffsBar";
 import InventorySheet from "../components/plant/InventorySheet";
 import PlantHeader from "../components/plant/PlantHeader";
+import ScreenSection from "../components/ui/ScreenSection";
+import SectionHeader from "../components/ui/SectionHeader";
 import { Colors, Spacing } from "../theme";
 
 const ElementAccents = {
@@ -40,6 +42,8 @@ export default function PlantScreen() {
 
   const equippedSkin = skins.find((s) => s.id === equippedSkinId);
   const skinAccent = equippedSkin ? ElementAccents[equippedSkin.accentKey] : undefined;
+
+  const etaText = "faltan ~3 tareas";
 
   // [MB] Costos mock por acción (solo UI)
   const ACTION_COSTS = {
@@ -88,7 +92,6 @@ export default function PlantScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* [MB] Contenido scrollable para evitar notch y reservar espacio para FAB */}
       <ScrollView
         contentContainerStyle={styles.content}
         importantForAccessibility={invOpen ? "no-hide-descendants" : "auto"}
@@ -107,45 +110,14 @@ export default function PlantScreen() {
           txn={txn}
           insufficient={insufficient}
         />
-        {/* [MB] Hero de planta con overlay de maceta */}
-        <PlantHero health={0.95} mood="floreciente" stage="brote" skinAccent={skinAccent} />
-        {/* [MB] Métricas de cuidado */}
-        <CareMetrics
-          water={0.62}
-          light={0.48}
-          nutrients={0.3}
-          mood={0.95}
-          style={{ alignSelf: "stretch", marginTop: Spacing.large }}
-        />
-        {/* [MB] Acciones rápidas de cuidado */}
-        <QuickActions
-          canWater
-          canFeed
-          canClean
-          canMeditate
-          cooldowns={{ water: 0, feed: 0, clean: 0, meditate: 0 }}
-          onAction={(key) => {
-            if (key === "clean") {
-              setSelectedSkinId(equippedSkinId);
-              setInvOpen(true);
-              return;
-            }
-            handleAction(key);
-          }}
-        />
-        {/* [MB] Progreso de crecimiento */}
-        <GrowthProgress
+        <PlantHero
+          health={0.95}
+          mood="floreciente"
           stage="brote"
-          progress={0.62}
-          etaText="faltan ~3 tareas"
-          milestones={[
-            { id: "m1", icon: "💧", title: "Regaste", delta: "+15 Agua", timestamp: Date.now() - 1000 * 60 * 20 },
-            { id: "m2", icon: "🍃", title: "Aplicaste nutrientes", delta: "+10 Nutrientes", timestamp: Date.now() - 1000 * 60 * 90 },
-            { id: "m3", icon: "🧘", title: "Meditaste", delta: "+10 Ánimo", timestamp: Date.now() - 1000 * 60 * 200 },
-          ]}
-          style={{ alignSelf: "stretch", marginTop: Spacing.large }}
+          skinAccent={skinAccent}
+          auraIntensity="subtle"
+          size="lg"
         />
-        {/* [MB] Barra de buffs activos (mock) */}
         <BuffsBar
           buffs={[
             { id: "b1", title: "XP", icon: "✨", multiplier: 1.2, timeRemainingMs: 120000, accentKey: "xp" },
@@ -153,7 +125,48 @@ export default function PlantScreen() {
             { id: "b3", title: "Protección", icon: "🛡️", multiplier: 1.0, timeRemainingMs: 300000, accentKey: "shield" },
           ]}
           onExpire={(id) => console.log("[MB] buff expirado:", id)}
+          contentContainerStyle={{ gap: Spacing.base }}
         />
+        <ScreenSection>
+          <SectionHeader title="Métricas de cuidado" />
+          <CareMetrics
+            water={0.62}
+            light={0.48}
+            nutrients={0.3}
+            mood={0.95}
+          />
+        </ScreenSection>
+        <ScreenSection>
+          <SectionHeader title="Acciones rápidas" />
+          <QuickActions
+            canWater
+            canFeed
+            canClean
+            canMeditate
+            cooldowns={{ water: 0, feed: 0, clean: 0, meditate: 0 }}
+            onAction={(key) => {
+              if (key === "clean") {
+                setSelectedSkinId(equippedSkinId);
+                setInvOpen(true);
+                return;
+              }
+              handleAction(key);
+            }}
+          />
+        </ScreenSection>
+        <ScreenSection>
+          <SectionHeader title="Progreso de crecimiento" caption={etaText} />
+          <GrowthProgress
+            stage="brote"
+            progress={0.62}
+            milestones={[
+              { id: "m1", icon: "💧", title: "Regaste", delta: "+15 Agua", timestamp: Date.now() - 1000 * 60 * 20 },
+              { id: "m2", icon: "🍃", title: "Aplicaste nutrientes", delta: "+10 Nutrientes", timestamp: Date.now() - 1000 * 60 * 90 },
+              { id: "m3", icon: "🧘", title: "Meditaste", delta: "+10 Ánimo", timestamp: Date.now() - 1000 * 60 * 200 },
+            ]}
+            limitLog={3}
+          />
+        </ScreenSection>
       </ScrollView>
       <InventorySheet
         visible={invOpen}
@@ -181,7 +194,7 @@ const styles = StyleSheet.create({
   content: {
     padding: Spacing.large,
     paddingBottom: Spacing.large * 3,
-    alignItems: "center",
+    gap: Spacing.xlarge,
   },
 });
 

@@ -212,6 +212,7 @@ const styles = StyleSheet.create({
     borderRadius: Radii.pill,
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.small,
+    minHeight: Spacing.xlarge + Spacing.small,
     ...Elevation.raised,
   },
   icon: {

@@ -42,17 +42,6 @@ export default function QuickActions({
       cooldown: cooldowns.feed || 0,
     },
     {
-      key: "clean",
-      title: "Limpiar",
-      icon: <Text>🧼</Text>,
-      accentKey: "clean",
-      costLabel: undefined,
-      tooltip: "+10 Pureza",
-      hint: "Quita impurezas",
-      enabled: canClean,
-      cooldown: cooldowns.clean || 0,
-    },
-    {
       key: "meditate",
       title: "Meditar",
       icon: <Text>🧘‍♂️</Text>,
@@ -62,6 +51,17 @@ export default function QuickActions({
       hint: "Relaja el espíritu",
       enabled: canMeditate,
       cooldown: cooldowns.meditate || 0,
+    },
+    {
+      key: "clean",
+      title: "Limpiar",
+      icon: <Text>🧼</Text>,
+      accentKey: "clean",
+      costLabel: undefined,
+      tooltip: "+10 Pureza",
+      hint: "Quita impurezas",
+      enabled: canClean,
+      cooldown: cooldowns.clean || 0,
     },
   ];
 
@@ -92,12 +92,11 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
     alignSelf: "stretch",
-    marginTop: Spacing.large,
-    marginBottom: Spacing.large,
+    rowGap: Spacing.base,
+    columnGap: Spacing.base,
   },
   item: {
     flexBasis: "48%",
-    marginBottom: Spacing.base,
   },
 });
 
