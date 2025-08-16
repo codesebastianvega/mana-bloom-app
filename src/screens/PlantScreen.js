@@ -5,13 +5,15 @@
 // Autor: Codex - Fecha: 2025-08-16
 
 import React, { useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
+import { SafeAreaView, ScrollView, StyleSheet, AccessibilityInfo, View } from "react-native";
 import PlantHero from "../components/plant/PlantHero";
 import CareMetrics from "../components/plant/CareMetrics";
 import QuickActions from "../components/plant/QuickActions";
 import GrowthProgress from "../components/plant/GrowthProgress";
 import BuffsBar from "../components/plant/BuffsBar";
 import InventorySheet from "../components/plant/InventorySheet";
+import ResourceCapsules from "../components/economy/ResourceCapsules";
+import StreakChip from "../components/economy/StreakChip";
 import { Colors, Spacing } from "../theme";
 
 const ElementAccents = {
@@ -25,6 +27,10 @@ export default function PlantScreen() {
   const [invOpen, setInvOpen] = useState(false);
   const [equippedSkinId, setEquippedSkinId] = useState();
   const [selectedSkinId, setSelectedSkinId] = useState();
+  const [economy, setEconomy] = useState({ mana: 140, coins: 850, gems: 12 });
+  const [streakDays, setStreakDays] = useState(3);
+  const [txn, setTxn] = useState(null);
+  const [insufficient, setInsufficient] = useState(null);
   const [skins, setSkins] = useState([
     { id: "s1", name: "Maceta Rústica", rarity: "common", owned: true, equipped: true, accentKey: "neutral", thumb: "🎍" },
     { id: "s2", name: "Arcana Azul", rarity: "rare", owned: true, accentKey: "water", thumb: "🔵" },
@@ -35,6 +41,51 @@ export default function PlantScreen() {
   const equippedSkin = skins.find((s) => s.id === equippedSkinId);
   const skinAccent = equippedSkin ? ElementAccents[equippedSkin.accentKey] : undefined;
 
+  // [MB] Costos mock por acción (solo UI)
+  const ACTION_COSTS = {
+    water: { mana: 20 },
+    feed: { coins: 120 },
+    clean: { coins: 0 },
+    meditate: { mana: 10 },
+  };
+
+  // [MB] Handler central de acciones
+  function handleAction(key) {
+    const costs = ACTION_COSTS[key] || {};
+    const lacks = Object.entries(costs).find(
+      ([res, amt]) => (economy[res] ?? 0) < amt
+    );
+    if (lacks) {
+      const [res] = lacks;
+      setInsufficient({ id: String(Date.now()), resource: res });
+      AccessibilityInfo.announceForAccessibility?.(
+        "Saldo insuficiente de " +
+          (res === "mana"
+            ? "Maná"
+            : res === "coins"
+            ? "Monedas"
+            : "Diamantes")
+      );
+      return;
+    }
+    const next = { ...economy };
+    Object.entries(costs).forEach(([res, amt]) => {
+      next[res] -= amt || 0;
+    });
+    setEconomy(next);
+    const resKey = Object.keys(costs)[0];
+    setTxn({ id: String(Date.now()), resource: resKey, amount: -1 * (costs[resKey] || 0) });
+    AccessibilityInfo.announceForAccessibility?.(
+      `Gastaste ${costs[resKey]} ${
+        resKey === "mana"
+          ? "Maná"
+          : resKey === "coins"
+          ? "Monedas"
+          : "Diamantes"
+      }, saldo ${next[resKey]}`
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* [MB] Contenido scrollable para evitar notch y reservar espacio para FAB */}
@@ -42,6 +93,20 @@ export default function PlantScreen() {
         contentContainerStyle={styles.content}
         importantForAccessibility={invOpen ? "no-hide-descendants" : "auto"}
       >
+        <View style={styles.economyRow}>
+          <View style={styles.capsules}>
+            <ResourceCapsules
+              mana={economy.mana}
+              coins={economy.coins}
+              gems={economy.gems}
+              txn={txn}
+              insufficient={insufficient}
+            />
+          </View>
+          <View style={styles.streakItem}>
+            <StreakChip days={streakDays} />
+          </View>
+        </View>
         {/* [MB] Hero de planta con overlay de maceta */}
         <PlantHero health={0.95} mood="floreciente" stage="brote" skinAccent={skinAccent} />
         {/* [MB] Métricas de cuidado */}
@@ -63,9 +128,9 @@ export default function PlantScreen() {
             if (key === "clean") {
               setSelectedSkinId(equippedSkinId);
               setInvOpen(true);
-            } else {
-              console.log("[MB] acción", key);
+              return;
             }
+            handleAction(key);
           }}
         />
         {/* [MB] Progreso de crecimiento */}
@@ -117,6 +182,20 @@ const styles = StyleSheet.create({
     padding: Spacing.large,
     paddingBottom: Spacing.large * 3,
     alignItems: "center",
+  },
+  economyRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    alignSelf: "stretch",
+    marginBottom: Spacing.large,
+  },
+  capsules: {
+    marginRight: Spacing.base,
+    marginBottom: Spacing.small,
+  },
+  streakItem: {
+    marginBottom: Spacing.small,
   },
 });
 
