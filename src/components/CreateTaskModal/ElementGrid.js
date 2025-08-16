@@ -6,7 +6,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { View, Pressable, Text, Animated, Easing } from "react-native";
-import { Colors, Spacing, Elevation } from "../../theme";
+import { Colors, Spacing, Elevation, Radii } from "../../theme";
 import styles from "./CreateTaskModal.styles";
 
 const withAlpha = (hex, alpha) => {
@@ -58,11 +58,11 @@ export default function ElementGrid({ value, onChange, onLongPress, tileAspect =
 
 function ElementTile({ element, index, width, height, selected, onPress, onLongPress }) {
   const accent = ElementAccents[element.key];
-  const scale = useRef(new Animated.Value(selected ? 1 : 0.98)).current;
+  const glowScale = useRef(new Animated.Value(selected ? 1 : 0.98)).current;
   const glowOpacity = useRef(new Animated.Value(selected ? 1 : 0)).current;
 
   useEffect(() => {
-    Animated.timing(scale, {
+    Animated.timing(glowScale, {
       toValue: selected ? 1 : 0.98,
       duration: 150,
       easing: Easing.out(Easing.ease),
@@ -74,7 +74,7 @@ function ElementTile({ element, index, width, height, selected, onPress, onLongP
       easing: Easing.out(Easing.ease),
       useNativeDriver: true,
     }).start();
-  }, [selected, scale, glowOpacity]);
+  }, [selected, glowScale, glowOpacity]);
 
   return (
     <Pressable
@@ -84,13 +84,30 @@ function ElementTile({ element, index, width, height, selected, onPress, onLongP
       accessibilityLabel={`Mantén presionado para ver ayuda de ${element.label}`}
       accessibilityState={{ selected }}
       style={{
-        width: width,
-        height: height,
+        width,
+        height,
         marginRight: index % 2 === 0 ? Spacing.small : 0,
         marginBottom: Spacing.small,
+        borderRadius: Radii.lg,
       }}
     >
       <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.elementGlow,
+          {
+            backgroundColor: withAlpha(accent, 0.26),
+            opacity: glowOpacity,
+            transform: [{ scale: glowScale }],
+            shadowColor: accent,
+            shadowOpacity: 0.8,
+            shadowRadius: 12,
+            elevation: 8,
+            borderRadius: Radii.lg,
+          },
+        ]}
+      />
+      <View
         style={[
           styles.elementTile,
           {
@@ -98,25 +115,10 @@ function ElementTile({ element, index, width, height, selected, onPress, onLongP
             backgroundColor: selected
               ? withAlpha(accent, 0.18)
               : Colors.surface,
-            transform: [{ scale }],
           },
           selected && { ...(Elevation.raised || {}), shadowColor: accent },
         ]}
       >
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            styles.elementGlow,
-            {
-              backgroundColor: withAlpha(accent, 0.26),
-              opacity: glowOpacity,
-              shadowColor: accent,
-              shadowOpacity: 0.8,
-              shadowRadius: 12,
-              elevation: 8,
-            },
-          ]}
-        />
         <Text style={styles.elementEmoji}>{element.emoji}</Text>
         <Text style={styles.elementTitle}>{element.label}</Text>
         <Text
@@ -126,7 +128,7 @@ function ElementTile({ element, index, width, height, selected, onPress, onLongP
         >
           {element.caption}
         </Text>
-      </Animated.View>
+      </View>
     </Pressable>
   );
 }

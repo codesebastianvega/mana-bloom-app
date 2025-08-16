@@ -135,18 +135,14 @@ export default StyleSheet.create({
     color: Colors.text,
   },
   whichRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
     marginTop: Spacing.tiny,
   },
   whichSnippet: {
-    flex: 1,
     fontSize: 12,
     color: Colors.textMuted,
-    marginRight: Spacing.small,
+    marginTop: Spacing.tiny,
   },
-  whichMore: { fontSize: 12, color: Colors.info },
+  whichMore: { fontSize: 12, color: Colors.info, marginTop: Spacing.tiny },
 
   subtasksChips: {
     flexDirection: "row",
@@ -178,11 +174,22 @@ export default StyleSheet.create({
   chipLabelActive: {
     color: Colors.background,
   },
-  chipsContainer: {
+  difficultyRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
     gap: Spacing.small,
     marginTop: Spacing.small,
+  },
+  difficultyChip: {
+    flex: 1,
+    minWidth: 0,
+    minHeight: Spacing.xlarge,
+    paddingHorizontal: Spacing.base,
+    borderRadius: Radii?.pill ?? 999,
+    borderWidth: 1,
+    borderColor: Colors.textMuted,
+    backgroundColor: Colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   priorityList: { marginTop: Spacing.small, gap: Spacing.small },
@@ -255,21 +262,24 @@ export default StyleSheet.create({
   tagsList: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: Spacing.small,
+    gap: Spacing.small - 2,
     marginTop: Spacing.small,
   },
   tagChip: {
-    minHeight: 28,
+    minHeight: Spacing.large,
     paddingHorizontal: Spacing.base,
     borderRadius: Radii?.pill ?? 999,
     backgroundColor: Colors.surfaceElevated || Colors.surface,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: Colors.textMuted,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
   },
-  tagText: { fontSize: 12, color: Colors.text },
+  tagText: {
+    fontSize: (Typography.caption?.fontSize || 12) - 1,
+    color: Colors.text,
+  },
 
   actions: {
     flexDirection: "row",
