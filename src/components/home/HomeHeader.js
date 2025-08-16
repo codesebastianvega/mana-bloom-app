@@ -21,11 +21,12 @@ import {
   Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 import styles from "./HomeHeader.styles";
-import { Gradients, Spacing } from "../../theme";
-import ResourceCapsules from "../economy/ResourceCapsules";
-import StreakChip from "../economy/StreakChip";
+import { Colors, Gradients, Spacing } from "../../theme";
+
 import {
   useAppState,
   useWallet,
@@ -182,7 +183,11 @@ function HomeHeader(
           accessibilityRole="button"
           accessibilityLabel="Abrir notificaciones"
         >
-          <Text style={styles.notificationsText}>Notificaciones</Text>
+          <Ionicons
+            name="notifications-outline"
+            size={Spacing.base * 2}
+            color={Colors.text}
+          />
         </Pressable>
       </View>
 
