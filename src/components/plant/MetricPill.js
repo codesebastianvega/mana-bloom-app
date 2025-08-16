@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   track: {
     position: "relative",
     justifyContent: "center",
-    height: Spacing.large,
+    height: Spacing.xlarge + Spacing.small,
     borderRadius: Radii.pill,
     backgroundColor: Colors.surfaceAlt,
     overflow: "hidden",
@@ -134,15 +134,16 @@ const styles = StyleSheet.create({
   left: {
     flexDirection: "row",
     alignItems: "center",
+    gap: Spacing.small,
   },
   label: {
     ...Typography.body,
     color: Colors.text,
-    marginLeft: Spacing.small,
   },
   value: {
     ...Typography.caption,
     color: Colors.textMuted,
+    textAlign: "right",
   },
 });
 

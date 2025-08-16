@@ -2,14 +2,20 @@
 // Afecta: PlantScreen (barra de buffs)
 // Propósito: gestionar y mostrar chips de buffs con temporizador compartido
 // Puntos de edición futura: extracción a contexto o data real
-// Autor: Codex - Fecha: 2025-08-18
+// Autor: Codex - Fecha: 2025-08-16
 
 import React, { useCallback, useEffect, useState } from "react";
 import { ScrollView, View, StyleSheet, Text } from "react-native";
 import BuffChip from "./BuffChip";
 import { Colors, Spacing, Typography, Opacity } from "../../theme";
 
-export default function BuffsBar({ buffs, onExpire, horizontal = true }) {
+export default function BuffsBar({
+  buffs,
+  onExpire,
+  horizontal = true,
+  contentContainerStyle,
+  style,
+}) {
   // [MB] Estado local para manejar ms restantes de cada buff
   const [buffsState, setBuffsState] = useState(() => buffs.map((b) => ({ ...b })));
 
@@ -53,22 +59,30 @@ export default function BuffsBar({ buffs, onExpire, horizontal = true }) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.row}
+        contentContainerStyle={[styles.row, contentContainerStyle]}
+        style={[styles.container, style]}
       >
         {content}
       </ScrollView>
     );
   }
 
-  return <View style={[styles.row, styles.wrap]}>{content}</View>;
+  return (
+    <View style={[styles.row, styles.wrap, styles.container, contentContainerStyle, style]}>
+      {content}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    opacity: Opacity.muted + 0.2,
+    marginVertical: Spacing.base,
+  },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Spacing.small,
-    paddingVertical: Spacing.small,
+    gap: Spacing.base,
   },
   wrap: {
     flexWrap: "wrap",

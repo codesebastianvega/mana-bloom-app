@@ -6,7 +6,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { View, Text, Image, Animated, Easing, StyleSheet } from "react-native";
-import { Colors, Spacing, Elevation } from "../../theme";
+import { Colors, Spacing } from "../../theme";
 
 // [MB] Mapa de tamaños derivado de Spacing
 const SIZE_MAP = {
@@ -17,6 +17,7 @@ const SIZE_MAP = {
 export default function PlantHero({
   source,
   size = "lg",
+  auraIntensity = "default",
   health,
   mood,
   stage,
@@ -47,40 +48,44 @@ export default function PlantHero({
     return () => loop.stop();
   }, [anim]);
 
-  const baseSize = SIZE_MAP[size] || SIZE_MAP.lg;
+  const baseSize = (SIZE_MAP[size] || SIZE_MAP.lg) * (auraIntensity === "subtle" ? 0.9 : 1);
   const scale = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.03] });
-  const auraOpacity = anim.interpolate({ inputRange: [0, 1], outputRange: [0.12, 0.22] });
-  const auraSizeOuter = baseSize * 1.6;
+  const auraOpacity = anim.interpolate({
+    inputRange: [0, 1],
+    outputRange: auraIntensity === "subtle" ? [0.08, 0.16] : [0.12, 0.22],
+  });
+  const auraSizeOuter = baseSize * (auraIntensity === "subtle" ? 1.4 : 1.6);
   const auraSizeInner = baseSize * 1.3;
 
   const label = `Planta ${stage}; salud ${Math.round(health * 100)}%; ánimo ${mood}`;
 
   return (
     <View style={[styles.container, style]}>
-      {/* [MB] Aura exterior */}
+      {auraIntensity !== "subtle" && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.aura,
+            {
+              width: auraSizeOuter,
+              height: auraSizeOuter,
+              borderRadius: auraSizeOuter / 2,
+              backgroundColor: Colors.primaryFantasy,
+              opacity: auraOpacity,
+              transform: [{ scale }],
+            },
+          ]}
+        />
+      )}
       <Animated.View
         pointerEvents="none"
         style={[
           styles.aura,
           {
-            width: auraSizeOuter,
-            height: auraSizeOuter,
-            borderRadius: auraSizeOuter / 2,
-            backgroundColor: Colors.primaryFantasy,
-            opacity: auraOpacity,
-            transform: [{ scale }],
-          },
-        ]}
-      />
-      {/* [MB] Aura interior */}
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          styles.aura,
-          {
-            width: auraSizeInner,
-            height: auraSizeInner,
-            borderRadius: auraSizeInner / 2,
+            width: auraIntensity === "subtle" ? auraSizeOuter : auraSizeInner,
+            height: auraIntensity === "subtle" ? auraSizeOuter : auraSizeInner,
+            borderRadius:
+              (auraIntensity === "subtle" ? auraSizeOuter : auraSizeInner) / 2,
             backgroundColor: Colors.secondaryFantasy,
             opacity: auraOpacity,
             transform: [{ scale }],
@@ -146,10 +151,8 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     justifyContent: "center",
-    padding: Spacing.large,
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: Spacing.large,
-    ...Elevation.card,
+    alignSelf: "center",
+    marginVertical: Spacing.large,
   },
   aura: {
     position: "absolute",
