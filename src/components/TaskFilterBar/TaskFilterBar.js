@@ -1,27 +1,83 @@
-// [MB] TaskFilterBar — tabs de estado segmentadas
+// [MB] TaskFilterBar — tabs de estado con chip animado
 // [MB] Módulo: Tasks / Sección: Barra de filtros
 // Afecta: TaskFilterBar (tabs principales)
-// Propósito: Tabs accesibles alineadas al tema
-// Puntos de edición futura: animaciones y desplazamiento
-// Autor: Codex - Fecha: 2025-08-14
+// Propósito: Tabs accesibles alineadas al tema con chip trasero
+// Puntos de edición futura: estilos de enfoque y más tabs
+// Autor: Codex - Fecha: 2025-08-22
 
-import React from "react";
-import { View, Pressable, Text } from "react-native";
+import React, { useRef, useState, useEffect } from "react";
+import { View, Text, Animated, Pressable } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./TaskFilterBar.styles";
-import { Colors } from "../../theme";
+import { Colors, Spacing } from "../../theme";
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function TaskFilterBar({ filters, active, onSelect }) {
+  const [width, setWidth] = useState(0);
+  const gap = Spacing.small;
+  const tabWidth = (width - gap * (filters.length - 1)) / filters.length;
+  const translateX = useRef(new Animated.Value(0)).current;
+  const chipOpacity = useRef(new Animated.Value(0)).current;
+  const scales = useRef(filters.map(() => new Animated.Value(1))).current;
+
+  useEffect(() => {
+    if (!width) return;
+    const index = filters.findIndex((f) => f.key === active);
+    Animated.parallel([
+      Animated.timing(translateX, {
+        toValue: index * (tabWidth + gap),
+        duration: 180,
+        useNativeDriver: true,
+      }),
+      Animated.timing(chipOpacity, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [active, width, tabWidth, gap]);
+
+  const handleLayout = (e) => setWidth(e.nativeEvent.layout.width);
+
   return (
-    <View style={styles.container}>
-      {filters.map((f) => {
+    <View style={styles.container} onLayout={handleLayout}>
+      {width > 0 && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.chip,
+            {
+              width: tabWidth,
+              transform: [{ translateX }],
+              opacity: chipOpacity,
+            },
+          ]}
+        />
+      )}
+      {filters.map((f, index) => {
         const isActive = active === f.key;
+        const scale = scales[index];
         return (
-          <Pressable
+          <AnimatedPressable
             key={f.key}
-            style={[styles.button, isActive ? styles.buttonActive : styles.buttonInactive]}
+            style={[styles.button, { transform: [{ scale }] }]}
             onPress={() => onSelect(f.key)}
-            accessibilityRole="button"
+            onPressIn={() =>
+              Animated.timing(scale, {
+                toValue: 0.98,
+                duration: 80,
+                useNativeDriver: true,
+              }).start()
+            }
+            onPressOut={() =>
+              Animated.timing(scale, {
+                toValue: 1,
+                duration: 80,
+                useNativeDriver: true,
+              }).start()
+            }
+            accessibilityRole="tab"
             accessibilityState={{ selected: isActive }}
           >
             <View style={styles.tabContent}>
@@ -29,7 +85,7 @@ export default function TaskFilterBar({ filters, active, onSelect }) {
                 <FontAwesome5
                   name={f.icon}
                   size={14}
-                  color={isActive ? Colors.text : Colors.textMuted}
+                  color={isActive ? Colors.onAccent : Colors.textMuted}
                 />
               )}
               <Text
@@ -38,8 +94,7 @@ export default function TaskFilterBar({ filters, active, onSelect }) {
                 {f.label}
               </Text>
             </View>
-            {isActive && <View style={styles.underline} />}
-          </Pressable>
+          </AnimatedPressable>
         );
       })}
     </View>
