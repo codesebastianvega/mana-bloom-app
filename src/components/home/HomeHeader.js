@@ -2,7 +2,7 @@
 // Afecta: HomeScreen
 // Propósito: Encabezado con top bar, chips y popovers informativos
 // Puntos de edición futura: conectar datos reales y estilos responsivos
-// Autor: Codex - Fecha: 2025-08-17
+// Autor: Codex - Fecha: 2025-08-16
 
 import React, {
   useState,
@@ -33,6 +33,9 @@ import {
   useProgress,
   useActiveBuffs,
 } from "../../state/AppContext";
+
+import ResourceCapsules from "../economy/ResourceCapsules";
+import StreakChip from "../economy/StreakChip";
 
 const chipHitSlop = {
   top: Spacing.small,
