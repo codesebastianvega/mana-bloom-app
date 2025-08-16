@@ -92,7 +92,10 @@ export default function MetricPill({ icon, label, value, accentKey }) {
       {/* [MB] Contenido textual/iconográfico */}
       <View style={styles.content}>
         <View style={styles.left}>
-          {icon}
+          {icon &&
+            React.cloneElement(icon, {
+              size: icon.props?.size ?? Spacing.base,
+            })}
           <Text style={styles.label}>{label}</Text>
         </View>
         <Text style={styles.value}>
@@ -114,7 +117,7 @@ const styles = StyleSheet.create({
   track: {
     position: "relative",
     justifyContent: "center",
-    height: Spacing.xlarge + Spacing.small,
+    height: Spacing.large + Spacing.small,
     borderRadius: Radii.pill,
     backgroundColor: Colors.surfaceAlt,
     overflow: "hidden",
