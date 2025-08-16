@@ -4,22 +4,46 @@
 // Puntos de edición futura: añadir header real y contenidos extra
 // Autor: Codex - Fecha: 2025-08-16
 
-import React from "react";
+import React, { useState } from "react";
 import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
 import PlantHero from "../components/plant/PlantHero";
 import CareMetrics from "../components/plant/CareMetrics";
 import QuickActions from "../components/plant/QuickActions";
 import GrowthProgress from "../components/plant/GrowthProgress";
 import BuffsBar from "../components/plant/BuffsBar";
+import InventorySheet from "../components/plant/InventorySheet";
 import { Colors, Spacing } from "../theme";
 
+const ElementAccents = {
+  neutral: Colors.surfaceAlt,
+  water: Colors.elementWater,
+  spirit: Colors.secondaryFantasy,
+  mana: Colors.primaryFantasy,
+};
+
 export default function PlantScreen() {
+  const [invOpen, setInvOpen] = useState(false);
+  const [equippedSkinId, setEquippedSkinId] = useState();
+  const [selectedSkinId, setSelectedSkinId] = useState();
+  const [skins, setSkins] = useState([
+    { id: "s1", name: "Maceta Rústica", rarity: "common", owned: true, equipped: true, accentKey: "neutral", thumb: "🎍" },
+    { id: "s2", name: "Arcana Azul", rarity: "rare", owned: true, accentKey: "water", thumb: "🔵" },
+    { id: "s3", name: "Esencia Etérea", rarity: "epic", owned: false, accentKey: "spirit", cost: { currency: "diamonds", amount: 120 }, thumb: "💠" },
+    { id: "s4", name: "Corazón de Maná", rarity: "legendary", owned: false, accentKey: "mana", cost: { currency: "coins", amount: 2400 }, thumb: "💎" },
+  ]);
+
+  const equippedSkin = skins.find((s) => s.id === equippedSkinId);
+  const skinAccent = equippedSkin ? ElementAccents[equippedSkin.accentKey] : undefined;
+
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* [MB] Contenido scrollable para evitar notch y reservar espacio para FAB */}
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* [MB] Hero de planta */}
-        <PlantHero health={0.95} mood="floreciente" stage="brote" />
+      <ScrollView
+        contentContainerStyle={styles.content}
+        importantForAccessibility={invOpen ? "no-hide-descendants" : "auto"}
+      >
+        {/* [MB] Hero de planta con overlay de maceta */}
+        <PlantHero health={0.95} mood="floreciente" stage="brote" skinAccent={skinAccent} />
         {/* [MB] Métricas de cuidado */}
         <CareMetrics
           water={0.62}
@@ -35,7 +59,14 @@ export default function PlantScreen() {
           canClean
           canMeditate
           cooldowns={{ water: 0, feed: 0, clean: 0, meditate: 0 }}
-          onAction={(key) => console.log("[MB] acción", key)}
+          onAction={(key) => {
+            if (key === "clean") {
+              setSelectedSkinId(equippedSkinId);
+              setInvOpen(true);
+            } else {
+              console.log("[MB] acción", key);
+            }
+          }}
         />
         {/* [MB] Progreso de crecimiento */}
         <GrowthProgress
@@ -59,6 +90,20 @@ export default function PlantScreen() {
           onExpire={(id) => console.log("[MB] buff expirado:", id)}
         />
       </ScrollView>
+      <InventorySheet
+        visible={invOpen}
+        skins={skins.map((s) => ({ ...s, equipped: s.id === equippedSkinId }))}
+        selectedId={selectedSkinId}
+        equippedId={equippedSkinId}
+        onClose={() => setInvOpen(false)}
+        onSelect={(id) => setSelectedSkinId(id)}
+        onEquip={(id) => {
+          setEquippedSkinId(id);
+          setSkins((prev) => prev.map((s) => ({ ...s, equipped: s.id === id })));
+          setInvOpen(false);
+        }}
+        onBuy={(id) => console.log("[MB] compra mock", id)}
+      />
     </SafeAreaView>
   );
 }
