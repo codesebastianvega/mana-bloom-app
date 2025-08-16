@@ -27,7 +27,6 @@ export default function HomeScreen() {
   const scrollRef = useRef(null);
   const headerRef = useRef(null);
   const [anchors, setAnchors] = useState({});
-  const [headerHeight, setHeaderHeight] = useState(0);
   const [isChipPopoverOpen, setChipPopoverOpen] = useState(false);
   const navigation = useNavigation();
 
@@ -59,54 +58,52 @@ export default function HomeScreen() {
       )}
       <HomeHeader
         ref={headerRef}
-        onHeaderLayout={(e) =>
-          setHeaderHeight(e?.nativeEvent?.layout?.height || 0)
-        }
         onChipPopoverToggle={setChipPopoverOpen}
       />
-      <ScrollView
-        ref={scrollRef}
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-        importantForAccessibility={
-          isChipPopoverOpen ? "no-hide-descendants" : "auto"
-        }
-        accessibilityElementsHidden={isChipPopoverOpen}
-      >
-        <View onLayout={setAnchor("welcome")}>
-          <HomeWelcomeCard onNext={goToTasks} />
-        </View>
-        <View>
-          <DailyRewardSection />
-        </View>
-        <View onLayout={setAnchor("challenges")}>
-          <DailyChallengesSection />
-        </View>
-        <View onLayout={setAnchor("shop")}>
-          <MagicShopSection />
-        </View>
-        <View onLayout={setAnchor("inventory")}>
-          <InventorySection onGoToShop={scrollToShop} />
-        </View>
-        <View onLayout={setAnchor("news")}>
-          <NewsFeedSection />
-        </View>
-        <View onLayout={setAnchor("stats")}>
-          <StatsQuickTiles />
-        </View>
-        <View onLayout={setAnchor("event")}>
-          <EventBanner />
-        </View>
-      </ScrollView>
-      {isChipPopoverOpen && (
-        <Pressable
-          accessible={false}
-          pointerEvents="auto"
-          style={[StyleSheet.absoluteFillObject, styles.overlay, { top: headerHeight }]}
-          onPress={() => headerRef.current?.closePopover()}
-          accessibilityLabel="Capa de fondo: toque para cerrar popover"
-        />
-      )}
+      <View style={styles.contentWrapper}>
+        <ScrollView
+          ref={scrollRef}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          importantForAccessibility={
+            isChipPopoverOpen ? "no-hide-descendants" : "auto"
+          }
+          accessibilityElementsHidden={isChipPopoverOpen}
+        >
+          <View onLayout={setAnchor("welcome")}>
+            <HomeWelcomeCard onNext={goToTasks} />
+          </View>
+          <View>
+            <DailyRewardSection />
+          </View>
+          <View onLayout={setAnchor("challenges")}>
+            <DailyChallengesSection />
+          </View>
+          <View onLayout={setAnchor("shop")}>
+            <MagicShopSection />
+          </View>
+          <View onLayout={setAnchor("inventory")}>
+            <InventorySection onGoToShop={scrollToShop} />
+          </View>
+          <View onLayout={setAnchor("news")}>
+            <NewsFeedSection />
+          </View>
+          <View onLayout={setAnchor("stats")}>
+            <StatsQuickTiles />
+          </View>
+          <View onLayout={setAnchor("event")}>
+            <EventBanner />
+          </View>
+        </ScrollView>
+        {isChipPopoverOpen && (
+          <Pressable
+            accessible={false}
+            pointerEvents="auto"
+            style={[StyleSheet.absoluteFillObject, styles.overlay]}
+            onPress={() => headerRef.current?.closePopover()}
+          />
+        )}
+      </View>
     </SafeAreaView>
   );
 }
@@ -123,6 +120,10 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.base,
     paddingBottom: 96,
     gap: Spacing.large,
+  },
+  contentWrapper: {
+    flex: 1,
+    position: "relative",
   },
   overlay: {
     backgroundColor: Colors.overlay,
