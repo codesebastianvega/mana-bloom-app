@@ -2,7 +2,7 @@
 // Afecta: HomeScreen
 // Propósito: Encabezado con top bar, chips y popovers informativos
 // Puntos de edición futura: conectar datos reales y estilos responsivos
-// Autor: Codex - Fecha: 2025-08-16
+// Autor: Codex - Fecha: 2025-08-17
 
 import React, {
   useState,
@@ -26,6 +26,7 @@ import { useNavigation } from "@react-navigation/native";
 
 import styles from "./HomeHeader.styles";
 import { Colors, Gradients, Spacing } from "../../theme";
+
 import {
   useAppState,
   useWallet,
@@ -53,7 +54,6 @@ function HomeHeader(
   const { coin, gem } = useWallet();
   const { level, progress } = useProgress();
   const buffs = useActiveBuffs();
-  const navigation = useNavigation();
 
   const [activeChip, setActiveChip] = useState(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -117,65 +117,7 @@ function HomeHeader(
       desc: `Estado actual: ${plantState || "Floreciendo"}.`,
       a11y: "Estado de planta",
     },
-    mana: {
-      key: "mana",
-      label: "Maná",
-      title: "Maná",
-      desc: `Tienes ${mana} de maná disponible.`,
-      a11y: "Maná",
-    },
-    coins: {
-      key: "coins",
-      label: "Monedas",
-      title: "Monedas",
-      desc: `Tienes ${coin} monedas.`,
-      a11y: "Monedas",
-    },
-    diamonds: {
-      key: "diamonds",
-      label: "Diamantes",
-      title: "Diamantes",
-      desc: `Tienes ${gem} diamantes.`,
-      a11y: "Diamantes",
-    },
-    streak: {
-      key: "streak",
-      label: "Racha",
-      title: "Racha",
-      desc: `Racha activa de ${streak} días.`,
-      a11y: "Racha activa",
-    },
-    buffs: {
-      key: "buffs",
-      label: "Buffs",
-      title: "Buffs",
-      desc: buffs.length
-        ? `${buffs.length} buffs activos.`
-        : "Sin buffs activos.",
-      a11y: "Buffs activos",
-    },
-    rewards: {
-      key: "rewards",
-      label: "Recompensas",
-      title: "Recompensas",
-      desc: "Explora recompensas disponibles.",
-      a11y: "Recompensas",
-      accent: true,
-      onPress: () => {
-        closePopover();
-        navigation.navigate("Rewards");
-      },
-    },
   };
-
-  const rowChips = [
-    "mana",
-    "coins",
-    "diamonds",
-    "streak",
-    "buffs",
-    "rewards",
-  ];
 
   useEffect(() => {
     if (activeChip) {
@@ -249,55 +191,29 @@ function HomeHeader(
         </Pressable>
       </View>
 
-      <View style={styles.chipBlock}>
-        <View style={styles.chipRow}>
-          {rowChips.map((key) => {
-            const c = chipConfig[key];
-            return (
-              <Pressable
-                key={c.key}
-                onPress={c.onPress ? c.onPress : () => onPressChip(c.key)}
-                style={[styles.chip, c.accent && styles.chipAccent]}
-                accessibilityRole="button"
-                accessibilityLabel={c.a11y}
-                accessibilityState={
-                  activeChip === c.key ? { expanded: true } : undefined
-                }
-                hitSlop={chipHitSlop}
-              >
-            <View style={styles.chipContent}>
-              <Text
-                style={c.accent ? styles.chipTextOnAccent : styles.chipText}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {c.label}
-              </Text>
-            </View>
-          </Pressable>
-            );
-          })}
-        </View>
-        {isPopoverOpen && (
-          <Animated.View
-            style={[styles.popoverContainer, animatedStyle]}
-            accessibilityViewIsModal={true}
-          >
-            <Animated.View style={{ opacity: contentOpacity }}>
-              {activeChip && (
-                <>
-                  <Text ref={popoverTitleRef} style={styles.popoverTitle}>
-                    {chipConfig[activeChip].title}
-                  </Text>
-                  <Text style={styles.popoverDesc}>
-                    {chipConfig[activeChip].desc}
-                  </Text>
-                </>
-              )}
-            </Animated.View>
-          </Animated.View>
-        )}
+      <View style={styles.resourcesRow}>
+        <ResourceCapsules mana={mana} coins={coin} gems={gem} />
+        <StreakChip days={streak} />
       </View>
+      {isPopoverOpen && (
+        <Animated.View
+          style={[styles.popoverContainer, animatedStyle]}
+          accessibilityViewIsModal={true}
+        >
+          <Animated.View style={{ opacity: contentOpacity }}>
+            {activeChip && (
+              <>
+                <Text ref={popoverTitleRef} style={styles.popoverTitle}>
+                  {chipConfig[activeChip].title}
+                </Text>
+                <Text style={styles.popoverDesc}>
+                  {chipConfig[activeChip].desc}
+                </Text>
+              </>
+            )}
+          </Animated.View>
+        </Animated.View>
+      )}
 
       <View style={styles.levelRow}>
         <View
