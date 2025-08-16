@@ -16,60 +16,67 @@ import {
   Alert,
   Platform,
   ToastAndroid,
-
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
-import { LinearGradient } from "expo-linear-gradient";
 import { XP_REWARD_BY_PRIORITY as PRIORITY_REWARDS } from "../../constants/rewards";
 
+import ElementGrid from "./ElementGrid";
+import ElementInfoSheet from "./ElementInfoSheet";
 import styles from "./CreateTaskModal.styles";
-
-const ELEMENT_ACCENTS = {
-  Agua: {
-    border: Colors.elementWater,
-    pill: Colors.elementWaterLight,
-    emoji: "💧",
-    grad: ["#143a52", "#0e2a3a"],
-    value: "water",
-  },
-  Fuego: {
-    border: Colors.elementFire,
-    pill: Colors.elementFireLight,
-    emoji: "🔥",
-    grad: ["#5a1f0d", "#3a1308"],
-    value: "fire",
-  },
-  Tierra: {
-    border: Colors.elementEarth,
-    pill: Colors.elementEarthLight,
-    emoji: "🌱",
-    grad: ["#3d2c28", "#2a1e1b"],
-    value: "earth",
-  },
-  Aire: {
-    border: Colors.elementAir,
-    pill: Colors.elementAirLight,
-    emoji: "💨",
-    grad: ["#2d3438", "#202629"],
-    value: "air",
-  },
-};
-const ELEMENTS = ["Agua", "Fuego", "Tierra", "Aire"];
 
 const PRIORITIES = ["Baja", "Media", "Urgente"];
 const PRIORITY_VALUES = { Baja: "easy", Media: "medium", Urgente: "hard" };
-const PRIORITY_ACCENTS = {
+const PriorityAccents = {
   easy: Colors.info,
   medium: Colors.warning,
   hard: Colors.danger,
 };
 
-const applyAlpha = (hex, alpha) => {
+const withAlpha = (hex, alpha) => {
   const a = Math.round(alpha * 255)
     .toString(16)
     .padStart(2, "0");
   return `${hex}${a}`;
+};
+
+const ELEMENT_INFO = {
+  fire: {
+    title: "Fuego 🔥 (Poder y Pasión)",
+    description:
+      "Se usa para tareas que requieren alta energía, urgencia o creatividad espontánea.",
+    examples:
+      "Ejemplos: Terminar un proyecto con fecha límite, una sesión de brainstorming intensa, o una tarea que te apasiona y quieres completar rápidamente.",
+    purpose:
+      'Propósito: "Inyecta poder y acelera el crecimiento de la planta."',
+  },
+  water: {
+    title: "Agua 💧 (Calma y Flujo)",
+    description:
+      "Se usa para tareas que necesitan atención continua, concentración o un estado de calma.",
+    examples:
+      "Ejemplos: Planificar tu semana, leer un documento largo, o meditar.",
+    purpose:
+      'Propósito: "Mantiene la planta hidratada y en un crecimiento estable."',
+  },
+  earth: {
+    title: "Tierra 🌱 (Estabilidad y Crecimiento)",
+    description:
+      "Se usa para tareas fundamentales, repetitivas o que construyen un hábito.",
+    examples:
+      "Ejemplos: Limpiar tu espacio de trabajo, hacer ejercicio, o realizar una tarea diaria de tu rutina.",
+    purpose:
+      'Propósito: "Proporciona una base sólida y nutrientes para un crecimiento sostenible."',
+  },
+  air: {
+    title: "Aire 🌬️ (Libertad y Movimiento)",
+    description:
+      "Se usa para tareas que requieren claridad mental, comunicación o flexibilidad.",
+    examples:
+      "Ejemplos: Escribir un correo importante, organizar ideas, o aprender algo nuevo.",
+    purpose:
+      'Propósito: "Le da a la planta el espacio para respirar y expandirse."',
+  },
 };
 
 const DIFFS = ["Fácil", "Medio", "Difícil"];
@@ -97,7 +104,8 @@ export default function CreateTaskModal({
   const [newSubtaskInput, setNewSubtaskInput] = useState("");
   const [newSubtasks, setNewSubtasks] = useState([]); // [{id,text,completed}]
   const [alert, setAlert] = useState(null); // { message, type }
-  const [gridWidth, setGridWidth] = useState(0);
+  const [infoElement, setInfoElement] = useState(null);
+  const [infoVisible, setInfoVisible] = useState(false);
 
   useEffect(() => {
     if (task) {
@@ -181,6 +189,7 @@ export default function CreateTaskModal({
   };
 
   return (
+    <>
     <Modal
       visible={visible}
       animationType="slide"
@@ -292,59 +301,30 @@ export default function CreateTaskModal({
             </View>
 
             <Text style={styles.sectionLabel}>Elemento</Text>
-            <View
-              style={styles.elementGrid}
-              onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)}
-            >
-              {ELEMENTS.map((name, idx) => {
-                const accent = ELEMENT_ACCENTS[name];
-                const selected = newElement === accent.value;
-                const cardSize = gridWidth
-                  ? (gridWidth - Spacing.base) / 2
-                  : 0;
-                return (
-                  <Pressable
-                    key={name}
-                    onPress={() => setNewElement(accent.value)}
-                    style={[
-                      styles.elementCard,
-                      {
-                        borderColor: accent.border,
-                        width: cardSize,
-                        height: cardSize,
-                        marginRight: idx % 2 === 0 ? Spacing.base : 0,
-                      },
-                      selected && [
-                        styles.elementCardActive,
-                        { shadowColor: accent.border },
-                      ],
-                    ]}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected }}
-                    accessibilityLabel={`Seleccionar elemento ${name}`}
-                  >
-                    {selected ? (
-                      <LinearGradient
-                        colors={accent.grad}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.elementGradient}
-                      />
-                    ) : null}
-                    <Text style={styles.elementEmoji}>{accent.emoji}</Text>
-                    <Text style={styles.elementTitle}>{name}</Text>
-                    <Text style={styles.elementCaption}>
-                      {name === "Agua"
-                        ? "Fluye y enfoca"
-                        : name === "Fuego"
-                        ? "Energía y empuje"
-                        : name === "Tierra"
-                        ? "Constancia y base"
-                        : "Ligereza y ritmo"}
-                    </Text>
-                  </Pressable>
-                );
-              })}
+            <ElementGrid
+              value={newElement}
+              onChange={setNewElement}
+              onLongPress={(el) => {
+                setInfoElement(el);
+                setInfoVisible(true);
+              }}
+            />
+            <View style={styles.whichBlock}>
+              <Text style={styles.whichQuestion}>¿Cuál elijo?</Text>
+              <View style={styles.whichRow}>
+                <Text style={styles.whichSnippet} numberOfLines={1}>
+                  {ELEMENT_INFO[newElement]?.description}
+                </Text>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  onPress={() => {
+                    setInfoElement(newElement);
+                    setInfoVisible(true);
+                  }}
+                >
+                  <Text style={styles.whichMore}>Ver más</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
               <Text style={styles.sectionLabel}>
@@ -402,7 +382,7 @@ export default function CreateTaskModal({
                 const keyVal = PRIORITY_VALUES[p];
                 const selected = newPriority === keyVal;
                 const rw = PRIORITY_REWARDS[p] || { xp: 0, mana: 0 };
-                const accent = PRIORITY_ACCENTS[keyVal];
+                const accent = PriorityAccents[keyVal];
                 return (
                   <Pressable
                     key={p}
@@ -411,7 +391,9 @@ export default function CreateTaskModal({
                       styles.priorityRow,
                       selected && {
                         borderColor: accent,
-                        backgroundColor: applyAlpha(accent, 0.15),
+                        backgroundColor: withAlpha(accent, 0.12),
+                        ...(Elevation.raised || {}),
+                        shadowColor: accent,
                       },
                     ]}
                     accessibilityRole="button"
@@ -427,7 +409,12 @@ export default function CreateTaskModal({
                       >
                         {p}
                       </Text>
-                      <Text style={styles.priorityCaption}>
+                      <Text
+                        style={[
+                          styles.priorityCaption,
+                          selected && { color: accent },
+                        ]}
+                      >
                         {p === "Baja"
                           ? "Tranquila, sin apuro"
                           : p === "Media"
@@ -605,5 +592,12 @@ export default function CreateTaskModal({
         </View>
       </View>
     </Modal>
+    <ElementInfoSheet
+      visible={infoVisible}
+      element={infoElement}
+      info={ELEMENT_INFO}
+      onClose={() => setInfoVisible(false)}
+    />
+  </>
   );
 }
