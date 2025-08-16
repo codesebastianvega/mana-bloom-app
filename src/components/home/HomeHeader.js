@@ -40,9 +40,9 @@ const chipHitSlop = {
   right: Spacing.small,
 };
 
-const iconColorSurface = Colors?.icon ?? Colors?.text;
-const iconColorAccent = Colors?.onAccent ?? Colors?.text;
 const ICON_SIZE = 18; // chips de 30px alto
+const iconColorSurface = Colors.icon;
+const iconColorAccent = Colors.onAccent;
 
 function HomeHeader(
   {

@@ -37,7 +37,6 @@ export const Colors = {
 
   // Texto
   text: "#FFFFFF",
-  icon: "#FFFFFF", // same as text for contrast
   textMuted: "#b0bec5",
   textInverse: "#0e0a1e",
 
@@ -55,6 +54,9 @@ export const Colors = {
   elementAir: "#90a4ae",
   elementAirLight: "#cfd8dc",
 };
+
+// Icons should mirror text color for contrast
+Colors.icon = Colors.text;
 
 export const Spacing = {
   tiny: 4,
