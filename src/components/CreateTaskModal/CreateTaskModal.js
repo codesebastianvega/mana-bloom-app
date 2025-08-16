@@ -107,6 +107,13 @@ const ELEMENT_INFO = {
   },
 };
 
+const ELEMENT_LABELS = {
+  fire: "Fuego",
+  water: "Agua",
+  earth: "Tierra",
+  air: "Aire",
+};
+
 const DIFFS = ["Fácil", "Medio", "Difícil"];
 const DIFF_VALUES = { Fácil: "easy", Medio: "medium", Difícil: "hard" };
 
@@ -338,22 +345,32 @@ export default function CreateTaskModal({
                 setInfoVisible(true);
               }}
             />
-            <View style={styles.whichBlock}>
+            <View
+              style={styles.whichBlock}
+              accessibilityHint="Toca un elemento o mantén presionado para ver más información"
+            >
               <Text style={styles.whichQuestion}>¿Cuál elijo?</Text>
-              <View style={styles.whichRow}>
-                <Text style={styles.whichSnippet} numberOfLines={1}>
-                  {ELEMENT_INFO[newElement]?.description}
-                </Text>
-                <TouchableOpacity
-                  accessibilityRole="button"
-                  onPress={() => {
-                    setInfoElement(newElement);
-                    setInfoVisible(true);
-                  }}
-                >
-                  <Text style={styles.whichMore}>Ver más</Text>
-                </TouchableOpacity>
-              </View>
+              {newElement === "all" ? (
+                <Text style={styles.whichSnippet}>Selecciona un elemento</Text>
+              ) : (
+                <>
+                  <Text style={styles.whichSnippet} numberOfLines={1}>
+                    {ELEMENT_INFO[newElement]?.description}
+                  </Text>
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel={`Ver más sobre ${
+                      ELEMENT_LABELS[newElement] || ""
+                    }`}
+                    onPress={() => {
+                      setInfoElement(newElement);
+                      setInfoVisible(true);
+                    }}
+                  >
+                    <Text style={styles.whichMore}>Ver más</Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
 
               <Text style={styles.sectionLabel}>
@@ -466,7 +483,7 @@ export default function CreateTaskModal({
             </View>
 
             <Text style={styles.sectionLabel}>Dificultad</Text>
-            <View style={styles.chipsContainer}>
+            <View style={styles.difficultyRow}>
               {DIFFS.map((d) => {
                 const val = DIFF_VALUES[d];
                 const selected = newDifficulty === val;
@@ -474,7 +491,7 @@ export default function CreateTaskModal({
                   <Pressable
                     key={d}
                     onPress={() => setNewDifficulty(val)}
-                    style={[styles.chip, selected && styles.chipActive]}
+                    style={[styles.difficultyChip, selected && styles.chipActive]}
                     accessibilityRole="button"
                     accessibilityState={{ selected }}
                     accessibilityLabel={`Dificultad ${d}`}
