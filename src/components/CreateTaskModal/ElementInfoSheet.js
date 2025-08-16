@@ -2,7 +2,7 @@
 // Afecta: CreateTaskModal (sheet informativa de elementos)
 // Propósito: Mostrar información detallada del elemento seleccionado
 // Puntos de edición futura: contenido y accesibilidad
-// Autor: Codex - Fecha: 2025-08-22
+// Autor: Codex - Fecha: 2025-08-16
 
 import React, { useEffect, useRef } from "react";
 import {
@@ -48,8 +48,14 @@ export default function ElementInfoSheet({ visible, element, info, onClose }) {
         <Text accessibilityRole="header" style={styles.title}>
           {data.title}
         </Text>
+        <Text style={styles.section}>Cuándo usarlo</Text>
         <Text style={styles.text}>{data.description}</Text>
-        <Text style={styles.text}>{data.examples}</Text>
+        <Text style={styles.section}>Ejemplos</Text>
+        {Array.isArray(data.examples) &&
+          data.examples.map((ex, idx) => (
+            <Text key={idx} style={styles.bullet}>{`• ${ex}`}</Text>
+          ))}
+        <Text style={styles.section}>Propósito</Text>
         <Text style={styles.text}>{data.purpose}</Text>
         <Pressable
           accessibilityRole="button"
@@ -80,7 +86,14 @@ const styles = StyleSheet.create({
     padding: Spacing.large,
   },
   title: { ...Typography.h2, color: Colors.text, marginBottom: Spacing.small },
+  section: { ...Typography.h3, color: Colors.text, marginTop: Spacing.small },
   text: { ...Typography.body, color: Colors.text, marginBottom: Spacing.small },
+  bullet: {
+    ...Typography.body,
+    color: Colors.text,
+    marginLeft: Spacing.base,
+    marginBottom: Spacing.tiny,
+  },
   close: { marginTop: Spacing.small, alignSelf: "flex-end" },
   closeLabel: { ...Typography.body, color: Colors.info },
 });

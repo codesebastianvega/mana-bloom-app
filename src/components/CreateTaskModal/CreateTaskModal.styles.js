@@ -2,7 +2,7 @@
 // Afecta: CreateTaskModal
 // Propósito: Estilos del modal para crear y editar tareas
 // Puntos de edición futura: tokens en theme y ajustes de spacing
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-08-16
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
@@ -104,7 +104,7 @@ export default StyleSheet.create({
   },
   elementTile: {
     flex: 1,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderRadius: Radii.lg,
     backgroundColor: Colors.surface,
     alignItems: "center",
@@ -117,7 +117,7 @@ export default StyleSheet.create({
   },
   elementEmoji: { fontSize: 32, marginBottom: Spacing.tiny },
   elementTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "700",
     color: Colors.text,
     textAlign: "center",
@@ -213,7 +213,7 @@ export default StyleSheet.create({
     borderRadius: Radii.lg,
     backgroundColor: Colors.surfaceElevated || Colors.surface,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.textMuted,
+    borderColor: Colors.border,
     alignItems: "center",
     justifyContent: "center",
   },

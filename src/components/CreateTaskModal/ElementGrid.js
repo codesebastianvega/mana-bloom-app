@@ -2,10 +2,10 @@
 // Afecta: CreateTaskModal (selección de elemento)
 // Propósito: Grid 2x2 con animaciones de selección de elementos
 // Puntos de edición futura: animaciones y estilos por elemento
-// Autor: Codex - Fecha: 2025-08-22
+// Autor: Codex - Fecha: 2025-08-16
 
 import React, { useState, useRef, useEffect } from "react";
-import { View, Pressable, Text, Animated } from "react-native";
+import { View, Pressable, Text, Animated, Easing } from "react-native";
 import { Colors, Spacing, Elevation } from "../../theme";
 import styles from "./CreateTaskModal.styles";
 
@@ -30,9 +30,10 @@ const ELEMENTS = [
   { key: "air", label: "Aire", emoji: "💨", caption: "Ligereza y ritmo" },
 ];
 
-export default function ElementGrid({ value, onChange, onLongPress }) {
+export default function ElementGrid({ value, onChange, onLongPress, tileAspect = 0.78 }) {
   const [gridWidth, setGridWidth] = useState(0);
   const cardSize = gridWidth ? (gridWidth - Spacing.small) / 2 : 0;
+  const cardHeight = cardSize * tileAspect;
 
   return (
     <View
@@ -44,7 +45,8 @@ export default function ElementGrid({ value, onChange, onLongPress }) {
           key={el.key}
           element={el}
           index={idx}
-          size={cardSize}
+          width={cardSize}
+          height={cardHeight}
           selected={value === el.key}
           onPress={() => onChange(el.key)}
           onLongPress={() => onLongPress(el.key)}
@@ -54,7 +56,7 @@ export default function ElementGrid({ value, onChange, onLongPress }) {
   );
 }
 
-function ElementTile({ element, index, size, selected, onPress, onLongPress }) {
+function ElementTile({ element, index, width, height, selected, onPress, onLongPress }) {
   const accent = ElementAccents[element.key];
   const scale = useRef(new Animated.Value(selected ? 1 : 0.98)).current;
   const glowOpacity = useRef(new Animated.Value(selected ? 1 : 0)).current;
@@ -62,12 +64,14 @@ function ElementTile({ element, index, size, selected, onPress, onLongPress }) {
   useEffect(() => {
     Animated.timing(scale, {
       toValue: selected ? 1 : 0.98,
-      duration: 160,
+      duration: 150,
+      easing: Easing.out(Easing.ease),
       useNativeDriver: true,
     }).start();
     Animated.timing(glowOpacity, {
       toValue: selected ? 1 : 0,
-      duration: 160,
+      duration: 150,
+      easing: Easing.out(Easing.ease),
       useNativeDriver: true,
     }).start();
   }, [selected, scale, glowOpacity]);
@@ -77,10 +81,11 @@ function ElementTile({ element, index, size, selected, onPress, onLongPress }) {
       onPress={onPress}
       onLongPress={onLongPress}
       accessibilityRole="button"
+      accessibilityLabel={`Mantén presionado para ver ayuda de ${element.label}`}
       accessibilityState={{ selected }}
       style={{
-        width: size,
-        height: size,
+        width: width,
+        height: height,
         marginRight: index % 2 === 0 ? Spacing.small : 0,
         marginBottom: Spacing.small,
       }}
@@ -91,7 +96,7 @@ function ElementTile({ element, index, size, selected, onPress, onLongPress }) {
           {
             borderColor: selected ? accent : Colors.border,
             backgroundColor: selected
-              ? withAlpha(accent, 0.12)
+              ? withAlpha(accent, 0.18)
               : Colors.surface,
             transform: [{ scale }],
           },
@@ -99,21 +104,28 @@ function ElementTile({ element, index, size, selected, onPress, onLongPress }) {
         ]}
       >
         <Animated.View
+          pointerEvents="none"
           style={[
             styles.elementGlow,
             {
-              backgroundColor: withAlpha(accent, 0.18),
+              backgroundColor: withAlpha(accent, 0.26),
               opacity: glowOpacity,
               shadowColor: accent,
-              shadowOpacity: 0.6,
-              shadowRadius: 10,
-              elevation: 6,
+              shadowOpacity: 0.8,
+              shadowRadius: 12,
+              elevation: 8,
             },
           ]}
         />
         <Text style={styles.elementEmoji}>{element.emoji}</Text>
         <Text style={styles.elementTitle}>{element.label}</Text>
-        <Text style={styles.elementCaption}>{element.caption}</Text>
+        <Text
+          style={styles.elementCaption}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          {element.caption}
+        </Text>
       </Animated.View>
     </Pressable>
   );
