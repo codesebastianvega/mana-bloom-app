@@ -5,15 +5,14 @@
 // Autor: Codex - Fecha: 2025-08-16
 
 import React, { useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet, AccessibilityInfo, View } from "react-native";
+import { SafeAreaView, ScrollView, StyleSheet, AccessibilityInfo } from "react-native";
 import PlantHero from "../components/plant/PlantHero";
 import CareMetrics from "../components/plant/CareMetrics";
 import QuickActions from "../components/plant/QuickActions";
 import GrowthProgress from "../components/plant/GrowthProgress";
 import BuffsBar from "../components/plant/BuffsBar";
 import InventorySheet from "../components/plant/InventorySheet";
-import ResourceCapsules from "../components/economy/ResourceCapsules";
-import StreakChip from "../components/economy/StreakChip";
+import PlantHeader from "../components/plant/PlantHeader";
 import { Colors, Spacing } from "../theme";
 
 const ElementAccents = {
@@ -24,6 +23,7 @@ const ElementAccents = {
 };
 
 export default function PlantScreen() {
+  const [plantName, setPlantName] = useState("Mi Planta");
   const [invOpen, setInvOpen] = useState(false);
   const [equippedSkinId, setEquippedSkinId] = useState();
   const [selectedSkinId, setSelectedSkinId] = useState();
@@ -93,20 +93,20 @@ export default function PlantScreen() {
         contentContainerStyle={styles.content}
         importantForAccessibility={invOpen ? "no-hide-descendants" : "auto"}
       >
-        <View style={styles.economyRow}>
-          <View style={styles.capsules}>
-            <ResourceCapsules
-              mana={economy.mana}
-              coins={economy.coins}
-              gems={economy.gems}
-              txn={txn}
-              insufficient={insufficient}
-            />
-          </View>
-          <View style={styles.streakItem}>
-            <StreakChip days={streakDays} />
-          </View>
-        </View>
+        <PlantHeader
+          name={plantName}
+          onRename={(next) => setPlantName(next)}
+          water={0.62}
+          light={0.48}
+          nutrients={0.3}
+          mood={0.95}
+          mana={economy.mana}
+          coins={economy.coins}
+          gems={economy.gems}
+          streakDays={streakDays}
+          txn={txn}
+          insufficient={insufficient}
+        />
         {/* [MB] Hero de planta con overlay de maceta */}
         <PlantHero health={0.95} mood="floreciente" stage="brote" skinAccent={skinAccent} />
         {/* [MB] Métricas de cuidado */}
@@ -182,20 +182,6 @@ const styles = StyleSheet.create({
     padding: Spacing.large,
     paddingBottom: Spacing.large * 3,
     alignItems: "center",
-  },
-  economyRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "center",
-    alignSelf: "stretch",
-    marginBottom: Spacing.large,
-  },
-  capsules: {
-    marginRight: Spacing.base,
-    marginBottom: Spacing.small,
-  },
-  streakItem: {
-    marginBottom: Spacing.small,
   },
 });
 
