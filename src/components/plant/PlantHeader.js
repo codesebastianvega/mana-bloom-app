@@ -2,7 +2,7 @@
 // Afecta: PlantScreen (cabecera principal)
 // Propósito: agrupar nombre editable, salud/ánimo y economía
 // Puntos de edición futura: mover cálculo de salud o estilos a .styles.js
-// Autor: Codex - Fecha: 2025-08-16
+// Autor: Codex - Fecha: 2025-08-17
 
 import React, { useState, useRef } from "react";
 import {
@@ -129,24 +129,19 @@ export default function PlantHeader({
         </View>
         <View style={styles.chips}>
           <HealthChip value={health} />
-          <View style={{ width: Spacing.base }} />
           <MoodChip value={mood} />
         </View>
       </View>
       <View style={styles.bottomRow}>
         {/* [MB] Economía reubicada dentro del header */}
-        <View style={styles.capsules}>
-          <ResourceCapsules
-            mana={mana}
-            coins={coins}
-            gems={gems}
-            txn={txn}
-            insufficient={insufficient}
-          />
-        </View>
-        <View style={styles.streakItem}>
-          <StreakChip days={streakDays} />
-        </View>
+        <ResourceCapsules
+          mana={mana}
+          coins={coins}
+          gems={gems}
+          txn={txn}
+          insufficient={insufficient}
+        />
+        <StreakChip days={streakDays} />
       </View>
     </View>
   );
@@ -190,19 +185,14 @@ const styles = StyleSheet.create({
   chips: {
     flexDirection: "row",
     alignItems: "center",
+    gap: Spacing.small,
   },
   bottomRow: {
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
     marginTop: Spacing.base,
-  },
-  capsules: {
-    marginRight: Spacing.base,
-    marginBottom: Spacing.small,
-  },
-  streakItem: {
-    marginBottom: Spacing.small,
+    gap: Spacing.small,
   },
 });
 

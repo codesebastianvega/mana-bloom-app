@@ -2,7 +2,7 @@
 // Afecta: PlantScreen (cabecera con ánimo)
 // Propósito: chip de ánimo opcional
 // Puntos de edición futura: estados de color o layout
-// Autor: Codex - Fecha: 2025-08-16
+// Autor: Codex - Fecha: 2025-08-17
 
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
@@ -34,6 +34,7 @@ export default function MoodChip({ value }) {
     : state === "OK"
     ? 0.85
     : 1;
+  const accent = ElementAccents.spirit;
 
   return (
     <View
@@ -41,7 +42,7 @@ export default function MoodChip({ value }) {
       accessibilityLabel={
         hasValue ? `Ánimo ${pct} %, estado ${state}` : "Ánimo sin datos"
       }
-      style={[styles.chip, { backgroundColor: ElementAccents.spirit, opacity: chipOpacity }]}
+      style={[styles.chip, { borderColor: accent, opacity: chipOpacity }]}
     >
       <Text style={styles.icon}>🧘</Text>
       <Text style={styles.label}>Ánimo</Text>
@@ -65,23 +66,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    backgroundColor: Colors.surfaceAlt,
+    borderWidth: 1,
     ...Elevation.raised,
   },
   icon: {
-    marginRight: Spacing.small,
+    marginRight: Spacing.tiny,
   },
   label: {
     ...Typography.caption,
-    color: Colors.textInverse,
-    opacity: Opacity.muted,
-    marginRight: Spacing.small,
+    color: Colors.textMuted,
+    marginRight: Spacing.tiny,
   },
   value: {
-    ...Typography.body,
+    ...Typography.caption,
     fontWeight: "700",
-    color: Colors.textInverse,
+    color: Colors.text,
   },
 });
 

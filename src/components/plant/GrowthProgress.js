@@ -2,7 +2,7 @@
 // Afecta: PlantScreen (barra y log)
 // Propósito: mostrar etapa actual, progreso animado y últimos hitos
 // Puntos de edición futura: extraer colores de stage y consolidar estilos
-// Autor: Codex - Fecha: 2025-08-18
+// Autor: Codex - Fecha: 2025-08-16
 
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -13,14 +13,8 @@ import {
   Easing,
 } from "react-native";
 import GrowthMilestoneItem from "./GrowthMilestoneItem";
-import {
-  Colors,
-  Spacing,
-  Radii,
-  Elevation,
-  Typography,
-  Opacity,
-} from "../../theme";
+import Divider from "../ui/Divider";
+import { Colors, Spacing, Radii, Typography, Opacity } from "../../theme";
 
 // [MB] Acentos para crecimiento
 const ElementAccents = {
@@ -40,8 +34,8 @@ function getStageVisual(stage) {
 export default function GrowthProgress({
   stage,
   progress,
-  etaText,
   milestones = [],
+  limitLog = 5,
   style,
 }) {
   const { emoji, accentKey } = getStageVisual(stage);
@@ -102,9 +96,6 @@ export default function GrowthProgress({
 
   return (
     <View style={[styles.container, style]}>
-      <Text style={styles.sectionTitle} accessibilityRole="header">
-        Progreso de crecimiento
-      </Text>
       {/* [MB] Etapa actual con badge y porcentaje */}
       <View style={styles.header} accessible accessibilityLabel={accessibleStage}>
         <View style={styles.badgeWrapper}>
@@ -130,7 +121,7 @@ export default function GrowthProgress({
       >
         <Animated.View style={[styles.barFill, { backgroundColor: accent, width: barWidth }]} />
       </View>
-      {etaText ? <Text style={styles.eta}>{etaText}</Text> : null}
+      {milestones.length > 0 && <Divider style={styles.divider} />}
       <View style={styles.milestones}>
         {milestones.length === 0 ? (
           <View style={styles.empty}>
@@ -138,7 +129,9 @@ export default function GrowthProgress({
             <Text style={styles.emptyText}>Sin eventos recientes</Text>
           </View>
         ) : (
-          milestones.slice(0, 5).map((m) => <GrowthMilestoneItem key={m.id} {...m} />)
+          milestones
+            .slice(0, limitLog)
+            .map((m) => <GrowthMilestoneItem key={m.id} {...m} />)
         )}
       </View>
     </View>
@@ -147,16 +140,8 @@ export default function GrowthProgress({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.surfaceElevated,
-    padding: Spacing.large,
-    borderRadius: Radii.lg,
-    ...Elevation.card,
     alignSelf: "stretch",
-  },
-  sectionTitle: {
-    ...Typography.title,
-    color: Colors.text,
-    marginBottom: Spacing.base,
+    gap: Spacing.base,
   },
   header: {
     flexDirection: "row",
@@ -198,24 +183,20 @@ const styles = StyleSheet.create({
   },
   barTrack: {
     // [MB] Track con surfaceAlt (no existe surfaceVariant)
-    height: Spacing.small,
+    height: Spacing.small + Spacing.tiny,
     borderRadius: Radii.pill,
     backgroundColor: Colors.surfaceAlt,
-    marginTop: Spacing.base,
     overflow: "hidden",
   },
   barFill: {
     height: "100%",
     borderRadius: Radii.pill,
   },
-  eta: {
-    ...Typography.caption,
-    color: Colors.text,
-    opacity: Opacity.muted,
-    marginTop: Spacing.small,
+  divider: {
+    marginTop: Spacing.base,
   },
   milestones: {
-    marginTop: Spacing.large,
+    marginTop: Spacing.base,
   },
   empty: {
     alignItems: "center",
