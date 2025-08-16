@@ -1,84 +1,35 @@
 // [MB] Módulo: Planta / Sección: Pantalla principal
 // Afecta: PlantScreen
-// Propósito: mostrar la planta, progreso de XP y buffs activos
-// Puntos de edición futura: estilos separados y más estados
-// Autor: Codex - Fecha: 2025-08-12
+// Propósito: demo del hero de planta con safe area
+// Puntos de edición futura: añadir header real y contenidos extra
+// Autor: Codex - Fecha: 2025-08-15
 
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import PlantVisualizer from "../components/plant/PlantVisualizer";
-import { useProgress, useXpMultiplier } from "../state/AppContext";
-import { Colors, Spacing, Radii, Gradients } from "../theme";
+import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
+import PlantHero from "../components/plant/PlantHero";
+import { Colors, Spacing } from "../theme";
 
 export default function PlantScreen() {
-  const { xp, xpGoal, level, progress } = useProgress();
-  const { multiplier } = useXpMultiplier();
-
   return (
-    <View style={styles.container}>
-      <View style={styles.visualWrapper}>
-        <PlantVisualizer level={level} />
-        {multiplier > 1 && (
-          <View style={styles.buffChip}>
-            <Text style={styles.buffText}>XP ×2</Text>
-          </View>
-        )}
-      </View>
-      <View style={styles.progressWrapper}>
-        <Text style={styles.progressLabel}>{`${xp} / ${xpGoal} XP`}</Text>
-        <View style={styles.progressBar}>
-          <LinearGradient
-            colors={Gradients.xp}
-            style={[styles.progressFill, { width: `${progress * 100}%` }]}
-          />
-        </View>
-      </View>
-    </View>
+    <SafeAreaView style={styles.safeArea}>
+      {/* [MB] Contenido scrollable para evitar notch y reservar espacio para FAB */}
+      <ScrollView contentContainerStyle={styles.content}>
+        {/* [MB] Hero de planta */}
+        <PlantHero health={0.95} mood="floreciente" stage="brote" />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
     backgroundColor: Colors.background,
   },
-  visualWrapper: {
+  content: {
+    padding: Spacing.large,
+    paddingBottom: Spacing.large * 3,
     alignItems: "center",
-  },
-  buffChip: {
-    position: "absolute",
-    top: 0,
-    right: -Spacing.large,
-    backgroundColor: Colors.secondary,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: 4,
-    borderRadius: Radii.pill,
-  },
-  buffText: {
-    color: Colors.textInverse,
-    fontWeight: "700",
-  },
-  progressWrapper: {
-    width: "80%",
-    marginTop: Spacing.large,
-  },
-  progressLabel: {
-    color: Colors.text,
-    textAlign: "center",
-    marginBottom: Spacing.small,
-  },
-  progressBar: {
-    height: 12,
-    backgroundColor: Colors.surface,
-    borderRadius: Radii.md,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    borderRadius: Radii.md,
   },
 });
 
