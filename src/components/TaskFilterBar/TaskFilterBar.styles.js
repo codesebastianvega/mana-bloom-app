@@ -1,9 +1,4 @@
-// [MB] TaskFilterBar.styles — tabs con chip trasero
-// [MB] Módulo: Tasks / Sección: Barra de filtros
-// Afecta: TaskFilterBar (tabs principales)
-// Propósito: Estilos para chip animado en tabs de estado
-// Puntos de edición futura: mejoras de contraste y foco
-// Autor: Codex - Fecha: 2025-08-16
+// [MB] TaskFilterBar — highlight per-tab + badge z-order
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
@@ -15,34 +10,25 @@ export default StyleSheet.create({
     position: "relative",
     height: Spacing.xlarge + Spacing.tiny,
     paddingHorizontal: Spacing.small,
-    borderRadius: Radii.md,
-    overflow: "hidden",
   },
   button: {
     flex: 1,
-    borderRadius: Radii.md,
+    borderRadius: Radii.lg,
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
-    zIndex: 1,
-    elevation: 1,
+    overflow: "hidden",
   },
-  chip: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    bottom: 0,
-    borderRadius: Radii.md,
-    backgroundColor: Colors.accent,
+  highlight: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: Radii.lg,
     zIndex: 0,
-    elevation: 0,
   },
   tabContent: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.tiny,
     zIndex: 1,
-    elevation: 1,
   },
   label: {
     ...Typography.body,
