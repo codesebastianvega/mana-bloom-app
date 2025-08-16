@@ -2,7 +2,7 @@
 // Afecta: PlantScreen (cabecera con salud)
 // Propósito: chip de salud derivada de agua/luz/nutrientes
 // Puntos de edición futura: estados de color o layout
-// Autor: Codex - Fecha: 2025-08-16
+// Autor: Codex - Fecha: 2025-08-17
 
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
@@ -27,12 +27,13 @@ export default function HealthChip({ value }) {
   const pct = Math.round(v * 100);
   const state = getState(v);
   const chipOpacity = state === "LOW" ? 0.6 : state === "OK" ? 0.85 : 1;
+  const accent = ElementAccents.health;
 
   return (
     <View
       accessibilityRole="text"
       accessibilityLabel={`Salud ${pct} %, estado ${state}`}
-      style={[styles.chip, { backgroundColor: ElementAccents.health, opacity: chipOpacity }]}
+      style={[styles.chip, { borderColor: accent, opacity: chipOpacity }]}
     >
       <Text style={styles.icon}>❤️</Text>
       <Text style={styles.label}>Salud</Text>
@@ -56,23 +57,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    backgroundColor: Colors.surfaceAlt,
+    borderWidth: 1,
     ...Elevation.raised,
   },
   icon: {
-    marginRight: Spacing.small,
+    marginRight: Spacing.tiny,
   },
   label: {
     ...Typography.caption,
-    color: Colors.textInverse,
-    opacity: Opacity.muted,
-    marginRight: Spacing.small,
+    color: Colors.textMuted,
+    marginRight: Spacing.tiny,
   },
   value: {
-    ...Typography.body,
+    ...Typography.caption,
     fontWeight: "700",
-    color: Colors.textInverse,
+    color: Colors.text,
   },
 });
 
