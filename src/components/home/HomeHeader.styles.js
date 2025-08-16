@@ -5,7 +5,7 @@
 // Autor: Codex - Fecha: 2025-08-16
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Typography, Elevation, Opacity } from "../../theme";
+import { Colors, Spacing, Radii, Typography, Elevation } from "../../theme";
 
 export default StyleSheet.create({
   container: {
@@ -57,6 +57,7 @@ export default StyleSheet.create({
     width: "100%",
     alignItems: "center",
     gap: Spacing.small,
+    zIndex: 2,
   },
   chip: {
     backgroundColor: Colors.surface,
@@ -72,16 +73,14 @@ export default StyleSheet.create({
   chipContent: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Spacing.tiny,
+    justifyContent: "center",
+    gap: Spacing.small,
   },
   icon: {
     color: Colors.icon,
   },
   iconOnAccent: {
     color: Colors.onAccent,
-  },
-  chipDisabled: {
-    opacity: Opacity.disabled,
   },
   chipText: {
     ...Typography.caption,
@@ -96,6 +95,7 @@ export default StyleSheet.create({
     borderRadius: Radii.lg,
     padding: Spacing.base,
     ...Elevation.raised,
+    zIndex: 3,
   },
   popoverTitle: {
     ...Typography.body,

@@ -55,16 +55,23 @@ function HomeHeader(
   const navigation = useNavigation();
 
   const [activeChip, setActiveChip] = useState(null);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const anim = useRef(new Animated.Value(0)).current;
+  const contentOpacity = useRef(new Animated.Value(1)).current;
   const popoverTitleRef = useRef(null);
-  const popoverOpen = activeChip !== null;
 
-  const openChip = (key) => {
-    setActiveChip(key);
-    onChipPopoverToggle?.(true);
-    Animated.timing(anim, {
+  const fadeOutContent = (cb) => {
+    Animated.timing(contentOpacity, {
+      toValue: 0,
+      duration: 120,
+      useNativeDriver: true,
+    }).start(() => cb && cb());
+  };
+
+  const fadeInContent = () => {
+    Animated.timing(contentOpacity, {
       toValue: 1,
-      duration: 200,
+      duration: 120,
       useNativeDriver: true,
     }).start();
   };
@@ -75,9 +82,30 @@ function HomeHeader(
       duration: 180,
       useNativeDriver: true,
     }).start(() => {
+      setIsPopoverOpen(false);
       setActiveChip(null);
       onChipPopoverToggle?.(false);
     });
+  };
+
+  const onPressChip = (type) => {
+    if (activeChip === type) {
+      closePopover();
+    } else {
+      if (!isPopoverOpen) {
+        setIsPopoverOpen(true);
+        onChipPopoverToggle?.(true);
+        Animated.timing(anim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }).start();
+      }
+      fadeOutContent(() => {
+        setActiveChip(type);
+        fadeInContent();
+      });
+    }
   };
 
   const chipConfig = {
@@ -240,22 +268,16 @@ function HomeHeader(
       <View style={styles.topBar}>
         <View style={styles.titleRow}>
           <Text style={styles.title}>Mana Bloom</Text>
-        <Pressable
-          onPress={() =>
-            activeChip === "plant" ? closePopover() : openChip("plant")
-          }
-          style={[
-            styles.plantChip,
-            popoverOpen && activeChip !== "plant" && styles.chipDisabled,
-          ]}
-          disabled={popoverOpen && activeChip !== "plant"}
-          accessibilityRole="button"
-          accessibilityLabel={chipConfig.plant.a11y}
-          accessibilityState={
-            activeChip === "plant" ? { expanded: true } : undefined
-          }
-          hitSlop={chipHitSlop}
-        >
+          <Pressable
+            onPress={() => onPressChip("plant")}
+            style={styles.plantChip}
+            accessibilityRole="button"
+            accessibilityLabel={chipConfig.plant.a11y}
+            accessibilityState={
+              activeChip === "plant" ? { expanded: true } : undefined
+            }
+            hitSlop={chipHitSlop}
+          >
             <View style={styles.chipContent}>
               {chipConfig.plant.icon}
               <Text
@@ -266,8 +288,8 @@ function HomeHeader(
                 {chipConfig.plant.label}
               </Text>
             </View>
-        </Pressable>
-      </View>
+          </Pressable>
+        </View>
         <Pressable
           onPress={onPressNotifications}
           style={styles.iconButton}
@@ -290,18 +312,8 @@ function HomeHeader(
             return (
               <Pressable
                 key={c.key}
-                onPress={() =>
-                  c.onPress
-                    ? c.onPress()
-                    : activeChip === c.key
-                    ? closePopover()
-                    : openChip(c.key)
-                }
-                style={[
-                  styles.chip,
-                  popoverOpen && activeChip !== c.key && styles.chipDisabled,
-                ]}
-                disabled={popoverOpen && activeChip !== c.key}
+                onPress={c.onPress ? c.onPress : () => onPressChip(c.key)}
+                style={styles.chip}
                 accessibilityRole="button"
                 accessibilityLabel={c.a11y}
                 accessibilityState={
@@ -323,17 +335,23 @@ function HomeHeader(
             );
           })}
         </View>
-        {activeChip && (
+        {isPopoverOpen && (
           <Animated.View
             style={[styles.popoverContainer, animatedStyle]}
             accessibilityViewIsModal={true}
           >
-            <Text ref={popoverTitleRef} style={styles.popoverTitle}>
-              {chipConfig[activeChip].title}
-            </Text>
-            <Text style={styles.popoverDesc}>
-              {chipConfig[activeChip].desc}
-            </Text>
+            <Animated.View style={{ opacity: contentOpacity }}>
+              {activeChip && (
+                <>
+                  <Text ref={popoverTitleRef} style={styles.popoverTitle}>
+                    {chipConfig[activeChip].title}
+                  </Text>
+                  <Text style={styles.popoverDesc}>
+                    {chipConfig[activeChip].desc}
+                  </Text>
+                </>
+              )}
+            </Animated.View>
           </Animated.View>
         )}
       </View>
