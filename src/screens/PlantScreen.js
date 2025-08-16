@@ -5,7 +5,7 @@
 // Autor: Codex - Fecha: 2025-08-16
 
 import React, { useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet, AccessibilityInfo } from "react-native";
+import { SafeAreaView, ScrollView, AccessibilityInfo } from "react-native";
 import PlantHero from "../components/plant/PlantHero";
 import CareMetrics from "../components/plant/CareMetrics";
 import QuickActions from "../components/plant/QuickActions";
@@ -16,6 +16,7 @@ import PlantHeader from "../components/plant/PlantHeader";
 import ScreenSection from "../components/ui/ScreenSection";
 import SectionHeader from "../components/ui/SectionHeader";
 import { Colors, Spacing } from "../theme";
+import styles from "./PlantScreen.styles";
 
 const ElementAccents = {
   neutral: Colors.surfaceAlt,
@@ -91,7 +92,7 @@ export default function PlantScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.content}
         importantForAccessibility={invOpen ? "no-hide-descendants" : "auto"}
@@ -185,16 +186,4 @@ export default function PlantScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  content: {
-    padding: Spacing.large,
-    paddingBottom: Spacing.large * 3,
-    gap: Spacing.xlarge,
-  },
-});
 
