@@ -170,6 +170,10 @@ const elementInfo = {
       "Plan de estudio",
       "Documentar decisiones",
     ],
+    purpose:
+      'Propósito: "Ofrece claridad y ligereza para que la planta se expanda."',
+  },
+};
 
 export default function TasksScreen() {
   const dispatch = useAppDispatch();
