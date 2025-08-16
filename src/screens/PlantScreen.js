@@ -7,6 +7,7 @@
 import React from "react";
 import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
 import PlantHero from "../components/plant/PlantHero";
+import CareMetrics from "../components/plant/CareMetrics";
 import { Colors, Spacing } from "../theme";
 
 export default function PlantScreen() {
@@ -16,6 +17,14 @@ export default function PlantScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {/* [MB] Hero de planta */}
         <PlantHero health={0.95} mood="floreciente" stage="brote" />
+        {/* [MB] Métricas de cuidado */}
+        <CareMetrics
+          water={0.62}
+          light={0.48}
+          nutrients={0.3}
+          mood={0.95}
+          style={{ alignSelf: "stretch", marginTop: Spacing.large }}
+        />
       </ScrollView>
     </SafeAreaView>
   );
