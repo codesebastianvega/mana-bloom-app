@@ -20,12 +20,11 @@ import {
   findNodeHandle,
   Platform,
 } from "react-native";
-import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 
 import styles from "./HomeHeader.styles";
-import { Colors, Gradients, Spacing } from "../../theme";
+import { Gradients, Spacing } from "../../theme";
 import {
   useAppState,
   useWallet,
@@ -40,11 +39,6 @@ const chipHitSlop = {
   right: Spacing.small,
 };
 
-const ICON_SIZE = 18; // chips de 30px alto
-// Fallback to text color if icon token is missing
-const iconColorSurface = Colors?.icon ?? Colors.text;
-
-const iconColorAccent = Colors.onAccent;
 
 function HomeHeader(
   {
@@ -117,48 +111,42 @@ function HomeHeader(
   const chipConfig = {
     plant: {
       key: "plant",
-      icon: "leaf",
-      label: plantState || "--",
+      label: plantState || "Floreciendo",
       title: "Planta",
-      desc: `Estado actual: ${plantState || "--"}.`,
+      desc: `Estado actual: ${plantState || "Floreciendo"}.`,
       a11y: "Estado de planta",
     },
     mana: {
       key: "mana",
-      icon: "water",
-      label: String(mana),
+      label: "Maná",
       title: "Maná",
       desc: `Tienes ${mana} de maná disponible.`,
       a11y: "Maná",
     },
     coins: {
       key: "coins",
-      icon: "currency-usd",
-      label: String(coin),
+      label: "Monedas",
       title: "Monedas",
       desc: `Tienes ${coin} monedas.`,
       a11y: "Monedas",
     },
     diamonds: {
       key: "diamonds",
-      icon: "diamond-stone",
-      label: String(gem),
+      label: "Diamantes",
       title: "Diamantes",
       desc: `Tienes ${gem} diamantes.`,
       a11y: "Diamantes",
     },
     streak: {
       key: "streak",
-      icon: "fire",
-      label: String(streak),
+      label: "Racha",
       title: "Racha",
       desc: `Racha activa de ${streak} días.`,
       a11y: "Racha activa",
     },
     buffs: {
       key: "buffs",
-      icon: "flask-outline",
-      label: String(buffs.length),
+      label: "Buffs",
       title: "Buffs",
       desc: buffs.length
         ? `${buffs.length} buffs activos.`
@@ -167,8 +155,7 @@ function HomeHeader(
     },
     rewards: {
       key: "rewards",
-      icon: "gift",
-      label: "Ver",
+      label: "Recompensas",
       title: "Recompensas",
       desc: "Explora recompensas disponibles.",
       a11y: "Recompensas",
@@ -237,12 +224,6 @@ function HomeHeader(
             hitSlop={chipHitSlop}
           >
             <View style={styles.chipContent}>
-              <Icon
-                name={chipConfig.plant.icon}
-                size={ICON_SIZE}
-                color={iconColorSurface}
-                style={styles.icon}
-              />
               <Text
                 style={styles.chipText}
                 numberOfLines={1}
@@ -255,16 +236,11 @@ function HomeHeader(
         </View>
         <Pressable
           onPress={onPressNotifications}
-          style={styles.iconButton}
+          style={styles.notificationsButton}
           accessibilityRole="button"
           accessibilityLabel="Abrir notificaciones"
         >
-          <Icon
-            name="bell-outline"
-            size={ICON_SIZE}
-            color={iconColorSurface}
-            style={styles.icon}
-          />
+          <Text style={styles.notificationsText}>Notificaciones</Text>
         </Pressable>
       </View>
 
@@ -284,22 +260,16 @@ function HomeHeader(
                 }
                 hitSlop={chipHitSlop}
               >
-                <View style={styles.chipContent}>
-                  <Icon
-                    name={c.icon}
-                    size={ICON_SIZE}
-                    color={c.accent ? iconColorAccent : iconColorSurface}
-                    style={styles.icon}
-                  />
-                  <Text
-                    style={c.accent ? styles.chipTextOnAccent : styles.chipText}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {c.label}
-                  </Text>
-                </View>
-              </Pressable>
+            <View style={styles.chipContent}>
+              <Text
+                style={c.accent ? styles.chipTextOnAccent : styles.chipText}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {c.label}
+              </Text>
+            </View>
+          </Pressable>
             );
           })}
         </View>
@@ -344,17 +314,13 @@ function HomeHeader(
           {buffs.map((b) => (
             <View
               key={b.id || b.type}
-              style={styles.buffIcon}
+              style={styles.buffBadge}
               accessibilityRole="text"
               accessibilityLabel={b.type}
             >
-              <Icon
-                name={
-                  b.type === "xp_double" ? "flask-outline" : "auto-fix"
-                }
-                size={16}
-                color={Colors.accent}
-              />
+              <Text style={styles.buffText} numberOfLines={1}>
+                {b.type === "xp_double" ? "XP" : "FX"}
+              </Text>
             </View>
           ))}
         </View>

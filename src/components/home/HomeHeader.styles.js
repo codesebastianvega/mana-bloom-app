@@ -34,18 +34,23 @@ export default StyleSheet.create({
   plantChip: {
     backgroundColor: Colors.surface,
     borderRadius: Radii.lg,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny,
-    height: Spacing.large + Spacing.tiny,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.small,
+    height: 30,
   },
-  iconButton: {
-    padding: Spacing.tiny,
-    height: 28,
-    width: 28,
+  notificationsButton: {
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.lg,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.small,
+    height: 30,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: Radii.md,
-    backgroundColor: Colors.surface,
+  },
+  notificationsText: {
+    ...Typography.body,
+    fontWeight: "600",
+    color: Colors.text,
   },
   chipBlock: {
     marginTop: Spacing.small,
@@ -64,9 +69,9 @@ export default StyleSheet.create({
   chip: {
     backgroundColor: Colors.surface,
     borderRadius: Radii.lg,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny,
-    height: Spacing.large + Spacing.tiny,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.small,
+    height: 30,
     flexBasis: "31%",
     maxWidth: "31%",
     flexGrow: 0,
@@ -76,20 +81,19 @@ export default StyleSheet.create({
     backgroundColor: Colors.accent,
   },
   chipContent: {
-    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: Spacing.tiny,
     position: "relative",
     zIndex: 2,
   },
-  icon: {},
   chipText: {
     ...Typography.caption,
+    fontWeight: "600",
     color: Colors.text,
   },
   chipTextOnAccent: {
     ...Typography.caption,
+    fontWeight: "600",
     color: Colors.onAccent,
   },
   popoverContainer: {
@@ -144,12 +148,17 @@ export default StyleSheet.create({
     alignItems: "center",
     gap: Spacing.tiny,
   },
-  buffIcon: {
+  buffBadge: {
     height: 28,
     width: 28,
     borderRadius: Radii.md,
     backgroundColor: Colors.surface,
     justifyContent: "center",
     alignItems: "center",
+  },
+  buffText: {
+    ...Typography.caption,
+    fontWeight: "600",
+    color: Colors.accent,
   },
 });
