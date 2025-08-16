@@ -3,7 +3,7 @@
    Afecta: toda la app (colores, espaciado, tipografía, radios, elevación)
    Propósito: unificar estilos y facilitar que Codex y yo creemos UI coherente
    Puntos de edición futura: Typography, Radii
-   Autor: Codex - Fecha: 2025-08-13
+   Autor: Codex - Fecha: 2025-08-16
 */
 
 export const Colors = {
@@ -39,6 +39,7 @@ export const Colors = {
   text: "#FFFFFF",
   textMuted: "#b0bec5",
   textInverse: "#0e0a1e",
+  icon: "#FFFFFF",
 
   // Controles
   buttonBg: "#00B4D8",

@@ -2,7 +2,7 @@
 // Afecta: HomeScreen (layout principal)
 // Propósito: Renderizar secciones de inicio y mostrar estado global
 // Puntos de edición futura: conectar datos reales y navegación
-// Autor: Codex - Fecha: 2025-08-14
+// Autor: Codex - Fecha: 2025-08-16
 
 import React, { useRef, useState, useCallback } from "react";
 import { StyleSheet, ScrollView, View, Pressable } from "react-native";
@@ -126,5 +126,6 @@ const styles = StyleSheet.create({
   },
   overlay: {
     backgroundColor: Colors.overlay,
+    zIndex: 1,
   },
 });

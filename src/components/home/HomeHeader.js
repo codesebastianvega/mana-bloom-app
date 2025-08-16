@@ -87,8 +87,8 @@ function HomeHeader(
         <Ionicons
           name="leaf"
           size={14}
-          color={Colors.text}
-          style={styles.chipIcon}
+          color={Colors.icon}
+          style={styles.icon}
         />
       ),
       label: plantState || "--",
@@ -102,8 +102,8 @@ function HomeHeader(
         <Ionicons
           name="water"
           size={14}
-          color={Colors.text}
-          style={styles.chipIcon}
+          color={Colors.icon}
+          style={styles.icon}
         />
       ),
       label: String(mana),
@@ -117,8 +117,8 @@ function HomeHeader(
         <FontAwesome5
           name="coins"
           size={12}
-          color={Colors.text}
-          style={styles.chipIcon}
+          color={Colors.icon}
+          style={styles.icon}
         />
       ),
       label: String(coin),
@@ -132,8 +132,8 @@ function HomeHeader(
         <FontAwesome5
           name="gem"
           size={12}
-          color={Colors.text}
-          style={styles.chipIcon}
+          color={Colors.icon}
+          style={styles.icon}
         />
       ),
       label: String(gem),
@@ -147,8 +147,8 @@ function HomeHeader(
         <FontAwesome5
           name="fire"
           size={12}
-          color={Colors.text}
-          style={styles.chipIcon}
+          color={Colors.icon}
+          style={styles.icon}
         />
       ),
       label: String(streak),
@@ -162,8 +162,8 @@ function HomeHeader(
         <Ionicons
           name="flask"
           size={14}
-          color={Colors.text}
-          style={styles.chipIcon}
+          color={Colors.icon}
+          style={styles.icon}
         />
       ),
       label: String(buffs.length),
@@ -179,8 +179,8 @@ function HomeHeader(
         <Ionicons
           name="gift"
           size={14}
-          color={Colors.text}
-          style={styles.chipIcon}
+          color={Colors.icon}
+          style={styles.icon}
         />
       ),
       label: "Ver",
@@ -240,29 +240,34 @@ function HomeHeader(
       <View style={styles.topBar}>
         <View style={styles.titleRow}>
           <Text style={styles.title}>Mana Bloom</Text>
-          <Pressable
-            onPress={() =>
-              activeChip === "plant" ? closePopover() : openChip("plant")
-            }
-            style={styles.plantChip}
-            disabled={popoverOpen && activeChip !== "plant"}
-            accessibilityRole="button"
-            accessibilityLabel={chipConfig.plant.a11y}
-            accessibilityState={
-              activeChip === "plant" ? { expanded: true } : undefined
-            }
-            hitSlop={chipHitSlop}
-          >
-            {chipConfig.plant.icon}
-            <Text
-              style={styles.chipText}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {chipConfig.plant.label}
-            </Text>
-          </Pressable>
-        </View>
+        <Pressable
+          onPress={() =>
+            activeChip === "plant" ? closePopover() : openChip("plant")
+          }
+          style={[
+            styles.plantChip,
+            popoverOpen && activeChip !== "plant" && styles.chipDisabled,
+          ]}
+          disabled={popoverOpen && activeChip !== "plant"}
+          accessibilityRole="button"
+          accessibilityLabel={chipConfig.plant.a11y}
+          accessibilityState={
+            activeChip === "plant" ? { expanded: true } : undefined
+          }
+          hitSlop={chipHitSlop}
+        >
+            <View style={styles.chipContent}>
+              {chipConfig.plant.icon}
+              <Text
+                style={styles.chipText}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {chipConfig.plant.label}
+              </Text>
+            </View>
+        </Pressable>
+      </View>
         <Pressable
           onPress={onPressNotifications}
           style={styles.iconButton}
@@ -272,7 +277,8 @@ function HomeHeader(
           <Ionicons
             name="notifications-outline"
             size={18}
-            color={Colors.text}
+            color={Colors.icon}
+            style={styles.icon}
           />
         </Pressable>
       </View>
@@ -291,7 +297,10 @@ function HomeHeader(
                     ? closePopover()
                     : openChip(c.key)
                 }
-                style={styles.chip}
+                style={[
+                  styles.chip,
+                  popoverOpen && activeChip !== c.key && styles.chipDisabled,
+                ]}
                 disabled={popoverOpen && activeChip !== c.key}
                 accessibilityRole="button"
                 accessibilityLabel={c.a11y}
@@ -300,14 +309,16 @@ function HomeHeader(
                 }
                 hitSlop={chipHitSlop}
               >
-                {c.icon}
-                <Text
-                  style={styles.chipText}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {c.label}
-                </Text>
+                <View style={styles.chipContent}>
+                  {c.icon}
+                  <Text
+                    style={styles.chipText}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {c.label}
+                  </Text>
+                </View>
               </Pressable>
             );
           })}

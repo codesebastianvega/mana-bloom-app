@@ -2,10 +2,10 @@
 // Afecta: HomeHeader
 // Propósito: Estilos para top bar, chips y popovers del encabezado
 // Puntos de edición futura: ajustar tamaños de chip y responsividad
-// Autor: Codex - Fecha: 2025-08-14
+// Autor: Codex - Fecha: 2025-08-16
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Typography, Elevation } from "../../theme";
+import { Colors, Spacing, Radii, Typography, Elevation, Opacity } from "../../theme";
 
 export default StyleSheet.create({
   container: {
@@ -14,6 +14,7 @@ export default StyleSheet.create({
     paddingTop: Spacing.base,
     paddingBottom: Spacing.small,
     ...Elevation.raised,
+    zIndex: 2,
   },
   topBar: {
     flexDirection: "row",
@@ -30,11 +31,10 @@ export default StyleSheet.create({
     color: Colors.text,
   },
   plantChip: {
-    flexDirection: "row",
-    alignItems: "center",
     backgroundColor: Colors.surface,
     borderRadius: Radii.lg,
     paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
     height: Spacing.large + Spacing.tiny,
   },
   iconButton: {
@@ -59,8 +59,6 @@ export default StyleSheet.create({
     gap: Spacing.small,
   },
   chip: {
-    flexDirection: "row",
-    alignItems: "center",
     backgroundColor: Colors.surface,
     borderRadius: Radii.lg,
     paddingHorizontal: Spacing.small,
@@ -71,8 +69,19 @@ export default StyleSheet.create({
     flexGrow: 0,
     marginBottom: Spacing.small,
   },
-  chipIcon: {
-    marginRight: Spacing.tiny,
+  chipContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
+  },
+  icon: {
+    color: Colors.icon,
+  },
+  iconOnAccent: {
+    color: Colors.onAccent,
+  },
+  chipDisabled: {
+    opacity: Opacity.disabled,
   },
   chipText: {
     ...Typography.caption,
