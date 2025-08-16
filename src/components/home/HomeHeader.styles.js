@@ -15,6 +15,7 @@ export default StyleSheet.create({
     paddingBottom: Spacing.small,
     ...Elevation.raised,
     zIndex: 2,
+    position: "relative",
   },
   topBar: {
     flexDirection: "row",
@@ -58,6 +59,7 @@ export default StyleSheet.create({
     alignItems: "center",
     gap: Spacing.small,
     zIndex: 2,
+    position: "relative",
   },
   chip: {
     backgroundColor: Colors.surface,
@@ -69,6 +71,9 @@ export default StyleSheet.create({
     maxWidth: "31%",
     flexGrow: 0,
     marginBottom: Spacing.small,
+  },
+  chipAccent: {
+    backgroundColor: Colors.accent,
   },
   chipContent: {
     flexDirection: "row",
@@ -83,6 +88,10 @@ export default StyleSheet.create({
     ...Typography.caption,
     color: Colors.text,
   },
+  chipTextOnAccent: {
+    ...Typography.caption,
+    color: Colors.onAccent,
+  },
   popoverContainer: {
     marginTop: Spacing.small,
     width: "100%",
@@ -93,6 +102,7 @@ export default StyleSheet.create({
     padding: Spacing.base,
     ...Elevation.raised,
     zIndex: 3,
+    position: "relative",
   },
   popoverTitle: {
     ...Typography.body,
