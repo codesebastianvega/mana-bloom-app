@@ -151,7 +151,9 @@ export default function CreateTaskModal({
       setNewPriority(task.priority || "easy");
       setNewDifficulty(task.difficulty || "easy");
       setNewTags(task.tags || []);
-      setNewSubtasks(task.subtasks ? task.subtasks.map((st) => ({ ...st })) : []);
+      setNewSubtasks(
+        task.subtasks ? task.subtasks.map((st) => ({ ...st })) : []
+      );
       setNewTagInput("");
       setNewSubtaskInput("");
     } else {
@@ -171,7 +173,6 @@ export default function CreateTaskModal({
   const showAlert = (message, type = "info") => {
     setAlert({ message, type });
     setTimeout(() => setAlert(null), 3000);
-
   };
 
   const handleSave = () => {
@@ -225,153 +226,156 @@ export default function CreateTaskModal({
 
   return (
     <>
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={onClose}
-      statusBarTranslucent
-    >
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: Colors.overlay,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
+      <Modal
+        visible={visible}
+        animationType="slide"
+        transparent
+        onRequestClose={onClose}
+        statusBarTranslucent
       >
-        <View style={styles.root}>
-
-
-          {alert && (
-            <View
-              style={{
-                position: "absolute",
-                bottom: Spacing.xlarge,
-                left: Spacing.base,
-                right: Spacing.base,
-                paddingVertical: Spacing.small,
-                paddingHorizontal: Spacing.base,
-                borderRadius: Radii.lg,
-                zIndex: 2,
-                alignItems: "center",
-                backgroundColor:
-                  alert.type === "error" ? Colors.danger : Colors.secondary,
-              }}
-            >
-              <Text
-                style={{ color: Colors.text, fontSize: 14, fontWeight: "600" }}
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: Colors.overlay,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View style={styles.root}>
+            {alert && (
+              <View
+                style={{
+                  position: "absolute",
+                  bottom: Spacing.xlarge,
+                  left: Spacing.base,
+                  right: Spacing.base,
+                  paddingVertical: Spacing.small,
+                  paddingHorizontal: Spacing.base,
+                  borderRadius: Radii.lg,
+                  zIndex: 2,
+                  alignItems: "center",
+                  backgroundColor:
+                    alert.type === "error" ? Colors.danger : Colors.secondary,
+                }}
               >
-                {alert.message}
+                <Text
+                  style={{
+                    color: Colors.text,
+                    fontSize: 14,
+                    fontWeight: "600",
+                  }}
+                >
+                  {alert.message}
+                </Text>
+              </View>
+            )}
+            <ScrollView
+              style={{ width: "100%" }}
+              contentContainerStyle={{ paddingBottom: Spacing.large }}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+              <Text style={styles.title}>
+                {task ? "Editar Tarea" : "Crear Nueva Tarea"}
               </Text>
-            </View>
-          )}
-          <ScrollView
-            style={{ width: "100%" }}
-            contentContainerStyle={{ paddingBottom: Spacing.large }}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            <Text style={styles.title}>
-              {task ? "Editar Tarea" : "Crear Nueva Tarea"}
-            </Text>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Título"
-              placeholderTextColor={Colors.textMuted}
-              value={newTitle}
-              onChangeText={setNewTitle}
-            />
+              <TextInput
+                style={styles.input}
+                placeholder="Título"
+                placeholderTextColor={Colors.textMuted}
+                value={newTitle}
+                onChangeText={setNewTitle}
+              />
 
-            <TextInput
-              style={[styles.inputMultiline, { marginTop: Spacing.small }]}
+              <TextInput
+                style={[styles.inputMultiline, { marginTop: Spacing.small }]}
+                placeholder="Detalle o nota (opcional)"
+                placeholderTextColor={Colors.textMuted}
+                value={newNote}
+                onChangeText={setNewNote}
+                multiline
+              />
 
-              placeholder="Detalle o nota (opcional)"
-              placeholderTextColor={Colors.textMuted}
-              value={newNote}
-              onChangeText={setNewNote}
-              multiline
-            />
-
-            <Text style={styles.sectionLabel}>Tipo</Text>
-            <View style={styles.segmentContainer}>
-              <Pressable
-                onPress={() => setNewType("single")}
-                style={[
-                  styles.segmentButton,
-                  newType === "single" && styles.segmentButtonActive,
-                ]}
-                accessibilityRole="tab"
-                accessibilityState={{ selected: newType === "single" }}
-              >
-                <Text
+              <Text style={styles.sectionLabel}>Tipo</Text>
+              <View style={styles.segmentContainer}>
+                <Pressable
+                  onPress={() => setNewType("single")}
                   style={[
-                    styles.segmentLabel,
-                    newType === "single" && styles.segmentLabelActive,
+                    styles.segmentButton,
+                    newType === "single" && styles.segmentButtonActive,
                   ]}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: newType === "single" }}
                 >
-                  Tarea
-                </Text>
-              </Pressable>
-
-              <Pressable
-                onPress={() => setNewType("habit")}
-                style={[
-                  styles.segmentButton,
-                  newType === "habit" && styles.segmentButtonActive,
-                ]}
-                accessibilityRole="tab"
-                accessibilityState={{ selected: newType === "habit" }}
-              >
-                <Text
-                  style={[
-                    styles.segmentLabel,
-                    newType === "habit" && styles.segmentLabelActive,
-                  ]}
-                >
-                  Hábito
-                </Text>
-              </Pressable>
-            </View>
-
-            <Text style={styles.sectionLabel}>Elemento</Text>
-            <ElementGrid
-              value={newElement}
-              onChange={setNewElement}
-              tileAspect={0.78}
-              onLongPress={(el) => {
-                setInfoElement(el);
-                setInfoVisible(true);
-              }}
-            />
-            <View
-              style={styles.whichBlock}
-              accessibilityHint="Toca un elemento o mantén presionado para ver más información"
-            >
-              <Text style={styles.whichQuestion}>¿Cuál elijo?</Text>
-              {newElement === "all" ? (
-                <Text style={styles.whichSnippet}>Selecciona un elemento</Text>
-              ) : (
-                <>
-                  <Text style={styles.whichSnippet} numberOfLines={1}>
-                    {ELEMENT_INFO[newElement]?.description}
-                  </Text>
-                  <TouchableOpacity
-                    accessibilityRole="button"
-                    accessibilityLabel={`Ver más sobre ${
-                      ELEMENT_LABELS[newElement] || ""
-                    }`}
-                    onPress={() => {
-                      setInfoElement(newElement);
-                      setInfoVisible(true);
-                    }}
+                  <Text
+                    style={[
+                      styles.segmentLabel,
+                      newType === "single" && styles.segmentLabelActive,
+                    ]}
                   >
-                    <Text style={styles.whichMore}>Ver más</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-            </View>
+                    Tarea
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => setNewType("habit")}
+                  style={[
+                    styles.segmentButton,
+                    newType === "habit" && styles.segmentButtonActive,
+                  ]}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: newType === "habit" }}
+                >
+                  <Text
+                    style={[
+                      styles.segmentLabel,
+                      newType === "habit" && styles.segmentLabelActive,
+                    ]}
+                  >
+                    Hábito
+                  </Text>
+                </Pressable>
+              </View>
+
+              <Text style={styles.sectionLabel}>Elemento</Text>
+              <ElementGrid
+                value={newElement}
+                onChange={setNewElement}
+                tileAspect={0.78}
+                onLongPress={(el) => {
+                  setInfoElement(el);
+                  setInfoVisible(true);
+                }}
+              />
+              <View
+                style={styles.whichBlock}
+                accessibilityHint="Toca un elemento o mantén presionado para ver más información"
+              >
+                <Text style={styles.whichQuestion}>¿Cuál elijo?</Text>
+                {newElement === "all" ? (
+                  <Text style={styles.whichSnippet}>
+                    Selecciona un elemento
+                  </Text>
+                ) : (
+                  <>
+                    <Text style={styles.whichSnippet} numberOfLines={1}>
+                      {ELEMENT_INFO[newElement]?.description}
+                    </Text>
+                    <TouchableOpacity
+                      accessibilityRole="button"
+                      accessibilityLabel={`Ver más sobre ${
+                        ELEMENT_LABELS[newElement] || ""
+                      }`}
+                      onPress={() => {
+                        setInfoElement(newElement);
+                        setInfoVisible(true);
+                      }}
+                    >
+                      <Text style={styles.whichMore}>Ver más</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+              </View>
 
               <Text style={styles.sectionLabel}>
                 Subtareas{" "}
@@ -379,207 +383,44 @@ export default function CreateTaskModal({
                   (Agrega tareas más pequeñas para facilitar tu trabajo)
                 </Text>
               </Text>
-            <View style={styles.subtaskRow}>
-              <TextInput
-                style={styles.subtaskInput}
-                placeholder="Nueva subtarea"
-                placeholderTextColor={Colors.textMuted}
-                value={newSubtaskInput}
-                onChangeText={setNewSubtaskInput}
-              />
-              <TouchableOpacity
-                style={styles.subtaskAddBtn}
-
-                onPress={() => {
-                  const st = newSubtaskInput.trim();
-                  if (!st) return;
-                  setNewSubtasks((prev) => [
-                    ...prev,
-                    { id: Date.now(), text: st, completed: false },
-                  ]);
-                  setNewSubtaskInput("");
-                }}
-              >
-                <FontAwesome5 name="plus" size={12} color={Colors.background} />
-              </TouchableOpacity>
-            </View>
-            {newSubtasks.length > 0 && (
-              <View style={styles.subtasksChips}>
-                {newSubtasks.map((st, idx) => (
-                  <View key={st.id || idx} style={styles.chip}>
-                    <Text style={styles.chipLabel}>{st.text}</Text>
-                    <TouchableOpacity
-                      accessibilityRole="button"
-                      onPress={() =>
-                        setNewSubtasks((prev) => prev.filter((_, i) => i !== idx))
-                      }
-                      style={{ marginLeft: Spacing.tiny }}
-                    >
-                      <FontAwesome5 name="times" size={12} color={Colors.text} />
-                    </TouchableOpacity>
-                  </View>
-                ))}
+              <View style={styles.subtaskRow}>
+                <TextInput
+                  style={styles.subtaskInput}
+                  placeholder="Nueva subtarea"
+                  placeholderTextColor={Colors.textMuted}
+                  value={newSubtaskInput}
+                  onChangeText={setNewSubtaskInput}
+                />
+                <TouchableOpacity
+                  style={styles.subtaskAddBtn}
+                  onPress={() => {
+                    const st = newSubtaskInput.trim();
+                    if (!st) return;
+                    setNewSubtasks((prev) => [
+                      ...prev,
+                      { id: Date.now(), text: st, completed: false },
+                    ]);
+                    setNewSubtaskInput("");
+                  }}
+                >
+                  <FontAwesome5
+                    name="plus"
+                    size={12}
+                    color={Colors.background}
+                  />
+                </TouchableOpacity>
               </View>
-            )}
-
-            <Text style={styles.sectionLabel}>Prioridad</Text>
-            <View style={styles.priorityList}>
-              {PRIORITIES.map((p) => {
-                const level = PRIORITY_VALUES[p];
-                const isActive = newPriority === level;
-                const rw = PRIORITY_REWARDS[p] || { xp: 0, mana: 0 };
-                const accent = PriorityAccents[level];
-                return (
-                  <Pressable
-                    key={p}
-                    onPress={() => setNewPriority(level)}
-                    style={[
-                      styles.priorityRow,
-                      isActive && {
-                        borderColor: accent,
-                        backgroundColor: withAlpha(accent, 0.14),
-                        ...(Elevation.raised || {}),
-                        shadowColor: accent,
-                      },
-                    ]}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: isActive }}
-                    accessibilityLabel={`Prioridad ${p}`}
-                  >
-                    <View style={styles.priorityLeft}>
-                      <Text
-                        style={[
-                          styles.priorityTitle,
-                          isActive && { color: accent },
-                        ]}
-                      >
-                        {p}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.priorityCaption,
-                          isActive && { color: accent },
-                        ]}
-                        numberOfLines={1}
-                      >
-                        {p === "Baja"
-                          ? "Tranquila, sin apuro"
-                          : p === "Media"
-                          ? "Importante esta semana"
-                          : "Hazlo hoy"}
-                      </Text>
-                    </View>
-                    <View style={styles.priorityRewards}>
-                      <View style={styles.rewardPill}>
-                        <Text style={styles.rewardText}>+{rw.xp} XP</Text>
-                      </View>
-                      <View style={styles.rewardPill}>
-                        <Text style={styles.rewardText}>+{rw.mana} Maná</Text>
-                      </View>
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            <Text style={styles.sectionLabel}>Dificultad</Text>
-            <View style={styles.difficultyRow}>
-              {DIFFS.map((d) => {
-                const val = DIFF_VALUES[d];
-                const selected = newDifficulty === val;
-                return (
-                  <Pressable
-                    key={d}
-                    onPress={() => setNewDifficulty(val)}
-                    style={[styles.difficultyChip, selected && styles.chipActive]}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected }}
-                    accessibilityLabel={`Dificultad ${d}`}
-                  >
-                    <Text
-                      style={[
-                        styles.chipLabel,
-                        selected && styles.chipLabelActive,
-                      ]}
-                    >
-                      {d}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            <Text style={styles.sectionLabel}>Etiquetas</Text>
-            <View style={styles.subtaskRow}>
-              <TextInput
-                style={styles.subtaskInput}
-                placeholder="Nueva etiqueta"
-                placeholderTextColor={Colors.textMuted}
-                value={newTagInput}
-                onChangeText={setNewTagInput}
-              />
-              <TouchableOpacity
-                style={styles.subtaskAddBtn}
-
-                onPress={() => {
-                  const tag = newTagInput.trim();
-                  if (!tag) return;
-                  setNewTags((prev) => [...new Set([...prev, tag])]);
-                  setNewTagInput("");
-                  showAlert("Etiqueta creada", "success");
-                }}
-              >
-                <FontAwesome5 name="plus" size={12} color={Colors.background} />
-              </TouchableOpacity>
-            </View>
-            {uniqueTags.length > 0 && (
-              <Text style={styles.sectionLabel}>Mis Etiquetas</Text>
-            )}
-            {uniqueTags.length > 0 && (
-              <View style={styles.tagsList}>
-                {uniqueTags.map((tagKey) => {
-                  const active = newTags.includes(tagKey);
-                  return (
-                    <Pressable
-                      key={tagKey}
-                      accessibilityRole="button"
-                      onPress={() => {
-                        setNewTags((prev) =>
-                          prev.includes(tagKey)
-                            ? prev.filter((t) => t !== tagKey)
-                            : [...prev, tagKey]
-                        );
-                      }}
-                      style={[
-                        styles.tagChip,
-                        active && styles.chipActive,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.tagText,
-                          active && styles.chipLabelActive,
-                        ]}
-                      >
-                        {tagKey}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            )}
-
-            {newTags.length > 0 && (
-              <>
-                <Text style={styles.sectionLabel}>Etiquetas seleccionadas</Text>
-                <View style={styles.tagsList}>
-                  {newTags.map((tag) => (
-                    <View key={tag} style={styles.tagChip}>
-                      <Text style={styles.tagText}>{tag}</Text>
+              {newSubtasks.length > 0 && (
+                <View style={styles.subtasksChips}>
+                  {newSubtasks.map((st, idx) => (
+                    <View key={st.id || idx} style={styles.chip}>
+                      <Text style={styles.chipLabel}>{st.text}</Text>
                       <TouchableOpacity
                         accessibilityRole="button"
                         onPress={() =>
-                          setNewTags((prev) => prev.filter((t) => t !== tag))
+                          setNewSubtasks((prev) =>
+                            prev.filter((_, i) => i !== idx)
+                          )
                         }
                         style={{ marginLeft: Spacing.tiny }}
                       >
@@ -592,35 +433,213 @@ export default function CreateTaskModal({
                     </View>
                   ))}
                 </View>
-              </>
-            )}
+              )}
 
-            <View style={styles.actions}>
-              <TouchableOpacity
-                style={[styles.secondaryButton, { borderColor: Colors.danger }]}
+              <Text style={styles.sectionLabel}>Prioridad</Text>
+              <View style={styles.priorityList}>
+                {PRIORITIES.map((p) => {
+                  const level = PRIORITY_VALUES[p];
+                  const isActive = newPriority === level;
+                  const rw = PRIORITY_REWARDS[p] || { xp: 0, mana: 0 };
+                  const accent = PriorityAccents[level];
+                  return (
+                    <Pressable
+                      key={p}
+                      onPress={() => setNewPriority(level)}
+                      style={[
+                        styles.priorityRow,
+                        isActive && {
+                          borderColor: accent,
+                          backgroundColor: withAlpha(accent, 0.14),
+                          ...(Elevation.raised || {}),
+                          shadowColor: accent,
+                        },
+                      ]}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: isActive }}
+                      accessibilityLabel={`Prioridad ${p}`}
+                    >
+                      <View style={styles.priorityLeft}>
+                        <Text
+                          style={[
+                            styles.priorityTitle,
+                            isActive && { color: accent },
+                          ]}
+                        >
+                          {p}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.priorityCaption,
+                            isActive && { color: accent },
+                          ]}
+                          numberOfLines={1}
+                        >
+                          {p === "Baja"
+                            ? "Tranquila, sin apuro"
+                            : p === "Media"
+                            ? "Importante esta semana"
+                            : "Hazlo hoy"}
+                        </Text>
+                      </View>
+                      <View style={styles.priorityRewards}>
+                        <View style={styles.rewardPill}>
+                          <Text style={styles.rewardText}>+{rw.xp} XP</Text>
+                        </View>
+                        <View style={styles.rewardPill}>
+                          <Text style={styles.rewardText}>+{rw.mana} Maná</Text>
+                        </View>
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
 
-                onPress={onClose}
-              >
-                <Text style={styles.secondaryButtonLabel}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={handleSave}
-              >
-                <Text style={styles.primaryButtonLabel}>Guardar</Text>
+              <Text style={styles.sectionLabel}>Dificultad</Text>
+              <View style={styles.difficultyRow}>
+                {DIFFS.map((d) => {
+                  const val = DIFF_VALUES[d];
+                  const selected = newDifficulty === val;
+                  return (
+                    <Pressable
+                      key={d}
+                      onPress={() => setNewDifficulty(val)}
+                      style={[
+                        styles.difficultyChip,
+                        selected && styles.chipActive,
+                      ]}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected }}
+                      accessibilityLabel={`Dificultad ${d}`}
+                    >
+                      <Text
+                        style={[
+                          styles.chipLabel,
+                          selected && styles.chipLabelActive,
+                        ]}
+                      >
+                        {d}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
 
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
+              <Text style={styles.sectionLabel}>Etiquetas</Text>
+              <View style={styles.subtaskRow}>
+                <TextInput
+                  style={styles.subtaskInput}
+                  placeholder="Nueva etiqueta"
+                  placeholderTextColor={Colors.textMuted}
+                  value={newTagInput}
+                  onChangeText={setNewTagInput}
+                />
+                <TouchableOpacity
+                  style={styles.subtaskAddBtn}
+                  onPress={() => {
+                    const tag = newTagInput.trim();
+                    if (!tag) return;
+                    setNewTags((prev) => [...new Set([...prev, tag])]);
+                    setNewTagInput("");
+                    showAlert("Etiqueta creada", "success");
+                  }}
+                >
+                  <FontAwesome5
+                    name="plus"
+                    size={12}
+                    color={Colors.background}
+                  />
+                </TouchableOpacity>
+              </View>
+              {uniqueTags.length > 0 && (
+                <Text style={styles.sectionLabel}>Mis Etiquetas</Text>
+              )}
+              {uniqueTags.length > 0 && (
+                <View style={styles.tagsList}>
+                  {uniqueTags.map((tagKey) => {
+                    const active = newTags.includes(tagKey);
+                    return (
+                      <Pressable
+                        key={tagKey}
+                        accessibilityRole="button"
+                        onPress={() => {
+                          setNewTags((prev) =>
+                            prev.includes(tagKey)
+                              ? prev.filter((t) => t !== tagKey)
+                              : [...prev, tagKey]
+                          );
+                        }}
+                        style={[styles.tagChip, active && styles.chipActive]}
+                      >
+                        <Text
+                          style={[
+                            styles.tagText,
+                            active && styles.chipLabelActive,
+                          ]}
+                        >
+                          {tagKey}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )}
+
+              {newTags.length > 0 && (
+                <>
+                  <Text style={styles.sectionLabel}>
+                    Etiquetas seleccionadas
+                  </Text>
+                  <View style={styles.tagsList}>
+                    {newTags.map((tag) => (
+                      <View key={tag} style={styles.tagChip}>
+                        <Text style={styles.tagText}>{tag}</Text>
+                        <TouchableOpacity
+                          accessibilityRole="button"
+                          onPress={() =>
+                            setNewTags((prev) => prev.filter((t) => t !== tag))
+                          }
+                          style={{ marginLeft: Spacing.tiny }}
+                        >
+                          <FontAwesome5
+                            name="times"
+                            size={12}
+                            color={Colors.text}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </View>
+                </>
+              )}
+
+              <View style={styles.actions}>
+                <TouchableOpacity
+                  style={[
+                    styles.secondaryButton,
+                    { borderColor: Colors.danger },
+                  ]}
+                  onPress={onClose}
+                >
+                  <Text style={styles.secondaryButtonLabel}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={handleSave}
+                >
+                  <Text style={styles.primaryButtonLabel}>Guardar</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
         </View>
-      </View>
-    </Modal>
-    <ElementInfoSheet
-      visible={infoVisible}
-      element={infoElement}
-      info={ELEMENT_INFO}
-      onClose={() => setInfoVisible(false)}
-    />
-  </>
+      </Modal>
+      <ElementInfoSheet
+        visible={infoVisible}
+        element={infoElement}
+        info={ELEMENT_INFO}
+        onClose={() => setInfoVisible(false)}
+      />
+    </>
   );
 }
