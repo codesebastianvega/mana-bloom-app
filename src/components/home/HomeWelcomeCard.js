@@ -9,8 +9,8 @@ import { View, Text, Pressable, Animated } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 import styles from "./HomeWelcomeCard.styles";
-import { Gradients } from "../../theme";
-import { useAppState, useDailyChallenges } from "../../state/AppContext";
+import { ElementAccents } from "../../theme";
+import { useAppState, useDailyChallenges, useProgress } from "../../state/AppContext";
 import { getTasks } from "../../storage";
 
 let BlurView;
@@ -20,11 +20,21 @@ try {
   BlurView = null;
 }
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+function getXPGradient(progress) {
+  if (progress <= 33) return ElementAccents.gradients.xp.low;
+  if (progress <= 66) return ElementAccents.gradients.xp.med;
+  return ElementAccents.gradients.xp.high;
+}
+
 export default function HomeWelcomeCard({ onNext }) {
   const { displayName } = useAppState();
   const { items } = useDailyChallenges();
+  const { progress } = useProgress();
   const [taskCounts, setTaskCounts] = useState({ tasks: null, habits: null });
   const chipsAnim = useRef(new Animated.Value(0)).current;
+  const ctaScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     Animated.timing(chipsAnim, {
@@ -44,6 +54,7 @@ export default function HomeWelcomeCard({ onNext }) {
 
   const completedChallenges = items.filter((it) => it.claimed).length;
   const totalChallenges = items.length;
+  const xpGradient = getXPGradient(progress);
 
   return (
     <View style={styles.wrapper}>
@@ -53,9 +64,8 @@ export default function HomeWelcomeCard({ onNext }) {
         <View style={styles.blurFallback} />
       )}
       <LinearGradient
-        colors={Gradients.xp}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
+        {...xpGradient}
+        useAngle
         style={styles.container}
       >
         <Text accessibilityRole="header" style={styles.title}>{`¡Hola, ${displayName || "explorador"}!`}</Text>
@@ -88,14 +98,28 @@ export default function HomeWelcomeCard({ onNext }) {
             <Text style={styles.kpiLabel}>Desafíos</Text>
           </View>
         </Animated.View>
-        <Pressable
+        <AnimatedPressable
           onPress={onNext}
-          style={styles.nextButton}
+          onPressIn={() => {
+            Animated.timing(ctaScale, {
+              toValue: 0.98,
+              duration: 90,
+              useNativeDriver: true,
+            }).start();
+          }}
+          onPressOut={() => {
+            Animated.timing(ctaScale, {
+              toValue: 1,
+              duration: 90,
+              useNativeDriver: true,
+            }).start();
+          }}
+          style={[styles.nextButton, { transform: [{ scale: ctaScale }] }]}
           accessibilityRole="button"
           accessibilityLabel="Siguiente"
         >
           <Text style={styles.nextText}>Siguiente</Text>
-        </Pressable>
+        </AnimatedPressable>
       </LinearGradient>
     </View>
   );
