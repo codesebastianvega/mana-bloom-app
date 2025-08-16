@@ -1,8 +1,8 @@
 // [MB] Módulo: Planta / Sección: Hero animado
 // Afecta: PlantScreen (demo inicial)
 // Propósito: muestra la planta con aura, glow y animación de respirar
-// Puntos de edición futura: estilos y tamaños adaptables
-// Autor: Codex - Fecha: 2025-08-15
+// Puntos de edición futura: estilos, tamaños y assets de maceta
+// Autor: Codex - Fecha: 2025-08-16
 
 import React, { useEffect, useRef } from "react";
 import { View, Text, Image, Animated, Easing, StyleSheet } from "react-native";
@@ -20,6 +20,7 @@ export default function PlantHero({
   health,
   mood,
   stage,
+  skinAccent,
   style,
 }) {
   const anim = useRef(new Animated.Value(0)).current;
@@ -109,6 +110,22 @@ export default function PlantHero({
         ) : (
           <Text style={{ fontSize: baseSize * 0.6 }}>🌱</Text>
         )}
+        {skinAccent && (
+          <View
+            pointerEvents="none"
+            style={[
+              styles.pot,
+              {
+                backgroundColor: skinAccent,
+                width: baseSize * 0.6,
+                height: baseSize * 0.25,
+                borderRadius: (baseSize * 0.6) / 2,
+                left: (baseSize - baseSize * 0.6) / 2,
+                bottom: Spacing.small,
+              },
+            ]}
+          />
+        )}
         <View
           pointerEvents="none"
           style={[
@@ -145,6 +162,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: Spacing.small,
+  },
+  pot: {
+    position: "absolute",
   },
 });
 
