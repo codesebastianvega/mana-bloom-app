@@ -1,8 +1,8 @@
 // [MB] Módulo: Planta / Sección: Header compacto
 // Afecta: PlantScreen (cabecera principal)
 // Propósito: agrupar nombre editable, salud/ánimo y economía
-// Puntos de edición futura: mover cálculo de salud o estilos a .styles.js
-// Autor: Codex - Fecha: 2025-08-17
+// Puntos de edición futura: ajuste de estilos en PlantHeader.styles.js o cálculo de salud
+// Autor: Codex - Fecha: 2025-08-16
 
 import React, { useState, useRef } from "react";
 import {
@@ -10,7 +10,6 @@ import {
   Text,
   TextInput,
   Pressable,
-  StyleSheet,
   Animated,
   AccessibilityInfo,
 } from "react-native";
@@ -18,13 +17,8 @@ import ResourceCapsules from "../economy/ResourceCapsules";
 import StreakChip from "../economy/StreakChip";
 import HealthChip from "./HealthChip";
 import MoodChip from "./MoodChip";
-import {
-  Colors,
-  Spacing,
-  Radii,
-  Typography,
-  Elevation,
-} from "../../theme";
+import { Spacing } from "../../theme";
+import styles from "./PlantHeader.styles";
 
 // [MB] Helpers de salud y estados
 const clamp01 = (n) => Math.max(0, Math.min(1, n ?? 0));
@@ -146,53 +140,4 @@ export default function PlantHeader({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: Radii.lg,
-    padding: Spacing.large,
-    ...Elevation.card,
-  },
-  topRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-  nameWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-    marginRight: Spacing.base,
-  },
-  name: {
-    ...Typography.h2,
-    color: Colors.text,
-    flexShrink: 1,
-  },
-  nameInput: {
-    ...Typography.h2,
-    color: Colors.text,
-    flex: 1,
-  },
-  editBtn: {
-    marginLeft: Spacing.small,
-  },
-  editIcon: {
-    fontSize: Typography.body.fontSize,
-    color: Colors.text,
-  },
-  chips: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.small,
-  },
-  bottomRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "center",
-    marginTop: Spacing.base,
-    gap: Spacing.small,
-  },
-});
 
