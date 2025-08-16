@@ -9,6 +9,7 @@ import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
 import PlantHero from "../components/plant/PlantHero";
 import CareMetrics from "../components/plant/CareMetrics";
 import QuickActions from "../components/plant/QuickActions";
+import GrowthProgress from "../components/plant/GrowthProgress";
 import { Colors, Spacing } from "../theme";
 
 export default function PlantScreen() {
@@ -34,6 +35,18 @@ export default function PlantScreen() {
           canMeditate
           cooldowns={{ water: 0, feed: 0, clean: 0, meditate: 0 }}
           onAction={(key) => console.log("[MB] acción", key)}
+        />
+        {/* [MB] Progreso de crecimiento */}
+        <GrowthProgress
+          stage="brote"
+          progress={0.62}
+          etaText="faltan ~3 tareas"
+          milestones={[
+            { id: "m1", icon: "💧", title: "Regaste", delta: "+15 Agua", timestamp: Date.now() - 1000 * 60 * 20 },
+            { id: "m2", icon: "🍃", title: "Aplicaste nutrientes", delta: "+10 Nutrientes", timestamp: Date.now() - 1000 * 60 * 90 },
+            { id: "m3", icon: "🧘", title: "Meditaste", delta: "+10 Ánimo", timestamp: Date.now() - 1000 * 60 * 200 },
+          ]}
+          style={{ alignSelf: "stretch", marginTop: Spacing.large }}
         />
       </ScrollView>
     </SafeAreaView>
