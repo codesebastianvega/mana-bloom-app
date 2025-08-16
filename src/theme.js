@@ -3,8 +3,14 @@
    Afecta: toda la app (colores, espaciado, tipografía, radios, elevación)
    Propósito: unificar estilos y facilitar que Codex y yo creemos UI coherente
    Puntos de edición futura: Typography, Radii
-   Autor: Codex - Fecha: 2025-08-16
+   Autor: Codex - Fecha: 2025-02-15
 */
+
+export const Opacity = {
+  disabled: 0.5,
+  overlay: 0.06,
+  muted: 0.7,
+};
 
 export const Colors = {
   // Base
@@ -14,7 +20,7 @@ export const Colors = {
   surfaceElevated: "#251a3f",
   border: "#2e2548",
   separator: "#3a2b5e",
-  overlay: "rgba(0,0,0,0.5)",
+  overlay: `rgba(0,0,0,${Opacity.overlay})`,
   shadow: "#000000",
 
   // Marca
@@ -54,6 +60,10 @@ export const Colors = {
   elementFireLight: "#ffab91",
   elementAir: "#90a4ae",
   elementAirLight: "#cfd8dc",
+
+  card: "#1b1231",
+  cardBorder: "#2e2548",
+  onCard: "#FFFFFF",
 };
 
 
@@ -104,9 +114,27 @@ export const Gradients = {
 };
 
 
-export const Opacity = {
-  disabled: 0.5,
-  muted: 0.7,
+export const ElementAccents = {
+  gradients: {
+    xp: {
+      low: {
+        colors: [Colors.primaryLight, Colors.primary],
+        locations: [0, 1],
+        angle: 45,
+      },
+      med: {
+        colors: [Colors.primary, Colors.secondary],
+        locations: [0, 1],
+        angle: 45,
+      },
+      high: {
+        colors: [Colors.secondary, Colors.accent],
+        locations: [0, 1],
+        angle: 45,
+      },
+    },
+  },
+  accentCta: Colors.accent,
 };
 
 export const isDarkTheme = true;

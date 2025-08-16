@@ -5,7 +5,14 @@
 // Autor: Codex - Fecha: 2025-02-15
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Typography, Elevation } from "../../theme";
+import {
+  Colors,
+  Spacing,
+  Radii,
+  Typography,
+  Elevation,
+  ElementAccents,
+} from "../../theme";
 
 export default StyleSheet.create({
   wrapper: {
@@ -24,13 +31,12 @@ export default StyleSheet.create({
   },
   container: {
     borderRadius: Radii.xl,
-    padding: Spacing.large,
-    paddingBottom: Spacing.base,
+    padding: Spacing.base,
     ...Elevation.card,
   },
   title: {
     ...Typography.title,
-    color: Colors.text,
+    color: Colors.onAccent,
   },
   kpiRow: {
     flexDirection: "row",
@@ -41,28 +47,32 @@ export default StyleSheet.create({
   },
   kpiBox: {
     flex: 1,
-    height: 30,
-    borderRadius: Radii.md,
-    backgroundColor: Colors.surface + "80",
+    height: 28,
+    borderRadius: Radii.lg,
+    backgroundColor: Colors.card,
+    borderWidth: 1,
+    borderColor: Colors.cardBorder,
     justifyContent: "center",
     alignItems: "center",
+    ...Elevation.raised,
   },
   kpiNumber: {
-    ...Typography.title,
-    fontSize: 16,
-    color: Colors.text,
+    ...Typography.body,
+    fontWeight: "600",
+    color: Colors.onCard,
   },
   kpiLabel: {
     ...Typography.caption,
-    color: Colors.textMuted,
+    color: Colors.onCard,
   },
   nextButton: {
     alignSelf: "flex-end",
-    backgroundColor: Colors.accent,
+    backgroundColor: ElementAccents.accentCta,
     paddingHorizontal: Spacing.base,
     height: 30,
-    borderRadius: Radii.md,
+    borderRadius: Radii.lg,
     justifyContent: "center",
+    ...Elevation.raised,
   },
   nextText: {
     ...Typography.caption,

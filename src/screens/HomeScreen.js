@@ -2,7 +2,7 @@
 // Afecta: HomeScreen (layout principal)
 // Propósito: Renderizar secciones de inicio y mostrar estado global
 // Puntos de edición futura: conectar datos reales y navegación
-// Autor: Codex - Fecha: 2025-08-16
+// Autor: Codex - Fecha: 2025-02-15
 
 import React, { useRef, useState, useCallback } from "react";
 import { StyleSheet, ScrollView, View, Pressable } from "react-native";
@@ -10,7 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors, Spacing } from "../theme";
 import HomeHeader from "../components/home/HomeHeader";
 import HomeWelcomeCard from "../components/home/HomeWelcomeCard";
-import DailyRewardSection from "../components/home/DailyRewardSection";
+import HomeDailyRewardCard from "../components/home/HomeDailyRewardCard";
 import DailyChallengesSection from "../components/home/DailyChallengesSection";
 import MagicShopSection from "../components/home/MagicShopSection";
 import InventorySection from "../components/home/InventorySection";
@@ -18,12 +18,22 @@ import NewsFeedSection from "../components/home/NewsFeedSection";
 import StatsQuickTiles from "../components/home/StatsQuickTiles";
 import EventBanner from "../components/home/EventBanner";
 import AchievementToast from "../components/common/AchievementToast";
-import { useAppDispatch, useAchievementToast } from "../state/AppContext";
+import SectionPlaceholder from "../components/common/SectionPlaceholder";
+import {
+  useAppDispatch,
+  useAchievementToast,
+  useAppState,
+  useDailyReward,
+  useHydrationStatus,
+} from "../state/AppContext";
 import { useNavigation } from "@react-navigation/native";
 
 export default function HomeScreen() {
   const achievementToast = useAchievementToast();
   const dispatch = useAppDispatch();
+  const { streak } = useAppState();
+  const dailyReward = useDailyReward();
+  const { modules } = useHydrationStatus();
   const scrollRef = useRef(null);
   const headerRef = useRef(null);
   const [anchors, setAnchors] = useState({});
@@ -46,6 +56,13 @@ export default function HomeScreen() {
   const goToTasks = useCallback(() => {
     navigation.navigate("Tasks");
   }, [navigation]);
+
+  const handleClaimReward = useCallback(() => {
+    dispatch({ type: "CLAIM_TODAY_REWARD" });
+  }, [dispatch]);
+
+  const rewardState = dailyReward.claimed ? "claimed" : "available";
+  const rewardLabel = dailyReward.reward?.title || "";
 
   return (
     <SafeAreaView style={styles.container}>
@@ -74,7 +91,16 @@ export default function HomeScreen() {
             <HomeWelcomeCard onNext={goToTasks} />
           </View>
           <View>
-            <DailyRewardSection />
+            {modules.wallet ? (
+              <SectionPlaceholder height={72} />
+            ) : (
+              <HomeDailyRewardCard
+                state={rewardState}
+                streakCount={streak}
+                rewardLabel={rewardLabel}
+                onClaim={handleClaimReward}
+              />
+            )}
           </View>
           <View onLayout={setAnchor("challenges")}>
             <DailyChallengesSection />
