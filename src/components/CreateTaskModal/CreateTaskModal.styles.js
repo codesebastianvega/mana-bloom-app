@@ -60,7 +60,7 @@ export default StyleSheet.create({
     minHeight: 96,
     borderRadius: Radii?.lg ?? 14,
     backgroundColor: Colors.surface,
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.textMuted,
     paddingHorizontal: Spacing.base,
     paddingTop: Spacing.base,
@@ -115,7 +115,7 @@ export default StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     borderRadius: Radii.lg,
   },
-  elementEmoji: { fontSize: 32, marginBottom: Spacing.tiny },
+  elementEmoji: { fontSize: 30, marginBottom: Spacing.tiny },
   elementTitle: {
     fontSize: 15,
     fontWeight: "700",
