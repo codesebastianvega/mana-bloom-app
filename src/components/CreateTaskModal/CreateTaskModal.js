@@ -59,6 +59,18 @@ const ELEMENTS = ["Agua", "Fuego", "Tierra", "Aire"];
 
 const PRIORITIES = ["Baja", "Media", "Urgente"];
 const PRIORITY_VALUES = { Baja: "easy", Media: "medium", Urgente: "hard" };
+const PRIORITY_ACCENTS = {
+  easy: Colors.info,
+  medium: Colors.warning,
+  hard: Colors.danger,
+};
+
+const applyAlpha = (hex, alpha) => {
+  const a = Math.round(alpha * 255)
+    .toString(16)
+    .padStart(2, "0");
+  return `${hex}${a}`;
+};
 
 const DIFFS = ["Fácil", "Medio", "Difícil"];
 const DIFF_VALUES = { Fácil: "easy", Medio: "medium", Difícil: "hard" };
@@ -390,20 +402,31 @@ export default function CreateTaskModal({
                 const keyVal = PRIORITY_VALUES[p];
                 const selected = newPriority === keyVal;
                 const rw = PRIORITY_REWARDS[p] || { xp: 0, mana: 0 };
+                const accent = PRIORITY_ACCENTS[keyVal];
                 return (
                   <Pressable
                     key={p}
                     onPress={() => setNewPriority(keyVal)}
                     style={[
                       styles.priorityRow,
-                      selected && styles.priorityRowActive,
+                      selected && {
+                        borderColor: accent,
+                        backgroundColor: applyAlpha(accent, 0.15),
+                      },
                     ]}
                     accessibilityRole="button"
                     accessibilityState={{ selected }}
                     accessibilityLabel={`Prioridad ${p}`}
                   >
                     <View style={styles.priorityLeft}>
-                      <Text style={styles.priorityTitle}>{p}</Text>
+                      <Text
+                        style={[
+                          styles.priorityTitle,
+                          selected && { color: accent },
+                        ]}
+                      >
+                        {p}
+                      </Text>
                       <Text style={styles.priorityCaption}>
                         {p === "Baja"
                           ? "Tranquila, sin apuro"
@@ -413,11 +436,35 @@ export default function CreateTaskModal({
                       </Text>
                     </View>
                     <View style={styles.priorityRewards}>
-                      <View style={styles.rewardPill}>
-                        <Text style={styles.rewardText}>+{rw.xp} XP</Text>
+                      <View
+                        style={[
+                          styles.rewardPill,
+                          selected && { borderColor: accent },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.rewardText,
+                            selected && { color: accent },
+                          ]}
+                        >
+                          +{rw.xp} XP
+                        </Text>
                       </View>
-                      <View style={styles.rewardPill}>
-                        <Text style={styles.rewardText}>+{rw.mana} Maná</Text>
+                      <View
+                        style={[
+                          styles.rewardPill,
+                          selected && { borderColor: accent },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.rewardText,
+                            selected && { color: accent },
+                          ]}
+                        >
+                          +{rw.mana} Maná
+                        </Text>
                       </View>
                     </View>
                   </Pressable>
