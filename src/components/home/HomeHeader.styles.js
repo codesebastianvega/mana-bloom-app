@@ -58,8 +58,8 @@ export default StyleSheet.create({
     width: "100%",
     alignItems: "center",
     gap: Spacing.small,
-    zIndex: 2,
     position: "relative",
+    zIndex: 2,
   },
   chip: {
     backgroundColor: Colors.surface,
@@ -101,8 +101,8 @@ export default StyleSheet.create({
     borderRadius: Radii.lg,
     padding: Spacing.base,
     ...Elevation.raised,
-    zIndex: 3,
     position: "relative",
+    zIndex: 3,
   },
   popoverTitle: {
     ...Typography.body,
