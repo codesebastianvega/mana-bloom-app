@@ -60,7 +60,7 @@ export default function ShopScreen() {
   const wallet = useWallet();
   const dispatch = useAppDispatch();
   const canAffordMana = useCanAfford();
-  const hydration = useHydrationStatus();
+  const { modules } = useHydrationStatus();
 
   const canAffordCurrency = useCallback(
     (currency, amount) => wallet[currency] >= amount,
@@ -157,7 +157,7 @@ export default function ShopScreen() {
   const data =
     activeTab === "subs" ? SUBSCRIPTION_PLANS : SHOP_CATALOG[activeTab];
 
-  if (hydration.mana || hydration.wallet) {
+  if (modules.wallet) {
     return (
       <SafeAreaView style={styles.container}>
         <SectionPlaceholder height={300} />
