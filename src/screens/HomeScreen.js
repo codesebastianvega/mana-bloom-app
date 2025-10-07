@@ -54,7 +54,7 @@ export default function HomeScreen() {
   }, [anchors.shop]);
 
   const goToTasks = useCallback(() => {
-    navigation.navigate("Tasks");
+    navigation.navigate("TasksScreen");
   }, [navigation]);
 
   const handleClaimReward = useCallback(() => {
