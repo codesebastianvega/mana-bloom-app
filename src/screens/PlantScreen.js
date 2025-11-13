@@ -1,22 +1,100 @@
-// [MB] Módulo: Planta / Sección: Pantalla principal
+﻿// [MB] Módulo: Planta / Sección: Pantalla principal
 // Afecta: PlantScreen
 // Propósito: demo del hero de planta con métricas y acciones rápidas
 // Puntos de edición futura: añadir header real y contenidos extra
 // Autor: Codex - Fecha: 2025-08-16
 
-import React, { useState } from "react";
-import { SafeAreaView, ScrollView, AccessibilityInfo } from "react-native";
+import React, { useEffect, useState } from "react";
+import { SafeAreaView, ScrollView, AccessibilityInfo, View, Text, TextInput, Pressable, StyleSheet } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { FontAwesome5 } from "@expo/vector-icons";
 import PlantHero from "../components/plant/PlantHero";
+import PlantSectionCard from "../components/plant/PlantSectionCard";
 import CareMetrics from "../components/plant/CareMetrics";
 import QuickActions from "../components/plant/QuickActions";
-import GrowthProgress from "../components/plant/GrowthProgress";
 import BuffsBar from "../components/plant/BuffsBar";
 import InventorySheet from "../components/plant/InventorySheet";
-import PlantHeader from "../components/plant/PlantHeader";
+// import PlantHeader from "../components/plant/PlantHeader";
 import ScreenSection from "../components/ui/ScreenSection";
 import SectionHeader from "../components/ui/SectionHeader";
-import { Colors, Spacing } from "../theme";
+import ElementBalance from "../components/plant/ElementBalance";
+import PlantProgressCard from "../components/plant/PlantProgressCard";
+import { Colors, Spacing, Radii, Gradients } from "../theme";
 import styles from "./PlantScreen.styles";
+
+// Ensure header component is defined before use to avoid ReferenceError
+function PlantStatusHeader({ name, onRename, economy }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState(name);
+  useEffect(() => setDraft(name), [name]);
+
+  return (
+    <View style={headerStyles.card}>
+      <View style={headerStyles.topRow}>
+        <View style={headerStyles.nameRow}>
+          {isEditing ? (
+            <TextInput
+              value={draft}
+              onChangeText={setDraft}
+              onSubmitEditing={() => {
+                setIsEditing(false);
+                onRename?.(draft.trim());
+              }}
+              onBlur={() => {
+                setIsEditing(false);
+                onRename?.(draft.trim());
+              }}
+              style={headerStyles.nameInput}
+              maxLength={40}
+              autoFocus
+              placeholder="Nombre de la planta"
+              placeholderTextColor={Colors.textMuted}
+            />
+          ) : (
+            <>
+              <Text style={headerStyles.name} numberOfLines={1}>
+                {name}
+              </Text>
+              <Pressable
+                onPress={() => {
+                  setDraft(name);
+                  setIsEditing(true);
+                }}
+                hitSlop={12}
+              >
+                <FontAwesome5 name="pen" size={14} color={Colors.textMuted} />
+              </Pressable>
+            </>
+          )}
+        </View>
+        <Pressable
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel="Notificaciones"
+          style={headerStyles.bellWrap}
+        >
+          <FontAwesome5 name="bell" size={14} color={Colors.textMuted} />
+          <View style={headerStyles.bellDot} />
+        </Pressable>
+      </View>
+
+      <View style={headerStyles.economyRow}>
+        <View style={[headerStyles.economyItem, headerStyles.economyMana]}>
+          <FontAwesome5 name="bolt" size={10} color={Colors.text} style={{ opacity: 0.9 }} />
+          <Text style={headerStyles.economyText}>{formatShort(economy?.mana)}</Text>
+        </View>
+        <View style={[headerStyles.economyItem, headerStyles.economyCoins]}>
+          <FontAwesome5 name="coins" size={10} color={Colors.text} style={{ opacity: 0.9 }} />
+          <Text style={headerStyles.economyText}>{formatShort(economy?.coins)}</Text>
+        </View>
+        <View style={[headerStyles.economyItem, headerStyles.economyGems]}>
+          <FontAwesome5 name="gem" size={10} color={Colors.text} style={{ opacity: 0.9 }} />
+          <Text style={headerStyles.economyText}>{formatShort(economy?.gems)}</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
 
 const ElementAccents = {
   neutral: Colors.surfaceAlt,
@@ -45,6 +123,18 @@ export default function PlantScreen() {
   const skinAccent = equippedSkin ? ElementAccents[equippedSkin.accentKey] : undefined;
 
   const etaText = "faltan ~3 tareas";
+  const xpProgress = 0.62; // Por ahora fijo para maqueta
+
+  // Auto-ocultar toasts breves
+  useEffect(() => {
+    if (txn || insufficient) {
+      const id = setTimeout(() => {
+        setTxn(null);
+        setInsufficient(null);
+      }, 1800);
+      return () => clearTimeout(id);
+    }
+  }, [txn, insufficient]);
 
   // [MB] Costos mock por acción (solo UI)
   const ACTION_COSTS = {
@@ -93,33 +183,91 @@ export default function PlantScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {(txn || insufficient) ? (
+        <View style={[styles.actionToastContainer, { top: Spacing.base }]}>
+          <View style={styles.actionToastCard} accessibilityLiveRegion="polite">
+            <View style={styles.actionToastContent}>
+              <View style={styles.actionToastDot} />
+              <Text style={styles.actionToastText}>
+                {txn
+                  ? `Gasto: ${txn.amount < 0 ? Math.abs(txn.amount) : txn.amount} ${txn.resource === 'mana' ? 'Maná' : txn.resource === 'coins' ? 'Monedas' : 'Diamantes'}`
+                  : `Saldo insuficiente de ${insufficient?.resource === 'mana' ? 'Maná' : insufficient?.resource === 'coins' ? 'Monedas' : 'Diamantes'}`}
+              </Text>
+            </View>
+          </View>
+        </View>
+      ) : null}
       <ScrollView
         contentContainerStyle={styles.content}
         importantForAccessibility={invOpen ? "no-hide-descendants" : "auto"}
       >
-        <PlantHeader
+        <PlantStatusHeader
           name={plantName}
           onRename={(next) => setPlantName(next)}
-          water={0.62}
-          light={0.48}
-          nutrients={0.3}
-          mood={0.95}
-          mana={economy.mana}
-          coins={economy.coins}
-          gems={economy.gems}
-          streakDays={streakDays}
-          txn={txn}
-          insufficient={insufficient}
+          economy={economy}
         />
-        <PlantHero
+        <PlantProgressCard
+          stage="brote"
+          progress={xpProgress}
+          etaText={etaText}
+          suggestedAction="Limpiar"
+          onPressAction={() => {
+            setSelectedSkinId(equippedSkinId);
+            setInvOpen(true);
+          }}
+        />
+        <PlantSectionCard style={{ gap: Spacing.base }}>
+          <PlantHero
+          source={require("../../assets/matureplant.png")}
           health={0.95}
           mood="floreciente"
           stage="brote"
           skinAccent={skinAccent}
-          auraIntensity="subtle"
+          auraIntensity="none"
           size="lg"
-        />
-        <BuffsBar
+          />
+          <View style={heroCardStyles.xpWrapper}>
+            <LinearGradient
+              colors={Gradients.xp}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={[heroCardStyles.xpFill, { width: `${Math.round(xpProgress * 100)}%` }]}
+            />
+          </View>
+          <View style={{ gap: 2 }}>
+            <Text style={{ color: Colors.text, fontWeight: "700" }}>Cuidado de la planta</Text>
+            <Text style={{ color: Colors.textMuted }}>Acciones base para mantener agua, nutrientes y pureza.</Text>
+          </View>
+          <QuickActions
+            canWater
+            canFeed
+            canClean
+            canMeditate
+            economy={economy}
+            cooldowns={{ water: 0, feed: 0, clean: 0, meditate: 0 }}
+            onAction={(key) => {
+              if (key === "clean") {
+                setSelectedSkinId(equippedSkinId);
+                setInvOpen(true);
+                return;
+              }
+              handleAction(key);
+            }}
+          />
+        </PlantSectionCard>
+        <ScreenSection>
+          <SectionHeader title="Balance elemental" />
+          <ElementBalance
+            values={{
+              fire: 0.55,
+              water: 0.62,
+              earth: 0.48,
+              wind: 0.66,
+            }}
+          />
+        </ScreenSection>
+        {/* BuffsBar omitido en esta tarjeta para asemejar captura base
+        <BuffsBar 
           buffs={[
             { id: "b1", title: "XP", icon: "✨", multiplier: 1.2, timeRemainingMs: 120000, accentKey: "xp" },
             { id: "b2", title: "Maná", icon: "🔮", multiplier: 1.1, timeRemainingMs: 45000, accentKey: "mana" },
@@ -128,6 +276,7 @@ export default function PlantScreen() {
           onExpire={(id) => console.log("[MB] buff expirado:", id)}
           contentContainerStyle={{ gap: Spacing.base }}
         />
+        */}
         <ScreenSection>
           <SectionHeader title="Métricas de cuidado" />
           <CareMetrics
@@ -137,7 +286,7 @@ export default function PlantScreen() {
             mood={0.95}
           />
         </ScreenSection>
-        <ScreenSection>
+        {/*<ScreenSection>
           <SectionHeader title="Acciones rápidas" />
           <QuickActions
             canWater
@@ -154,20 +303,7 @@ export default function PlantScreen() {
               handleAction(key);
             }}
           />
-        </ScreenSection>
-        <ScreenSection>
-          <SectionHeader title="Progreso de crecimiento" caption={etaText} />
-          <GrowthProgress
-            stage="brote"
-            progress={0.62}
-            milestones={[
-              { id: "m1", icon: "💧", title: "Regaste", delta: "+15 Agua", timestamp: Date.now() - 1000 * 60 * 20 },
-              { id: "m2", icon: "🍃", title: "Aplicaste nutrientes", delta: "+10 Nutrientes", timestamp: Date.now() - 1000 * 60 * 90 },
-              { id: "m3", icon: "🧘", title: "Meditaste", delta: "+10 Ánimo", timestamp: Date.now() - 1000 * 60 * 200 },
-            ]}
-            limitLog={3}
-          />
-        </ScreenSection>
+        </ScreenSection>*/}
       </ScrollView>
       <InventorySheet
         visible={invOpen}
@@ -186,4 +322,110 @@ export default function PlantScreen() {
     </SafeAreaView>
   );
 }
+
+function formatShort(n) {
+  const v = typeof n === 'number' ? n : parseFloat(n || 0);
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `${(v / 1_000).toFixed(1)}K`;
+  return `${Math.floor(v)}`;
+}
+
+const headerStyles = StyleSheet.create({
+  card: {
+    borderRadius: Spacing.small,
+    padding: Spacing.base,
+    borderWidth: 1,
+    borderColor: Colors.surfaceAlt,
+    backgroundColor: Colors.surface,
+    gap: Spacing.small,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.small,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.small,
+    flex: 1,
+  },
+  name: {
+    color: Colors.text,
+    fontSize: 20,
+    fontWeight: '700',
+    flexShrink: 1,
+  },
+  nameInput: {
+    color: Colors.text,
+    borderBottomWidth: 1,
+    borderColor: Colors.surfaceAlt,
+    paddingVertical: 2,
+    flex: 1,
+  },
+  bellWrap: {
+    position: 'relative',
+    padding: 2,
+  },
+  bellDot: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.accent,
+  },
+  economyRow: {
+    flexDirection: 'row',
+    gap: Spacing.small,
+    flexWrap: 'wrap',
+  },
+  economyItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.small / 2,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+  },
+  economyMana: {
+    borderColor: Colors.secondary,
+    backgroundColor: 'rgba(28,212,123,0.15)',
+  },
+  economyCoins: {
+    borderColor: Colors.accent,
+    backgroundColor: 'rgba(255,202,40,0.15)',
+  },
+  economyGems: {
+    borderColor: Colors.secondaryLight,
+    backgroundColor: 'rgba(128,222,234,0.18)',
+  },
+  economyText: {
+    color: Colors.text,
+    fontWeight: '600',
+  },
+});
+
+
+const heroCardStyles = StyleSheet.create({
+  xpWrapper: {
+    height: 14,
+    borderRadius: 999,
+    backgroundColor: Colors.surfaceAlt,
+    overflow: 'hidden',
+    marginTop: Spacing.small,
+    marginBottom: Spacing.small,
+  },
+  xpFill: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    borderRadius: 999,
+  },
+});
+
 
