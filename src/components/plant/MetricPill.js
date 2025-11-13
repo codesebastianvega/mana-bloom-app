@@ -8,18 +8,26 @@ import React, { useEffect, useRef } from "react";
 import { View, Text, Animated, StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
 
-const ElementAccents = {
+const ELEMENT_ACCENTS = {
   water: Colors.elementWater,
   light: Colors.secondary,
   nutrients: Colors.elementEarth,
   mood: Colors.primary,
+  purity: Colors.secondaryLight,
+  temperature: Colors.warning,
+  rituals: Colors.accent,
+  focus: Colors.info,
 };
 
-const ElementAccentsLight = {
+const ELEMENT_ACCENTS_LIGHT = {
   water: Colors.elementWaterLight,
   light: Colors.secondaryLight,
   nutrients: Colors.elementEarthLight,
   mood: Colors.primaryLight,
+  purity: "rgba(255,255,255,0.25)",
+  temperature: "rgba(245,166,35,0.35)",
+  rituals: "rgba(255,202,40,0.35)",
+  focus: "rgba(100,181,246,0.35)",
 };
 
 const LOW = 0.35;
@@ -40,8 +48,8 @@ export default function MetricPill({ icon, label, value, accentKey }) {
     }).start();
   }, [value, trackAnim]);
 
-  const accent = ElementAccents[accentKey] || Colors.primary;
-  const accentLight = ElementAccentsLight[accentKey] || Colors.secondaryLight;
+  const accent = ELEMENT_ACCENTS[accentKey] || Colors.primary;
+  const accentLight = ELEMENT_ACCENTS_LIGHT[accentKey] || Colors.secondaryLight;
   const state = getState(value);
   const fillColor = state === "low" ? accentLight : accent;
 

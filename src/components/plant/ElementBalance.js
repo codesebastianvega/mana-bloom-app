@@ -38,6 +38,7 @@ const COLORS = {
 };
 
 export default function ElementBalance({ values = {}, style }) {
+  const description = "Distribución de energías ganadas en la semana (Fuego = retos intensos, Agua = pausas, Tierra = proyectos largos, Viento = exploración).";
   const data = {
     fire: clamp01(values.fire ?? 0.5),
     water: clamp01(values.water ?? 0.5),
@@ -81,6 +82,7 @@ export default function ElementBalance({ values = {}, style }) {
               <View style={styles.tileInfo}>
                 <Text style={styles.tileTitle}>{labelFor(key)}</Text>
                 <Text style={styles.tileValue}>{Math.round(data[key] * 100)}%</Text>
+                <Text style={styles.tileTip}>{tipFor(key)}</Text>
               </View>
             </View>
             <View style={styles.track}>
@@ -91,6 +93,21 @@ export default function ElementBalance({ values = {}, style }) {
       </View>
     </View>
   );
+}
+
+function tipFor(key) {
+  switch (key) {
+    case "fire":
+      return "Retos intensos";
+    case "water":
+      return "Pausas / descanso";
+    case "earth":
+      return "Proyectos largos";
+    case "wind":
+      return "Exploración";
+    default:
+      return "";
+  }
 }
 
 function labelFor(key) {
@@ -113,6 +130,18 @@ const DONUT_SIZE = 92;
 const styles = StyleSheet.create({
   container: {
     gap: Spacing.base,
+  },
+  headerRow: {
+    gap: Spacing.tiny,
+  },
+  headerTitle: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "700",
+  },
+  headerCaption: {
+    ...Typography.caption,
+    color: Colors.textMuted,
   },
   topRow: {
     flexDirection: "row",

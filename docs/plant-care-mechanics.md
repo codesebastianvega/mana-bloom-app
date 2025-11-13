@@ -1,7 +1,7 @@
 ﻿# Plant Care Mechanics
 
 ## Variables Base
-- **Salud (HP)**: Promedio ponderado de Agua, Luz y Nutrientes. Disminuye si alguna métrica cae por debajo de umbrales.
+- **Salud (HP)**: Promedio ponderado de Agua, Luz, Nutrientes, Pureza y Temperatura (próximamente también Rituales, Focus y Energía del suelo). Disminuye si alguna métrica cae por debajo de umbrales.
 - **Ánimo (Mood)**: Refleja motivación; sube con actividades de descanso o sociales, baja con tareas pendientes acumuladas.
 - **Etapas**: Semilla → Brote → Joven → Madura (gating por XP acumulada).
 - **Buffs**: Efectos temporales (ej. XP doble, Escudo de racha, Manantial arcano).
@@ -42,6 +42,11 @@
 - **Luz**: Actividad física / contacto con el exterior.
 - **Nutrientes**: Proyectos profundos, aprendizaje.
 - **Ánimo**: Descanso mental, autocuidado.
+- **Pureza / Aire**: Orden, limpieza, ventilación del espacio (acciones “Limpiar” o “Ventilar”).
+- **Temperatura**: Clima real vs. rango óptimo de la planta; habilita features como invernaderos o lámparas.
+- **Rituales cumplidos**: Ritual semanal de bienestar; tiene bloque propio en PlantScreen para diferenciar hábitos personales de los cuidados directos y aun así repercute en la salud.
+- **Focus / Estrés**: Sesiones de Guided Breath o meditación; reduce cooldowns y evita penalizaciones.
+- **Energía del suelo / Fertilizante**: Se representará como refuerzo directo de Nutrientes (no chip separado) mediante ítems consumibles.
 
 ## Misiones
 - **Diarias**: Combos sencillos; dan maná + agua.
@@ -57,6 +62,15 @@
 - Integrar métricas con contexto real cuando exista.
 - Ajustar penalizaciones tras playtesting.
 - Añadir misiones dinámicas ligadas a temporadas o eventos.
+
+## Nuevas métricas y futuros ítems (2025-02)
+- **Motivación del cambio**: mostrar directamente en PlantScreen cómo Pureza, Temperatura, Rituales, Focus y Energía del suelo impactan la salud para que el usuario entienda qué hábito reforzar.
+- **Motivación del cambio**: PlantScreen muestra ahora dos grupos de métricas: esenciales (Agua, Luz, Nutrientes, Ánimo, Pureza) junto al hero y métricas de bienestar (Temperatura, Rituales, Focus) bajo la barra de salud.
+- **Motivación del cambio**: PlantScreen muestra ahora dos grupos de métricas: esenciales (Agua, Luz, Nutrientes, Pureza) junto al hero, mientras que Temperatura, Ánimo y Focus se agrupan en chips de bienestar; los rituales ejecutados desde QuickActions alimentan una tarjeta dedicada que indica cuántos hábitos personales están activos.
+- **Datos ficticios temporales**: hasta que tengamos `AppContext` + API de clima, las métricas se mockean en `PlantScreen` para permitir iterar en UI y usabilidad sin bloquear por backend.
+- **Invernaderos y lámparas**: cuando la temperatura real esté fuera del rango óptimo, la app sugerirá comprar un “Invernadero Arcano” o “Lámpara UV” (ítems que compensan clima). Se documentarán en el catálogo de tienda y desbloquearán especies específicas.
+- **Nuevas especies**: algunas plantas (ej. rosales) exigirán temperatura mínima; otras (suculentas, plantas tropicales) usarán los nuevos ítems como requisitos de desbloqueo, fomentando coleccionismo.
+- **Persistencia**: las métricas extendidas se guardarán en AsyncStorage y luego en backend para mantener continuidad entre sesiones y dispositivos.
 ---
 
 # Plant Care Mechanics v1 (actualizado)

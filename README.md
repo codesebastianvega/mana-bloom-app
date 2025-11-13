@@ -28,7 +28,9 @@ src/
   screens/         pantallas principales
   theme.js         tokens de estilo (Colors, Gradients, Spacing, Typography, Radii)
 docs/
-  plant-screen-wireframe.md   referencia visual para la pantalla de planta
+  plant-care-mechanics.md     guía de mecánicas de cuidado
+  plant-screen-roadmap.md     objetivos y próximos pasos de PlantScreen
+  plant-screen-updates.md     changelog visual de la pantalla de planta
 assets/
   ...              iconos elementales, ilustraciones de la planta y fondos
 ```

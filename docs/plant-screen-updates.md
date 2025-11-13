@@ -9,6 +9,8 @@
 ## Hero Card
 - Gradient container for plant hero refined
 - Buffs row with full-opacity chips
+- Nuevos chips de estado: Ánimo y Focus comparten la columna izquierda con emoji + valor en línea; Temperatura ocupa la derecha con número protagonista y ubicación.
+- La tarjeta de Rituales solo muestra tags cuando hay hábitos activos.
 
 ## Element Balance
 - Donut total + 4 element tiles with tracks

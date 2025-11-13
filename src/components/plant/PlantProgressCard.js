@@ -8,7 +8,7 @@ import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { Colors, Spacing, Radii, Typography } from "../../theme";
+import { Colors, Spacing, Radii, Typography, Gradients } from "../../theme";
 
 const STAGES = [
   { key: "semilla", label: "Semilla", icon: "egg" },
@@ -45,7 +45,7 @@ export default function PlantProgressCard({
         accessibilityValue={{ now: percent, min: 0, max: 100 }}
       >
         <LinearGradient
-          colors={[Colors.primary, Colors.primaryLight]}
+          colors={Gradients.growth}
           start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}
           style={[styles.xpFill, { width: `${percent}%` }]}
