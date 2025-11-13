@@ -66,6 +66,15 @@ export const Colors = {
   card: "#1b1231",
   cardBorder: "#2e2548",
   onCard: "#FFFFFF",
+
+  // Rituales
+  ritualCalm: "#7c7cf8",
+  ritualHydrate: "#41c8f4",
+  ritualStretch: "#5be7c8",
+  ritualSun: "#f5c35c",
+  ritualFocus: "#c0a5ff",
+  ritualJournal: "#f28db2",
+  ritualGratitude: "#ff9bb0",
 };
 
 
@@ -113,6 +122,7 @@ export const Elevation = {
 export const Gradients = {
   mana: [Colors.primaryFantasy, Colors.secondaryFantasy],
   xp: [Colors.primary, Colors.primaryLight],
+  growth: [Colors.success, Colors.secondary],
 };
 
 

@@ -21,6 +21,13 @@ const ACCENTS = {
   gratitude: Colors.success,
   clarity: Colors.elementAir,
   reflection: Colors.elementEarthLight,
+  ritualCalm: Colors.ritualCalm,
+  ritualHydrate: Colors.ritualHydrate,
+  ritualStretch: Colors.ritualStretch,
+  ritualSun: Colors.ritualSun,
+  ritualFocus: Colors.ritualFocus,
+  ritualJournal: Colors.ritualJournal,
+  ritualGratitude: Colors.ritualGratitude,
 };
 
 const DEFAULT_ACCENT = Colors.primary;

@@ -5,12 +5,11 @@
 // Autor: Codex - Fecha: 2025-08-16
 
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, AccessibilityInfo, View, Text, TextInput, Pressable, StyleSheet } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { ScrollView, AccessibilityInfo, View, Text, TextInput, Pressable, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome5 } from "@expo/vector-icons";
 import PlantHero from "../components/plant/PlantHero";
 import PlantSectionCard from "../components/plant/PlantSectionCard";
-import CareMetrics from "../components/plant/CareMetrics";
 import QuickActions from "../components/plant/QuickActions";
 import BuffsBar from "../components/plant/BuffsBar";
 import InventorySheet from "../components/plant/InventorySheet";
@@ -19,8 +18,30 @@ import ScreenSection from "../components/ui/ScreenSection";
 import SectionHeader from "../components/ui/SectionHeader";
 import ElementBalance from "../components/plant/ElementBalance";
 import PlantProgressCard from "../components/plant/PlantProgressCard";
-import { Colors, Spacing, Radii, Gradients } from "../theme";
+import { Colors, Spacing, Radii } from "../theme";
 import styles from "./PlantScreen.styles";
+
+const RITUAL_ACTIONS = [
+  "meditate",
+  "hydrate",
+  "stretch",
+  "sunlight",
+  "visualize",
+  "journal",
+  "gratitude",
+  "restEyes",
+];
+const RITUAL_ACTION_SET = new Set(RITUAL_ACTIONS);
+const RITUAL_LABELS = {
+  meditate: "Meditando",
+  hydrate: "Hidratándome",
+  stretch: "Estirando",
+  sunlight: "Cargando luz",
+  visualize: "Visualizando",
+  journal: "Escribiendo",
+  gratitude: "Agradeciendo",
+  restEyes: "Descansando ojos",
+};
 
 // Ensure header component is defined before use to avoid ReferenceError
 function PlantStatusHeader({ name, onRename, economy }) {
@@ -118,12 +139,49 @@ export default function PlantScreen() {
     { id: "s3", name: "Esencia Etérea", rarity: "epic", owned: false, accentKey: "spirit", cost: { currency: "diamonds", amount: 120 }, thumb: "💠" },
     { id: "s4", name: "Corazón de Maná", rarity: "legendary", owned: false, accentKey: "mana", cost: { currency: "coins", amount: 2400 }, thumb: "💎" },
   ]);
+  const [ritualStatus, setRitualStatus] = useState(() =>
+    RITUAL_ACTIONS.reduce((acc, key) => {
+      acc[key] = false;
+      return acc;
+    }, {})
+  );
 
   const equippedSkin = skins.find((s) => s.id === equippedSkinId);
   const skinAccent = equippedSkin ? ElementAccents[equippedSkin.accentKey] : undefined;
 
   const etaText = "faltan ~3 tareas";
   const xpProgress = 0.62; // Por ahora fijo para maqueta
+  const climateInfo = { location: "Zipaquirá, COL" };
+  const activeRitualKeys = RITUAL_ACTIONS.filter((key) => ritualStatus[key]);
+  const ritualActiveCount = activeRitualKeys.length;
+  const ritualCompletion = ritualActiveCount / RITUAL_ACTIONS.length;
+  const ritualTags = activeRitualKeys.map((key) => RITUAL_LABELS[key] || key);
+  // [MB] Métricas mock: hasta conectar AppContext + clima usamos datos ficticios
+  const careMetrics = {
+    water: 0.82,
+    light: 0.64,
+    nutrients: 0.7,
+    mood: 0.9,
+    purity: 0.76,
+    temperature: 0.58,
+    rituals: ritualCompletion,
+    focus: 0.88,
+  };
+  const careMetricChips = [
+    { key: "water", label: "Humedad", value: careMetrics.water },
+    { key: "light", label: "Luz", value: careMetrics.light },
+    { key: "nutrients", label: "Nutrientes", value: careMetrics.nutrients },
+    { key: "purity", label: "Pureza", value: careMetrics.purity },
+  ];
+  const wellbeingMetricChips = [
+    { key: "mood", label: "Ánimo", value: careMetrics.mood },
+    { key: "temperature", label: "Temperatura", value: careMetrics.temperature },
+    { key: "rituals", label: "Rituales", value: careMetrics.rituals },
+    { key: "focus", label: "Focus", value: careMetrics.focus },
+  ];
+  const plantHealth =
+    Object.values(careMetrics).reduce((sum, value) => sum + (value ?? 0), 0) /
+    Object.keys(careMetrics).length;
 
   // Auto-ocultar toasts breves
   useEffect(() => {
@@ -147,38 +205,47 @@ export default function PlantScreen() {
   // [MB] Handler central de acciones
   function handleAction(key) {
     const costs = ACTION_COSTS[key] || {};
-    const lacks = Object.entries(costs).find(
-      ([res, amt]) => (economy[res] ?? 0) < amt
-    );
-    if (lacks) {
-      const [res] = lacks;
-      setInsufficient({ id: String(Date.now()), resource: res });
-      AccessibilityInfo.announceForAccessibility?.(
-        "Saldo insuficiente de " +
-          (res === "mana"
-            ? "Maná"
-            : res === "coins"
-            ? "Monedas"
-            : "Diamantes")
+    const hasCost = Object.keys(costs).length > 0;
+    if (hasCost) {
+      const lacks = Object.entries(costs).find(
+        ([res, amt]) => (economy[res] ?? 0) < amt
       );
-      return;
+      if (lacks) {
+        const [res] = lacks;
+        setInsufficient({ id: String(Date.now()), resource: res });
+        AccessibilityInfo.announceForAccessibility?.(
+          "Saldo insuficiente de " +
+            (res === "mana"
+              ? "Maná"
+              : res === "coins"
+              ? "Monedas"
+              : "Diamantes")
+        );
+        return;
+      }
+      const next = { ...economy };
+      Object.entries(costs).forEach(([res, amt]) => {
+        next[res] -= amt || 0;
+      });
+      setEconomy(next);
+      const resKey = Object.keys(costs)[0];
+      setTxn({ id: String(Date.now()), resource: resKey, amount: -1 * (costs[resKey] || 0) });
+      AccessibilityInfo.announceForAccessibility?.(
+        `Gastaste ${costs[resKey]} ${
+          resKey === "mana"
+            ? "Maná"
+            : resKey === "coins"
+            ? "Monedas"
+            : "Diamantes"
+        }, saldo ${next[resKey]}`
+      );
     }
-    const next = { ...economy };
-    Object.entries(costs).forEach(([res, amt]) => {
-      next[res] -= amt || 0;
-    });
-    setEconomy(next);
-    const resKey = Object.keys(costs)[0];
-    setTxn({ id: String(Date.now()), resource: resKey, amount: -1 * (costs[resKey] || 0) });
-    AccessibilityInfo.announceForAccessibility?.(
-      `Gastaste ${costs[resKey]} ${
-        resKey === "mana"
-          ? "Maná"
-          : resKey === "coins"
-          ? "Monedas"
-          : "Diamantes"
-      }, saldo ${next[resKey]}`
-    );
+    if (RITUAL_ACTION_SET.has(key)) {
+      setRitualStatus((prev) => {
+        if (prev[key]) return prev;
+        return { ...prev, [key]: true };
+      });
+    }
   }
 
   return (
@@ -218,26 +285,18 @@ export default function PlantScreen() {
         />
         <PlantSectionCard style={{ gap: Spacing.base }}>
           <PlantHero
-          source={require("../../assets/matureplant.png")}
-          health={0.95}
-          mood="floreciente"
-          stage="brote"
-          skinAccent={skinAccent}
-          auraIntensity="none"
-          size="lg"
+            source={require("../../assets/matureplant.png")}
+            health={plantHealth}
+            mood="floreciente"
+            stage="brote"
+            skinAccent={skinAccent}
+            showAura={false}
+            size="lg"
+            careMetrics={careMetricChips}
+            wellbeingMetrics={wellbeingMetricChips}
+            ritualSummary={{ active: ritualActiveCount, total: RITUAL_ACTIONS.length, tags: ritualTags }}
+            climateInfo={climateInfo}
           />
-          <View style={heroCardStyles.xpWrapper}>
-            <LinearGradient
-              colors={Gradients.xp}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={[heroCardStyles.xpFill, { width: `${Math.round(xpProgress * 100)}%` }]}
-            />
-          </View>
-          <View style={{ gap: 2 }}>
-            <Text style={{ color: Colors.text, fontWeight: "700" }}>Cuidado de la planta</Text>
-            <Text style={{ color: Colors.textMuted }}>Acciones base para mantener agua, nutrientes y pureza.</Text>
-          </View>
           <QuickActions
             canWater
             canFeed
@@ -277,15 +336,6 @@ export default function PlantScreen() {
           contentContainerStyle={{ gap: Spacing.base }}
         />
         */}
-        <ScreenSection>
-          <SectionHeader title="Métricas de cuidado" />
-          <CareMetrics
-            water={0.62}
-            light={0.48}
-            nutrients={0.3}
-            mood={0.95}
-          />
-        </ScreenSection>
         {/*<ScreenSection>
           <SectionHeader title="Acciones rápidas" />
           <QuickActions
@@ -409,23 +459,5 @@ const headerStyles = StyleSheet.create({
   },
 });
 
-
-const heroCardStyles = StyleSheet.create({
-  xpWrapper: {
-    height: 14,
-    borderRadius: 999,
-    backgroundColor: Colors.surfaceAlt,
-    overflow: 'hidden',
-    marginTop: Spacing.small,
-    marginBottom: Spacing.small,
-  },
-  xpFill: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    borderRadius: 999,
-  },
-});
 
 

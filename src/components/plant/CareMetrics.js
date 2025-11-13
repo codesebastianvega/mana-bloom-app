@@ -10,7 +10,17 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import MetricPill from "./MetricPill";
 import { Colors, Spacing } from "../../theme";
 
-export default function CareMetrics({ water, light, nutrients, mood, style }) {
+export default function CareMetrics({
+  water,
+  light,
+  nutrients,
+  mood,
+  purity,
+  temperature,
+  rituals,
+  focus,
+  style,
+}) {
   const { width } = useWindowDimensions();
   const isCompact = width < 400;
 
@@ -49,6 +59,42 @@ export default function CareMetrics({ water, light, nutrients, mood, style }) {
       accentKey: "mood",
       icon: (
         <FontAwesome5 name="smile" size={Spacing.base - 2} color={Colors.text} />
+      ),
+    },
+    {
+      key: "purity",
+      label: "Pureza",
+      value: purity,
+      accentKey: "purity",
+      icon: (
+        <FontAwesome5 name="wind" size={Spacing.base - 2} color={Colors.text} />
+      ),
+    },
+    {
+      key: "temperature",
+      label: "Temperatura",
+      value: temperature,
+      accentKey: "temperature",
+      icon: (
+        <FontAwesome5 name="thermometer-half" size={Spacing.base - 2} color={Colors.text} />
+      ),
+    },
+    {
+      key: "rituals",
+      label: "Rituales",
+      value: rituals,
+      accentKey: "rituals",
+      icon: (
+        <FontAwesome5 name="fire" size={Spacing.base - 2} color={Colors.text} />
+      ),
+    },
+    {
+      key: "focus",
+      label: "Focus",
+      value: focus,
+      accentKey: "focus",
+      icon: (
+        <FontAwesome5 name="medkit" size={Spacing.base - 2} color={Colors.text} />
       ),
     },
   ];
