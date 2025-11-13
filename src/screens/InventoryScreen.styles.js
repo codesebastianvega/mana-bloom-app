@@ -1,92 +1,141 @@
-// [MB] Módulo: Inventario / Pantalla: InventoryScreen (Estilos)
-// Afecta: pantalla modal de inventario
-// Propósito: Estilos para la lista completa de inventario
-// Puntos de edición futura: colores por categoría y layout responsivo
-// Autor: Codex - Fecha: 2025-08-18
+﻿import { StyleSheet } from "react-native";
+import { Colors, Spacing, Radii, Typography, Opacity } from "../theme";
 
-import { StyleSheet } from "react-native";
-import {
-  Colors,
-  Spacing,
-  Radii,
-  Typography,
-  Elevation,
-} from "../theme";
+const SHEET_BG = "rgba(20, 14, 35, 0.92)";
+const SHEET_BORDER = "rgba(255,255,255,0.12)";
+const CARD_BG = "rgba(28, 20, 45, 0.78)";
 
 export default StyleSheet.create({
-  container: {
+  backdrop: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: "rgba(6, 4, 14, 0.75)",
+  },
+  backdropDismiss: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  sheet: {
+    flex: 1,
+    margin: Spacing.base,
+    marginTop: Spacing.large,
+    backgroundColor: SHEET_BG,
+    borderRadius: Radii.xl,
+    borderWidth: 1,
+    borderColor: SHEET_BORDER,
+    padding: Spacing.base,
+    gap: Spacing.base,
+    shadowColor: Colors.shadow,
+    shadowOpacity: 0.28,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 18,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  titleBlock: {
+    flex: 1,
+    gap: Spacing.tiny,
+    paddingRight: Spacing.small,
   },
   title: {
     ...Typography.h2,
     color: Colors.text,
   },
-  resultText: {
+  subtitle: {
     ...Typography.caption,
     color: Colors.textMuted,
-    marginTop: Spacing.tiny,
+  },
+  closeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: SHEET_BORDER,
+    backgroundColor: "rgba(20, 14, 35, 0.6)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   chipsRow: {
     flexDirection: "row",
-    marginTop: Spacing.small,
+    flexWrap: "wrap",
+    gap: Spacing.tiny,
   },
   chip: {
-    backgroundColor: Colors.surfaceElevated,
     borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.base,
-    height: 28,
-    justifyContent: "center",
-    marginRight: Spacing.small,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
   },
   chipText: {
     ...Typography.caption,
     color: Colors.text,
+    fontWeight: "600",
   },
   tabsRow: {
     flexDirection: "row",
-    marginTop: Spacing.base,
+    alignItems: "center",
+    gap: Spacing.small,
+    marginTop: Spacing.small,
   },
   tabButton: {
     flex: 1,
-    paddingVertical: Spacing.small,
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: Radii.md,
     alignItems: "center",
-    marginRight: Spacing.small,
-  },
-  tabButtonActive: {
-    backgroundColor: Colors.primary,
+    justifyContent: "center",
+    paddingVertical: Spacing.small,
+    borderRadius: Radii.md,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+    backgroundColor: "rgba(255,255,255,0.04)",
   },
   tabButtonText: {
     ...Typography.body,
-    color: Colors.text,
-  },
-  tabButtonTextActive: {
-    color: Colors.textInverse,
+    color: Colors.textMuted,
+    fontWeight: "600",
   },
   searchInput: {
-    marginTop: Spacing.base,
-    backgroundColor: Colors.surfaceElevated,
+    marginTop: Spacing.small,
     borderRadius: Radii.md,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+    backgroundColor: "rgba(20, 14, 35, 0.6)",
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.small,
     color: Colors.text,
   },
+  list: {
+    flex: 1,
+  },
+  listContent: {
+    paddingBottom: Spacing.xlarge,
+    gap: Spacing.small,
+  },
+  emptyState: {
+    alignItems: "center",
+    paddingVertical: Spacing.large,
+    gap: Spacing.tiny,
+  },
+  emptyText: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
   itemRow: {
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: Radii.lg,
     padding: Spacing.base,
-    marginBottom: Spacing.base,
+    borderRadius: Radii.lg,
     borderWidth: 1,
-    borderColor: Colors.textMuted + "33",
-    ...Elevation.card,
+    backgroundColor: CARD_BG,
+    gap: Spacing.small,
+    shadowColor: Colors.shadow,
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 8,
   },
   itemHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: Spacing.small,
   },
   itemMain: {
     flexDirection: "row",
@@ -94,49 +143,69 @@ export default StyleSheet.create({
     gap: Spacing.small,
     flex: 1,
   },
+  itemIconBubble: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   itemIcon: {
     fontSize: 20,
   },
   itemInfo: {
     flex: 1,
+    gap: Spacing.tiny / 2,
   },
   itemTitle: {
     ...Typography.body,
     color: Colors.text,
+    fontWeight: "600",
   },
   itemSku: {
     ...Typography.caption,
     color: Colors.textMuted,
   },
   itemQty: {
-    ...Typography.body,
-    color: Colors.text,
-    marginLeft: Spacing.small,
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontWeight: "600",
   },
   actionsRow: {
     flexDirection: "row",
     justifyContent: "flex-end",
+    gap: Spacing.tiny,
   },
-  useButton: {
-    backgroundColor: Colors.buttonBg,
-    paddingHorizontal: Spacing.small,
+  primaryAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny / 2,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.tiny,
-    borderRadius: Radii.sm,
-    marginRight: Spacing.small,
   },
-  useButtonText: {
+  primaryActionText: {
     ...Typography.caption,
-    color: Colors.textInverse,
+    fontWeight: "700",
   },
-  discardButton: {
-    backgroundColor: Colors.danger,
-    paddingHorizontal: Spacing.small,
+  secondaryAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny / 2,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "rgba(255,255,255,0.06)",
+    paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.tiny,
-    borderRadius: Radii.sm,
   },
-  discardButtonText: {
+  secondaryActionText: {
     ...Typography.caption,
-    color: Colors.textInverse,
+    color: Colors.text,
+  },
+  disabledAction: {
+    opacity: Opacity.disabled,
   },
 });
-

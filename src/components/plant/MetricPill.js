@@ -1,20 +1,13 @@
-// [MB] Módulo: Planta / Sección: Métricas de cuidado
-// Afecta: PlantScreen (píldora individual)
-// Propósito: barra animada para una métrica de cuidado
-// Puntos de edición futura: ajustes de estado/colores
-// Autor: Codex - Fecha: 2025-08-16
+﻿// [MB] Modulo: Planta / Seccion: MetricPill
+// Afecta: PlantScreen (pildora individual)
+// Proposito: barra estilo chip para metricas de cuidado
+// Puntos de edicion futura: vincular con estado real
+// Autor: Codex - Fecha: 2025-10-21
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { View, Text, Animated, StyleSheet } from "react-native";
-import {
-  Colors,
-  Spacing,
-  Radii,
-  Typography,
-  Opacity,
-} from "../../theme";
+import { Colors, Spacing, Radii, Typography } from "../../theme";
 
-// [MB] Mapas de acentos desde tokens; sin hardcodes
 const ElementAccents = {
   water: Colors.elementWater,
   light: Colors.secondary,
@@ -33,72 +26,51 @@ const LOW = 0.35;
 const HIGH = 0.8;
 
 export default function MetricPill({ icon, label, value, accentKey }) {
-  const [trackWidth, setTrackWidth] = useState(0);
-  const anim = useRef(new Animated.Value(0)).current;
+  const trackAnim = useRef(new Animated.Value(0)).current;
 
-  // [MB] Animación de llenado al montar/actualizar
   useEffect(() => {
     if (value === undefined) {
-      anim.setValue(0);
+      trackAnim.setValue(0);
       return;
     }
-    Animated.timing(anim, {
+    Animated.timing(trackAnim, {
       toValue: value,
-      duration: 400,
+      duration: 420,
       useNativeDriver: false,
     }).start();
-  }, [value, anim]);
+  }, [value, trackAnim]);
 
+  const accent = ElementAccents[accentKey] || Colors.primary;
+  const accentLight = ElementAccentsLight[accentKey] || Colors.secondaryLight;
   const state = getState(value);
-  const accentBase = ElementAccents[accentKey] || Colors.accent;
-  const accentLight = ElementAccentsLight[accentKey];
-  const fillColor = state === "low" && accentLight ? accentLight : accentBase;
-  const fillOpacity = state === "low" ? 0.6 : state === "high" ? 1 : 0.85;
+  const fillColor = state === "low" ? accentLight : accent;
 
-  const width = anim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, trackWidth],
-  });
-
+  const width = trackAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 1] });
   const percent = value !== undefined ? Math.round(value * 100) : undefined;
-  const stateLabel =
-    state === "low"
-      ? "bajo"
-      : state === "high"
-      ? "alto"
-      : state === "ok"
-      ? "OK"
-      : "sin datos";
 
   return (
-    <View
-      style={[styles.track, { opacity: value === undefined ? Opacity.disabled : 1 }]}
-      onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
-      accessibilityRole="progressbar"
-      accessibilityLabel={`${label}, ${
-        percent !== undefined ? percent + " %" : "sin datos"
-      }, estado ${stateLabel}`}
-      accessibilityValue={
-        value !== undefined ? { min: 0, max: 100, now: percent } : undefined
-      }
-    >
-      {/* [MB] Barra de relleno animada */}
-      <Animated.View
-        style={[
-          styles.fill,
-          { width, backgroundColor: fillColor, opacity: fillOpacity },
-        ]}
-      />
-      {/* [MB] Contenido textual/iconográfico */}
-      <View style={styles.content}>
-        <View style={styles.left}>
-          {icon}
+    <View style={styles.tile}>
+      <View style={styles.headerRow}>
+        <View style={styles.labelRow}>
+          <View style={[styles.iconWrap, { backgroundColor: accent }]}>{icon}</View>
           <Text style={styles.label}>{label}</Text>
         </View>
-        <Text style={styles.value}>
+        <Text style={styles.valueText}>
           {percent !== undefined ? `${percent}%` : "Sin datos"}
         </Text>
       </View>
+      <View style={styles.track}>
+        <Animated.View
+          style={[
+            styles.fill,
+            {
+              width: width.interpolate({ inputRange: [0, 1], outputRange: [0, "100%"] }),
+              backgroundColor: fillColor,
+            },
+          ]}
+        />
+      </View>
+      <Text style={styles.stateText}>{getLabel(state)}</Text>
     </View>
   );
 }
@@ -110,40 +82,68 @@ function getState(v) {
   return "ok";
 }
 
+function getLabel(state) {
+  switch (state) {
+    case "low":
+      return "Bajo";
+    case "high":
+      return "Alto";
+    case "ok":
+      return "En orden";
+    default:
+      return "Sin datos";
+  }
+}
+
 const styles = StyleSheet.create({
-  track: {
-    position: "relative",
-    justifyContent: "center",
-    height: Spacing.xlarge + Spacing.small,
-    borderRadius: Radii.pill,
-    backgroundColor: Colors.surfaceAlt,
-    overflow: "hidden",
+  tile: {
+    backgroundColor: "rgba(31, 23, 52, 0.65)",
+    borderRadius: Radii.xl,
+    borderWidth: 1,
+    borderColor: "rgba(156, 136, 255, 0.25)",
+    paddingVertical: Spacing.small,
     paddingHorizontal: Spacing.base,
+    gap: Spacing.tiny,
   },
-  fill: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    bottom: 0,
-  },
-  content: {
+  headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  left: {
+  labelRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.small,
   },
+  iconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   label: {
     ...Typography.body,
     color: Colors.text,
+    fontWeight: "600",
   },
-  value: {
+  valueText: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "700",
+  },
+  track: {
+    height: 6,
+    borderRadius: Radii.pill,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    overflow: "hidden",
+  },
+  fill: {
+    height: "100%",
+    borderRadius: Radii.pill,
+  },
+  stateText: {
     ...Typography.caption,
     color: Colors.textMuted,
-    textAlign: "right",
   },
 });
-

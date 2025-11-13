@@ -1,8 +1,9 @@
-// [MB] Módulo: Tasks / Sección: CreateTaskModal
+﻿// [MB] Modulo: Tasks / Seccion: CreateTaskModal
 // Afecta: CreateTaskModal
-// Propósito: Modal para crear y editar tareas
-// Puntos de edición futura: estilos en CreateTaskModal.styles.js
-// Autor: Codex - Fecha: 2025-08-16
+// Proposito: Modal para crear y editar tareas
+// Puntos de edicion futura: estilos en CreateTaskModal.styles.js
+// Autor: Codex - Fecha: 2025-10-20
+
 
 import React, { useState, useEffect } from "react";
 import {
@@ -14,97 +15,41 @@ import {
   TextInput,
   ScrollView,
   Alert,
-  Platform,
   ToastAndroid,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
+import { Colors, Spacing, Radii, Typography } from "../../theme";
 import { XP_REWARD_BY_PRIORITY as PRIORITY_REWARDS } from "../../constants/rewards";
+import { ELEMENT_INFO } from "../../constants/elements";
 
 import ElementGrid from "./ElementGrid";
+import StarfieldOverlay from "./StarfieldOverlay";
 import ElementInfoSheet from "./ElementInfoSheet";
 import styles from "./CreateTaskModal.styles";
 
 const PRIORITIES = ["Baja", "Media", "Urgente"];
 const PRIORITY_VALUES = { Baja: "easy", Media: "medium", Urgente: "hard" };
 const PriorityAccents = {
+  easy: Colors.success,
+  medium: Colors.warning,
+  hard: Colors.danger,
+};
+const DifficultyAccents = {
   easy: Colors.info,
   medium: Colors.warning,
   hard: Colors.danger,
 };
 
-const withAlpha = (hex, alpha) => {
-  const a = Math.round(alpha * 255)
-    .toString(16)
-    .padStart(2, "0");
-  return `${hex}${a}`;
-};
-
-const ELEMENT_INFO = {
-  fire: {
-    title: "Fuego 🔥 (Poder y Pasión)",
-    description:
-      "Se usa para tareas que requieren alta energía, urgencia o creatividad espontánea.",
-    examples: [
-      "Enviar propuesta con deadline hoy",
-      "Pitch rápido/brainstorm",
-      "Entrenamiento intenso",
-      "Resolver bug crítico",
-      "Grabar video/toma creativa",
-      "Lanzar campaña",
-      "Limpiar backlog urgente",
-    ],
-    purpose:
-      'Propósito: "Inyecta poder y acelera el crecimiento de la planta."',
-  },
-  water: {
-    title: "Agua 💧 (Calma y Flujo)",
-    description:
-      "Se usa para tareas que necesitan atención continua, concentración o un estado de calma.",
-    examples: [
-      "Planificar semana",
-      "Leer/estudiar 30–60 min",
-      "Redactar documento largo",
-      "Procesar correos",
-      "Meditación/respiración",
-      "Refinar notas",
-      "Revisión tranquila de PRs",
-    ],
-    purpose:
-      'Propósito: "Mantiene la planta hidratada y en un crecimiento estable."',
-  },
-  earth: {
-    title: "Tierra 🌱 (Estabilidad y Crecimiento)",
-    description:
-      "Se usa para tareas fundamentales, repetitivas o que construyen un hábito.",
-    examples: [
-      "Rutina de ejercicio",
-      "Ordenar escritorio",
-      "Lavar/organizar",
-      "Contabilidad/domésticos",
-      "Repasar vocabulario",
-      "Backup/limpieza sistema",
-      "Hábitos diarios",
-    ],
-    purpose:
-      'Propósito: "Proporciona una base sólida y nutrientes para un crecimiento sostenible."',
-  },
-  air: {
-    title: "Aire 🌬️ (Libertad y Movimiento)",
-    description:
-      "Se usa para tareas que requieren claridad mental, comunicación o flexibilidad.",
-    examples: [
-      "Escribir correo importante",
-      "Organizar ideas/Mindmap",
-      "Aprender concepto nuevo",
-      "Llamada breve/agenda",
-      "Revisar roadmap",
-      "Plan de estudio",
-      "Documentar decisiones",
-    ],
-    purpose:
-      'Propósito: "Le da a la planta el espacio para respirar y expandirse."',
-  },
+const withAlpha = (hex = "", alpha = 1) => {
+  if (!hex) return hex;
+  const cleaned = `${hex}`.replace("#", "").trim();
+  const base = cleaned.length === 8 ? cleaned.slice(0, 6) : cleaned;
+  if (base.length !== 6) return hex;
+  const value = parseInt(base, 16);
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
 };
 
 const ELEMENT_LABELS = {
@@ -157,18 +102,22 @@ export default function CreateTaskModal({
       setNewTagInput("");
       setNewSubtaskInput("");
     } else {
-      setNewTitle("");
-      setNewNote("");
-      setNewType("single");
-      setNewElement("all");
-      setNewPriority("easy");
-      setNewDifficulty("easy");
-      setNewTagInput("");
-      setNewTags([]);
-      setNewSubtaskInput("");
-      setNewSubtasks([]);
+      resetForm();
     }
   }, [task, visible]);
+
+  const resetForm = () => {
+    setNewTitle("");
+    setNewNote("");
+    setNewType("single");
+    setNewElement("all");
+    setNewPriority("easy");
+    setNewDifficulty("easy");
+    setNewTagInput("");
+    setNewTags([]);
+    setNewSubtaskInput("");
+    setNewSubtasks([]);
+  };
 
   const showAlert = (message, type = "info") => {
     setAlert({ message, type });
@@ -180,47 +129,29 @@ export default function CreateTaskModal({
       showAlert("Debes ingresar un título para la tarea.", "error");
       return;
     }
-    const subtasks = newSubtasks.map((st, index) => ({
-      id: st.id ?? index + 1,
-      text: st.text,
-      completed: st.completed || false,
-    }));
+
+    const taskData = {
+      title: newTitle,
+      note: newNote,
+      type: newType,
+      element: newElement,
+      priority: newPriority,
+      tags: newTags,
+      difficulty: newDifficulty,
+      subtasks: newSubtasks.map((st, index) => ({
+        id: st.id ?? index + 1,
+        text: st.text,
+        completed: st.completed || false,
+      })),
+    };
+
     if (task) {
-      onUpdate &&
-        onUpdate({
-          ...task,
-          title: newTitle,
-          note: newNote,
-          type: newType,
-          element: newElement,
-          priority: newPriority,
-          tags: newTags.length > 0 ? newTags : [],
-          difficulty: newDifficulty,
-          subtasks,
-        });
+      onUpdate && onUpdate({ ...task, ...taskData });
     } else {
-      onSave &&
-        onSave({
-          title: newTitle,
-          note: newNote,
-          type: newType,
-          element: newElement,
-          priority: newPriority,
-          tags: newTags.length > 0 ? newTags : [],
-          difficulty: newDifficulty,
-          subtasks,
-        });
+      onSave && onSave(taskData);
     }
-    setNewDifficulty("easy");
-    setNewTitle("");
-    setNewNote("");
-    setNewType("single");
-    setNewElement("all");
-    setNewPriority("easy");
-    setNewTagInput("");
-    setNewTags([]);
-    setNewSubtaskInput("");
-    setNewSubtasks([]);
+
+    resetForm();
     onClose();
   };
 
@@ -233,14 +164,8 @@ export default function CreateTaskModal({
         onRequestClose={onClose}
         statusBarTranslucent
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: Colors.overlay,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <View style={styles.modalOverlay}>
+          <StarfieldOverlay />
           <View style={styles.root}>
             {alert && (
               <View
@@ -297,6 +222,9 @@ export default function CreateTaskModal({
               />
 
               <Text style={styles.sectionLabel}>Tipo</Text>
+              <Text style={styles.helperText}>
+                Selecciona si es una tarea unica o un habito recurrente.
+              </Text>
               <View style={styles.segmentContainer}>
                 <Pressable
                   onPress={() => setNewType("single")}
@@ -338,6 +266,9 @@ export default function CreateTaskModal({
               </View>
 
               <Text style={styles.sectionLabel}>Elemento</Text>
+              <Text style={styles.helperText}>
+                Asigna el elemento que mejor refleja la energia de esta tarea.
+              </Text>
               <ElementGrid
                 value={newElement}
                 onChange={setNewElement}
@@ -377,11 +308,9 @@ export default function CreateTaskModal({
                 )}
               </View>
 
-              <Text style={styles.sectionLabel}>
-                Subtareas{" "}
-                <Text style={styles.helperText}>
-                  (Agrega tareas más pequeñas para facilitar tu trabajo)
-                </Text>
+              <Text style={styles.sectionLabel}>Subtareas</Text>
+              <Text style={styles.helperText}>
+                Agrega pasos mas pequenos para facilitar tu trabajo.
               </Text>
               <View style={styles.subtaskRow}>
                 <TextInput
@@ -403,11 +332,11 @@ export default function CreateTaskModal({
                     setNewSubtaskInput("");
                   }}
                 >
-                  <FontAwesome5
-                    name="plus"
-                    size={12}
-                    color={Colors.background}
-                  />
+                    <FontAwesome5
+                      name="plus"
+                      size={12}
+                      color={Colors.text}
+                    />
                 </TouchableOpacity>
               </View>
               {newSubtasks.length > 0 && (
@@ -436,6 +365,9 @@ export default function CreateTaskModal({
               )}
 
               <Text style={styles.sectionLabel}>Prioridad</Text>
+              <Text style={styles.helperText}>
+                Ajusta la urgencia segun tu energia y los compromisos que ya tienes.
+              </Text>
               <View style={styles.priorityList}>
                 {PRIORITIES.map((p) => {
                   const level = PRIORITY_VALUES[p];
@@ -449,10 +381,8 @@ export default function CreateTaskModal({
                       style={[
                         styles.priorityRow,
                         isActive && {
-                          borderColor: accent,
-                          backgroundColor: withAlpha(accent, 0.14),
-                          ...(Elevation.raised || {}),
-                          shadowColor: accent,
+                          borderColor: withAlpha(accent, 0.7),
+                          backgroundColor: withAlpha(accent, 0.15),
                         },
                       ]}
                       accessibilityRole="button"
@@ -460,34 +390,36 @@ export default function CreateTaskModal({
                       accessibilityLabel={`Prioridad ${p}`}
                     >
                       <View style={styles.priorityLeft}>
-                        <Text
-                          style={[
-                            styles.priorityTitle,
-                            isActive && { color: accent },
-                          ]}
-                        >
+                        <Text style={styles.priorityTitle}>
                           {p}
                         </Text>
-                        <Text
-                          style={[
-                            styles.priorityCaption,
-                            isActive && { color: accent },
-                          ]}
-                          numberOfLines={1}
-                        >
+                        <Text style={styles.priorityCaption} numberOfLines={1}>
                           {p === "Baja"
-                            ? "Tranquila, sin apuro"
+                            ? "Ritmo suave, agenda flexible"
                             : p === "Media"
-                            ? "Importante esta semana"
-                            : "Hazlo hoy"}
+                            ? "Requiere atencion esta semana"
+                            : "Hazlo pronto, en no mas de dos dias"}
                         </Text>
                       </View>
                       <View style={styles.priorityRewards}>
-                        <View style={styles.rewardPill}>
-                          <Text style={styles.rewardText}>+{rw.xp} XP</Text>
-                        </View>
-                        <View style={styles.rewardPill}>
-                          <Text style={styles.rewardText}>+{rw.mana} Maná</Text>
+                        <View
+                          style={[
+                            styles.rewardPill,
+                            isActive && {
+                              borderColor: withAlpha(accent, 0.55),
+                              backgroundColor: withAlpha(accent, 0.18),
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.rewardText,
+                              isActive && { color: accent },
+                            ]}
+                            numberOfLines={1}
+                          >
+                            +{rw.xp} XP · +{rw.mana} Mana
+                          </Text>
                         </View>
                       </View>
                     </Pressable>
@@ -496,17 +428,28 @@ export default function CreateTaskModal({
               </View>
 
               <Text style={styles.sectionLabel}>Dificultad</Text>
+              <Text style={styles.helperText}>
+                Piensa cuanto te costara realmente: algo facil como cepillar dientes o algo retador como preparar una presentacion.
+              </Text>
               <View style={styles.difficultyRow}>
                 {DIFFS.map((d) => {
                   const val = DIFF_VALUES[d];
                   const selected = newDifficulty === val;
+                  const accent = DifficultyAccents[val];
                   return (
                     <Pressable
                       key={d}
                       onPress={() => setNewDifficulty(val)}
                       style={[
                         styles.difficultyChip,
-                        selected && styles.chipActive,
+                        selected && [
+                          styles.chipActive,
+                          {
+                            borderColor: withAlpha(accent, 0.7),
+                            backgroundColor: withAlpha(accent, 0.22),
+                            shadowColor: accent,
+                          },
+                        ],
                       ]}
                       accessibilityRole="button"
                       accessibilityState={{ selected }}
@@ -526,6 +469,9 @@ export default function CreateTaskModal({
               </View>
 
               <Text style={styles.sectionLabel}>Etiquetas</Text>
+              <Text style={styles.helperText}>
+                Usa etiquetas para agrupar tareas y encontrarlas mas rapido.
+              </Text>
               <View style={styles.subtaskRow}>
                 <TextInput
                   style={styles.subtaskInput}
@@ -547,7 +493,7 @@ export default function CreateTaskModal({
                   <FontAwesome5
                     name="plus"
                     size={12}
-                    color={Colors.background}
+                    color={Colors.text}
                   />
                 </TouchableOpacity>
               </View>
@@ -643,3 +589,9 @@ export default function CreateTaskModal({
     </>
   );
 }
+
+
+
+
+
+

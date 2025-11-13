@@ -6,6 +6,18 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./TaskFilterBar.styles";
 import { Colors } from "../../theme";
 
+const withAlpha = (hex = "", alpha = 1) => {
+  const cleaned = `${hex}`.replace("#", "");
+  if (cleaned.length !== 6) {
+    return hex;
+  }
+  const value = parseInt(cleaned, 16);
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+};
+
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function TaskFilterBar({ filters, active, onSelect }) {
@@ -42,16 +54,14 @@ export default function TaskFilterBar({ filters, active, onSelect }) {
       {filters.map((f, index) => {
         const isActive = active === f.key;
         const { opacity, scale, press } = anims[index];
-        const activeColor = Colors.textOnAccent || Colors.onAccent || Colors.text;
-        const inactiveColor = Colors.textMuted;
-        const color = isActive ? activeColor : inactiveColor;
+        const accent = f.accent || Colors.accent;
         const accLabel = `${f.label}${f.count ? ` (${f.count})` : ""}`;
-        const highlightColors = {
-          pending: Colors.accent,
-          completed: Colors.success,
-          deleted: Colors.danger,
-        };
-        const highlightColor = highlightColors[f.key] || Colors.accent;
+        const highlightFill = withAlpha(accent, 0.3);
+        const highlightBorder = withAlpha(accent, 0.6);
+        const activeColor = Colors.text;
+        const inactiveColor = Colors.textMuted;
+        const textColor = isActive ? activeColor : inactiveColor;
+        const iconColor = isActive ? activeColor : withAlpha(accent, 0.55);
 
         return (
           <AnimatedPressable
@@ -76,28 +86,26 @@ export default function TaskFilterBar({ filters, active, onSelect }) {
             accessibilityState={{ selected: isActive }}
             accessibilityLabel={accLabel}
           >
-            <Animated.View
-              pointerEvents="none"
-              style={[
-                styles.highlight,
-                {
-                  backgroundColor: highlightColor,
-                  opacity,
-                  transform: [{ scale }],
-                },
-              ]}
-            />
+            {isActive && (
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  styles.highlight,
+                  {
+                    backgroundColor: highlightFill,
+                    borderColor: highlightBorder,
+                    opacity,
+                    transform: [{ scale }],
+                  },
+                ]}
+              />
+            )}
             <View style={styles.tabContent}>
               {f.icon && (
-                <FontAwesome5 name={f.icon} size={14} color={color} />
+                <FontAwesome5 name={f.icon} size={14} color={iconColor} />
               )}
-              <Text style={[styles.label, { color }]}>{f.label}</Text>
+              <Text style={[styles.label, { color: textColor }]}>{f.label}</Text>
             </View>
-            {f.count > 0 && (
-              <View style={styles.badge} pointerEvents="none">
-                <Text style={styles.badgeText}>{f.count}</Text>
-              </View>
-            )}
           </AnimatedPressable>
         );
       })}

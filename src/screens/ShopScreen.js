@@ -1,19 +1,19 @@
-// [MB] Módulo: Shop / Pantalla: ShopScreen
-// Afecta: Tienda completa
-// Propósito: Pantalla dedicada de tienda con grid y suscripciones
-// Puntos de edición futura: conectar IAP y expandir catálogo
-// Autor: Codex - Fecha: 2025-08-24
+﻿// [MB] Module: Shop / Screen: ShopScreen (Modal)
+// Affects: full shop flow
+// Purpose: Fullscreen shop modal with single-column cards and CTA
+// Future edits: backend catalog, animated transitions, coupons
+// Author: Codex - Date: 2025-10-07
 
-import React, { useState, useCallback, useMemo } from "react";
-import { View, Text, FlatList, Pressable, Alert } from "react-native";
+import React, { useState, useMemo, useCallback } from "react";
+import { View, Text, Pressable, ScrollView, Alert } from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRoute } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
+
 import styles from "./ShopScreen.styles";
-import ShopGridItem from "../components/shop/ShopGridItem";
+import ShopItemCard from "../components/home/ShopItemCard";
 import SubscriptionCard from "../components/shop/SubscriptionCard";
 import { SHOP_CATALOG, ShopColors, CURRENCIES } from "../constants/shopCatalog";
-import { Spacing, Colors } from "../theme";
 import {
   useAppState,
   useAppDispatch,
@@ -22,243 +22,371 @@ import {
   useHydrationStatus,
 } from "../state/AppContext";
 import SectionPlaceholder from "../components/common/SectionPlaceholder";
+import { Colors } from "../theme";
 
 const TABS = [
-  { key: "potions", label: "Pociones" },
-  { key: "tools", label: "Herramientas" },
-  { key: "cosmetics", label: "Cosméticos" },
-  { key: "subs", label: "Suscripciones" },
+  { key: "potions", label: "Pociones", icon: "bottle-tonic-plus" },
+  { key: "tools", label: "Herramientas", icon: "hammer-screwdriver" },
+  { key: "cosmetics", label: "Cosmeticos", icon: "palette-swatch" },
+  { key: "subs", label: "Suscripciones", icon: "crown-outline" },
 ];
 
 const SUBSCRIPTION_PLANS = [
   {
     id: "sub_monthly",
-    tier: "mensual",
-    priceLabel: "$2.99/mes",
-    desc: "Acceso premium mensual",
+    tier: "Plan mensual",
+    priceLabel: "$4.99 / mes",
+    desc: "Boosts semanales, mas recompensas y skins exclusivas.",
   },
   {
     id: "sub_yearly",
-    tier: "anual",
-    priceLabel: "$24.99/año",
+    tier: "Plan anual",
+    priceLabel: "$49.99 / anio",
     badge: "Ahorra 30%",
-    desc: "Acceso premium anual",
+    desc: "Incluye eventos de temporada y drops especiales.",
   },
   {
     id: "sub_lifetime",
-    tier: "de por vida",
-    priceLabel: "$49.99 una sola vez",
-    desc: "Acceso premium permanente",
+    tier: "Acceso vitalicio",
+    priceLabel: "$99.99 unico",
+    desc: "Todo el contenido actual y futuro para siempre.",
   },
 ];
 
+const currencyLabels = {
+  [CURRENCIES.MANA]: "mana",
+  [CURRENCIES.COIN]: "monedas",
+  [CURRENCIES.GEM]: "gemas",
+};
+
+const SECONDARY_HIGHLIGHTS = {
+  potions: "Aplica efectos temporales desde el inventario.",
+  tools: "Mejora tu estrategia diaria y permanece hasta usarla.",
+  cosmetics: "Solo modifica la apariencia de tu planta.",
+};
+
+const ITEM_EMOJIS = {
+  "shop/potions/p1": "🧪",
+  "shop/potions/p2": "🔮",
+  "shop/potions/p3": "⚡",
+  "shop/potions/p4": "⏳",
+  "shop/potions/p5": "🌙",
+  "shop/potions/p6": "✨",
+  "shop/tools/t1": "🪄",
+  "shop/tools/t2": "🛡️",
+  "shop/tools/t3": "⏰",
+  "shop/tools/t4": "🪓",
+  "shop/tools/t5": "🧭",
+  "shop/tools/t6": "🎒",
+  "shop/cosmetics/c1": "🏆",
+  "shop/cosmetics/c2": "🎩",
+  "shop/cosmetics/c3": "🪽",
+  "shop/cosmetics/c4": "🌈",
+  "shop/cosmetics/c5": "👑",
+};
+
+function formatEffect(desc = "") {
+  if (!desc) return "";
+  const trimmed = desc.trim();
+  if (!trimmed) return "";
+  const capitalized = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+  return capitalized.endsWith(".") ? capitalized : `${capitalized}.`;
+}
+
+function buildHighlights(item, category) {
+  const primary = formatEffect(item.description || item.desc);
+  const secondary = SECONDARY_HIGHLIGHTS[category];
+  return [primary, secondary].filter(Boolean);
+}
+
+function hexToRgba(hex = "", alpha = 1) {
+  const normalized = hex.replace("#", "");
+  if (normalized.length !== 6) {
+    return `rgba(255, 255, 255, ${alpha})`;
+  }
+  const bigint = parseInt(normalized, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 export default function ShopScreen() {
+  const navigation = useNavigation();
   const route = useRoute();
   const initialTab = route.params?.initialTab || "potions";
+
   const [activeTab, setActiveTab] = useState(initialTab);
   const { mana } = useAppState();
-  const wallet = useWallet();
+  const { coin, gem } = useWallet();
   const dispatch = useAppDispatch();
   const canAffordMana = useCanAfford();
   const { modules } = useHydrationStatus();
 
-  const canAffordCurrency = useCallback(
-    (currency, amount) => wallet[currency] >= amount,
-    [wallet]
+  const isSubsView = activeTab === "subs";
+
+  const catalogItems = useMemo(() => {
+    if (isSubsView) {
+      return SUBSCRIPTION_PLANS;
+    }
+    const source = SHOP_CATALOG[activeTab] || [];
+    return source.map((item) => ({
+      id: item.sku,
+      title: item.title,
+      description: item.desc,
+      price: item.price,
+      currency: item.currency || CURRENCIES.MANA,
+      sku: item.sku,
+      emoji: ITEM_EMOJIS[item.sku] || "✨",
+    }));
+  }, [activeTab, isSubsView]);
+
+  const accent = ShopColors[activeTab] || {};
+
+  const walletStats = useMemo(
+    () => [
+      {
+        key: "mana",
+        value: mana,
+        icon: "water",
+        accent: ShopColors.potions?.pill || Colors.primary,
+      },
+      {
+        key: "coin",
+        value: coin,
+        icon: "circle-multiple-outline",
+        accent: ShopColors.tools?.pill || Colors.accent,
+      },
+      {
+        key: "gem",
+        value: gem,
+        icon: "diamond-stone",
+        accent: ShopColors.cosmetics?.pill || Colors.accent,
+      },
+    ],
+    [mana, coin, gem]
   );
 
-  const columnStyle = useMemo(() => ({ gap: Spacing.base }), []);
-  const contentStyle = useMemo(
-    () => ({ padding: Spacing.base, paddingBottom: 120 }),
-    []
-  );
-
-  const handleBuy = useCallback(
+  const isAffordable = useCallback(
     (item) => {
-      if (item.currency === CURRENCIES.MANA) {
-        if (canAffordMana(item.price)) {
-          dispatch({ type: "PURCHASE_WITH_MANA", payload: item.price });
-        } else {
-          Alert.alert("Sin maná", "Maná insuficiente");
-          return;
-        }
-      } else if (item.currency === CURRENCIES.COIN) {
-        if (canAffordCurrency("coin", item.price)) {
-          dispatch({ type: "SPEND_COIN", payload: item.price });
-        } else {
-          Alert.alert("Sin monedas", "Monedas insuficientes");
-          return;
-        }
-      } else if (item.currency === CURRENCIES.GEM) {
-        Alert.alert("Próximamente", "Las compras con diamantes requieren IAP");
+      const currency = item.currency || CURRENCIES.MANA;
+      if (currency === CURRENCIES.MANA) {
+        return canAffordMana(item.price);
+      }
+      if (currency === CURRENCIES.COIN) {
+        return coin >= item.price;
+      }
+      return gem >= item.price;
+    },
+    [canAffordMana, coin, gem]
+  );
+
+  const handlePurchase = useCallback(
+    (item) => {
+      if (!item) return;
+      const currency = item.currency || CURRENCIES.MANA;
+      if (!isAffordable(item)) {
+        const label = currencyLabels[currency] || "saldo";
+        Alert.alert("Saldo insuficiente", "No tienes suficientes " + label + ".");
         return;
       }
 
+      if (currency === CURRENCIES.MANA) {
+        dispatch({ type: "PURCHASE_WITH_MANA", payload: item.price });
+      } else if (currency === CURRENCIES.COIN) {
+        dispatch({ type: "SPEND_COIN", payload: item.price });
+      } else if (currency === CURRENCIES.GEM) {
+        dispatch({ type: "SPEND_GEM", payload: item.price });
+      }
+
+      const sku = item.sku || item.id;
       dispatch({
         type: "ADD_TO_INVENTORY",
-        payload: { sku: item.sku, title: item.title, category: activeTab },
+        payload: { sku, title: item.title, category: activeTab },
       });
       dispatch({
         type: "ACHIEVEMENT_EVENT",
-        payload: {
-          type: "purchase",
-          payload: { sku: item.sku, category: activeTab },
-        },
+        payload: { type: "purchase", payload: { sku, category: activeTab } },
       });
-      Alert.alert("Compra exitosa — añadido al inventario");
-    },
-    [activeTab, canAffordCurrency, canAffordMana, dispatch]
-  );
 
-  const renderItem = useCallback(
-    ({ item }) => {
-      if (activeTab === "subs") {
-        return (
-          <SubscriptionCard
-            tier={item.tier}
-            priceLabel={item.priceLabel}
-            badge={item.badge}
-            desc={item.desc}
-            onPress={() =>
-              Alert.alert(
-                "Próximamente",
-                "Las suscripciones requerirán pasarela de pago/IAP"
-              )
-            }
-          />
-        );
-      }
-      const disabled =
-        item.currency === CURRENCIES.MANA
-          ? !canAffordMana(item.price)
-          : item.currency === CURRENCIES.COIN
-          ? !canAffordCurrency("coin", item.price)
-          : false;
-      const label = `Comprar ${item.title} por ${item.price} ${
-        item.currency === CURRENCIES.MANA
-          ? "maná"
-          : item.currency === CURRENCIES.COIN
-          ? "monedas"
-          : "diamantes"
-      }`;
-      return (
-        <ShopGridItem
-          {...item}
-          accent={ShopColors[activeTab]}
-          disabled={disabled}
-          onPress={() => handleBuy(item)}
-          accessibilityLabel={label}
-        />
-      );
+      Alert.alert("Compra exitosa", "Se agrego al inventario.");
     },
-    [activeTab, canAffordCurrency, canAffordMana, handleBuy]
+    [activeTab, dispatch, isAffordable]
   );
-
-  const data =
-    activeTab === "subs" ? SUBSCRIPTION_PLANS : SHOP_CATALOG[activeTab];
 
   if (modules.wallet) {
     return (
       <SafeAreaView style={styles.container}>
-        <SectionPlaceholder height={300} />
+        <SectionPlaceholder height={320} />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View
-        style={styles.header}
-        accessible
-        accessibilityLabel={`Saldo: ${mana} maná, ${wallet.coin} monedas, ${wallet.gem} diamantes`}
-      >
-        <Text style={styles.headerTitle}>Tienda Mágica</Text>
-        <View style={styles.walletRow}>
-          <View
-            style={[
-              styles.manaPill,
-              { borderColor: ShopColors[activeTab].pill },
-            ]}
-          >
-            <Ionicons
-              name="sparkles"
-              size={16}
-              color={ShopColors[activeTab].pill}
-              style={styles.manaIcon}
-            />
-            <Text style={styles.manaValue}>{mana}</Text>
-          </View>
-          <View style={styles.currencyPill}>
-            <Ionicons
-              name="logo-bitcoin"
-              size={14}
-              color={Colors.text}
-              style={styles.currencyIcon}
-            />
-            <Text style={styles.currencyValue}>{wallet.coin}</Text>
-          </View>
-          <View style={styles.currencyPill}>
-            <Ionicons
-              name="diamond"
-              size={14}
-              color={Colors.text}
-              style={styles.currencyIcon}
-            />
-            <Text style={styles.currencyValue}>{wallet.gem}</Text>
-          </View>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      <View style={styles.headerRow}>
+        <View>
+          <Text style={styles.modalTitle}>Tienda magica</Text>
+          <Text style={styles.modalSubtitle}>
+            Sube de nivel con pociones, herramientas y cosmeticos.
+          </Text>
         </View>
+        <Pressable
+          onPress={() => navigation.goBack()}
+          style={({ pressed }) => [
+            styles.closeButton,
+            pressed && styles.closeButtonPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel="Cerrar tienda"
+        >
+          <MaterialCommunityIcons name="close" size={20} color={Colors.text} />
+        </Pressable>
       </View>
-      <View style={styles.tabsRow}>
-        {TABS.map((tab) => {
-          const isActive = tab.key === activeTab;
-          const accent = ShopColors[tab.key];
-          return (
-            <Pressable
-              key={tab.key}
-              onPress={() => setActiveTab(tab.key)}
-              style={[
-                styles.tabButton,
-                isActive && {
-                  backgroundColor: accent.bg,
-                  borderColor: accent.border,
-                },
-              ]}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: isActive }}
-              accessibilityLabel={`Mostrar ${tab.label}`}
-            >
-              <Text style={styles.tabText}>{tab.label}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.sku || item.id}
-        renderItem={renderItem}
-        numColumns={activeTab === "subs" ? 1 : 2}
-        columnWrapperStyle={activeTab === "subs" ? undefined : columnStyle}
-        contentContainerStyle={contentStyle}
-        initialNumToRender={6}
-        removeClippedSubviews
-        windowSize={5}
-        ListEmptyComponent={<Text style={styles.emptyText}>Sin artículos</Text>}
-        ListFooterComponent={
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              Las compras son finales. ¿Necesitas ayuda?
-            </Text>
-            <Pressable
-              onPress={() => Alert.alert("Soporte", "Próximamente")}
-              style={styles.supportButton}
-              accessibilityRole="button"
-            >
-              <Text style={styles.supportButtonText}>Soporte</Text>
-            </Pressable>
+
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.walletSummary}>
+          {walletStats.map((stat) => {
+            const accentGlass = hexToRgba(stat.accent, 0.18);
+            const accentBorder = hexToRgba(stat.accent, 0.35);
+            const accentText = stat.accent || Colors.text;
+            return (
+              <View
+                key={stat.key}
+                style={[
+                  styles.walletStat,
+                  {
+                    backgroundColor: accentGlass,
+                    borderColor: accentBorder,
+                  },
+                ]}
+              >
+                <View
+                  style={[styles.walletIconPill, { borderColor: accentText }]}
+                >
+                  <MaterialCommunityIcons
+                    name={stat.icon}
+                    size={14}
+                    color={accentText}
+                  />
+                </View>
+                <Text style={[styles.walletStatValue, { color: accentText }]}>
+                  {stat.value}
+                </Text>
+              </View>
+            );
+          })}
+        </View>
+
+        <View style={styles.tabsRow} accessibilityRole="tablist">
+          {TABS.map((tab) => {
+            const isActive = tab.key === activeTab;
+            const tabAccent = ShopColors[tab.key] || {};
+            return (
+              <Pressable
+                key={tab.key}
+                onPress={() => setActiveTab(tab.key)}
+                style={[
+                  styles.tabButton,
+                  isActive && {
+                    backgroundColor: tabAccent.bg,
+                    borderColor: tabAccent.border,
+                  },
+                ]}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: isActive }}
+                accessibilityLabel={`Mostrar ${tab.label}`}
+              >
+                <MaterialCommunityIcons
+                  name={tab.icon}
+                  size={14}
+                  color={isActive ? tabAccent.pill : Colors.textMuted}
+                  style={styles.tabIcon}
+                />
+                <Text
+                  style={[
+                    styles.tabText,
+                    { color: isActive ? tabAccent.pill : Colors.textMuted },
+                  ]}
+                >
+                  {tab.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        {__DEV__ && !isSubsView && (
+          <Pressable
+            onPress={() => dispatch({ type: "SET_MANA", payload: mana + 50 })}
+            style={({ pressed }) => [
+              styles.debugButton,
+              pressed && { opacity: 0.85 },
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Agregar 50 de mana (debug)"
+          >
+            <Text style={styles.debugButtonText}>Agregar 50 de mana (debug)</Text>
+          </Pressable>
+        )}
+
+        {isSubsView ? (
+          <View style={styles.subsList}>
+            {catalogItems.map((plan) => (
+              <SubscriptionCard
+                key={plan.id}
+                tier={plan.tier}
+                priceLabel={plan.priceLabel}
+                badge={plan.badge}
+                desc={plan.desc}
+                onPress={() =>
+                  Alert.alert(
+                    "Proximamente",
+                    "Las suscripciones requeriran pasarela de pago."
+                  )
+                }
+              />
+            ))}
           </View>
-        }
-        accessibilityRole="list"
-      />
+        ) : (
+          <View style={styles.cardStack}>
+            {catalogItems.map((item) => {
+              const affordable = isAffordable(item);
+              const label = currencyLabels[item.currency] || "mana";
+              const highlights = buildHighlights(item, activeTab);
+              const [headline, ...detailHighlights] = highlights;
+              return (
+                <ShopItemCard
+                  key={item.id}
+                  title={item.title}
+                  emoji={item.emoji}
+                  price={item.price}
+                  currency={item.currency}
+                  accent={accent}
+                  disabled={!affordable}
+                  actionLabel={
+                    affordable
+                      ? `Comprar por ${item.price} ${label}`
+                      : "Saldo insuficiente"
+                  }
+                  onPrimaryAction={() => handlePurchase(item)}
+                  containerStyle={styles.cardStackItem}
+                  headline={headline}
+                  highlights={detailHighlights}
+                />
+              );
+            })}
+          </View>
+        )}
+
+        <Text style={styles.footerNote}>
+          Las compras son finales. Necesitas ayuda? Contacta soporte.
+        </Text>
+      </ScrollView>
     </SafeAreaView>
   );
 }

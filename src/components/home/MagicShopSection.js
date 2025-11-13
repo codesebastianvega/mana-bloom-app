@@ -1,176 +1,164 @@
-// [MB] Módulo: Home / Sección: Tienda Mágica (Pestañas)
-// Afecta: HomeScreen
-// Propósito: Sección de tienda mágica con tabs y maná disponible
-// Puntos de edición futura: integrar productos, navegación y retirar debug
-// Autor: Codex - Fecha: 2025-08-17
+// [MB] Modulo: Home / Seccion: Tienda Magica (Pestanas)
+// Afecta: HomeScreen (layout principal)
+// Proposito: Seccion de tienda magica con tabs y compras simuladas
+// Puntos de edicion futura: conectar catalogo real y mover data a constantes/mock
+// Autor: Codex - Fecha: 2025-10-15
 
-import React, { useState, useCallback } from "react";
-import { View, Text, Pressable, Alert } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import React, { useState, useMemo, useCallback } from "react";
+import { View, Text, Pressable } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+
 import styles from "./MagicShopSection.styles";
-import ShopItemCard from "./ShopItemCard";
+import SectionPlaceholder from "../common/SectionPlaceholder";
 import { Colors } from "../../theme";
-import { ShopColors } from "../../constants/shopCatalog";
+import { SHOP_CATALOG, ShopColors } from "../../constants/shopCatalog";
 import {
   useAppState,
   useAppDispatch,
-  useCanAfford,
   useHydrationStatus,
   useWallet,
 } from "../../state/AppContext";
-import SectionPlaceholder from "../common/SectionPlaceholder";
 
 const TABS = [
-  { key: "potions", label: "Pociones" },
-  { key: "tools", label: "Herramientas" },
-  { key: "cosmetics", label: "Cosméticos" },
+  { key: "potions", label: "Pociones", icon: "bottle-tonic-plus" },
+  { key: "tools", label: "Tools", icon: "hammer-screwdriver" },
+  { key: "cosmetics", label: "Cosmeticos", icon: "palette-swatch" },
 ];
 
-const SHOP_ITEMS = {
-  potions: [
-    {
-      id: "p1",
-      title: "Poción de Sabiduría",
-      description: "Duplica XP por 2 horas",
-      price: 50,
-      iconName: "flask",
-    },
-    {
-      id: "p2",
-      title: "Cristal de Maná",
-      description: "+100 maná instantáneo",
-      price: 30,
-      iconName: "diamond",
-    },
-  ],
-  tools: [
-    {
-      id: "t1",
-      title: "Varita Élfica",
-      description: "Reduce dificultad por 1 día",
-      price: 120,
-      iconName: "construct",
-    },
-    {
-      id: "t2",
-      title: "Escudo Temporal",
-      description: "Protege racha por 1 día",
-      price: 80,
-      iconName: "shield",
-    },
-  ],
-  cosmetics: [
-    {
-      id: "c1",
-      title: "Maceta Dorada",
-      description: "Mejora visual de la planta",
-      price: 200,
-      iconName: "color-palette",
-    },
-    {
-      id: "c2",
-      title: "Maceta Legendaria",
-      description: "Mejora calidad de la planta",
-      price: 400,
-      iconName: "color-palette",
-    },
-  ],
+const PREVIEW_COUNT = 2;
+const SHOP_PREVIEWS = Object.fromEntries(
+  ["potions", "tools", "cosmetics"].map((key) => {
+    const source = SHOP_CATALOG[key] || [];
+    const items = source.slice(0, PREVIEW_COUNT).map((item) => ({
+      id: item.sku,
+      sku: item.sku,
+      title: item.title,
+      price: item.price,
+      currency: item.currency || "mana",
+      emoji: item.emoji || "✨",
+    }));
+    return [key, items];
+  })
+);
+
+const CURRENCY_LABELS = {
+  mana: "mana",
+  coin: "monedas",
+  gem: "gemas",
 };
 
-function MagicShopSection() {
-  const navigation = useNavigation();
-  const [activeTab, setActiveTab] = useState("potions");
-  const { mana } = useAppState();
-  const dispatch = useAppDispatch();
-  const canAfford = useCanAfford();
-  const { modules } = useHydrationStatus();
-  const { coin, gem } = useWallet();
+const BADGE_BG_ALPHA = 0.28;
+const BADGE_ICON_ALPHA = 0.22;
 
-  const addDebugMana = useCallback(
-    () => dispatch({ type: "SET_MANA", payload: mana + 5 }),
-    [dispatch, mana]
+function hexToRgba(hex, alpha = 1) {
+  if (!hex || typeof hex !== "string") return undefined;
+  if (hex.startsWith("rgba") || hex.startsWith("rgb")) {
+    return hex;
+  }
+  let normalized = hex.replace("#", "");
+  if (normalized.length === 3) {
+    normalized = normalized
+      .split("")
+      .map((char) => `${char}${char}`)
+      .join("");
+  }
+  let sourceAlpha = alpha;
+  if (normalized.length === 8) {
+    const alphaHex = normalized.slice(6, 8);
+    const embeddedAlpha = parseInt(alphaHex, 16) / 255;
+    sourceAlpha = embeddedAlpha * alpha;
+    normalized = normalized.slice(0, 6);
+  }
+  const intVal = parseInt(normalized, 16);
+  if (Number.isNaN(intVal)) return undefined;
+  const r = (intVal >> 16) & 255;
+  const g = (intVal >> 8) & 255;
+  const b = intVal & 255;
+  return `rgba(${r},${g},${b},${sourceAlpha})`;
+}
+
+const DEFAULT_BADGE_BG = hexToRgba(Colors.surfaceElevated, BADGE_BG_ALPHA) || Colors.surfaceElevated;
+const DEFAULT_BADGE_ICON_BG =
+  hexToRgba(Colors.surfaceElevated, BADGE_ICON_ALPHA) || Colors.surfaceAlt;
+
+export default function MagicShopSection() {
+  const navigation = useNavigation();
+  const { mana } = useAppState();
+  const { coin, gem } = useWallet();
+  const dispatch = useAppDispatch();
+  const { modules } = useHydrationStatus();
+  const [activeTab, setActiveTab] = useState("potions");
+
+  const walletStats = useMemo(
+    () => [
+      {
+        key: "mana",
+        title: "Mana",
+        subtitle: "Reservorio",
+        value: mana,
+        icon: "water",
+        accent: ShopColors.potions?.pill || Colors.accent,
+      },
+      {
+        key: "coin",
+        title: "Monedas",
+        subtitle: "Utilidad",
+        value: coin,
+        icon: "circle-multiple-outline",
+        accent: ShopColors.tools?.pill || Colors.accent,
+      },
+      {
+        key: "gem",
+        title: "Gemas",
+        subtitle: "Cosmeticos",
+        value: gem,
+        icon: "diamond-stone",
+        accent: ShopColors.cosmetics?.pill || Colors.accent,
+      },
+    ],
+    [mana, coin, gem]
   );
 
-  const handleBuy = useCallback(
-    (item, category) => {
-      if (canAfford(item.price)) {
-        dispatch({ type: "PURCHASE_WITH_MANA", payload: item.price });
-        dispatch({
-          type: "ADD_TO_INVENTORY",
-          payload: {
-            sku: `shop/${category}/${item.id}`,
-            title: item.title,
-            category,
-          },
-        });
-        dispatch({
-          type: "ACHIEVEMENT_EVENT",
-          payload: {
-            type: "purchase",
-            payload: { sku: `shop/${category}/${item.id}`, category },
-          },
-        });
-        Alert.alert("Compra exitosa — añadido al inventario");
-      } else {
-        Alert.alert("Sin maná", "Maná insuficiente");
-      }
+  const addDebugMana = useCallback(() => {
+    dispatch({ type: "SET_MANA", payload: mana + 5 });
+  }, [dispatch, mana]);
+
+  const handleOpenShop = useCallback(
+    (category) => {
+      navigation.navigate("ShopScreen", { initialTab: category });
     },
-    [canAfford, dispatch]
+    [navigation]
   );
 
   if (modules.wallet) {
-    return <SectionPlaceholder height={240} />;
+    return <SectionPlaceholder height={260} />;
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title} accessibilityRole="header">
-        Tienda Mágica
-      </Text>
-      <Text style={styles.subtitle}>
-        Las pociones compradas se guardan en Inventario
-      </Text>
-
-      <View style={styles.manaRow}>
-        <Text style={styles.manaLabel} accessibilityRole="text">
-          Maná disponible
+      <View>
+        <Text style={styles.title}>Tienda magica</Text>
+        <Text style={styles.subtitle}>
+          Sube de nivel con pociones, herramientas y cosmeticos.
         </Text>
-        <View
-          style={styles.walletPills}
-          accessible
-          accessibilityLabel={`Saldo: ${mana} maná, ${coin} monedas, ${gem} diamantes`}
-        >
-          <View
-            style={[styles.manaPill, { borderColor: ShopColors[activeTab].pill }]}
-          >
-            <Ionicons
-              name="sparkles"
-              size={16}
-              color={ShopColors[activeTab].pill}
-              style={styles.manaIcon}
-            />
-            <Text style={styles.manaValue}>{mana}</Text>
+      </View>
+
+      <View style={styles.walletCard}>
+        {walletStats.map((stat) => (
+          <View key={stat.key} style={styles.walletStat}>
+            <View style={styles.walletHeader}>
+              <MaterialCommunityIcons
+                name={stat.icon}
+                size={16}
+                color={stat.accent}
+              />
+              <Text style={styles.walletTitle}>{stat.title}</Text>
+            </View>
+            <Text style={styles.walletSubtitle}>{stat.subtitle}</Text>
+            <Text style={styles.walletValue}>{stat.value}</Text>
           </View>
-          <View style={styles.currencyPill}>
-            <Ionicons
-              name="logo-bitcoin"
-              size={14}
-              color={Colors.text}
-              style={styles.currencyIcon}
-            />
-            <Text style={styles.currencyValue}>{coin}</Text>
-          </View>
-          <View style={styles.currencyPill}>
-            <Ionicons
-              name="diamond"
-              size={14}
-              color={Colors.text}
-              style={styles.currencyIcon}
-            />
-            <Text style={styles.currencyValue}>{gem}</Text>
-          </View>
-        </View>
+        ))}
       </View>
 
       {__DEV__ && (
@@ -178,76 +166,125 @@ function MagicShopSection() {
           onPress={addDebugMana}
           style={({ pressed }) => [
             styles.debugButton,
-            pressed && { transform: [{ scale: 0.98 }] },
+            pressed && { opacity: 0.8 },
           ]}
           accessibilityRole="button"
-          accessibilityLabel="Agregar 5 maná"
+          accessibilityLabel="Agregar 5 de mana (debug)"
         >
-          <Text style={styles.debugButtonText}>Agregar 5 de maná</Text>
+          <Text style={styles.debugButtonText}>Agregar 5 de mana (debug)</Text>
         </Pressable>
       )}
 
       <View style={styles.tabsRow} accessibilityRole="tablist">
-        {TABS.map((tab, index) => {
+        {TABS.map((tab) => {
           const isActive = tab.key === activeTab;
-          const accent = ShopColors[tab.key];
+          const tabAccent = ShopColors[tab.key] || {};
           return (
             <Pressable
               key={tab.key}
               onPress={() => setActiveTab(tab.key)}
               style={[
                 styles.tabButton,
-                index === TABS.length - 1 && { marginRight: 0 },
                 isActive && {
-                  backgroundColor: accent.bg,
-                  borderColor: accent.border,
+                  backgroundColor: tabAccent.bg,
+                  borderColor: tabAccent.border,
                 },
               ]}
               accessibilityRole="tab"
               accessibilityState={{ selected: isActive }}
               accessibilityLabel={`Mostrar ${tab.label}`}
             >
-              <Text style={styles.tabText}>{tab.label}</Text>
+              <MaterialCommunityIcons
+                name={tab.icon}
+                size={16}
+                color={isActive ? tabAccent.pill : Colors.textMuted}
+                style={styles.tabIcon}
+              />
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: isActive ? tabAccent.pill : Colors.textMuted },
+                ]}
+              >
+                {tab.label}
+              </Text>
             </Pressable>
           );
         })}
       </View>
 
-      <View accessibilityRole="list">
-        {SHOP_ITEMS[activeTab].map((item) => {
-          const affordable = canAfford(item.price);
+      <View style={styles.badgeGrid} accessibilityRole="list">
+        {(SHOP_PREVIEWS[activeTab] || []).map((item) => {
+          const currency = item.currency || "mana";
+          const label = CURRENCY_LABELS[currency] || "";
+          const accent = ShopColors[activeTab] || {};
+          const borderColor = accent.border || Colors.border;
+          const iconTint = accent.pill || Colors.accent;
+          const backgroundTint = hexToRgba(accent.bg, BADGE_BG_ALPHA) || DEFAULT_BADGE_BG;
+          const iconBackground =
+            hexToRgba(iconTint, BADGE_ICON_ALPHA) || DEFAULT_BADGE_ICON_BG;
           return (
-            <View key={item.id} style={styles.itemWrapper}>
-              <ShopItemCard
-                title={item.title}
-                description={item.description}
-                price={item.price}
-                iconName={item.iconName}
-                accent={ShopColors[activeTab]}
-                disabled={!affordable}
-                onPress={() => handleBuy(item, activeTab)}
-                accessibilityLabel={`Comprar ${item.title} por ${item.price} maná`}
-              />
-            </View>
+            <Pressable
+              key={item.id}
+              onPress={() => handleOpenShop(activeTab)}
+              style={({ pressed }) => [
+                styles.badge,
+                { borderColor, backgroundColor: backgroundTint },
+                pressed && styles.badgePressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel={`Ver ${item.title} en la tienda`}
+              accessibilityHint="Abrira la tienda completa para este tipo de objeto"
+            >
+              <View style={styles.badgeLeft}>
+                <View
+                  style={[
+                    styles.badgeIcon,
+                    {
+                      borderColor: iconTint,
+                      backgroundColor: iconBackground,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.badgeEmoji, { color: iconTint }]}>
+                    {item.emoji}
+                  </Text>
+                </View>
+                <Text style={styles.badgeTitle}>{item.title}</Text>
+              </View>
+              <View style={styles.badgeRight}>
+                <Text style={styles.badgePrice}>
+                  <Text style={styles.badgePriceValue}>{item.price}</Text> {label}
+                </Text>
+                <MaterialCommunityIcons
+                  name="chevron-right"
+                  size={16}
+                  color={Colors.textMuted}
+                />
+              </View>
+            </Pressable>
           );
         })}
       </View>
 
       <Pressable
         onPress={() =>
-          navigation.navigate("ShopScreen", { initialTab: "potions" })
+          navigation.navigate("ShopScreen", { initialTab: activeTab })
         }
         style={({ pressed }) => [
           styles.viewAllButton,
-          pressed && { transform: [{ scale: 0.98 }] },
+          pressed && { opacity: 0.85 },
         ]}
         accessibilityRole="button"
-        accessibilityLabel="Ver todos los artículos"
+        accessibilityLabel="Abrir tienda completa"
       >
-        <Text style={styles.viewAllText}>Ver todos los artículos</Text>
+        <Text style={styles.viewAllText}>Ver tienda completa</Text>
+        <MaterialCommunityIcons
+          name="chevron-right"
+          size={18}
+          color={Colors.text}
+        />
       </Pressable>
     </View>
   );
 }
-
-export default React.memo(MagicShopSection);

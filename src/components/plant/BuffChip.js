@@ -6,6 +6,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { Animated, Pressable, Text, View, StyleSheet } from "react-native";
+import { FontAwesome5 } from "@expo/vector-icons";
 import {
   Colors,
   Spacing,
@@ -31,6 +32,28 @@ function formatTime(ms) {
     .padStart(2, "0");
   const s = (total % 60).toString().padStart(2, "0");
   return `${m}:${s}`;
+}
+
+function renderIcon(icon) {
+  if (!icon) {
+    return null;
+  }
+  if (React.isValidElement(icon)) {
+    return icon;
+  }
+  if (typeof icon === "string") {
+    return <Text style={styles.iconText}>{icon}</Text>;
+  }
+  if (icon && icon.family === "FontAwesome5" && icon.name) {
+    return (
+      <FontAwesome5
+        name={icon.name}
+        size={12}
+        color={Colors.textInverse}
+      />
+    );
+  }
+  return null;
 }
 
 export default function BuffChip({
@@ -140,13 +163,7 @@ export default function BuffChip({
           },
         ]}
       >
-        {icon ? (
-          typeof icon === "string" ? (
-            <Text style={styles.icon}>{icon}</Text>
-          ) : (
-            <View style={styles.icon}>{icon}</View>
-          )
-        ) : null}
+        <View style={styles.iconWrap}>{renderIcon(icon)}</View>
         <View style={styles.center}>
           <Text style={styles.title}>
             {title}
@@ -173,8 +190,16 @@ const styles = StyleSheet.create({
     ...Elevation.raised,
     gap: Spacing.small,
   },
-  icon: {
-    fontSize: Typography.body.fontSize,
+  iconWrap: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "rgba(0,0,0,0.25)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iconText: {
+    fontSize: Typography.body.fontSize - 1,
     color: Colors.textInverse,
   },
   center: {

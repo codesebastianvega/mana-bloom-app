@@ -1,167 +1,63 @@
-// [MB] Módulo: Home / Sección: HomeHeader
+// [MB] Modulo: Home / Seccion: HomeHeader
 // Afecta: HomeHeader
-// Propósito: Estilos para top bar, chips y popovers del encabezado
-// Puntos de edición futura: ajustar tamaños de chip y responsividad
-// Autor: Codex - Fecha: 2025-08-16
+// Proposito: Estilos para titulo superior y chip de estado de planta
+// Puntos de edicion futura: agregar responsive y acciones secundarias
+// Autor: Codex - Fecha: 2025-10-07
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Typography, Elevation } from "../../theme";
+import { Colors, Spacing, Typography, Radii } from "../../theme";
 
 export default StyleSheet.create({
+  safeArea: {
+    backgroundColor: Colors.background,
+  },
   container: {
-    backgroundColor: Colors.surfaceElevated,
     paddingHorizontal: Spacing.base,
-    paddingTop: Spacing.base,
+    paddingTop: Spacing.tiny / 2,
     paddingBottom: Spacing.small,
-    ...Elevation.raised,
-    zIndex: 2,
-    position: "relative",
-  },
-  topBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
     gap: Spacing.small,
   },
   title: {
-    ...Typography.title,
+    ...Typography.h1,
+    fontSize: 32,
+    lineHeight: 38,
     color: Colors.text,
   },
   plantChip: {
-    backgroundColor: Colors.surface,
-    borderRadius: Radii.lg,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    height: 30,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  notificationsButton: {
-    backgroundColor: Colors.surface,
-    borderRadius: Radii.lg,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    height: 30,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  notificationsText: {
-    ...Typography.body,
-    fontWeight: "600",
-    color: Colors.text,
-  },
-  chipBlock: {
-    marginTop: Spacing.small,
-  },
-  chipRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    alignSelf: "stretch",
-    width: "100%",
     alignItems: "center",
-    gap: Spacing.small,
-    position: "relative",
-    zIndex: 2,
-  },
-  chip: {
-    backgroundColor: Colors.surface,
     borderRadius: Radii.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.small,
-    height: 30,
-    flexBasis: "31%",
-    maxWidth: "31%",
-    flexGrow: 0,
-    marginBottom: Spacing.small,
-    justifyContent: "center",
-    alignItems: "center",
+    gap: Spacing.small,
+    backgroundColor: Colors.surface,
   },
-  chipAccent: {
-    backgroundColor: Colors.accent,
+  plantDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
   },
-  chipContent: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
+  plantTexts: {
+    flexDirection: "column",
+    gap: Spacing.tiny / 2,
   },
-  chipText: {
-    ...Typography.caption,
-    fontWeight: "600",
+  plantLabel: {
+    ...Typography.title,
+    fontSize: 18,
+    fontWeight: "700",
     color: Colors.text,
   },
-  chipTextOnAccent: {
+  plantState: {
     ...Typography.caption,
-    fontWeight: "600",
-    color: Colors.onAccent,
-  },
-  popoverContainer: {
-    marginTop: Spacing.small,
-    width: "100%",
-    backgroundColor: Colors.surfaceElevated,
-    borderColor: Colors.border,
-    borderWidth: 1,
-    borderRadius: Radii.lg,
-    padding: Spacing.base,
-    ...Elevation.raised,
-    position: "relative",
-    zIndex: 3,
-  },
-  popoverTitle: {
-    ...Typography.body,
-    fontWeight: "600",
-    color: Colors.text,
-    marginBottom: Spacing.tiny,
-  },
-  popoverDesc: {
-    ...Typography.caption,
+    fontSize: 12,
     color: Colors.textMuted,
   },
-  levelRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: Spacing.small,
-  },
-  levelContainer: {
-    flex: 1,
-    marginRight: Spacing.small,
-  },
-  levelText: {
-    ...Typography.caption,
-    color: Colors.text,
-    marginBottom: Spacing.tiny,
-  },
-  xpBar: {
-    height: 6,
-    backgroundColor: Colors.surfaceAlt,
-    borderRadius: 3,
-    overflow: "hidden",
-  },
-  xpFill: {
-    height: "100%",
-    borderRadius: 3,
-  },
-  buffRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.tiny,
-  },
-  buffBadge: {
-    height: 28,
-    width: 28,
-    borderRadius: Radii.md,
-    backgroundColor: Colors.surface,
+  plantIconWrapper: {
+    width: 18,
+    height: 18,
     justifyContent: "center",
     alignItems: "center",
-  },
-  buffText: {
-    ...Typography.caption,
-    fontWeight: "600",
-    color: Colors.accent,
   },
 });

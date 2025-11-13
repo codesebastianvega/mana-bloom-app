@@ -1,44 +1,64 @@
-// [MB] Módulo: Tasks / Sección: Filtros avanzados
+// [MB] Modulo: Tasks / Seccion: Filtros avanzados
 // Afecta: TaskFilters (modal de filtros)
-// Propósito: Tokens y estilos alineados al tema
-// Puntos de edición futura: tipografías y variantes de elevación
-// Autor: Codex - Fecha: 2025-08-13
+// Proposito: Tokens y estilos alineados al tema
+// Puntos de edicion futura: tipografias y variantes de elevacion
+// Autor: Codex - Fecha: 2025-10-20
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
 
-// Un solo estilo base para todos los botones.
-// Esto evita la repetición de código.
+const withAlpha = (hex = "", alpha = 1) => {
+  if (!hex) return hex;
+  const cleaned = `${hex}`.replace("#", "").trim();
+  const base = cleaned.length === 8 ? cleaned.slice(0, 6) : cleaned;
+  const value = parseInt(base, 16);
+  if (Number.isNaN(value)) return hex;
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+};
+
 const baseBtn = {
   flexDirection: "row",
   alignItems: "center",
   justifyContent: "center",
   paddingVertical: Spacing.tiny,
-  paddingHorizontal: Spacing.base,
-  minHeight: 36,
+  paddingHorizontal: Spacing.small,
+  minHeight: Spacing.base + Spacing.small,
   borderRadius: Radii.pill,
   borderWidth: 1,
-  borderColor: Colors.border,
+  borderColor: withAlpha(Colors.primaryLight, 0.35),
   marginRight: Spacing.small,
-  backgroundColor: "transparent",
+  backgroundColor: withAlpha(Colors.surfaceAlt, 0.55),
+  shadowColor: Colors.shadow,
+  shadowOpacity: 0.18,
+  shadowRadius: 6,
+  shadowOffset: { width: 0, height: 3 },
 };
 
 export default StyleSheet.create({
   container: {
-    backgroundColor: Colors.surfaceElevated || Colors.surface,
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.92),
     borderRadius: Radii.xl,
-    padding: Spacing.large,
+    paddingVertical: Spacing.base,
+    paddingHorizontal: Spacing.base + Spacing.small / 2,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.primaryLight, 0.18),
+    gap: Spacing.small,
     ...(Elevation?.modal || {}),
   },
   row: {
     flexDirection: "row",
-    marginBottom: Spacing.base,
+    marginBottom: Spacing.small,
+    gap: Spacing.small,
   },
   elementGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: Spacing.base,
+    marginBottom: Spacing.small,
+    gap: Spacing.small,
   },
   elementGridBtn: {
     ...baseBtn,
@@ -61,45 +81,54 @@ export default StyleSheet.create({
     paddingHorizontal: Spacing.small,
     marginRight: Spacing.tiny,
   },
-  // Texto dentro de cada etiqueta del filtro
   tagText: {
-    ...Typography.body,
+    ...Typography.caption,
+    fontWeight: "600",
+    letterSpacing: 0.2,
     color: Colors.text,
   },
-  // Contenedor del campo de búsqueda de etiquetas
   tagSearchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.background,
+    backgroundColor: withAlpha(Colors.surfaceAlt, 0.62),
     borderRadius: Radii.md,
     paddingHorizontal: Spacing.small,
     paddingVertical: Spacing.small,
-    marginBottom: Spacing.base,
+    marginBottom: Spacing.small,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.separator, 0.6),
+    shadowColor: Colors.shadow,
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
   },
   tagSearchContainerFocused: {
     borderColor: Colors.accent,
-    borderWidth: 1,
+    shadowOpacity: 0.28,
   },
-  // Campo de texto para buscar etiquetas
   tagSearchInput: {
     flex: 1,
     color: Colors.text,
     ...Typography.body,
     paddingVertical: 0,
   },
-  // Botón que limpia el texto del buscador
   clearBtn: {
     marginLeft: Spacing.small,
+    padding: Spacing.tiny,
   },
   sectionTitle: {
     ...Typography.body,
+    fontSize: Typography.body.fontSize + 1,
+    fontWeight: "700",
     color: Colors.text,
-    fontWeight: "600",
     marginTop: Spacing.small,
     marginBottom: Spacing.tiny,
+    letterSpacing: 0.2,
   },
   text: {
-    ...Typography.body,
+    ...Typography.caption,
+    fontWeight: "600",
+    letterSpacing: 0.2,
     color: Colors.text,
     marginLeft: Spacing.small,
   },

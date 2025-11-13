@@ -1,46 +1,110 @@
-// [MB] Módulo: Home / Estilos: ShopItemCard (Tienda Mágica)
+// [MB] Modulo: Home / Estilos: ShopItemCard (Tienda Magica)
 // Afecta: HomeScreen (layout principal)
-// Propósito: Estilos para card de item de la tienda
-// Puntos de edición futura: ajustar tipografía y sombras
+// Proposito: Estilos para card de item de la tienda
+// Puntos de edicion futura: ajustar tipografia y sombras
 // Autor: Codex - Fecha: 2025-08-12
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
+import { Colors, Spacing, Radii, Typography } from "../../theme";
 
 export default StyleSheet.create({
   card: {
-    backgroundColor: Colors.surfaceElevated,
     borderWidth: 1,
-    borderRadius: Radii.lg,
-    padding: Spacing.base,
+    borderRadius: Radii.xl,
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.base,
+    gap: Spacing.small,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    borderColor: "rgba(255,255,255,0.28)",
+  },
+  header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    ...Elevation.card,
+    gap: Spacing.small,
   },
-  info: {
+  emojiBubble: {
+    width: 32,
+    height: 32,
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.overlay,
+  },
+  emojiText: {
+    fontSize: 18,
+  },
+  headerContent: {
     flex: 1,
-    marginRight: Spacing.small,
+    gap: Spacing.tiny / 2,
   },
   title: {
     ...Typography.title,
+    fontSize: 17,
     color: Colors.text,
   },
-  description: {
-    ...Typography.body,
+  headline: {
+    ...Typography.caption,
     color: Colors.textMuted,
-    marginTop: Spacing.small,
   },
-  pill: {
+  pricePill: {
     flexDirection: "row",
     alignItems: "center",
-    height: 32,
-    paddingHorizontal: Spacing.base,
+    gap: Spacing.tiny / 2,
     borderRadius: Radii.pill,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
   },
-  pillText: {
+  priceText: {
+    ...Typography.caption,
+    color: Colors.onAccent,
+    fontWeight: "700",
+  },
+  highlights: {
+    gap: Spacing.tiny,
+  },
+  highlightRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
+  },
+  highlightIcon: {
+    marginTop: 1,
+  },
+  highlightText: {
     ...Typography.body,
-    color: Colors.textInverse,
-    marginLeft: Spacing.small,
+    color: Colors.text,
+    flex: 1,
+  },
+  ctaRow: {
+    marginTop: Spacing.small,
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: Spacing.small,
+  },
+  ctaLabel: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  ctaValueWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
+  },
+  ctaIcon: {
+    marginRight: 2,
+  },
+  ctaValue: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "600",
   },
 });

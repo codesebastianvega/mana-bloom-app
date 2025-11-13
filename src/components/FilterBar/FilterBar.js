@@ -2,15 +2,15 @@
 // Afecta: TaskFilters (modal de filtros)
 // Propósito: Tabs compactas para filtro rápido
 // Puntos de edición futura: animaciones y accesibilidad
-// Autor: Codex - Fecha: 2025-08-13
+// Autor: Codex - Fecha: 2025-10-20
 
 import React from "react";
 import { View, Pressable, Text } from "react-native";
 import styles from "./FilterBar.styles";
 
-export default function FilterBar({ filters, active, onSelect }) {
+export default function FilterBar({ filters, active, onSelect, styleOverride }) {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, styleOverride]}>
       {filters.map((f) => {
         const isActive = active === f.key;
         return (

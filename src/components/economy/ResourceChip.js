@@ -1,4 +1,4 @@
-// [MB] Módulo: Economía / Sección: Cápsula de recurso individual
+﻿// [MB] Módulo: Economía / Sección: Cápsula de recurso individual
 // Afecta: PlantScreen (encabezado económico)
 // Propósito: chip de recurso con animaciones y tooltip de saldo insuficiente
 // Puntos de edición futura: extraer estilos a .styles.js o añadir persistencia real
@@ -15,6 +15,19 @@ import {
   Opacity,
 } from "../../theme";
 
+const withAlpha = (hex = "", alpha = 1) => {
+  if (!hex) return hex;
+  const cleaned = `${hex}`.replace("#", "").trim();
+  if (cleaned.length !== 6) {
+    return hex;
+  }
+  const value = parseInt(cleaned, 16);
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+};
+
 const ElementAccents = {
   mana: Colors.primaryFantasy,
   coins: Colors.warning || Colors.primary,
@@ -22,15 +35,15 @@ const ElementAccents = {
 };
 
 const Icons = {
-  mana: "\u{1F52E}", // 🔮
-  coins: "\u{1FA99}", // 🪙
-  gems: "\u{1F48E}", // 💎
+  mana: "\u{1F52E}",
+  coins: "\u{1FA99}",
+  gems: "\u{1F48E}",
 };
 
 const Labels = {
-  mana: "Maná",
+  mana: "Mana",
   coins: "Monedas",
-  gems: "Diamantes",
+  gems: "Gemas",
 };
 
 export default function ResourceChip({
@@ -140,7 +153,9 @@ export default function ResourceChip({
         style={[
           styles.chip,
           {
-            backgroundColor: accent,
+            backgroundColor: withAlpha(accent, 0.22),
+            borderColor: withAlpha(accent, 0.55),
+            shadowColor: withAlpha(accent, 0.35),
             transform: [{ scale }, { translateX: shake }],
           },
         ]}
@@ -188,20 +203,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.small,
     ...Elevation.raised,
+    borderWidth: 1,
+    borderColor: "transparent",
+    shadowColor: "transparent",
   },
   icon: {
     marginRight: Spacing.small,
+    fontSize: Typography.title.fontSize,
+    color: Colors.text,
   },
   label: {
     ...Typography.caption,
-    color: Colors.textInverse,
-    opacity: Opacity.muted,
+    color: Colors.text,
+    fontWeight: "600",
+    letterSpacing: 0.3,
+    textTransform: "uppercase",
     marginRight: Spacing.small,
   },
   value: {
     ...Typography.body,
     fontWeight: "700",
-    color: Colors.textInverse,
+    color: Colors.text,
   },
   delta: {
     position: "absolute",
@@ -210,7 +232,7 @@ const styles = StyleSheet.create({
     right: 0,
     textAlign: "center",
     ...Typography.caption,
-    color: Colors.textInverse,
+    color: Colors.text,
   },
   hint: {
     position: "absolute",
@@ -222,10 +244,22 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceElevated,
     borderRadius: Radii.md,
     ...Elevation.raised,
+    borderWidth: 1,
+    borderColor: "transparent",
+    shadowColor: "transparent",
   },
   hintText: {
     ...Typography.caption,
     color: Colors.text,
   },
 });
+
+
+
+
+
+
+
+
+
 

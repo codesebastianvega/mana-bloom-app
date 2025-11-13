@@ -1,8 +1,8 @@
-// [MB] Módulo: Inventario / Pantalla: InventoryScreen
-// Afecta: navegación modal de inventario
-// Propósito: Mostrar inventario completo con filtros y acciones
-// Puntos de edición futura: integrar nuevos ítems y paginación
-// Autor: Codex - Fecha: 2025-08-18
+// [MB] Modulo: Inventario / Pantalla: InventoryScreen
+// Afecta: navegacion modal de inventario
+// Proposito: Mostrar inventario completo con filtros y acciones
+// Puntos de edicion futura: integrar nuevos items y paginacion
+// Autor: Codex - Fecha: 2025-10-15
 
 import React, { useState, useMemo } from "react";
 import {
@@ -14,6 +14,8 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 import styles from "./InventoryScreen.styles";
 import {
   useAppState,
@@ -21,18 +23,42 @@ import {
   useInventoryCounts,
   canUseItem,
 } from "../state/AppContext";
-import { Opacity, Colors, Spacing } from "../theme";
+import { Colors, Opacity } from "../theme";
 
 const TABS = [
   { key: "potions", label: "Pociones" },
   { key: "tools", label: "Herramientas" },
-  { key: "cosmetics", label: "Cosméticos" },
+  { key: "cosmetics", label: "Cosmeticos" },
   { key: "all", label: "Todos" },
 ];
 
-const CATEGORY_EMOJI = { potions: "🧪", tools: "🛠️", cosmetics: "🎩" };
+const CATEGORY_EMOJI = { potions: "??", tools: "???", cosmetics: "??" };
+const CHIP_ACCENTS = {
+  potions: "#B542F6",
+  tools: "#1cd47b",
+  cosmetics: "#FFD700",
+  all: "#8E9AC6",
+};
+
+function hexToRgba(hex = "", alpha = 1) {
+  if (!hex) return undefined;
+  let cleaned = hex.replace("#", "");
+  if (cleaned.length === 3) {
+    cleaned = cleaned
+      .split("")
+      .map((c) => `${c}${c}`)
+      .join("");
+  }
+  if (cleaned.length !== 6) return undefined;
+  const value = parseInt(cleaned, 16);
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
 
 export default function InventoryScreen() {
+  const navigation = useNavigation();
   const { inventory } = useAppState();
   const dispatch = useAppDispatch();
   const counts = useInventoryCounts();
@@ -65,17 +91,14 @@ export default function InventoryScreen() {
         type: "ACTIVATE_BUFF",
         payload: { type: "xp_double", durationMs: 2 * 60 * 60 * 1000 },
       });
-      Alert.alert(
-        "Poción usada",
-        "Sabiduría activa: XP x2 por 2 horas"
-      );
+      Alert.alert("Pocion usada", "Sabiduria activa: XP x2 por 2 horas");
     } else if (item.sku === "shop/potions/p2") {
-      Alert.alert("Poción usada", "Cristal de Maná +100");
+      Alert.alert("Pocion usada", "Cristal de Mana +100");
     }
   };
 
   const handleDiscard = (item) => {
-    Alert.alert("Descartar", "¿Eliminar 1 unidad?", [
+    Alert.alert("Descartar", "Eliminar 1 unidad?", [
       { text: "Cancelar", style: "cancel" },
       {
         text: "OK",
@@ -87,109 +110,172 @@ export default function InventoryScreen() {
 
   const renderItem = ({ item }) => {
     const isUsable = canUseItem(item.sku) && item.quantity > 0;
+    const accent = CHIP_ACCENTS[item.category] || Colors.accent;
+    const iconBg = hexToRgba(accent, 0.16);
 
     return (
-      <View style={styles.itemRow}>
+      <View
+        style={[
+          styles.itemRow,
+          { borderColor: hexToRgba(accent, 0.35), shadowColor: accent },
+        ]}
+      >
         <View style={styles.itemHeader}>
           <View style={styles.itemMain}>
-            <Text style={styles.itemIcon}>{
-              CATEGORY_EMOJI[item.category] || "📦"
-            }</Text>
+            <View
+              style={[styles.itemIconBubble, { borderColor: accent, backgroundColor: iconBg }]}
+            >
+              <Text style={styles.itemIcon}>
+                {CATEGORY_EMOJI[item.category] || "?"}
+              </Text>
+            </View>
             <View style={styles.itemInfo}>
               <Text style={styles.itemTitle}>{item.title}</Text>
               <Text style={styles.itemSku}>{item.sku}</Text>
             </View>
           </View>
-          <Text style={styles.itemQty}>{`× ${item.quantity}`}</Text>
+          <Text style={styles.itemQty}>{`x${item.quantity}`}</Text>
         </View>
         <View style={styles.actionsRow}>
           <Pressable
             onPress={() => handleUse(item)}
             disabled={!isUsable}
-            style={[styles.useButton, !isUsable && { opacity: Opacity.disabled }]}
+            style={[
+              styles.primaryAction,
+              {
+                borderColor: hexToRgba(accent, 0.4),
+                backgroundColor: hexToRgba(accent, 0.2),
+              },
+              !isUsable && styles.disabledAction,
+            ]}
             accessibilityRole="button"
             accessibilityLabel={`Usar ${item.title}`}
           >
-            <Text style={styles.useButtonText}>
-              {isUsable ? "Usar" : "Próximamente"}
+            <Text style={[styles.primaryActionText, { color: accent }] }>
+              {isUsable ? "Usar" : "Bloqueado"}
             </Text>
           </Pressable>
           <Pressable
             onPress={() => handleDiscard(item)}
             disabled={item.quantity <= 0}
-            style={[
-              styles.discardButton,
-              item.quantity <= 0 && { opacity: Opacity.disabled },
-            ]}
+            style={[styles.secondaryAction, item.quantity <= 0 && styles.disabledAction]}
             accessibilityRole="button"
             accessibilityLabel={`Descartar ${item.title}`}
           >
-            <Text style={styles.discardButtonText}>Descartar</Text>
+            <Ionicons name="trash" size={14} color={Colors.text} />
+            <Text style={styles.secondaryActionText}>Descartar</Text>
           </Pressable>
         </View>
       </View>
     );
   };
 
+  const chips = [
+    { key: "potions", label: "Pociones", value: counts.potions },
+    { key: "tools", label: "Herramientas", value: counts.tools },
+    { key: "cosmetics", label: "Cosmeticos", value: counts.cosmetics },
+  ];
+
   return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        accessibilityRole="list"
-        ListHeaderComponent={
-          <View>
-            <Text style={styles.title} accessibilityRole="header">
-              Inventario {counts.total}
-            </Text>
-            <Text style={styles.resultText}>{`Resultados: ${filtered.length}`}</Text>
-            <View style={styles.chipsRow}>
-              <View style={styles.chip}>
-                <Text style={styles.chipText}>Pociones {counts.potions}</Text>
-              </View>
-              <View style={styles.chip}>
-                <Text style={styles.chipText}>Herramientas {counts.tools}</Text>
-              </View>
-              <View style={styles.chip}>
-                <Text style={styles.chipText}>Cosméticos {counts.cosmetics}</Text>
-              </View>
-            </View>
-            <View style={styles.tabsRow}>
-              {TABS.map((t) => (
-                <Pressable
-                  key={t.key}
-                  onPress={() => setTab(t.key)}
-                  style={[
-                    styles.tabButton,
-                    tab === t.key && styles.tabButtonActive,
-                  ]}
-                  accessibilityRole="tab"
-                  accessibilityState={{ selected: tab === t.key }}
-                >
-                  <Text
-                    style={[
-                      styles.tabButtonText,
-                      tab === t.key && styles.tabButtonTextActive,
-                    ]}
-                  >
-                    {t.label}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Buscar"
-              placeholderTextColor={Colors.textMuted}
-              value={query}
-              onChangeText={setQuery}
-            />
-          </View>
-        }
-        contentContainerStyle={{ padding: Spacing.base, paddingBottom: 96 }}
+    <SafeAreaView style={styles.backdrop}>
+      <Pressable
+        style={styles.backdropDismiss}
+        onPress={() => navigation.goBack()}
+        accessibilityRole="button"
+        accessibilityLabel="Cerrar inventario"
       />
+      <View style={styles.sheet}>
+        <View style={styles.header}>
+          <View style={styles.titleBlock}>
+            <Text style={styles.title} accessibilityRole="header">
+              Inventario
+            </Text>
+            <Text style={styles.subtitle}>{`Total: ${counts.total} | Resultados: ${filtered.length}`}</Text>
+          </View>
+          <Pressable
+            onPress={() => navigation.goBack()}
+            style={styles.closeButton}
+            accessibilityRole="button"
+            accessibilityLabel="Cerrar"
+          >
+            <Ionicons name="close" size={18} color={Colors.text} />
+          </Pressable>
+        </View>
+
+        <View style={styles.chipsRow}>
+          {chips.map((chip) => {
+            const accent = CHIP_ACCENTS[chip.key];
+            return (
+              <View
+                key={chip.key}
+                style={[
+                  styles.chip,
+                  {
+                    borderColor: accent,
+                    backgroundColor: hexToRgba(accent, 0.18),
+                  },
+                ]}
+              >
+                <Text style={styles.chipText}>{`${chip.label} ${chip.value}`}</Text>
+              </View>
+            );
+          })}
+        </View>
+
+        <View style={styles.tabsRow}>
+          {TABS.map((t) => {
+            const accent = CHIP_ACCENTS[t.key] || CHIP_ACCENTS.all;
+            const isActive = tab === t.key;
+            return (
+              <Pressable
+                key={t.key}
+                onPress={() => setTab(t.key)}
+                style={[
+                  styles.tabButton,
+                  isActive && {
+                    borderColor: accent,
+                    backgroundColor: hexToRgba(accent, 0.16),
+                  },
+                ]}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: isActive }}
+              >
+                <Text
+                  style={[
+                    styles.tabButtonText,
+                    isActive && { color: accent },
+                  ]}
+                >
+                  {t.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar"
+          placeholderTextColor={Colors.textMuted}
+          value={query}
+          onChangeText={setQuery}
+        />
+
+        <FlatList
+          data={filtered}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          style={styles.list}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyText}>No hay items en esta categoria.</Text>
+            </View>
+          }
+        />
+      </View>
     </SafeAreaView>
   );
 }
+
 

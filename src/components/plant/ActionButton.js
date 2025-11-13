@@ -1,258 +1,344 @@
-// [MB] Módulo: Planta / Sección: Acciones rápidas
+// [MB] Modulo: Planta / Seccion: Acciones rapidas
 // Afecta: PlantScreen (botones pill reutilizables)
-// Propósito: botón con acento, animación y tooltip accesible
-// Puntos de edición futura: estilos .styles.js o lógica de economía
-// Autor: Codex - Fecha: 2025-08-16
+// Proposito: boton con acento y CTA secundarios
+// Puntos de edicion futura: mover estilos a .styles.js cuando crezca
+// Autor: Codex - Fecha: 2025-10-30
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Animated,
-  Pressable,
-  Text,
-  View,
-  StyleSheet,
-} from "react-native";
-import {
-  Colors,
-  Spacing,
-  Radii,
-  Typography,
-  Elevation,
-  Opacity,
-} from "../../theme";
+import React, { useEffect, useMemo, useState } from "react";
+import { Pressable, Text, View, StyleSheet } from "react-native";
+import { FontAwesome5 } from "@expo/vector-icons";
 
-// [MB] Mapa de acentos desde tokens
-const ElementAccents = {
+import { Colors, Spacing, Radii, Typography, Opacity } from "../../theme";
+
+const ACCENTS = {
   water: Colors.elementWater,
   nutrients: Colors.elementEarth,
   clean: Colors.primary,
   spirit: Colors.secondaryFantasy,
+  vitality: Colors.secondary,
+  sunlight: Colors.elementFire,
+  focus: Colors.primaryLight,
+  gratitude: Colors.success,
+  clarity: Colors.elementAir,
+  reflection: Colors.elementEarthLight,
 };
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const DEFAULT_ACCENT = Colors.primary;
+
+const withAlpha = (color = "#000000", alpha = 1) => {
+  if (!color || typeof color !== "string") return color;
+  if (!color.startsWith("#")) return color;
+  let hex = color.replace("#", "");
+  // Expand shorthand #RGB to #RRGGBB
+  if (hex.length === 3) {
+    hex = hex
+      .split("")
+      .map((ch) => `${ch}${ch}`)
+      .join("");
+  }
+  // Support #RRGGBBAA by ignoring the AA part and applying provided alpha
+  if (hex.length === 8) {
+    hex = hex.substring(0, 6);
+  }
+  if (hex.length !== 6) return color;
+  const value = parseInt(hex, 16);
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+};
+
+const formatMs = (ms = 0) => {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60)
+    .toString()
+    .padStart(2, "0");
+  const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+  return `${minutes}:${seconds}`;
+};
 
 export default function ActionButton({
   title,
   icon,
   accentKey,
-  costLabel,
-  tooltip,
+  helper,
   disabled,
   cooldownMs = 0,
   onPress,
+  onInfoPress,
+  infoAccessibilityLabel = "Ver detalles",
   accessibilityHint,
+  variant = "link", // 'dual' | 'link'
 }) {
-  const accent = ElementAccents[accentKey] || Colors.primaryFantasy;
+  const accent = ACCENTS[accentKey] || DEFAULT_ACCENT;
+  const [remainingMs, setRemainingMs] = useState(cooldownMs || 0);
 
-  const scale = useRef(new Animated.Value(1)).current;
-  const haloOpacity = useRef(new Animated.Value(0)).current;
-  const tooltipOpacity = useRef(new Animated.Value(0)).current;
-
-  const [remaining, setRemaining] = useState(cooldownMs);
-  const [tooltipWidth, setTooltipWidth] = useState(0);
-  const cooldownDisabled = remaining > 0;
-
-  // [MB] Contador simple mm:ss
   useEffect(() => {
-    setRemaining(cooldownMs);
+    setRemainingMs(cooldownMs || 0);
+    if (cooldownMs > 0) {
+      const target = Date.now() + cooldownMs;
+      const id = setInterval(() => {
+        const next = Math.max(0, target - Date.now());
+        setRemainingMs(next);
+        if (next === 0) clearInterval(id);
+      }, 1000);
+      return () => clearInterval(id);
+    }
   }, [cooldownMs]);
 
-  useEffect(() => {
-    if (remaining <= 0) return;
-    const id = setInterval(() => {
-      setRemaining((r) => (r - 1000 < 0 ? 0 : r - 1000));
-    }, 1000);
-    return () => clearInterval(id);
-  }, [remaining]);
+  const formatted = useMemo(() => formatMs(remainingMs), [remainingMs]);
+  const inactive = disabled || remainingMs > 0;
 
-  const formatted = formatMs(remaining);
+  const backgroundColor = withAlpha(accent, 0.18);
+  const borderColor = withAlpha(accent, 0.4);
 
-  // [MB] Feedback de escala
-  const animateScale = useCallback((to) => {
-    Animated.spring(scale, {
-      toValue: to,
-      useNativeDriver: true,
-      speed: 20,
-      bounciness: 6,
-    }).start();
-  }, [scale]);
+  const emitPress = () => {
+    onPress?.({
+      inactive,
+      cooldownMs: remainingMs,
+      cooldownLabel: formatted,
+    });
+  };
 
-  const handlePress = useCallback(() => {
-    if (disabled || cooldownDisabled) return;
-    Animated.sequence([
-      Animated.timing(haloOpacity, {
-        toValue: 0.4,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-      Animated.timing(haloOpacity, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-    ]).start();
-    onPress && onPress();
-  }, [disabled, cooldownDisabled, haloOpacity, onPress]);
+  const titleLines = variant === "dual" ? 2 : 1;
+  const Header = (
+    <View style={styles.header}>
+      {icon ? <View style={styles.iconWrap}>{icon}</View> : null}
+      <Text style={styles.title} numberOfLines={titleLines}>
+        {title}
+      </Text>
+      {onInfoPress ? (
+        <Pressable
+          onPress={onInfoPress}
+          hitSlop={Spacing.base}
+          accessibilityRole="button"
+          accessibilityLabel={infoAccessibilityLabel}
+          style={styles.infoIconButton}
+        >
+          <FontAwesome5 name="info-circle" size={14} color={accent} />
+        </Pressable>
+      ) : null}
+    </View>
+  );
 
-  const showTooltip = useCallback(() => {
-    if (!tooltip && !costLabel) return;
-    Animated.timing(tooltipOpacity, {
-      toValue: 1,
-      duration: 150,
-      useNativeDriver: true,
-    }).start();
-    hideAfter.current && clearTimeout(hideAfter.current);
-    hideAfter.current = setTimeout(() => hideTooltip(), 1200);
-  }, [tooltip, costLabel, tooltipOpacity]);
-
-  const hideAfter = useRef();
-
-  const hideTooltip = useCallback(() => {
-    Animated.timing(tooltipOpacity, {
-      toValue: 0,
-      duration: 150,
-      useNativeDriver: true,
-    }).start();
-  }, [tooltipOpacity]);
-
-  const tooltipText = [
-    costLabel ? `Costo: ${costLabel}` : null,
-    tooltip || null,
-  ]
-    .filter(Boolean)
-    .join(" • ");
-
-  const accessibilityLabel = `${title} planta`;
-  const hint = [
-    accessibilityHint,
-    cooldownDisabled && formatted ? `Disponible en ${formatted}` : null,
-  ]
-    .filter(Boolean)
-    .join(". ");
-
-  return (
-    <View style={styles.wrapper}>
-      <Animated.View
-        pointerEvents="none"
+  if (variant === "dual") {
+    let primaryLabel = "Activar";
+    if (inactive) {
+      if (remainingMs > 0) {
+        primaryLabel = `Disponible en ${formatted}`;
+      } else {
+        // Mensajes mas intuitivos para recursos insuficientes
+        if (accentKey === "water") primaryLabel = "Falta mana";
+        else if (accentKey === "nutrients") primaryLabel = "Faltan monedas";
+        else primaryLabel = "No disponible";
+      }
+    }
+    const showIconOnly = false; // Mostrar texto "Activar" incluso cuando esta disponible
+    const a11yLabel = primaryLabel;
+    return (
+      <View
         style={[
-          styles.halo,
-          { backgroundColor: accent, opacity: haloOpacity },
-        ]}
-      />
-      <AnimatedPressable
-        accessibilityRole="button"
-        accessibilityLabel={accessibilityLabel}
-        accessibilityHint={hint}
-        hitSlop={{ top: Spacing.small, bottom: Spacing.small, left: Spacing.small, right: Spacing.small }}
-        disabled={disabled || cooldownDisabled}
-        onPressIn={() => animateScale(0.96)}
-        onPressOut={() => animateScale(1)}
-        onPress={handlePress}
-        onLongPress={showTooltip}
-        style={[
-          styles.button,
-          { backgroundColor: accent, transform: [{ scale }] },
-          (disabled || cooldownDisabled) && { opacity: Opacity.disabled },
+          styles.card,
+          styles.dualCard,
+          styles.dualCompact,
+          { backgroundColor, borderColor, borderLeftWidth: 3, borderLeftColor: accent },
         ]}
       >
-        {icon && <View style={styles.icon}>{icon}</View>}
-        <View style={styles.texts}>
-          <View style={styles.titleRow}>
-            <Text style={styles.title}>{title}</Text>
-            {cooldownDisabled && (
-              <Text style={styles.cooldown}>{formatted}</Text>
-            )}
-          </View>
-          {costLabel && <Text style={styles.cost}>{costLabel}</Text>}
+        <View style={styles.header}>
+          {icon ? <View style={styles.iconWrap}>{icon}</View> : null}
+          <Text style={styles.title} numberOfLines={2}>
+            {title}
+          </Text>
+          {onInfoPress ? (
+            <Pressable
+              onPress={onInfoPress}
+              hitSlop={Spacing.base}
+              accessibilityRole="button"
+              accessibilityLabel={infoAccessibilityLabel}
+              style={styles.infoIconButton}
+            >
+              <FontAwesome5 name="info-circle" size={14} color={accent} />
+            </Pressable>
+          ) : null}
         </View>
-      </AnimatedPressable>
-      {(tooltipText.length > 0) && (
-        <Animated.View
-          accessible
-          accessibilityLiveRegion="polite"
-          accessibilityLabel={tooltipText}
-          onLayout={(e) => setTooltipWidth(e.nativeEvent.layout.width)}
-          style={[
-            styles.tooltip,
-            {
-              opacity: tooltipOpacity,
-              transform: [
-                { translateX: -tooltipWidth / 2 },
-              ],
-            },
-          ]}
-        >
-          <Text style={styles.tooltipText}>{tooltipText}</Text>
-        </Animated.View>
-      )}
-    </View>
+        {helper ? (
+          <Text style={[styles.helper, styles.helperMuted]} numberOfLines={1}>
+            {helper}
+          </Text>
+        ) : null}
+        <View style={styles.dualRow}>
+          <Pressable
+            onPress={emitPress}
+            style={[
+              styles.dualPrimary,
+              { backgroundColor: inactive ? withAlpha(accent, 0.25) : accent },
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={a11yLabel}
+            accessibilityHint={inactive ? undefined : accessibilityHint}
+            accessibilityState={{ disabled: inactive }}
+          >
+            <Text
+              style={[
+                styles.dualPrimaryTextSmall,
+                { color: inactive ? withAlpha(Colors.text, 0.7) : Colors.background },
+              ]}
+            >
+              {primaryLabel}
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
+  // Variant: ritual/link (compact tile)
+  // Show helper only when available; show countdown when inactive
+  return (
+    <Pressable
+      onPress={emitPress}
+      style={[
+        styles.card,
+        styles.tileCard,
+        { backgroundColor, borderColor },
+        inactive && { opacity: Opacity.disabled },
+      ]}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled: inactive }}
+    >
+      {Header}
+      {inactive ? (
+        <Text style={styles.status}>{`Disponible en ${formatted}`}</Text>
+      ) : helper ? (
+        <Text style={[styles.helper, styles.helperCompact]} numberOfLines={1}>
+          {helper}
+        </Text>
+      ) : null}
+    </Pressable>
   );
 }
 
-function formatMs(ms) {
-  const total = Math.max(0, Math.floor(ms / 1000));
-  const m = Math.floor(total / 60)
-    .toString()
-    .padStart(2, "0");
-  const s = (total % 60).toString().padStart(2, "0");
-  return `${m}:${s}`;
-}
-
 const styles = StyleSheet.create({
-  wrapper: {
-    position: "relative",
+  card: {
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    padding: Spacing.base,
+    gap: Spacing.small,
   },
-  halo: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: Radii.pill,
+  tileCard: {
+    paddingVertical: Spacing.tiny,
+    paddingBottom: Spacing.small,
+    gap: 0,
   },
-  button: {
+  dualCard: {
+    gap: Spacing.small,
+  },
+  dualCompact: {
+    padding: Spacing.small,
+    gap: Spacing.tiny,
+  },
+  header: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    minHeight: Spacing.xlarge + Spacing.small,
-    ...Elevation.raised,
+    gap: Spacing.small,
   },
-  icon: {
-    marginRight: Spacing.small,
-  },
-  texts: {
-    flexDirection: "column",
-  },
-  titleRow: {
-    flexDirection: "row",
+  iconWrap: {
+    justifyContent: "center",
     alignItems: "center",
   },
   title: {
     ...Typography.body,
-    color: Colors.textInverse,
+    color: Colors.text,
+    fontWeight: "700",
+    flex: 1,
   },
-  cooldown: {
-    ...Typography.caption,
-    color: Colors.textInverse,
-    marginLeft: Spacing.small,
-  },
-  cost: {
-    ...Typography.caption,
-    color: Colors.textInverse,
-    opacity: Opacity.muted,
-  },
-  tooltip: {
-    position: "absolute",
-    bottom: "100%",
-    left: "50%",
-    marginBottom: Spacing.small,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: Radii.md,
-    ...Elevation.raised,
-  },
-  tooltipText: {
+  helper: {
     ...Typography.caption,
     color: Colors.text,
+    opacity: 0.9,
+  },
+  helperTimer: {
+    color: Colors.textMuted,
+    fontWeight: "700",
+  },
+  status: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    marginTop: Spacing.tiny,
+  },
+  helperMuted: {
+    color: Colors.textMuted,
+  },
+  helperCompact: {
+    marginTop: 2,
+    marginBottom: Spacing.tiny,
+  },
+  linkRow: {
+    alignItems: "flex-end",
+  },
+  linkButton: {
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.small,
+    borderRadius: Radii.pill,
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.4),
+  },
+  linkText: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontWeight: "600",
+  },
+  dualRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
+    justifyContent: "flex-end",
+    marginTop: Spacing.small,
+  },
+  infoTopRight: {
+    position: "absolute",
+    top: Spacing.small,
+    right: Spacing.small,
+    padding: Spacing.tiny,
+  },
+  dualPrimary: {
+    borderRadius: Radii.pill,
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.small,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "auto",
+  },
+  dualPrimaryText: {
+    ...Typography.body,
+    fontWeight: "700",
+  },
+  dualPrimaryTextSmall: {
+    ...Typography.caption,
+    fontWeight: "700",
+  },
+  dualSecondary: {
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.small,
+  },
+  dualSecondaryText: {
+    ...Typography.caption,
+    fontWeight: "700",
+  },
+  infoPill: {
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.small,
+  },
+  infoPillText: {
+    ...Typography.caption,
+    fontWeight: "700",
+  },
+  infoIconButton: {
+    padding: Spacing.tiny,
   },
 });
-

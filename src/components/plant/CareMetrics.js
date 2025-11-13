@@ -1,8 +1,8 @@
-// [MB] Módulo: Planta / Sección: Métricas de cuidado
-// Afecta: PlantScreen (grupo de indicadores)
-// Propósito: agrupar barras de agua, luz, nutrientes y ánimo
-// Puntos de edición futura: fuentes de datos reales
-// Autor: Codex - Fecha: 2025-08-16
+﻿// [MB] Modulo: Planta / Seccion: CareMetrics
+// Afecta: PlantScreen (grupo de indicadores visuales)
+// Proposito: mostrar barras compactas para agua, luz, nutrientes y animo
+// Puntos de edicion futura: conectar con estado real y responsivo extra
+// Autor: Codex - Fecha: 2025-10-21
 
 import React from "react";
 import { View, StyleSheet, useWindowDimensions } from "react-native";
@@ -10,16 +10,9 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import MetricPill from "./MetricPill";
 import { Colors, Spacing } from "../../theme";
 
-// type MetricValue = number | undefined; ver spec en tarea
-export default function CareMetrics({
-  water,
-  light,
-  nutrients,
-  mood,
-  style,
-}) {
+export default function CareMetrics({ water, light, nutrients, mood, style }) {
   const { width } = useWindowDimensions();
-  const isCompact = width < 400; // [MB] Corte simple para 1×4 en pantallas estrechas
+  const isCompact = width < 400;
 
   const metrics = [
     {
@@ -28,11 +21,7 @@ export default function CareMetrics({
       value: water,
       accentKey: "water",
       icon: (
-        <FontAwesome5
-          name="tint"
-          size={Spacing.base}
-          color={Colors.icon}
-        />
+        <FontAwesome5 name="tint" size={Spacing.base - 2} color={Colors.text} />
       ),
     },
     {
@@ -41,11 +30,7 @@ export default function CareMetrics({
       value: light,
       accentKey: "light",
       icon: (
-        <FontAwesome5
-          name="sun"
-          size={Spacing.base}
-          color={Colors.icon}
-        />
+        <FontAwesome5 name="sun" size={Spacing.base - 2} color={Colors.text} />
       ),
     },
     {
@@ -54,11 +39,7 @@ export default function CareMetrics({
       value: nutrients,
       accentKey: "nutrients",
       icon: (
-        <FontAwesome5
-          name="leaf"
-          size={Spacing.base}
-          color={Colors.icon}
-        />
+        <FontAwesome5 name="leaf" size={Spacing.base - 2} color={Colors.text} />
       ),
     },
     {
@@ -67,11 +48,7 @@ export default function CareMetrics({
       value: mood,
       accentKey: "mood",
       icon: (
-        <FontAwesome5
-          name="smile"
-          size={Spacing.base}
-          color={Colors.icon}
-        />
+        <FontAwesome5 name="smile" size={Spacing.base - 2} color={Colors.text} />
       ),
     },
   ];
@@ -79,21 +56,21 @@ export default function CareMetrics({
   return (
     <View
       style={[
-        styles.container,
-        { gap: Spacing.base },
+        styles.grid,
+        { gap: Spacing.small },
         style,
       ]}
     >
-      {metrics.map((m) => (
+      {metrics.map((metric) => (
         <View
-          key={m.key}
+          key={metric.key}
           style={{ flexBasis: isCompact ? "100%" : "48%" }}
         >
           <MetricPill
-            icon={m.icon}
-            label={m.label}
-            value={m.value}
-            accentKey={m.accentKey}
+            icon={metric.icon}
+            label={metric.label}
+            value={metric.value}
+            accentKey={metric.accentKey}
           />
         </View>
       ))}
@@ -102,10 +79,9 @@ export default function CareMetrics({
 }
 
 const styles = StyleSheet.create({
-  container: {
+  grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     alignSelf: "stretch",
   },
 });
-

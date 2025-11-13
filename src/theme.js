@@ -1,10 +1,8 @@
-// src/theme.js
-/* [MB] Módulo: Sistema de diseño / Sección: Tokens globales
-   Afecta: toda la app (colores, espaciado, tipografía, radios, elevación)
-   Propósito: unificar estilos y facilitar que Codex y yo creemos UI coherente
-   Puntos de edición futura: Typography, Radii
-   Autor: Codex - Fecha: 2025-02-15
-*/
+// [MB] Modulo: Sistema de diseno / Seccion: Tokens globales
+// Afecta: toda la app (colores, espaciado, tipografia, radios, elevacion)
+// Proposito: unificar estilos y facilitar que Codex y yo creemos UI coherente
+// Puntos de edicion futura: Typography, Radii
+// Autor: Codex - Fecha: 2025-10-20
 
 export const Opacity = {
   disabled: 0.5,
@@ -30,6 +28,10 @@ export const Colors = {
   secondaryLight: "#80deea",
   accent: "#ffca28", // Dorado suave para acentos
   onAccent: "#0e0a1e",
+
+  // Componentes
+  taskCardBackground: "#251a3f",
+  taskCardGlow: "#c2a7ff",
 
   // Fantasía (gradientes/decor)
   primaryFantasy: "#B542F6",
@@ -132,6 +134,26 @@ export const ElementAccents = {
         locations: [0, 1],
         angle: 45,
       },
+    },
+    potions: {
+      colors: [Colors.primaryFantasy, Colors.primaryLight],
+      locations: [0, 1],
+      angle: 45,
+    },
+    tools: {
+      colors: [Colors.elementEarth, Colors.elementEarthLight],
+      locations: [0, 1],
+      angle: 45,
+    },
+    cosmetics: {
+      colors: [Colors.secondaryFantasy, Colors.accent],
+      locations: [0, 1],
+      angle: 45,
+    },
+    gem: {
+      colors: [Colors.secondaryLight, Colors.secondary],
+      locations: [0, 1],
+      angle: 45,
     },
   },
   accentCta: Colors.accent,

@@ -1,81 +1,100 @@
-// [MB] Módulo: Home / Sección: Inventario (Estilos)
+﻿// [MB] Modulo: Home / Seccion: Inventario (Estilos)
 // Afecta: HomeScreen
-// Propósito: Estilos para resumen de inventario
-// Puntos de edición futura: colores por categoría y lista completa
-// Autor: Codex - Fecha: 2025-08-12
+// Proposito: Estilos para resumen de inventario compacto
+// Puntos de edicion futura: responsivo y variantes de color
+// Autor: Codex - Fecha: 2025-10-15
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Typography, Elevation } from "../../theme";
+import { Colors, Spacing, Radii, Typography } from "../../theme";
 
 export default StyleSheet.create({
   container: {
     backgroundColor: Colors.surface,
+    borderColor: Colors.border,
+    borderWidth: 1,
+    borderRadius: Radii.xl,
     padding: Spacing.base,
-    borderRadius: Radii.md,
-    marginBottom: Spacing.tiny,
-    ...Elevation.card,
+    gap: Spacing.base,
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   title: {
     ...Typography.h2,
     color: Colors.text,
   },
-  chipsRow: {
-    flexDirection: "row",
-    marginTop: Spacing.small,
-  },
-  chip: {
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.base,
-    height: 28,
-    justifyContent: "center",
-    marginRight: Spacing.small,
-  },
-  chipText: {
+  subtitle: {
     ...Typography.caption,
-    color: Colors.text,
-  },
-  list: {
-    marginTop: Spacing.base,
-  },
-  itemRow: {
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: Radii.lg,
-    padding: Spacing.base,
-    marginBottom: Spacing.small,
-    flexDirection: "row",
-    alignItems: "center",
-    ...Elevation.card,
-  },
-  itemIcon: {
-    marginRight: Spacing.small,
-    fontSize: 18,
-  },
-  itemTitle: {
-    flex: 1,
-    ...Typography.body,
-    color: Colors.text,
-  },
-  itemQty: {
-    ...Typography.body,
     color: Colors.textMuted,
   },
-  viewAllButton: {
-    marginTop: Spacing.base,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radii.md,
-    paddingVertical: Spacing.small,
-    alignItems: "center",
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    gap: Spacing.small,
   },
-  viewAllText: {
+  pressableTile: {
+    flexBasis: "48%",
+    borderRadius: Radii.lg,
+  },
+  tilePressed: {
+    opacity: 0.85,
+  },
+  tile: {
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.base,
+    backgroundColor: Colors.surfaceAlt,
+    borderColor: Colors.border,
+    gap: Spacing.tiny,
+  },
+  tileLabel: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontWeight: "600",
+    textTransform: "uppercase",
+  },
+  tileValue: {
+    ...Typography.title,
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  tileCta: {
     ...Typography.body,
     color: Colors.text,
+    fontWeight: "600",
+  },
+  emptyState: {
+    alignItems: "center",
+    gap: Spacing.small,
   },
   emptyText: {
     ...Typography.body,
     color: Colors.textMuted,
     textAlign: "center",
-    marginTop: Spacing.base,
+  },
+  emptyLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surfaceAlt,
+  },
+  emptyLinkText: {
+    ...Typography.caption,
+    color: Colors.text,
+    fontWeight: "600",
+  },
+  emptyLinkIcon: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontWeight: "600",
   },
 });

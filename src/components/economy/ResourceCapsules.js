@@ -9,7 +9,15 @@ import { View, StyleSheet } from "react-native";
 import ResourceChip from "./ResourceChip";
 import { Spacing } from "../../theme";
 
-export default function ResourceCapsules({ mana, coins, gems, txn, insufficient }) {
+export default function ResourceCapsules({
+  mana,
+  coins,
+  gems,
+  txn,
+  insufficient,
+  style,
+  itemStyle,
+}) {
   const [hintFor, setHintFor] = useState(null);
 
   useEffect(() => {
@@ -25,8 +33,8 @@ export default function ResourceCapsules({ mana, coins, gems, txn, insufficient 
   };
 
   return (
-    <View style={styles.row}>
-      <View style={styles.item}>
+    <View style={[styles.row, style]}>
+      <View style={[styles.item, itemStyle]}>
         <ResourceChip
           type="mana"
           value={mana}
@@ -36,7 +44,7 @@ export default function ResourceCapsules({ mana, coins, gems, txn, insufficient 
           onHintHidden={() => handleHintHidden("mana")}
         />
       </View>
-      <View style={styles.item}>
+      <View style={[styles.item, itemStyle]}>
         <ResourceChip
           type="coins"
           value={coins}
@@ -46,7 +54,7 @@ export default function ResourceCapsules({ mana, coins, gems, txn, insufficient 
           onHintHidden={() => handleHintHidden("coins")}
         />
       </View>
-      <View style={styles.item}>
+      <View style={[styles.item, itemStyle]}>
         <ResourceChip
           type="gems"
           value={gems}
@@ -63,11 +71,10 @@ export default function ResourceCapsules({ mana, coins, gems, txn, insufficient 
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
-    flexWrap: "wrap",
+    alignItems: "center",
   },
   item: {
-    marginRight: Spacing.base,
-    marginBottom: Spacing.small,
+    marginRight: Spacing.small,
   },
 });
 

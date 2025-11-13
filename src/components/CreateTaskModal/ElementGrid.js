@@ -1,19 +1,24 @@
-// [MB] Módulo: Tasks / Sección: CreateTaskModal - ElementGrid
-// Afecta: CreateTaskModal (selección de elemento)
-// Propósito: Grid 2x2 con animaciones de selección de elementos
-// Puntos de edición futura: animaciones y estilos por elemento
-// Autor: Codex - Fecha: 2025-08-16
+﻿// [MB] Modulo: Tasks / Seccion: CreateTaskModal - ElementGrid
+// Afecta: CreateTaskModal (seleccion de elemento)
+// Proposito: Grid 2x2 con animaciones de seleccion de elementos
+// Puntos de edicion futura: animaciones y estilos por elemento
+// Autor: Codex - Fecha: 2025-10-20
 
-import React, { useState, useRef, useEffect } from "react";
-import { View, Pressable, Text, Animated, Easing } from "react-native";
-import { Colors, Spacing, Elevation, Radii } from "../../theme";
+import React, { useState, useMemo } from "react";
+import { View, Pressable, Text, Image } from "react-native";
+import { Colors, Spacing, Radii } from "../../theme";
 import styles from "./CreateTaskModal.styles";
 
-const withAlpha = (hex, alpha) => {
-  const a = Math.round(alpha * 255)
-    .toString(16)
-    .padStart(2, "0");
-  return `${hex}${a}`;
+const withAlpha = (hex = "", alpha = 1) => {
+  if (!hex) return hex;
+  const cleaned = `${hex}`.replace("#", "").trim();
+  const base = cleaned.length === 8 ? cleaned.slice(0, 6) : cleaned;
+  if (base.length !== 6) return hex;
+  const value = parseInt(base, 16);
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
 };
 
 const ElementAccents = {
@@ -23,113 +28,98 @@ const ElementAccents = {
   air: Colors.elementAir,
 };
 
+// TODO: restaurar emojis una vez se actualice el encoding global del repo.
 const ELEMENTS = [
-  { key: "water", label: "Agua", emoji: "💧", caption: "Fluye y enfoca" },
-  { key: "fire", label: "Fuego", emoji: "🔥", caption: "Energía y empuje" },
-  { key: "earth", label: "Tierra", emoji: "🌱", caption: "Constancia y base" },
-  { key: "air", label: "Aire", emoji: "💨", caption: "Ligereza y ritmo" },
+  { key: "water", label: "Agua", icon: require("../../../assets/water.png"), caption: "Fluye y enfoca" },
+  { key: "fire", label: "Fuego", icon: require("../../../assets/fire.png"), caption: "Energía y empuje" },
+  { key: "earth", label: "Tierra", icon: require("../../../assets/earth.png"), caption: "Constancia y base" },
+  { key: "air", label: "Aire", icon: require("../../../assets/wind.png"), caption: "Ligereza y ritmo" },
 ];
 
 export default function ElementGrid({ value, onChange, onLongPress, tileAspect = 0.78 }) {
   const [gridWidth, setGridWidth] = useState(0);
-  const cardSize = gridWidth ? (gridWidth - Spacing.small) / 2 : 0;
+  const horizontalPadding = Spacing.small;
+  const columnGap = Spacing.small;
+  const cardSize = gridWidth
+    ? (gridWidth - horizontalPadding * 2 - columnGap) / 2
+    : 0;
   const cardHeight = cardSize * tileAspect;
+  const rows = useMemo(() => {
+    const chunked = [];
+    for (let idx = 0; idx < ELEMENTS.length; idx += 2) {
+      chunked.push(ELEMENTS.slice(idx, idx + 2));
+    }
+    return chunked;
+  }, []);
 
   return (
     <View
       style={styles.elementGrid}
       onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)}
     >
-      {ELEMENTS.map((el, idx) => (
-        <ElementTile
-          key={el.key}
-          element={el}
-          index={idx}
-          width={cardSize}
-          height={cardHeight}
-          selected={value === el.key}
-          onPress={() => onChange(el.key)}
-          onLongPress={() => onLongPress(el.key)}
-        />
+      {rows.map((row, rowIdx) => (
+        <View
+          key={`element-row-${rowIdx}`}
+          style={[
+            styles.elementRow,
+            rowIdx === rows.length - 1 && styles.elementRowLast,
+          ]}
+        >
+          {row.map((el, colIdx) => (
+            <ElementTile
+              key={el.key}
+              element={el}
+              width={cardSize}
+              height={cardHeight}
+              selected={value === el.key}
+              onPress={() => onChange(el.key)}
+              onLongPress={() => onLongPress(el.key)}
+              isLastColumn={colIdx === row.length - 1}
+              columnGap={columnGap}
+            />
+          ))}
+          {row.length === 1 && (
+            <View style={{ width: cardSize, height: cardHeight }} />
+          )}
+        </View>
       ))}
     </View>
   );
 }
 
-function ElementTile({ element, index, width, height, selected, onPress, onLongPress }) {
+function ElementTile({ element, width, height, selected, onPress, onLongPress, isLastColumn, columnGap }) {
   const accent = ElementAccents[element.key];
-  const glowScale = useRef(new Animated.Value(selected ? 1 : 0.98)).current;
-  const glowOpacity = useRef(new Animated.Value(selected ? 1 : 0)).current;
-
-  useEffect(() => {
-    Animated.timing(glowScale, {
-      toValue: selected ? 1 : 0.98,
-      duration: 150,
-      easing: Easing.out(Easing.ease),
-      useNativeDriver: true,
-    }).start();
-    Animated.timing(glowOpacity, {
-      toValue: selected ? 1 : 0,
-      duration: 150,
-      easing: Easing.out(Easing.ease),
-      useNativeDriver: true,
-    }).start();
-  }, [selected, glowScale, glowOpacity]);
+  const activeBackground = selected ? withAlpha(accent, 0.16) : "transparent";
+  const activeBorder = selected
+    ? withAlpha(accent, 0.9)
+    : withAlpha(Colors.primaryLight, 0.25);
 
   return (
     <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
       accessibilityRole="button"
-      accessibilityLabel={`Mantén presionado para ver ayuda de ${element.label}`}
+      accessibilityLabel={`Mantener presionado para ver ayuda de ${element.label}`}
       accessibilityState={{ selected }}
-      style={{
-        width,
-        height,
-        marginRight: index % 2 === 0 ? Spacing.small : 0,
-        marginBottom: Spacing.small,
-        borderRadius: Radii.lg,
-      }}
+      style={[
+        styles.elementTile,
+        {
+          width,
+          height,
+          borderColor: activeBorder,
+          backgroundColor: activeBackground,
+          marginRight: isLastColumn ? 0 : columnGap,
+        },
+        selected && styles.elementTileActive,
+      ]}
     >
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          styles.elementGlow,
-          {
-            backgroundColor: withAlpha(accent, 0.26),
-            opacity: glowOpacity,
-            transform: [{ scale: glowScale }],
-            shadowColor: accent,
-            shadowOpacity: 0.8,
-            shadowRadius: 12,
-            elevation: 8,
-            borderRadius: Radii.lg,
-          },
-        ]}
-      />
-      <View
-        style={[
-          styles.elementTile,
-          {
-            borderColor: selected ? accent : Colors.border,
-            backgroundColor: selected
-              ? withAlpha(accent, 0.18)
-              : Colors.surface,
-          },
-          selected && { ...(Elevation.raised || {}), shadowColor: accent },
-        ]}
-      >
-        <Text style={styles.elementEmoji}>{element.emoji}</Text>
-        <Text style={styles.elementTitle}>{element.label}</Text>
-        <Text
-          style={styles.elementCaption}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {element.caption}
-        </Text>
-      </View>
+      <Image source={element.icon} style={{ width: 36, height: 36, marginBottom: Spacing.tiny }} resizeMode="contain" />
+      <Text style={styles.elementTitle}>{element.label}</Text>
+      <Text style={styles.elementCaption} numberOfLines={1} ellipsizeMode="tail">
+        {element.caption}
+      </Text>
     </Pressable>
   );
 }
+
 

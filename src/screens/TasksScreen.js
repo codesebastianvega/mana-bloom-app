@@ -1,20 +1,12 @@
-// [MB] TasksScreen — filtros sticky y FAB en gradiente
-// [MB] Módulo: Tasks / Sección: Pantalla de tareas
-// Afecta: TasksScreen (listado y gestión de tareas)
-// Propósito: Listar, filtrar y persistir tareas con recompensas seguras
-// Puntos de edición futura: manejo remoto y estilos de filtros
-// Autor: Codex - Fecha: 2025-08-16
+// [MB] Modulo: Tasks / Seccion: Pantalla de tareas
+// Afecta: TasksScreen (listado y gestion de tareas)
+// Proposito: Listar, filtrar y guiar el uso de colores y recompensas
+// Puntos de edicion futura: filtros avanzados y ayudas contextuales
+// Autor: Codex - Fecha: 2025-10-20
 
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  SafeAreaView,
-  FlatList,
-  Modal,
-  View,
-  StatusBar,
-  TouchableOpacity,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { FlatList, Modal, View, StatusBar, TouchableOpacity } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -25,32 +17,42 @@ import TaskFilters from "../components/TaskFilters";
 import TaskCard from "../components/TaskCard/TaskCard";
 import FiltersHeader from "../components/FilterBar/FiltersHeader";
 import styles from "./TasksScreen.styles";
-import { Colors, Spacing, Gradients } from "../theme";
+import { Colors, Spacing, Gradients, ElementAccents } from "../theme";
 import CreateTaskModal from "../components/CreateTaskModal/CreateTaskModal";
 import { useAppDispatch } from "../state/AppContext";
 import { XP_REWARD_BY_PRIORITY } from "../constants/rewards";
 
-// ——— 1) Configuración de filtros ———
+// â€”â€”â€” 1) ConfiguraciÃ³n de filtros â€”â€”â€”
 const mainFilters = [
   { key: "all", label: "Todos", icon: "star", color: Colors.text },
   { key: "single", label: "Tareas", icon: "calendar", color: Colors.text },
   {
     key: "habit",
-    label: "Hábitos",
+    label: "HÃ¡bitos",
     icon: "check-square",
     color: Colors.text,
   },
 ];
 
-const statusFilters = [
-  { key: "pending", label: "Pendientes", icon: "clock", color: Colors.text },
+const STATUS_FILTER_CONFIG = [
+  {
+    key: "pending",
+    label: "Pendientes",
+    icon: "clock",
+    accent: Colors.accent,
+  },
   {
     key: "completed",
     label: "Completadas",
     icon: "check-circle",
-    color: Colors.secondary,
+    accent: Colors.success,
   },
-  { key: "deleted", label: "Eliminadas", icon: "trash", color: Colors.danger },
+  {
+    key: "deleted",
+    label: "Eliminadas",
+    icon: "trash",
+    accent: Colors.danger,
+  },
 ];
 
 const priorityOptions = [
@@ -110,57 +112,57 @@ const elementOptions = [
 
 const elementInfo = {
   fire: {
-    title: "Fuego 🔥 (Poder y Pasión)",
+    title: "Fuego ðŸ”¥ (Poder y PasiÃ³n)",
     description:
-      "Se usa para tareas que requieren alta energía, urgencia o creatividad espontánea.",
+      "Se usa para tareas que requieren alta energÃ­a, urgencia o creatividad espontÃ¡nea.",
     examples: [
       "Enviar propuesta con deadline hoy",
-      "Pitch rápido/brainstorm",
+      "Pitch rÃ¡pido/brainstorm",
       "Entrenamiento intenso",
-      "Resolver bug crítico",
+      "Resolver bug crÃ­tico",
       "Grabar video/toma creativa",
-      "Lanzar campaña",
+      "Lanzar campaÃ±a",
       "Limpiar backlog urgente",
     ],
     purpose:
-      'Propósito: "Inyecta poder y acelera el crecimiento de la planta."',
+      'PropÃ³sito: "Inyecta poder y acelera el crecimiento de la planta."',
   },
   water: {
-    title: "Agua 💧 (Calma y Flujo)",
+    title: "Agua ðŸ’§ (Calma y Flujo)",
     description:
-      "Se usa para tareas que necesitan atención continua, concentración o un estado de calma.",
+      "Se usa para tareas que necesitan atenciÃ³n continua, concentraciÃ³n o un estado de calma.",
     examples: [
       "Planificar semana",
-      "Leer/estudiar 30–60 min",
+      "Leer/estudiar 30â€“60 min",
       "Redactar documento largo",
       "Procesar correos",
-      "Meditación/respiración",
+      "MeditaciÃ³n/respiraciÃ³n",
       "Refinar notas",
-      "Revisión tranquila de PRs",
+      "RevisiÃ³n tranquila de PRs",
     ],
     purpose:
-      'Propósito: "Mantiene la planta hidratada y en un crecimiento estable."',
+      'PropÃ³sito: "Mantiene la planta hidratada y en un crecimiento estable."',
   },
   earth: {
-    title: "Tierra 🌱 (Estabilidad y Crecimiento)",
+    title: "Tierra ðŸŒ± (Estabilidad y Crecimiento)",
     description:
-      "Se usa para tareas fundamentales, repetitivas o que construyen un hábito.",
+      "Se usa para tareas fundamentales, repetitivas o que construyen un hÃ¡bito.",
     examples: [
       "Rutina de ejercicio",
       "Ordenar escritorio",
       "Lavar/organizar",
-      "Contabilidad/domésticos",
+      "Contabilidad/domÃ©sticos",
       "Repasar vocabulario",
       "Backup/limpieza sistema",
-      "Hábitos diarios",
+      "HÃ¡bitos diarios",
     ],
     purpose:
-      'Propósito: "Proporciona una base sólida y nutrientes para un crecimiento sostenible."',
+      'PropÃ³sito: "Proporciona una base sÃ³lida y nutrientes para un crecimiento sostenible."',
   },
   air: {
-    title: "Aire 🌬️ (Libertad y Movimiento)",
+    title: "Aire ðŸŒ¬ï¸ (Libertad y Movimiento)",
     description:
-      "Se usa para tareas que requieren claridad mental, comunicación o flexibilidad.",
+      "Se usa para tareas que requieren claridad mental, comunicaciÃ³n o flexibilidad.",
     examples: [
       "Escribir correo importante",
       "Organizar ideas/Mindmap",
@@ -171,7 +173,7 @@ const elementInfo = {
       "Documentar decisiones",
     ],
     purpose:
-      'Propósito: "Le da a la planta el espacio para respirar y expandirse."',
+      'PropÃ³sito: "Le da a la planta el espacio para respirar y expandirse."',
   },
 };
 
@@ -180,7 +182,7 @@ export default function TasksScreen() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight?.() ?? 56;
   const fabOffset = tabBarHeight + insets.bottom + Spacing.large;
-  // ——— 2) Estados ———
+  // â€”â€”â€” 2) Estados â€”â€”â€”
   const [tasks, setTasks] = useState([]);
   const uniqueTags = Array.from(new Set(tasks.flatMap((t) => t.tags || [])));
   const [typeFilter, setTypeFilter] = useState("all");
@@ -190,9 +192,21 @@ export default function TasksScreen() {
   const [tagFilter, setTagFilter] = useState("all");
   const [activeFilter, setActiveFilter] = useState("pending");
   const [filtersVisible, setFiltersVisible] = useState(false); // BottomSheet de filtros
-  const [showAddModal, setShowAddModal] = useState(false); // Para el botón de añadir tarea
+  const [showAddModal, setShowAddModal] = useState(false); // Para el botÃ³n de aÃ±adir tarea
   const [editingTask, setEditingTask] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+
+  const statusFilters = useMemo(() => {
+    const counts = {
+      pending: tasks.filter((t) => !t.completed && !t.isDeleted).length,
+      completed: tasks.filter((t) => t.completed && !t.isDeleted).length,
+      deleted: tasks.filter((t) => t.isDeleted).length,
+    };
+    return STATUS_FILTER_CONFIG.map((item) => ({
+      ...item,
+      count: counts[item.key] || 0,
+    }));
+  }, [tasks]);
 
   useEffect(() => {
     const hydrate = async () => {
@@ -212,12 +226,39 @@ export default function TasksScreen() {
   }, [tasks]);
 
   const difficultyOptions = [
-    { key: "easy", label: "Fácil", color: Colors.secondary },
+    { key: "easy", label: "FÃ¡cil", color: Colors.secondary },
     { key: "medium", label: "Medio", color: Colors.accent },
-    { key: "hard", label: "Difícil", color: Colors.danger },
+    { key: "hard", label: "DifÃ­cil", color: Colors.danger },
   ];
   // filtro avanzado
   const [difficultyFilter, setDifficultyFilter] = useState("all");
+
+  const fabGradientPreset = useMemo(() => {
+    if (activeFilter === "completed") {
+      return ElementAccents.gradients.gem;
+    }
+    if (activeFilter === "deleted") {
+      return ElementAccents.gradients.tools;
+    }
+    switch (typeFilter) {
+      case "habit":
+        return ElementAccents.gradients.potions;
+      case "single":
+        return ElementAccents.gradients.tools;
+      case "all":
+      default:
+        return ElementAccents.gradients.xp?.med;
+    }
+  }, [activeFilter, typeFilter]);
+
+  const fabGradientColors = useMemo(() => {
+    const base = fabGradientPreset?.colors;
+    if (base && base.length >= 2) {
+      return base;
+    }
+    return [Colors.primaryFantasy, Colors.secondary, Colors.accent];
+  }, [fabGradientPreset]);
+  const fabGradientLocations = fabGradientPreset?.locations;
   const addTask = (draft) => {
     const newTask = {
       id: Date.now().toString(),
@@ -332,7 +373,7 @@ export default function TasksScreen() {
     setShowAddModal(true);
   };
 
-  // ——— 4) Filtrado combinado ———
+  // â€”â€”â€” 4) Filtrado combinado â€”â€”â€”
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
       let stateOK;
@@ -372,7 +413,7 @@ export default function TasksScreen() {
     difficultyFilter,
   ]);
 
-  // ——— 5) Render ———
+  // â€”â€”â€” 5) Render â€”â€”â€”
   const listData = useMemo(
     () => [{ type: "filters", key: "filters" }, ...filteredTasks],
     [filteredTasks]
@@ -420,7 +461,7 @@ export default function TasksScreen() {
         stickyHeaderIndices={[1]}
         contentContainerStyle={[styles.content, { paddingBottom: fabOffset }]}
         ItemSeparatorComponent={() => (
-          <View style={{ height: Spacing.small + Spacing.tiny }} />
+          <View style={{ height: Spacing.small - Spacing.tiny / 2 }} />
         )}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -436,12 +477,13 @@ export default function TasksScreen() {
         style={[styles.fabContainer, { bottom: fabOffset }]}
         onPress={onAddTask}
         accessibilityRole="button"
-        accessibilityLabel="Añadir tarea"
+        accessibilityLabel="Agregar tarea"
       >
         <LinearGradient
-          colors={Gradients.xp}
+          colors={fabGradientColors}
+          locations={fabGradientLocations}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
+          end={{ x: 1, y: 1 }}
           style={styles.fabGradient}
         >
           <FontAwesome name="plus" size={20} color={Colors.onAccent} />

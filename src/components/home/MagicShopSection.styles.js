@@ -1,19 +1,25 @@
-// [MB] Módulo: Home / Sección: Tienda Mágica (Estilos)
+// [MB] Modulo: Home / Seccion: Tienda Magica (Estilos)
 // Afecta: HomeScreen
-// Propósito: Estilos para sección de tienda mágica con tabs y cards
-// Puntos de edición futura: diferenciar categorías y tarjetas, retirar debug
+// Proposito: Estilos para seccion de tienda con tabs y badges vidriados
+// Puntos de edicion futura: ajustar glass, sombras y responsivo
 // Autor: Codex - Fecha: 2025-08-13
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
+import { Colors, Spacing, Radii, Typography, Opacity } from "../../theme";
+
+const BADGE_GLASS_ALPHA = Math.min(0.24, Opacity.overlay * 4);
+const BADGE_BORDER_ALPHA = Math.min(0.32, BADGE_GLASS_ALPHA + 0.08);
+const BADGE_BACKGROUND = `rgba(255,255,255,${BADGE_GLASS_ALPHA})`;
+const BADGE_BORDER = `rgba(255,255,255,${BADGE_BORDER_ALPHA})`;
 
 export default StyleSheet.create({
   container: {
     backgroundColor: Colors.surface,
+    borderRadius: Radii.xl,
+    borderWidth: 1,
+    borderColor: Colors.border,
     padding: Spacing.base,
-    borderRadius: Radii.md,
-    marginBottom: Spacing.tiny,
-    ...Elevation.card,
+    gap: Spacing.base,
   },
   title: {
     ...Typography.h2,
@@ -24,92 +30,138 @@ export default StyleSheet.create({
     color: Colors.textMuted,
     marginTop: Spacing.tiny,
   },
-  manaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: Spacing.small,
-    paddingVertical: Spacing.small,
-    marginBottom: Spacing.tiny,
-  },
-  manaLabel: {
-    ...Typography.caption,
-    color: Colors.text,
-  },
-  manaPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.base,
-    height: 28,
-  },
-  manaIcon: {
-    marginRight: Spacing.small,
-  },
-  manaValue: {
-    ...Typography.body,
-    color: Colors.text,
-  },
-  walletPills: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  currencyPill: {
-    flexDirection: "row",
-    alignItems: "center",
+  walletCard: {
+    backgroundColor: Colors.surfaceAlt,
+    borderRadius: Radii.lg,
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.small,
-    height: 24,
-    marginLeft: Spacing.small,
+    padding: Spacing.base,
+    flexDirection: "row",
+    gap: Spacing.small,
   },
-  currencyIcon: {
-    marginRight: Spacing.tiny,
+  walletStat: {
+    flex: 1,
+    gap: Spacing.tiny / 2,
   },
-  currencyValue: {
+  walletHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
+  },
+  walletTitle: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "600",
+  },
+  walletSubtitle: {
     ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  walletValue: {
+    ...Typography.title,
     color: Colors.text,
   },
   tabsRow: {
     flexDirection: "row",
+    gap: Spacing.small,
   },
   tabButton: {
     flex: 1,
-    height: 40,
-    paddingHorizontal: Spacing.base,
     borderRadius: Radii.lg,
     borderWidth: 1,
     borderColor: Colors.border,
-    justifyContent: "center",
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.base,
+    flexDirection: "row",
     alignItems: "center",
-    marginRight: Spacing.small,
+    justifyContent: "center",
+    gap: Spacing.tiny,
   },
   tabText: {
-    // Texto de la pestaña
     ...Typography.body,
     color: Colors.text,
     fontSize: 12,
+    fontWeight: "600",
   },
-  itemWrapper: {
-    marginTop: Spacing.base,
+  tabIcon: {
+    marginRight: Spacing.tiny,
+  },
+  badgeGrid: {
+    gap: Spacing.small,
+  },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.base,
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    borderColor: BADGE_BORDER,
+    backgroundColor: BADGE_BACKGROUND,
+    gap: Spacing.small,
+  },
+  badgePressed: {
+    opacity: 0.9,
+  },
+  badgeLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+    flexShrink: 1,
+  },
+  badgeIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: Radii.md,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: BADGE_BORDER,
+    backgroundColor: BADGE_BACKGROUND,
+  },
+  badgeEmoji: {
+    fontSize: 18,
+    lineHeight: 20,
+  },
+  badgeTitle: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "600",
+    flexShrink: 1,
+  },
+  badgeRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
+  },
+  badgePrice: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontWeight: "600",
+  },
+  badgePriceValue: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "600",
   },
   viewAllButton: {
-    marginTop: Spacing.base,
+    borderRadius: Radii.lg,
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: Radii.md,
     paddingVertical: Spacing.small,
+    flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
+    gap: Spacing.tiny,
   },
   viewAllText: {
     ...Typography.body,
     color: Colors.text,
+    fontWeight: "600",
   },
   debugButton: {
     alignSelf: "flex-end",
-    marginBottom: Spacing.small,
     paddingVertical: Spacing.tiny,
     paddingHorizontal: Spacing.base,
     borderRadius: Radii.pill,
@@ -118,6 +170,6 @@ export default StyleSheet.create({
   },
   debugButtonText: {
     ...Typography.caption,
-    color: Colors.text,
+    color: Colors.textMuted,
   },
 });

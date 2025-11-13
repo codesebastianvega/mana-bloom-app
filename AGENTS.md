@@ -2,43 +2,43 @@
 
 ## Contexto
 
-- App Expo 53, React Native 0.79, React 19.
+- App Expo 54 (SDK 54), React Native 0.81, React 19.
 - Estructura: `src/components`, `src/screens`, tokens en `src/theme.js`.
-- Objetivo: productividad y h√°bitos gamificada; el usuario cultiva una planta virtual con man√° ganado por tareas y rachas.
+- Objetivo: productividad y h·bitos gamificada; el usuario cultiva una planta virtual con man· ganado por tareas y rachas.
 
 ## Principios
 
-1. Cambios **peque√±os y at√≥micos**; mensaje de commit claro.
+1. Cambios **pequeÒos y atÛmicos**; mensaje de commit claro.
 2. Mantener **consistencia** en imports, rutas y estilos (`*.styles.js` cuando crezcan).
-3. **UI/UX puede cambiar**, pero salvo que la tarea lo pida, evite redise√±os grandes.
+3. **UI/UX puede cambiar**, pero salvo que la tarea lo pida, evitar rediseÒos grandes.
 4. Respetar el **tema oscuro, gradientes y espaciado** existentes.
 
-## Estado y datos (transici√≥n)
+## Estado y datos (transiciÛn)
 
-- A√∫n **no hay estado global** ni **persistencia**.
+- A˙n **no hay estado global** ni **persistencia**.
 - Plan de etapas:
-  1. Estado m√≠nimo con **Context** (man√°, estado de planta) en memoria.
-  2. Agregar **AsyncStorage** para persistir (man√°, tareas, rachas).
-  3. Extender a m√°s pantallas (tienda, perfil).
+  1. Estado mÌnimo con **Context** (man·, estado de planta) en memoria.
+  2. Agregar **AsyncStorage** para persistir (man·, tareas, rachas).
+  3. Extender a m·s pantallas (tienda, perfil).
 
-## C√≥mo correr
+## CÛmo correr
 
 - Instalar: `npm ci`
 - Iniciar: `npm run start` (o `npm run web`)
 - Android/iOS: `npm run android` / `npm run ios`
 
-## Verificaci√≥n m√≠nima (temporal)
+## VerificaciÛn mÌnima (temporal)
 
 - `npm test` (placeholder) debe finalizar **OK**.
 - La app debe iniciar sin errores.
 - Si toca encabezados/top bars, usar `react-native-safe-area-context` para evitar solaparse con el notch.
 
-## Alcance de tareas t√≠picas
+## Alcance de tareas tÌpicas
 
 - Integrar y ajustar componentes (p. ej. encabezado en Home).
-- A√±adir UI simple (badges, contadores, barras).
-- Preparar tokens en `theme.js` (evitar ‚Äúhardcodear‚Äù colores/tama√±os).
-- A√±adir Context y luego persistencia con AsyncStorage.
+- AÒadir UI simple (badges, contadores, barras).
+- Preparar tokens en `theme.js` (evitar ìhardcodearî colores/tamaÒos).
+- AÒadir Context y luego persistencia con AsyncStorage.
 
 ## Checklist por tarea
 
@@ -50,26 +50,21 @@
 
 - Encabezado obligatorio al inicio de cada archivo nuevo o modificado:
 
-// [MB] M√≥dulo: Home / Secci√≥n: Tienda M√°gica (Pesta√±as)
-// Afecta: HomeScreen (layout principal)
-// Prop√≥sito: UI de tienda con tabs Potiones|Herramientas|Cosm√©ticos
-// Puntos de edici√≥n futura: estilos .styles.js y data mock en la secci√≥n
-// Autor: <tu_nombre o Codex> - Fecha: YYYY-MM-DD
-
-- Mantener componentes por secci√≥n en subcarpeta `src/components/home/`.
-- Preferir tokens de `theme.js` (Colors, Spacing). No hardcodear colores salvo acentos de cada tab (ver abajo).
-
-## Encabezado obligatorio en archivos nuevos o modificados
-
-// [MB] M√≥dulo: <Home|Tasks|etc> / Secci√≥n: <...>
+// [MB] MÛdulo: <Home|Tasks|etc> / SecciÛn: <...>
 // Afecta: <pantalla/componente principal>
-// Prop√≥sito: <qu√© hace este archivo>
-// Puntos de edici√≥n futura: <d√≥nde tocar si cambio la UI>
+// PropÛsito: <quÈ hace este archivo>
+// Puntos de ediciÛn futura: <dÛnde tocar si cambio la UI>
 // Autor: <Sebas|Codex> - Fecha: YYYY-MM-DD
 
-## Verificaci√≥n de ejecuci√≥n (pol√≠tica pr√°ctica)
+- Mantener componentes por secciÛn en subcarpeta `src/components/home/` (o `plant/`, `profile/`, seg˙n corresponda).
+- Preferir tokens de `theme.js` (Colors, Spacing). No hardcodear colores salvo acentos especÌficos.
 
-- Prioridad: `npm test` (placeholder) debe terminar OK.
-- Opcional: `npx expo doctor` para chequeos de entorno.
-- `expo start` o `npm run web` son auxiliares: si fallan por red/puerto/proxy, NO bloquean la tarea.
-- La validaci√≥n visual final la hago yo en Expo Go (QR en mi tel√©fono).
+## Notas recientes
+
+- **PlantScreen (visual)**
+  - Header de estado = mensaje + barra de salud + 2 stats (Nivel, Rituales) sin chips de racha ni c·psulas de recursos.
+  - Tarjeta hero usa `assets/matureplant.png`, incluye fila ìXP / ETAî y acciones (Regar, Meditar, Cambiar maceta).
+  - Balance elemental = dona arriba + grid 2◊2 con Ìconos `assets/fire|water|earth|wind.png`.
+- **CreateTaskModal**: mantener starfield visible (sin blur ni overlays opacos).
+- **Estilo de archivos**: no introducir secuencias `\n` literales; escribir saltos reales.
+

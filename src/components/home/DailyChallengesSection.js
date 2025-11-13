@@ -1,7 +1,7 @@
-// [MB] Módulo: Home / Componente: DailyChallengesSection
+// [MB] Modulo: Home / Componente: DailyChallengesSection
 // Afecta: HomeScreen
-// Propósito: Mostrar desafíos diarios con progreso y reclamo de recompensas
-// Puntos de edición futura: animaciones y estados avanzados
+// Proposito: Mostrar desafios diarios con progreso y reclamo de recompensas
+// Puntos de edicion futura: animaciones y estados avanzados
 // Autor: Codex - Fecha: 2025-08-17
 
 import React, { useCallback } from "react";
@@ -19,7 +19,8 @@ function DailyChallengesSection() {
   const { items } = useDailyChallenges();
   const { modules } = useHydrationStatus();
 
-  const allClaimed = items.every((item) => item.claimed);
+  const activeChallenges = (items || []).filter((item) => !item.claimed);
+  const allClaimed = activeChallenges.length === 0;
 
   const handleClaim = useCallback(
     (id) => {
@@ -30,58 +31,58 @@ function DailyChallengesSection() {
   );
 
   if (modules.challenges) {
-    return <SectionPlaceholder height={200} />;
+    return <SectionPlaceholder height={220} />;
   }
 
   return (
     <View style={styles.container} accessibilityRole="list">
       <Text style={styles.title} accessibilityRole="header">
-        Desafíos Diarios
+        Desafios diarios
       </Text>
       {allClaimed ? (
-        <Text style={styles.emptyText}>¡Todo al día! Vuelve mañana</Text>
+        <Text style={styles.emptyText}>Todo al dia. Vuelve mañana.</Text>
       ) : (
-        items.map((item) => {
+        activeChallenges.map((item) => {
           const { xp, mana } = item.reward;
           const canClaim = item.progress >= item.goal && !item.claimed;
-          const buttonLabel = canClaim
-            ? "Reclamar"
-            : item.claimed
-            ? "Reclamado"
-            : "En progreso";
+          const buttonLabel = canClaim ? "Reclamar" : "En progreso";
+          const progressPct = Math.min(
+            100,
+            Math.round((item.progress / item.goal) * 100)
+          );
+
           return (
             <View key={item.id} style={styles.card}>
               <View style={styles.headerRow}>
                 <Text style={styles.challengeTitle}>{item.title}</Text>
                 <View style={styles.rewardPill}>
-                  <Text style={styles.rewardText}>{`+${xp} XP / +${mana} Maná`}</Text>
+                  <Text
+                    style={styles.rewardText}
+                  >{`+${xp} XP / +${mana} Mana`}</Text>
                 </View>
               </View>
               <View style={styles.progressBar}>
                 <View
-                  style={[
-                    styles.progressFill,
-                    { width: `${(item.progress / item.goal) * 100}%` },
-                  ]}
+                  style={[styles.progressFill, { width: `${progressPct}%` }]}
                 />
               </View>
-              <Text style={styles.progressText}>{`${item.progress}/${item.goal}`}</Text>
+              <Text
+                style={styles.progressText}
+              >{`${item.progress}/${item.goal}`}</Text>
               <Pressable
                 onPress={() => handleClaim(item.id)}
                 disabled={!canClaim}
                 style={({ pressed }) => [
                   styles.claimButton,
                   canClaim ? styles.claimButtonEnabled : styles.claimButtonDisabled,
-                  pressed && { transform: [{ scale: 0.98 }] },
+                  pressed && canClaim ? { transform: [{ scale: 0.98 }] } : null,
                 ]}
                 accessibilityRole="button"
                 accessibilityState={{ disabled: !canClaim }}
                 accessibilityLabel={
                   canClaim
-                    ? `Reclamar desafío ${item.title}`
-                    : item.claimed
-                    ? `Desafío ${item.title} reclamado`
-                    : `Progreso desafío ${item.title}`
+                    ? `Reclamar desafio ${item.title}`
+                    : `Progreso desafio ${item.title}`
                 }
               >
                 <Text

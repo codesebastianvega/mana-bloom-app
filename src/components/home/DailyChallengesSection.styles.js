@@ -1,19 +1,20 @@
-// [MB] Módulo: Home / Estilos: DailyChallengesSection
+// [MB] Modulo: Home / Estilos: DailyChallengesSection
 // Afecta: HomeScreen
-// Propósito: Estilos para desafíos diarios con progreso y botones
-// Puntos de edición futura: ajustar barra de progreso y botones
+// Proposito: Estilos para desafios diarios con progreso y botones
+// Puntos de edicion futura: ajustar barra de progreso y botones
 // Autor: Codex - Fecha: 2025-08-12
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
+import { Colors, Spacing, Radii, Typography } from "../../theme";
 
 export default StyleSheet.create({
   container: {
     backgroundColor: Colors.surface,
     padding: Spacing.base,
-    borderRadius: Radii.md,
-    marginBottom: Spacing.tiny,
-    ...Elevation.card,
+    borderRadius: Radii.xl,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    gap: Spacing.small,
   },
   title: {
     ...Typography.h2,
@@ -22,51 +23,55 @@ export default StyleSheet.create({
   card: {
     backgroundColor: Colors.surfaceAlt,
     padding: Spacing.base,
-    borderRadius: Radii.md,
-    marginTop: Spacing.tiny,
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    gap: Spacing.small,
   },
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: Spacing.small,
+    gap: Spacing.small,
   },
   challengeTitle: {
     ...Typography.body,
     color: Colors.text,
     flex: 1,
-    marginRight: Spacing.small,
   },
   rewardPill: {
-    backgroundColor: Colors.filterBtnBg,
-    borderRadius: Radii.pill,
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: Spacing.small,
     paddingVertical: Spacing.tiny,
+    borderRadius: Radii.pill,
+    backgroundColor: "rgba(255, 202, 40, 0.16)",
+    borderWidth: 1,
+    borderColor: Colors.accent,
   },
   rewardText: {
     ...Typography.caption,
-    color: Colors.text,
+    color: Colors.accent,
   },
   progressBar: {
-    height: 6,
-    backgroundColor: Colors.border,
+    height: 8,
     borderRadius: Radii.pill,
+    backgroundColor: Colors.border,
     overflow: "hidden",
   },
   progressFill: {
     height: "100%",
-    backgroundColor: Colors.secondary,
     borderRadius: Radii.pill,
+    backgroundColor: Colors.secondary,
   },
   progressText: {
     ...Typography.caption,
     color: Colors.textMuted,
-    marginTop: Spacing.tiny,
   },
   claimButton: {
     marginTop: Spacing.small,
     paddingVertical: Spacing.small,
-    borderRadius: Radii.md,
+    borderRadius: Radii.lg,
     alignItems: "center",
   },
   claimButtonEnabled: {
@@ -78,6 +83,7 @@ export default StyleSheet.create({
   claimButtonText: {
     ...Typography.body,
     color: Colors.textInverse,
+    fontWeight: "600",
   },
   claimButtonTextDisabled: {
     color: Colors.textMuted,
@@ -86,6 +92,6 @@ export default StyleSheet.create({
     ...Typography.body,
     color: Colors.textMuted,
     textAlign: "center",
-    marginTop: Spacing.base,
+    marginTop: Spacing.small,
   },
 });

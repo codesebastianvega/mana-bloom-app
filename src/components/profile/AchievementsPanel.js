@@ -1,4 +1,4 @@
-// [MB] Módulo: Profile / Sección: AchievementsPanel
+﻿// [MB] Módulo: Profile / Sección: AchievementsPanel
 // Afecta: ProfileScreen
 // Propósito: Mostrar logros listos para reclamar y en progreso en el perfil
 // Puntos de edición futura: navegación a listado completo y estilos adicionales
@@ -11,7 +11,7 @@ import { useAppState, useAppDispatch, useHydrationStatus } from "../../state/App
 import { ACHIEVEMENTS } from "../../constants/achievements";
 import SectionPlaceholder from "../common/SectionPlaceholder";
 
-export default function AchievementsPanel() {
+export default function AchievementsPanel({ limit, onViewAll }) {
   const { achievements, level, streak } = useAppState();
   const dispatch = useAppDispatch();
   const { isHydratingGlobal } = useHydrationStatus();
@@ -40,6 +40,7 @@ export default function AchievementsPanel() {
     .sort((a, b) => b.progress / b.goal - a.progress / a.goal);
   const claimed = list.filter((a) => a.claimed);
   const combined = [...unclaimed, ...inProgress, ...claimed];
+  const visible = typeof limit === "number" && limit > 0 ? combined.slice(0, limit) : combined;
 
   const handleClaim = (id) => {
     dispatch({ type: "CLAIM_ACHIEVEMENT", payload: { id } });
@@ -48,7 +49,7 @@ export default function AchievementsPanel() {
   return (
     <View style={styles.container}>
       <Text style={styles.title} accessibilityRole="header">Logros</Text>
-      {combined.map((ach) => {
+      {visible.map((ach) => {
         const progressPct = Math.min(1, ach.progress / ach.goal);
         const progressText = `${Math.min(ach.progress, ach.goal)}/${ach.goal}`;
         const canClaim = ach.unlocked && !ach.claimed;
@@ -80,14 +81,19 @@ export default function AchievementsPanel() {
           </View>
         );
       })}
-      <Pressable
-        onPress={() => {}}
-        style={styles.viewAllButton}
-        accessibilityRole="button"
-        accessibilityLabel="Ver todos los logros"
-      >
-        <Text style={styles.viewAllText}>Ver todos</Text>
-      </Pressable>
+      {typeof onViewAll === "function" && !limit ? (
+        <Pressable
+          onPress={onViewAll}
+          style={styles.viewAllButton}
+          accessibilityRole="button"
+          accessibilityLabel="Ver todos los logros"
+        >
+          <Text style={styles.viewAllText}>Ver todos</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
+
+
+

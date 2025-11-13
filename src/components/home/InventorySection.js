@@ -1,11 +1,11 @@
-// [MB] Módulo: Home / Sección: Inventario
+// [MB] Modulo: Home / Seccion: Inventario
 // Afecta: HomeScreen
-// Propósito: Resumen de inventario con conteos y lista corta
-// Puntos de edición futura: navegación a inventario completo
-// Autor: Codex - Fecha: 2025-08-13
+// Proposito: Resumen compacto de inventario con accesos rapidos
+// Puntos de edicion futura: enlazar inventario completo y estilos responsivos
+// Autor: Codex - Fecha: 2025-10-15
 
-import React, { useRef } from "react";
-import { View, Text, Pressable, Animated } from "react-native";
+import React, { useMemo } from "react";
+import { View, Text, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import styles from "./InventorySection.styles";
 import {
@@ -15,106 +15,164 @@ import {
 } from "../../state/AppContext";
 import SectionPlaceholder from "../common/SectionPlaceholder";
 
-const CATEGORY_EMOJI = { potions: "🧪", tools: "🛠️", cosmetics: "🎩" };
+const BUTTON_ACCENTS = {
+  potions: "#B542F6",
+  tools: "#1cd47b",
+  cosmetics: "#FFD700",
+  all: "#8E9AC6",
+};
+
+const LABELS = {
+  potions: "Pociones",
+  tools: "Herramientas",
+  cosmetics: "Cosmeticos",
+  all: "Ver todo",
+};
+
+function hexToRgba(hex = "", alpha = 1) {
+  if (!hex) return undefined;
+  let cleaned = hex.replace("#", "");
+  if (cleaned.length === 3) {
+    cleaned = cleaned
+      .split("")
+      .map((c) => `${c}${c}`)
+      .join("");
+  }
+  if (cleaned.length !== 6) return undefined;
+  const intVal = parseInt(cleaned, 16);
+  const r = (intVal >> 16) & 255;
+  const g = (intVal >> 8) & 255;
+  const b = intVal & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function buildButtonConfig(counts, navigation, onGoToShop) {
+  return [
+    {
+      key: "potions",
+      label: LABELS.potions,
+      value: counts.potions,
+      accent: BUTTON_ACCENTS.potions,
+      background: hexToRgba(BUTTON_ACCENTS.potions, 0.18),
+      onPress: onGoToShop,
+    },
+    {
+      key: "tools",
+      label: LABELS.tools,
+      value: counts.tools,
+      accent: BUTTON_ACCENTS.tools,
+      background: hexToRgba(BUTTON_ACCENTS.tools, 0.18),
+      onPress: onGoToShop,
+    },
+    {
+      key: "cosmetics",
+      label: LABELS.cosmetics,
+      value: counts.cosmetics,
+      accent: BUTTON_ACCENTS.cosmetics,
+      background: hexToRgba(BUTTON_ACCENTS.cosmetics, 0.18),
+      onPress: onGoToShop,
+    },
+    {
+      key: "all",
+      label: LABELS.all,
+      value: null,
+      accent: BUTTON_ACCENTS.all,
+      background: hexToRgba(BUTTON_ACCENTS.all, 0.18),
+      onPress: () => navigation.navigate("InventoryModal"),
+    },
+  ];
+}
 
 function InventorySection({ onGoToShop }) {
   const { inventory } = useAppState();
   const counts = useInventoryCounts();
   const { modules } = useHydrationStatus();
   const navigation = useNavigation();
-  const scale = useRef(new Animated.Value(1)).current;
 
-  const itemsSorted = [...inventory].sort((a, b) => {
-    if (b.quantity !== a.quantity) {
-      return b.quantity - a.quantity;
-    }
-    return new Date(b.createdAt) - new Date(a.createdAt);
-  });
-  const preview = itemsSorted.slice(0, 3);
-
-  const handlePressIn = () => {
-    Animated.spring(scale, {
-      toValue: 0.98,
-      useNativeDriver: true,
-    }).start();
-  };
-  const handlePressOut = () => {
-    Animated.spring(scale, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start();
-  };
+  const totalItems = useMemo(() => inventory.length, [inventory]);
 
   if (modules.inventory) {
-    return <SectionPlaceholder height={160} />;
+    return <SectionPlaceholder height={140} />;
   }
 
-  if (counts.total === 0) {
+  if (totalItems === 0) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title} accessibilityRole="header">
-          Inventario
-        </Text>
-        <Text style={styles.emptyText}>Tu inventario está vacío</Text>
-        <Pressable
-          onPress={() => onGoToShop?.()}
-          style={({ pressed }) => [
-            styles.viewAllButton,
-            pressed && { transform: [{ scale: 0.98 }] },
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Ir a la Tienda"
-        >
-          <Text style={styles.viewAllText}>Ir a la Tienda</Text>
-        </Pressable>
+        <View style={styles.titleRow}>
+          <Text style={styles.title} accessibilityRole="header">
+            Inventario
+          </Text>
+        </View>
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyText}>Tu inventario esta vacio</Text>
+          <Pressable
+            onPress={() => onGoToShop?.()}
+            style={styles.emptyLink}
+            accessibilityRole="button"
+            accessibilityLabel="Ir a la tienda"
+          >
+            <Text style={styles.emptyLinkText}>Ir a la tienda</Text>
+            <Text style={styles.emptyLinkIcon}>-></Text>
+          </Pressable>
+        </View>
       </View>
     );
   }
 
+  const buttons = buildButtonConfig(counts, navigation, onGoToShop);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title} accessibilityRole="header">
-        Inventario
-      </Text>
-
-      <View style={styles.chipsRow}>
-        <View style={styles.chip}>
-          <Text style={styles.chipText}>Pociones {counts.potions}</Text>
-        </View>
-        <View style={styles.chip}>
-          <Text style={styles.chipText}>Herramientas {counts.tools}</Text>
-        </View>
-        <View style={styles.chip}>
-          <Text style={styles.chipText}>Cosméticos {counts.cosmetics}</Text>
+      <View style={styles.titleRow}>
+        <View>
+          <Text style={styles.title} accessibilityRole="header">
+            Inventario
+          </Text>
+          <Text style={styles.subtitle}>Tus articulos favoritos, clasificados</Text>
         </View>
       </View>
 
-      <View style={styles.list} accessibilityRole="list">
-        {preview.map((item) => (
-          <View key={item.id} style={styles.itemRow}>
-            <Text style={styles.itemIcon}>
-              {CATEGORY_EMOJI[item.category] || "📦"}
-            </Text>
-            <Text style={styles.itemTitle}>{item.title}</Text>
-            <Text style={styles.itemQty}>{`× ${item.quantity}`}</Text>
-          </View>
+      <View style={styles.grid} accessibilityRole="grid">
+        {buttons.map((button) => (
+          <Pressable
+            key={button.key}
+            accessibilityRole="button"
+            accessibilityLabel={
+              button.value !== null
+                ? `${button.label} ${button.value}`
+                : "Ver inventario completo"
+            }
+            onPress={button.onPress}
+            style={({ pressed }) => [
+              styles.pressableTile,
+              pressed && styles.tilePressed,
+            ]}
+          >
+            <View
+              style={[
+                styles.tile,
+                {
+                  borderColor: button.accent,
+                  backgroundColor: button.background,
+                },
+              ]}
+            >
+              <Text style={styles.tileLabel}>{button.label}</Text>
+              {button.value !== null ? (
+                <Text style={[styles.tileValue, { color: button.accent }]}>
+                  {button.value}
+                </Text>
+              ) : (
+                <Text style={styles.tileCta}>Abrir</Text>
+              )}
+            </View>
+          </Pressable>
         ))}
       </View>
-
-      <Animated.View style={{ transform: [{ scale }] }}>
-        <Pressable
-          onPress={() => navigation.navigate("InventoryModal")}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-          style={styles.viewAllButton}
-          accessibilityRole="button"
-          accessibilityLabel="Abrir inventario completo"
-        >
-          <Text style={styles.viewAllText}>Ver todo</Text>
-        </Pressable>
-      </Animated.View>
     </View>
   );
 }
 
 export default React.memo(InventorySection);
+
+

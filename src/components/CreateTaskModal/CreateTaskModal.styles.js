@@ -1,73 +1,121 @@
-// [MB] Módulo: Tasks / Sección: CreateTaskModal
+﻿// [MB] Modulo: Tasks / Seccion: CreateTaskModal
 // Afecta: CreateTaskModal
-// Propósito: Estilos del modal para crear y editar tareas
-// Puntos de edición futura: tokens en theme y ajustes de spacing
-// Autor: Codex - Fecha: 2025-08-16
+// Proposito: Estilos del modal para crear y editar tareas
+// Puntos de edicion futura: tokens en theme y ajustes de spacing
+// Autor: Codex - Fecha: 2025-10-20
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
 
+const withAlpha = (hex = "", alpha = 1) => {
+  if (!hex) return hex;
+  const cleaned = `${hex}`.replace("#", "").trim();
+  const base = cleaned.length === 8 ? cleaned.slice(0, 6) : cleaned;
+  if (base.length !== 6) return hex;
+  const value = parseInt(base, 16);
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+};
+
+const glassPanel = withAlpha(Colors.surface, 0.96);
+const glassSurface = withAlpha(Colors.surfaceAlt, 0.52);
+const glassDeep = withAlpha(Colors.surfaceAlt, 0.64);
+const borderSoft = withAlpha(Colors.primaryLight, 0.28);
+const borderStrong = withAlpha(Colors.primaryLight, 0.55);
+
+const shadowSoft = {
+  shadowColor: Colors.shadow,
+  shadowOpacity: 0.18,
+  shadowRadius: 8,
+  shadowOffset: { width: 0, height: 4 },
+};
+
+const chipBase = {
+  minHeight: Spacing.base + Spacing.small,
+  paddingHorizontal: Spacing.small + Spacing.tiny,
+  borderRadius: Radii.pill,
+  borderWidth: 1,
+  borderColor: borderSoft,
+  backgroundColor: glassSurface,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: Spacing.tiny,
+  ...shadowSoft,
+};
+
+const inputBase = {
+  borderRadius: Radii.lg,
+  backgroundColor: glassSurface,
+  borderWidth: 1,
+  borderColor: borderSoft,
+  paddingHorizontal: Spacing.base,
+  color: Colors.text,
+  ...shadowSoft,
+};
+
 export default StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: withAlpha(Colors.background, 0.2),
+    overflow: "hidden",
+  },
   root: {
-    backgroundColor: Colors.surfaceElevated || Colors.surface,
-    borderRadius: Radii?.xl ?? 20,
-    padding: Spacing.large,
+    backgroundColor: glassPanel,
+    borderRadius: Radii.xl,
+    paddingHorizontal: Spacing.base + Spacing.small / 2,
+    paddingTop: Spacing.xlarge + Spacing.small,
+    paddingBottom: Spacing.base + Spacing.small,
+    borderWidth: 1,
+    borderColor: borderSoft,
+    gap: Spacing.base,
     ...(Elevation?.modal || {}),
   },
-
   title: {
-    ...(Typography?.h2 || { fontSize: 22, fontWeight: "700" }),
+    ...Typography.h2,
     color: Colors.text,
-    marginTop: Spacing.large,
+    marginTop: 0,
     marginBottom: Spacing.small,
+    letterSpacing: 0.2,
   },
-
   sectionLabel: {
-    fontSize: 14,
-    fontWeight: "600",
+    ...Typography.body,
+    fontSize: Typography.body.fontSize + 1,
+    fontWeight: "700",
     color: Colors.text,
+    letterSpacing: 0.2,
     marginTop: Spacing.base,
-    marginBottom: Spacing.small,
+    marginBottom: Spacing.tiny,
   },
-
   helperText: {
-    fontSize: 12,
+    ...Typography.caption,
     color: Colors.textMuted,
     marginTop: Spacing.tiny,
+    marginBottom: Spacing.small / 2,
   },
-
   row: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-
   group: {
     marginTop: Spacing.base,
+    gap: Spacing.small / 2,
   },
-
   input: {
+    ...inputBase,
     height: 48,
-    borderRadius: Radii?.lg ?? 14,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.textMuted,
-    paddingHorizontal: Spacing.base,
-    color: Colors.text,
   },
-
   inputMultiline: {
+    ...inputBase,
     minHeight: 96,
-    borderRadius: Radii?.lg ?? 14,
-    backgroundColor: Colors.surface,
-    borderWidth: 0.5,
-    borderColor: Colors.textMuted,
-    paddingHorizontal: Spacing.base,
     paddingTop: Spacing.base,
-    color: Colors.text,
     textAlignVertical: "top",
   },
-
   segmentContainer: {
     flexDirection: "row",
     gap: Spacing.small,
@@ -75,75 +123,93 @@ export default StyleSheet.create({
   },
   segmentButton: {
     flex: 1,
-    minHeight: 40,
-    paddingHorizontal: Spacing.base,
-    borderRadius: Radii?.pill ?? 999,
-    borderWidth: 1,
-    borderColor: Colors.textMuted,
-    backgroundColor: Colors.surface,
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.primaryLight, 0.35),
+    backgroundColor: withAlpha(Colors.surfaceAlt, 0.6),
+    paddingVertical: Spacing.small + Spacing.tiny,
+    paddingHorizontal: Spacing.base,
   },
   segmentButtonActive: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primary,
+    borderColor: withAlpha(Colors.primary, 0.8),
+    backgroundColor: withAlpha(Colors.primary, 0.2),
   },
   segmentLabel: {
-    fontSize: 14,
+    ...Typography.caption,
+    fontSize: Typography.caption.fontSize + 1,
     fontWeight: "600",
     color: Colors.text,
+    letterSpacing: 0.2,
   },
   segmentLabelActive: {
-    color: Colors.background,
+    color: Colors.primaryLight,
   },
-
   elementGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
+    width: "100%",
     marginTop: Spacing.small,
+    paddingHorizontal: Spacing.small,
+  },
+  elementRow: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    width: "100%",
+    marginBottom: Spacing.small,
+  },
+  elementRowLast: {
+    marginBottom: 0,
   },
   elementTile: {
-    flex: 1,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: Radii.lg,
-    backgroundColor: Colors.surface,
     alignItems: "center",
     justifyContent: "center",
-    overflow: "visible",
-  },
-  elementGlow: {
-    ...StyleSheet.absoluteFillObject,
+    paddingVertical: Spacing.base,
+    paddingHorizontal: Spacing.small,
     borderRadius: Radii.lg,
+    borderWidth: 1,
   },
-  elementEmoji: { fontSize: 30, marginBottom: Spacing.tiny },
+  elementTileActive: {
+    borderWidth: 2,
+  },
+  elementEmoji: {
+    fontSize: 30,
+    marginBottom: Spacing.tiny,
+  },
   elementTitle: {
-    fontSize: 15,
+    ...Typography.body,
     fontWeight: "700",
     color: Colors.text,
     textAlign: "center",
   },
   elementCaption: {
-    fontSize: 12,
+    ...Typography.caption,
     color: Colors.textMuted,
     textAlign: "center",
-    marginTop: 2,
+    marginTop: Spacing.tiny,
   },
-  whichBlock: { marginTop: Spacing.small },
+  whichBlock: {
+    marginTop: Spacing.small,
+    gap: Spacing.tiny,
+  },
   whichQuestion: {
-    fontSize: 14,
-    fontWeight: "600",
+    ...Typography.body,
+    fontWeight: "700",
     color: Colors.text,
+    letterSpacing: 0.2,
   },
   whichRow: {
     marginTop: Spacing.tiny,
   },
   whichSnippet: {
-    fontSize: 12,
+    ...Typography.caption,
     color: Colors.textMuted,
-    marginTop: Spacing.tiny,
   },
-  whichMore: { fontSize: 12, color: Colors.info, marginTop: Spacing.tiny },
-
+  whichMore: {
+    ...Typography.caption,
+    color: Colors.info,
+  },
   subtasksChips: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -152,27 +218,22 @@ export default StyleSheet.create({
     marginBottom: Spacing.small,
   },
   chip: {
-    minHeight: 28,
-    paddingHorizontal: Spacing.base,
-    borderRadius: Radii?.pill ?? 999,
-    borderWidth: 1,
-    borderColor: Colors.textMuted,
-    backgroundColor: Colors.surface,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    ...chipBase,
   },
   chipActive: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primary,
+    borderColor: borderStrong,
+    backgroundColor: withAlpha(Colors.primaryLight, 0.24),
+    shadowColor: Colors.primaryLight,
+    shadowOpacity: 0.28,
+    shadowRadius: 10,
   },
   chipLabel: {
-    fontSize: 13,
+    ...Typography.caption,
+    fontWeight: "600",
     color: Colors.text,
-    fontWeight: "500",
   },
   chipLabelActive: {
-    color: Colors.background,
+    color: Colors.text,
   },
   difficultyRow: {
     flexDirection: "row",
@@ -182,50 +243,63 @@ export default StyleSheet.create({
   difficultyChip: {
     flex: 1,
     minWidth: 0,
-    minHeight: Spacing.xlarge,
-    paddingHorizontal: Spacing.base,
-    borderRadius: Radii?.pill ?? 999,
-    borderWidth: 1,
-    borderColor: Colors.textMuted,
-    backgroundColor: Colors.surface,
-    alignItems: "center",
-    justifyContent: "center",
+    ...chipBase,
   },
-
-  priorityList: { marginTop: Spacing.small, gap: Spacing.small },
+  priorityList: {
+    marginTop: Spacing.small,
+    gap: Spacing.small,
+  },
   priorityRow: {
     width: "100%",
-    minHeight: 52,
-    borderWidth: 1,
+    minHeight: 56,
     borderRadius: Radii.lg,
-    backgroundColor: Colors.surface,
-    borderColor: Colors.border,
+    borderWidth: 1,
+    borderColor: borderSoft,
     paddingVertical: Spacing.small,
     paddingHorizontal: Spacing.base,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  priorityLeft: { maxWidth: "58%" },
-  priorityTitle: { fontSize: 16, fontWeight: "700", color: Colors.text },
-  priorityCaption: { fontSize: 12, color: Colors.textMuted, marginTop: 2 },
+  priorityLeft: { maxWidth: "60%" },
+  priorityTitle: {
+    ...Typography.body,
+    fontSize: Typography.body.fontSize + 2,
+    fontWeight: "700",
+    color: Colors.text,
+  },
+  priorityCaption: {
+    ...Typography.caption,
+    fontSize: Math.max(Typography.caption.fontSize - 1, 10),
+    color: Colors.textMuted,
+    marginTop: Spacing.tiny / 2,
+  },
   priorityRewards: {
     flexDirection: "row",
-    gap: Spacing.small,
     alignItems: "center",
+    justifyContent: "flex-start",
+    marginLeft: Spacing.small,
+    minWidth: 0,
   },
   rewardPill: {
-    minHeight: 26,
-    paddingHorizontal: Spacing.small,
-    borderRadius: Radii.lg,
-    backgroundColor: Colors.surfaceElevated || Colors.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.border,
+    minHeight: Spacing.base + Spacing.tiny,
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.small + Spacing.tiny / 2,
+    borderRadius: Radii.sm,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.primaryLight, 0.25),
+    backgroundColor: withAlpha(Colors.surfaceAlt, 0.6),
     alignItems: "center",
     justifyContent: "center",
+    gap: Spacing.tiny,
   },
-  rewardText: { fontSize: 12, fontWeight: "700", color: Colors.text },
-
+  rewardText: {
+    ...Typography.caption,
+    fontSize: Math.max(Typography.caption.fontSize - 1, 10),
+    fontWeight: "600",
+    color: Colors.text,
+    textAlign: "center",
+  },
   subtaskRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -235,52 +309,40 @@ export default StyleSheet.create({
   subtaskInput: {
     flex: 1,
     height: 44,
-    borderRadius: Radii?.lg ?? 14,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.textMuted,
-    paddingHorizontal: Spacing.base,
-    color: Colors.text,
+    ...inputBase,
   },
   subtaskAddBtn: {
-    minHeight: 44,
+    height: 44,
     paddingHorizontal: Spacing.base,
-    borderRadius: Radii?.pill ?? 999,
+    borderRadius: Radii.pill,
     borderWidth: 1,
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primaryLight || Colors.surface,
+    borderColor: withAlpha(Colors.secondaryLight, 0.65),
+    backgroundColor: withAlpha(Colors.secondary, 0.82),
     justifyContent: "center",
     alignItems: "center",
-    ...(Elevation?.card || {}),
+    shadowColor: Colors.secondary,
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
   },
   subtaskAddLabel: {
-    fontSize: 16,
+    ...Typography.body,
     fontWeight: "700",
-    color: Colors.text,
+    color: Colors.onAccent,
   },
-
   tagsList: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: Spacing.small - 2,
+    gap: Spacing.small - Spacing.tiny,
     marginTop: Spacing.small,
   },
   tagChip: {
-    minHeight: Spacing.large,
-    paddingHorizontal: Spacing.base,
-    borderRadius: Radii?.pill ?? 999,
-    backgroundColor: Colors.surfaceElevated || Colors.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.textMuted,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    ...chipBase,
   },
   tagText: {
-    fontSize: (Typography.caption?.fontSize || 12) - 1,
+    ...Typography.caption,
     color: Colors.text,
   },
-
   actions: {
     flexDirection: "row",
     alignItems: "center",
@@ -289,40 +351,49 @@ export default StyleSheet.create({
   },
   primaryButton: {
     flex: 1,
-    minHeight: 44,
+    minHeight: 48,
     paddingHorizontal: Spacing.large,
-    borderRadius: Radii?.pill ?? 999,
-    backgroundColor: Colors.primary,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.secondaryLight, 0.65),
+    backgroundColor: withAlpha(Colors.secondary, 0.82),
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: Colors.secondary,
+    shadowOpacity: 0.28,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
     ...(Elevation?.card || {}),
   },
   primaryButtonLabel: {
-    fontSize: 16,
+    ...Typography.body,
+    fontSize: Typography.body.fontSize + 1,
     fontWeight: "700",
-    color: Colors.text,
+    color: Colors.onAccent,
+    letterSpacing: 0.2,
   },
   secondaryButton: {
     flex: 1,
-    minHeight: 44,
+    minHeight: 48,
     paddingHorizontal: Spacing.large,
-    borderRadius: Radii?.pill ?? 999,
+    borderRadius: Radii.pill,
     borderWidth: 1,
-    borderColor: Colors.textMuted,
-    backgroundColor: Colors.surface,
+    borderColor: withAlpha(Colors.primaryLight, 0.35),
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.72),
     justifyContent: "center",
     alignItems: "center",
   },
   secondaryButtonLabel: {
-    fontSize: 16,
+    ...Typography.body,
     fontWeight: "600",
-    color: Colors.text,
+    color: Colors.textMuted,
+    letterSpacing: 0.2,
   },
   divider: {
     height: 1,
-    backgroundColor: Colors.textMuted,
-    opacity: 0.2,
+    backgroundColor: withAlpha(Colors.primaryLight, 0.2),
     marginVertical: Spacing.base,
     borderRadius: 1,
   },
 });
+

@@ -1,7 +1,7 @@
-// [MB] Módulo: Home / Sección: HomeScreen
+// [MB] Modulo: Home / Seccion: HomeScreen
 // Afecta: HomeScreen (layout principal)
-// Propósito: Renderizar secciones de inicio y mostrar estado global
-// Puntos de edición futura: conectar datos reales y navegación
+// Proposito: Renderizar secciones de inicio y mostrar estado global
+// Puntos de edicion futura: conectar datos reales y navegacion
 // Autor: Codex - Fecha: 2025-02-15
 
 import React, { useRef, useState, useCallback } from "react";
@@ -10,15 +10,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors, Spacing } from "../theme";
 import HomeHeader from "../components/home/HomeHeader";
 import HomeWelcomeCard from "../components/home/HomeWelcomeCard";
-import HomeDailyRewardCard from "../components/home/HomeDailyRewardCard";
 import DailyChallengesSection from "../components/home/DailyChallengesSection";
 import MagicShopSection from "../components/home/MagicShopSection";
 import InventorySection from "../components/home/InventorySection";
-import NewsFeedSection from "../components/home/NewsFeedSection";
-import StatsQuickTiles from "../components/home/StatsQuickTiles";
-import EventBanner from "../components/home/EventBanner";
+import EventHighlightsSection from "../components/home/EventHighlightsSection";
 import AchievementToast from "../components/common/AchievementToast";
-import SectionPlaceholder from "../components/common/SectionPlaceholder";
+import HomeHeroSection from "../components/home/HomeHeroSection";
+import HomeRewardsSection from "../components/home/HomeRewardsSection";
 import {
   useAppDispatch,
   useAchievementToast,
@@ -61,8 +59,13 @@ export default function HomeScreen() {
     dispatch({ type: "CLAIM_TODAY_REWARD" });
   }, [dispatch]);
 
+  const handleOpenSocialRewards = useCallback(() => {
+    navigation.navigate("Rewards");
+  }, [navigation]);
+
   const rewardState = dailyReward.claimed ? "claimed" : "available";
   const rewardLabel = dailyReward.reward?.title || "";
+  const isRewardsHydrating = modules.wallet;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -90,17 +93,18 @@ export default function HomeScreen() {
           <View onLayout={setAnchor("welcome")}>
             <HomeWelcomeCard onNext={goToTasks} />
           </View>
-          <View>
-            {modules.wallet ? (
-              <SectionPlaceholder height={72} />
-            ) : (
-              <HomeDailyRewardCard
-                state={rewardState}
-                streakCount={streak}
-                rewardLabel={rewardLabel}
-                onClaim={handleClaimReward}
-              />
-            )}
+          <View onLayout={setAnchor("hero")}>
+            <HomeHeroSection />
+          </View>
+          <View onLayout={setAnchor("rewards")}>
+            <HomeRewardsSection
+              rewardState={rewardState}
+              streakCount={streak}
+              rewardLabel={rewardLabel}
+              onClaimReward={handleClaimReward}
+              onPressSocial={handleOpenSocialRewards}
+              isHydrating={isRewardsHydrating}
+            />
           </View>
           <View onLayout={setAnchor("challenges")}>
             <DailyChallengesSection />
@@ -111,14 +115,8 @@ export default function HomeScreen() {
           <View onLayout={setAnchor("inventory")}>
             <InventorySection onGoToShop={scrollToShop} />
           </View>
-          <View onLayout={setAnchor("news")}>
-            <NewsFeedSection />
-          </View>
-          <View onLayout={setAnchor("stats")}>
-            <StatsQuickTiles />
-          </View>
           <View onLayout={setAnchor("event")}>
-            <EventBanner />
+            <EventHighlightsSection />
           </View>
         </ScrollView>
         {isChipPopoverOpen && (
@@ -156,3 +154,5 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 });
+
+

@@ -72,7 +72,7 @@ export default function TaskFilters({
       )}
       {/* Barra superior con filtros rápidos */}
       <Text style={styles.title}>Filtros avanzados</Text>
-      <FilterBar filters={filters} active={active} onSelect={setActive} />
+      <FilterBar filters={filters} active={active} onSelect={setActive} styleOverride={styles.filterBarMargin} />
       {/* Filtros avanzados del modal */}
       <AdvancedFilters
         elementOptions={elementOptions}

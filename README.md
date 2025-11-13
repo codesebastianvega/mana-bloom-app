@@ -1,70 +1,80 @@
-# Mana Bloom App
+# Mana Bloom
 
-## 🌿 Descripción General
+Mana Bloom es una app de productividad y habitos gamificada donde cultivas una planta virtual alimentada por tu progreso diario. El mana que ganas al completar tareas mantiene viva a la planta y desbloquea nuevas etapas de crecimiento.
 
-Mana Bloom es una aplicación de gestión de colecciones de cartas, diseñada para coleccionistas y jugadores. Permite organizar, filtrar y gestionar tus cartas de manera eficiente, brindando una experiencia de usuario fluida e intuitiva.
+## Objetivos del proyecto
+- Entregar una experiencia accesible que motive rutinas saludables mediante retroalimentacion visual constante.
+- Iterar rapido en UI/UX mobile-first basada en gradientes oscuros, vidrio y componentes reutilizables.
+- Documentar el flujo de trabajo para que contribuciones futuras sean consistentes con la vision del equipo.
 
-## ✨ Características Principales
+## Caracteristicas clave
+- Cuidado de la planta: vista PlantScreen con header de estado, barra de salud, estadisticas, hero con avatar y acciones contextuales (regar, meditar, cambiar maceta).
+- Moneda y progresion: mana, experiencia y rachas impulsan el crecimiento; las acciones tienen costos, cooldown y efectos visibles.
+- Ecosistema de componentes: bloques reutilizables en `src/components` con estilos desacoplados en archivos `.styles.js` cuando el tamaño lo requiere.
+- Visuales tematizados: tokens centralizados en `src/theme.js` para colores, gradientes, tipografias, espaciado y radios; evitar hardcodear valores.
+- Sin persistencia aun: el estado se mantiene en memoria mientras se completa la etapa 1 del roadmap.
 
-* **Filtros Avanzados:** Encuentra cualquier carta en tu colección utilizando filtros detallados por elemento, tipo, poder, costo de maná y más.
-* **Gestor de Etiquetas Personalizadas:** Organiza tus cartas con etiquetas personalizadas, creando categorías como "deck principal", "intercambio" o "lista de deseos".
-* **Estadísticas de la Colección:** Visualiza rápidamente el desglose de tu colección con estadísticas útiles, como el total de cartas por elemento o el promedio de costo de maná.
-* **Experiencia de Usuario Intuitiva:** La interfaz de usuario ha sido cuidadosamente diseñada para ser atractiva, fácil de usar y accesible para todos los usuarios.
+## Stack tecnico
+- Expo SDK 54 (React Native 0.81, React 19).
+- React Navigation (tabs y native stack).
+- React Native Reanimated, Gesture Handler y Safe Area Context.
+- AsyncStorage (dependencia lista para la etapa de persistencia).
+- Expo Linear Gradient, Blur y fuentes personalizadas.
 
-## 🎨 Personalización de filtros
-
-El componente `AdvancedFilters` permite modificar el estilo de los botones de cada sección.
-Solo debes pasar los estilos opcionales que necesites:
-
-```jsx
-<AdvancedFilters
-  elementBtnStyle={{ backgroundColor: '#333' }}
-  priorityBtnStyle={{ borderColor: 'gold' }}
-  difficultyBtnStyle={{ paddingHorizontal: 20 }}
-  tagBtnStyle={{ borderRadius: 20 }}
-  {...otrosProps}
-/>
+## Estructura del proyecto
+```
+src/
+  components/      componentes compartidos agrupados por dominio (plant/, home/, etc)
+  screens/         pantallas principales
+  theme.js         tokens de estilo (Colors, Gradients, Spacing, Typography, Radii)
+docs/
+  plant-screen-wireframe.md   referencia visual para la pantalla de planta
+assets/
+  ...              iconos elementales, ilustraciones de la planta y fondos
 ```
 
-Cada estilo se combina con el estilo base del componente (por ejemplo,
-`style={[styles.elementBtn, elementBtnStyle]}`), lo que permite personalizar
-individualmente cada grupo de filtros.
+## Requisitos y configuracion
+1. Node 18 o superior y npm 9+.
+2. Instalar dependencias con `npm ci`.
+3. Iniciar Metro bundler: `npm run start` (o `npm run web`, `npm run android`, `npm run ios` segun plataforma).
+4. Pruebas placeholder: `npm test` (debe responder `OK: no hay tests formales todavia`).
+5. La app debe abrir sin errores en Expo Go o en el Web bundler.
 
-## 💻 Transparencia y Tecnología
+## Guia de desarrollo
+- Cambios pequeños y atomicos; cada commit debe describir claramente la modificacion.
+- Mantener consistencia en alias, rutas y patrones de estilos. Crecer hacia archivos `.styles.js` cuando haya multiples bloques de estilo.
+- Conservar el tema oscuro, gradientes y espaciado actuales; si se agregan variantes deben declararse en `theme.js`.
+- Encabezado obligatorio en cada archivo de codigo tocado:
+  ```js
+  // [MB] Modulo: <Home|Tasks|etc> / Seccion: <...>
+  // Afecta: <pantalla/componente principal>
+  // Proposito: <descripcion breve>
+  // Puntos de edicion futura: <notas de mantenimiento>
+  // Autor: <Sebas|Codex> - Fecha: YYYY-MM-DD
+  ```
+- Cuando se modifique layout cercano a zonas seguras, usar `react-native-safe-area-context`.
+- PlantScreen: seguir el wireframe documentado (header con resumen, hero con gradiente `Gradients.mana`, metricas 2x2, acciones pill, timeline compacto).
+- CreateTaskModal: mantener el starfield visible, sin overlays opacos ni blur completo.
 
-Este proyecto es una muestra de cómo la colaboración entre la creatividad humana y la inteligencia artificial puede resultar en productos innovadores.
+## Estado actual y roadmap
+1. Estado minimo en memoria con Context (mana y planta) **en progreso**.
+2. Persistencia con AsyncStorage para mana, tareas y rachas.
+3. Nuevas pantallas: tienda, perfil, mejoras permanentes.
+4. Integrar audio/sensaciones y micro-animaciones opcionales.
 
-* **Diseño UX/UI:** La experiencia de usuario y el diseño visual de la interfaz (`UX/UI`) fueron concebidos, diseñados e implementados **por mí**, el creador de la aplicación.
-* **Desarrollo del Código:** La mayor parte de la lógica de programación y la estructura de la aplicación fueron desarrolladas con la asistencia de **Inteligencia Artificial**. Esta herramienta me permitió acelerar el proceso de codificación, enfocándome en la arquitectura y la experiencia de usuario.
+## Recursos utiles
+- `docs/plant-screen-wireframe.md` para layout y tokens sugeridos.
+- `src/theme.js` como unica fuente de verdad para estilos.
+- Issues del repositorio para prioridades y bugs abiertos (proximamente).
 
-Al mantener el código de este proyecto abierto, busco promover la transparencia, el aprendizaje colaborativo y la innovación.
+## Contribuir
+1. Haz un fork del repositorio.
+2. Clona tu fork: `git clone https://github.com/<tu-usuario>/mana-bloom-app.git`.
+3. Crea una rama descriptiva: `git checkout -b feature/nueva-accion`.
+4. Implementa cambios siguiendo la guia de desarrollo.
+5. Ejecuta `npm test` y arranca la app para validar que no haya errores.
+6. Sube la rama y abre un Pull Request explicando el alcance y capturas si aplica.
 
-## 🤝 ¿Cómo Contribuir?
+## Licencia
 
-¡Este es un proyecto de código abierto y nos encantaría contar con tu ayuda! Si encuentras un error, tienes una sugerencia o quieres añadir una nueva funcionalidad, te damos la bienvenida.
-
-Sigue estos pasos para contribuir:
-
-1.  **Haz un `fork`** del repositorio.
-2.  **Clona tu `fork`** en tu máquina local:
-    ```bash
-    git clone [https://github.com/tu-usuario/mana-bloom.git](https://github.com/tu-usuario/mana-bloom.git)
-    ```
-3.  **Crea una nueva rama** para tus cambios:
-    ```bash
-    git checkout -b mi-nueva-caracteristica
-    ```
-4.  **Realiza tus cambios** y haz `commit`:
-    ```bash
-    git add .
-    git commit -m "feat: agrega una nueva característica"
-    ```
-5.  **Envía tus cambios** a tu repositorio `forkeado`:
-    ```bash
-    git push origin mi-nueva-caracteristica
-    ```
-6.  **Abre un `Pull Request`** desde tu `fork` hacia el repositorio principal.
-
-## 📜 Licencia
-
-Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
+Proyecto bajo licencia MIT. Revisa `LICENSE` para mas detalles.

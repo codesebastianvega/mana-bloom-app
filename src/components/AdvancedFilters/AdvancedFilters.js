@@ -1,8 +1,8 @@
-// [MB] Módulo: Tasks / Sección: Filtros avanzados
+// [MB] Modulo: Tasks / Seccion: Filtros avanzados
 // Afecta: TaskFilters (modal de filtros)
-// Propósito: Ajustar estilo y accesibilidad de los filtros avanzados
-// Puntos de edición futura: tokens de color y animaciones
-// Autor: Codex - Fecha: 2025-08-13
+// Proposito: Ajustar estilo y accesibilidad de los filtros avanzados
+// Puntos de edicion futura: tokens de color y animaciones
+// Autor: Codex - Fecha: 2025-10-20
 
 import React, { useState, useEffect } from "react";
 import { View, Text, Pressable, ScrollView, TextInput } from "react-native";
@@ -210,7 +210,7 @@ export default function AdvancedFilters({
         <TextInput
           style={styles.tagSearchInput}
           placeholder="Buscar etiqueta"
-          placeholderTextColor={Colors.text}
+          placeholderTextColor={Colors.textMuted}
           value={tagSearch}
           onChangeText={setTagSearch}
           onFocus={() => setTagSearchFocused(true)}
@@ -240,3 +240,4 @@ export default function AdvancedFilters({
     </View>
   );
 }
+

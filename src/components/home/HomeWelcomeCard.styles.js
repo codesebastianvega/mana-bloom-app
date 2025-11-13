@@ -1,24 +1,22 @@
-// [MB] Módulo: Home / Estilos: HomeWelcomeCard
+// [MB] Modulo: Home / Estilos: HomeWelcomeCard
 // Afecta: HomeWelcomeCard
-// Propósito: Estilos para tarjeta de bienvenida con KPIs
-// Puntos de edición futura: sombras y blur avanzado
-// Autor: Codex - Fecha: 2025-02-15
+// Proposito: Estilos para tarjeta de bienvenida con KPIs
+// Puntos de edicion futura: sombras y blur avanzado
+// Autor: Codex - Fecha: 2025-10-07 (V6)
 
 import { StyleSheet } from "react-native";
-import {
-  Colors,
-  Spacing,
-  Radii,
-  Typography,
-  Elevation,
-  ElementAccents,
-} from "../../theme";
+import { Colors, Spacing, Radii, Typography, ElementAccents } from "../../theme";
 
 export default StyleSheet.create({
   wrapper: {
     position: "relative",
     borderRadius: Radii.xl,
     overflow: "visible",
+    shadowColor: Colors.shadow,
+    shadowOpacity: 0.35,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 10,
   },
   blur: {
     ...StyleSheet.absoluteFillObject,
@@ -30,53 +28,183 @@ export default StyleSheet.create({
     backgroundColor: Colors.overlay,
   },
   container: {
+    position: "relative",
     borderRadius: Radii.xl,
-    padding: Spacing.base,
-    ...Elevation.card,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: "rgba(18, 14, 36, 0.74)",
+    overflow: "hidden",
+  },
+  orbitContainer: {
+    position: "absolute",
+    top: -18,
+    left: -18,
+    right: -18,
+    bottom: -18,
+    borderRadius: Radii.xl + 18,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  orbitRing: {
+    width: "100%",
+    height: "100%",
+    borderRadius: Radii.xl + 18,
+    padding: 2,
+    overflow: "hidden",
+  },
+  orbitInner: {
+    flex: 1,
+    borderRadius: Radii.xl + 16,
+    backgroundColor: "rgba(18, 14, 36, 0.9)",
+  },
+  neonLayer: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  neonBlob: {
+    position: "absolute",
+    borderRadius: 180,
+    opacity: 0.9,
+    overflow: "hidden",
+  },
+  neonBlobGradient: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 180,
+  },
+  neonBlur: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: Radii.xl,
+    opacity: 0.7,
+  },
+  neonBlurFallback: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(12, 9, 26, 0.4)",
+  },
+  lensLayer: {
+    position: "absolute",
+    width: "150%",
+    height: "150%",
+    left: "-25%",
+    top: "-25%",
+    borderRadius: 480,
+    backgroundColor: "rgba(255, 120, 189, 0.12)",
+    shadowColor: Colors.primary,
+    shadowOpacity: 0.16,
+    shadowRadius: 38,
+    shadowOffset: { width: 0, height: 0 },
+  },
+  content: {
+    paddingTop: Spacing.base,
+    paddingBottom: Spacing.base,
+    paddingHorizontal: Spacing.base,
+    gap: Spacing.small,
+  },
+  edgeSheen: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: Radii.xl,
+    opacity: 0.28,
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+    marginBottom: Spacing.tiny,
+  },
+  avatarWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    padding: 2,
+    backgroundColor: Colors.surface,
+    position: "relative",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarInner: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 20,
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+  },
+  avatarStatus: {
+    position: "absolute",
+    bottom: -2,
+    right: -2,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: Colors.surfaceElevated,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   title: {
-    ...Typography.title,
-    color: Colors.onAccent,
+    ...Typography.h2,
+    color: Colors.text,
+    flexShrink: 1,
+  },
+  subtitle: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    marginTop: 0,
+    marginBottom: Spacing.small,
   },
   kpiRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: Spacing.small,
-    marginBottom: Spacing.base,
+    flexWrap: "wrap",
     gap: Spacing.small,
+    marginTop: 0,
+    marginBottom: Spacing.small,
   },
   kpiBox: {
     flex: 1,
-    height: 28,
-    borderRadius: Radii.lg,
-    backgroundColor: Colors.card,
+    minWidth: 88,
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.base,
+    borderRadius: Radii.md,
+    backgroundColor: "rgba(255,255,255,0.05)",
     borderWidth: 1,
-    borderColor: Colors.cardBorder,
+    borderColor: "rgba(255,255,255,0.08)",
     justifyContent: "center",
-    alignItems: "center",
-    ...Elevation.raised,
+    alignItems: "flex-start",
+    gap: 4,
+  },
+  kpiPrimary: {
+    borderColor: ElementAccents.accentCta,
+    backgroundColor: "rgba(181, 66, 246, 0.14)",
   },
   kpiNumber: {
-    ...Typography.body,
-    fontWeight: "600",
-    color: Colors.onCard,
+    ...Typography.title,
+    color: Colors.text,
   },
   kpiLabel: {
     ...Typography.caption,
-    color: Colors.onCard,
+    color: Colors.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
   },
-  nextButton: {
-    alignSelf: "flex-end",
-    backgroundColor: ElementAccents.accentCta,
-    paddingHorizontal: Spacing.base,
-    height: 30,
-    borderRadius: Radii.lg,
+  footerButton: {
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "center",
-    ...Elevation.raised,
+    gap: Spacing.tiny,
+    marginTop: Spacing.tiny,
+    paddingVertical: Spacing.small,
+    width: "100%",
+    borderRadius: Radii.lg,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
-  nextText: {
-    ...Typography.caption,
-    color: Colors.onAccent,
+  footerText: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "600",
   },
 });
-

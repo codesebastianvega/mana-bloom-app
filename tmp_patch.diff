@@ -1,0 +1,50 @@
+*** Begin Patch
+*** Update File: src/components/home/HomeHeroSection.js
+@@
+-      <View style={styles.xpWrapper}>
+-        <LinearGradient
+-          colors={Gradients.xp}
+-          start={{ x: 0, y: 0 }}
+-          end={{ x: 1, y: 0 }}
+-          style={[styles.xpProgress, { width: `${progressPercent}%` }]}
+-        />
++      <View style={styles.xpWrapper}>
++        {/* [MB] Módulo: Home / Sección: Barra de nivel
++            Afecta: HomeHeroSection
++            Propósito: Alinear el gradiente al 100% del alto y bordes redondeados
++            Puntos de edición futura: tokens en theme.js (Gradients.xp)
++            Autor: Codex - Fecha: 2025-10-16 */}
++        <LinearGradient
++          colors={Gradients.xp}
++          start={{ x: 0, y: 0.5 }}
++          end={{ x: 1, y: 0.5 }}
++          style={[styles.xpProgress, { width: `${progressPercent}%` }]}
++        />
+         <View style={styles.xpContent}>
+           <Text style={styles.levelLabel}>Nivel {level}</Text>
+           <Text style={styles.levelValue}>{progressPercent}%</Text>
+         </View>
+       </View>
+@@
+   xpWrapper: {
+     backgroundColor: Colors.surfaceAlt,
+     borderRadius: Radii.lg,
+     borderWidth: 1,
+     borderColor: Colors.border,
+     overflow: "hidden",
+     height: Spacing.large + Spacing.small,
+     justifyContent: "center",
+   },
+   xpProgress: {
+-    position: "absolute",
+-    top: 0,
+-    bottom: 0,
+-    left: 0,
++    position: "absolute",
++    top: 1, // evita que el borde superior robe 1px del gradiente
++    bottom: 1, // igual abajo para simetría
++    left: 1, // respeta el trazo del borde izquierdo
++    right: undefined,
++    borderRadius: Radii.md,
+   },
+*** End Patch

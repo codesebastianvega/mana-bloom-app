@@ -12,12 +12,14 @@ import { Colors, Spacing } from "../../theme";
 const SIZE_MAP = {
   md: Spacing.xlarge * 4,
   lg: Spacing.xlarge * 5,
+  xl: Spacing.xlarge * 6,
+  hero: Spacing.xlarge * 7,
 };
 
 export default function PlantHero({
   source,
   size = "lg",
-  auraIntensity = "default",
+  auraIntensity = "none",
   health,
   mood,
   stage,
@@ -28,6 +30,7 @@ export default function PlantHero({
 
   // [MB] Loop de animación "respirar"
   useEffect(() => {
+    if (auraIntensity === "none") return;
     const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(anim, {
@@ -46,10 +49,10 @@ export default function PlantHero({
     );
     loop.start();
     return () => loop.stop();
-  }, [anim]);
+  }, [anim, auraIntensity]);
 
-  const baseSize = (SIZE_MAP[size] || SIZE_MAP.lg) * (auraIntensity === "subtle" ? 0.9 : 1);
-  const scale = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.03] });
+  const baseSize = SIZE_MAP[size] || SIZE_MAP.hero || SIZE_MAP.lg;
+  const scale = auraIntensity === "none" ? 1 : anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.03] });
   const auraOpacity = anim.interpolate({
     inputRange: [0, 1],
     outputRange: auraIntensity === "subtle" ? [0.08, 0.16] : [0.12, 0.22],
@@ -61,7 +64,7 @@ export default function PlantHero({
 
   return (
     <View style={[styles.container, style]}>
-      {auraIntensity !== "subtle" && (
+      {auraIntensity === "ring" && (
         <Animated.View
           pointerEvents="none"
           style={[
@@ -77,21 +80,22 @@ export default function PlantHero({
           ]}
         />
       )}
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          styles.aura,
-          {
-            width: auraIntensity === "subtle" ? auraSizeOuter : auraSizeInner,
-            height: auraIntensity === "subtle" ? auraSizeOuter : auraSizeInner,
-            borderRadius:
-              (auraIntensity === "subtle" ? auraSizeOuter : auraSizeInner) / 2,
-            backgroundColor: Colors.secondaryFantasy,
-            opacity: auraOpacity,
-            transform: [{ scale }],
-          },
-        ]}
-      />
+      {auraIntensity === "subtle" && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.aura,
+            {
+              width: auraSizeOuter,
+              height: auraSizeOuter,
+              borderRadius: auraSizeOuter / 2,
+              backgroundColor: Colors.secondaryFantasy,
+              opacity: auraOpacity,
+              transform: [{ scale }],
+            },
+          ]}
+        />
+      )}
       {/* [MB] Círculo principal con glow */}
       <Animated.View
         accessibilityRole="image"
@@ -103,6 +107,8 @@ export default function PlantHero({
             height: baseSize,
             borderRadius: baseSize / 2,
             transform: [{ scale }],
+            backgroundColor: auraIntensity === "none" ? "transparent" : Colors.surface,
+            shadowOpacity: auraIntensity === "none" ? 0 : 0.25,
           },
         ]}
       >
@@ -115,7 +121,7 @@ export default function PlantHero({
         ) : (
           <Text style={{ fontSize: baseSize * 0.6 }}>🌱</Text>
         )}
-        {skinAccent && (
+        {skinAccent && auraIntensity !== "none" && (
           <View
             pointerEvents="none"
             style={[
@@ -131,18 +137,35 @@ export default function PlantHero({
             ]}
           />
         )}
+        {auraIntensity !== "none" && (
+          <View
+            pointerEvents="none"
+            style={[
+              StyleSheet.absoluteFillObject,
+              {
+                borderRadius: baseSize / 2,
+                backgroundColor: Colors.surface,
+                opacity: 0.06,
+              },
+            ]}
+          />
+        )}
+      </Animated.View>
+      {auraIntensity !== "none" && (
         <View
           pointerEvents="none"
-          style={[
-            StyleSheet.absoluteFillObject,
-            {
-              borderRadius: baseSize / 2,
-              backgroundColor: Colors.primaryFantasy,
-              opacity: 0.08,
-            },
-          ]}
+          style={{
+            position: "absolute",
+            bottom: Spacing.small,
+            width: baseSize * 0.7,
+            height: 10,
+            borderRadius: 5,
+            backgroundColor: "rgba(0,0,0,0.35)",
+            alignSelf: "center",
+            opacity: 0.6,
+          }}
         />
-      </Animated.View>
+      )}
     </View>
   );
 }
@@ -161,10 +184,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: Colors.surface,
-    shadowColor: Colors.primaryFantasy,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: Spacing.small,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
   },
   pot: {
     position: "absolute",

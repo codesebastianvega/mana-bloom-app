@@ -17,6 +17,7 @@ const NEWS_KEY = "mb:news";
 const WALLET_KEY = "mb:wallet";
 const DAILY_REWARD_KEY = "mb:dailyReward";
 const ACHIEVEMENTS_KEY = "mb:achievements";
+const PLANT_NAME_KEY = "mb:plantName";
 
 export async function getMana() {
   try {
@@ -260,6 +261,25 @@ export async function setAchievementsState(state) {
     await AsyncStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(state));
   } catch (e) {
     console.warn("Error guardando logros en storage", e);
+  }
+}
+
+// [MB] Helpers de perfil de planta (nombre)
+export async function getPlantName() {
+  try {
+    const value = await AsyncStorage.getItem(PLANT_NAME_KEY);
+    return value || "Mi Planta";
+  } catch (e) {
+    console.warn("Error leyendo nombre de planta de storage", e);
+    return "Mi Planta";
+  }
+}
+
+export async function setPlantName(name) {
+  try {
+    await AsyncStorage.setItem(PLANT_NAME_KEY, name || "");
+  } catch (e) {
+    console.warn("Error guardando nombre de planta en storage", e);
   }
 }
 

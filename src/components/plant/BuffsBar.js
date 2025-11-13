@@ -76,7 +76,7 @@ export default function BuffsBar({
 
 const styles = StyleSheet.create({
   container: {
-    opacity: Opacity.muted + 0.2,
+    opacity: 1,
     marginVertical: Spacing.base,
   },
   row: {

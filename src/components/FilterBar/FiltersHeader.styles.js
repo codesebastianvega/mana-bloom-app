@@ -12,6 +12,6 @@ export default StyleSheet.create({
   container: {
     backgroundColor: Colors.background,
     paddingVertical: Spacing.small,
-    gap: Spacing.small,
+    gap: Spacing.base,
   },
 });
