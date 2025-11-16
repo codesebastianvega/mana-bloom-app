@@ -324,6 +324,48 @@ export default StyleSheet.create({
     borderRadius: Radii.pill,
     backgroundColor: Colors.accent,
   },
+  diaryEmpty: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  diaryEntry: {
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.primaryLight, 0.15),
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.4),
+    padding: Spacing.base,
+    gap: Spacing.tiny,
+    marginTop: Spacing.small,
+  },
+  diaryTag: {
+    alignSelf: "flex-start",
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    borderRadius: Radii.pill,
+    backgroundColor: withAlpha(Colors.ritualJournal, 0.25),
+  },
+  diaryTagVision: {
+    backgroundColor: withAlpha(Colors.ritualFocus, 0.25),
+  },
+  diaryTagText: {
+    ...Typography.caption,
+    color: Colors.text,
+    fontWeight: "600",
+  },
+  diaryTitle: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "700",
+  },
+  diaryBody: {
+    ...Typography.body,
+    color: Colors.text,
+  },
+  diaryDate: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    marginTop: Spacing.tiny,
+  },
 });
 
 

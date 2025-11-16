@@ -18,6 +18,12 @@ const WALLET_KEY = "mb:wallet";
 const DAILY_REWARD_KEY = "mb:dailyReward";
 const ACHIEVEMENTS_KEY = "mb:achievements";
 const PLANT_NAME_KEY = "mb:plantName";
+const HYDRATION_STATE_KEY = "mb:hydrationState";
+const VISUALIZE_DRAFT_KEY = "mb:visualizeDraft";
+const VISUALIZE_LOG_KEY = "mb:visualizeEntries";
+const JOURNAL_DRAFT_KEY = "mb:journalDraft";
+const JOURNAL_LOG_KEY = "mb:journalLog";
+const LEGACY_JOURNAL_KEY = "mb:journalEntries";
 
 export async function getMana() {
   try {
@@ -280,6 +286,110 @@ export async function setPlantName(name) {
     await AsyncStorage.setItem(PLANT_NAME_KEY, name || "");
   } catch (e) {
     console.warn("Error guardando nombre de planta en storage", e);
+  }
+}
+
+const DEFAULT_HYDRATION_STATE = { date: null, count: 0 };
+
+export async function getHydrationState() {
+  try {
+    const value = await AsyncStorage.getItem(HYDRATION_STATE_KEY);
+    return value ? JSON.parse(value) : { ...DEFAULT_HYDRATION_STATE };
+  } catch (e) {
+    console.warn("Error leyendo estado de hidratación", e);
+    return { ...DEFAULT_HYDRATION_STATE };
+  }
+}
+
+export async function setHydrationState(state = DEFAULT_HYDRATION_STATE) {
+  try {
+    await AsyncStorage.setItem(HYDRATION_STATE_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn("Error guardando estado de hidratación", e);
+  }
+}
+
+export async function getVisualizeDraft() {
+  try {
+    const value = await AsyncStorage.getItem(VISUALIZE_DRAFT_KEY);
+    return value || "";
+  } catch (e) {
+    console.warn("Error leyendo borrador de visualizar", e);
+    return "";
+  }
+}
+
+export async function setVisualizeDraft(value) {
+  try {
+    await AsyncStorage.setItem(VISUALIZE_DRAFT_KEY, value || "");
+  } catch (e) {
+    console.warn("Error guardando borrador de visualizar", e);
+  }
+}
+
+export async function getVisualizeEntries() {
+  try {
+    const value = await AsyncStorage.getItem(VISUALIZE_LOG_KEY);
+    return value ? JSON.parse(value) : [];
+  } catch (e) {
+    console.warn("Error leyendo entradas de visualizar", e);
+    return [];
+  }
+}
+
+export async function addVisualizeEntry(entry) {
+  try {
+    const current = await getVisualizeEntries();
+    await AsyncStorage.setItem(VISUALIZE_LOG_KEY, JSON.stringify([entry, ...current]));
+  } catch (e) {
+    console.warn("Error guardando entrada de visualizar", e);
+  }
+}
+
+export async function getJournalDraft() {
+  try {
+    const value = await AsyncStorage.getItem(JOURNAL_DRAFT_KEY);
+    return value || "";
+  } catch (e) {
+    console.warn("Error leyendo borrador de diario", e);
+    return "";
+  }
+}
+
+export async function setJournalDraft(value) {
+  try {
+    await AsyncStorage.setItem(JOURNAL_DRAFT_KEY, value || "");
+  } catch (e) {
+    console.warn("Error guardando borrador de diario", e);
+  }
+}
+
+export async function getJournalEntries() {
+  try {
+    const value = await AsyncStorage.getItem(JOURNAL_LOG_KEY);
+    if (value) {
+      return JSON.parse(value);
+    }
+    const legacy = await AsyncStorage.getItem(LEGACY_JOURNAL_KEY);
+    if (legacy) {
+      const parsed = JSON.parse(legacy);
+      await AsyncStorage.setItem(JOURNAL_LOG_KEY, legacy);
+      await AsyncStorage.removeItem(LEGACY_JOURNAL_KEY);
+      return parsed;
+    }
+    return [];
+  } catch (e) {
+    console.warn("Error leyendo entradas de diario", e);
+    return [];
+  }
+}
+
+export async function addJournalEntry(entry) {
+  try {
+    const current = await getJournalEntries();
+    await AsyncStorage.setItem(JOURNAL_LOG_KEY, JSON.stringify([entry, ...current]));
+  } catch (e) {
+    console.warn("Error guardando entrada de diario", e);
   }
 }
 

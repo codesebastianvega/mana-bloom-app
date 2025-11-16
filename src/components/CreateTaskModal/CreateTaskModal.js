@@ -72,6 +72,7 @@ export default function CreateTaskModal({
   priorityOptions,
   elementOptions,
   difficultyOptions,
+  initialElement = "all",
 }) {
   const [newTitle, setNewTitle] = useState("");
   const [newNote, setNewNote] = useState("");
@@ -101,16 +102,16 @@ export default function CreateTaskModal({
       );
       setNewTagInput("");
       setNewSubtaskInput("");
-    } else {
+    } else if (visible) {
       resetForm();
     }
-  }, [task, visible]);
+  }, [task, visible, initialElement]);
 
   const resetForm = () => {
     setNewTitle("");
     setNewNote("");
     setNewType("single");
-    setNewElement("all");
+    setNewElement(initialElement || "all");
     setNewPriority("easy");
     setNewDifficulty("easy");
     setNewTagInput("");

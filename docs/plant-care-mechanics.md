@@ -149,3 +149,12 @@
 - Los helpers cambian a “Disponible en Xm” cuando el cooldown > 0
 - Long‑press existente muestra tooltip; el botón “i” opcional abre el modal de mecánicas
 - Los buffs refrescan tiempo, no se apilan
+
+## Balance elemental (notas de implementación futura)
+- Fuentes de datos: tareas almacenadas (element = fire/water/earth/air) y hábitos completados.
+- Reglas propuestas:
+  1. Contar sólo tareas activas (no eliminadas); distinguir pendientes vs completadas.
+  2. Normalizar por última semana; reset semanal.
+  3. Mostrar resumen "Más fuerte / Necesita atención" y CTA directo a CreateTaskModal filtrado.
+  4. Element chips se vuelven pressables para abrir tareas prefiltradas.
+- Próximo paso: compartir estado entre TasksScreen y PlantScreen vía contexto para evitar hidrataciones separadas.

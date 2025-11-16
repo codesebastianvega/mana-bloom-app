@@ -1,10 +1,10 @@
-﻿// [MB] Modulo: Profile / Seccion: ProfileScreen
+// [MB] Modulo: Profile / Seccion: ProfileScreen
 // Afecta: ProfileScreen
 // Proposito: Layout visual del perfil con secciones jerarquizadas
 // Puntos de edicion futura: conectar con contexto real y navegacion
 // Autor: Codex - Fecha: 2025-10-21
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -22,6 +22,7 @@ import styles from "./ProfileScreen.styles";
 import AchievementsPanel from "../components/profile/AchievementsPanel";
 import AchievementsModal from "../components/profile/AchievementsModal";
 import { ACHIEVEMENTS } from "../constants/achievements";
+import { getJournalEntries, getVisualizeEntries } from "../storage";
 
 export default function ProfileScreen() {
   const achievementToast = useAchievementToast();
@@ -35,6 +36,29 @@ export default function ProfileScreen() {
     profile.xpTarget ? profile.xpCurrent / profile.xpTarget : 0
   );
   const [modalVisible, setModalVisible] = useState(false);
+  const [visualizeEntries, setVisualizeEntries] = useState([]);
+  const [journalLogEntries, setJournalLogEntries] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadEntries = async () => {
+      try {
+        const [viz, journalLog] = await Promise.all([
+          getVisualizeEntries(),
+          getJournalEntries(),
+        ]);
+        if (!mounted) return;
+        setVisualizeEntries(viz || []);
+        setJournalLogEntries(journalLog || []);
+      } catch (error) {
+        console.warn("[MB] No se pudieron cargar entradas de diario", error);
+      }
+    };
+    loadEntries();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const achievementsFull = useMemo(() => {
     if (!achievementState) return [];
@@ -112,7 +136,7 @@ export default function ProfileScreen() {
                 <Text style={styles.heroRank}>{profile.rank}</Text>
               </View>
               <Text style={styles.heroSub}>
-                {profile.daysInAcademy} d�as en la academia m�gica
+                {profile.daysInAcademy} d?as en la academia m?gica
               </Text>
             </View>
           </View>
@@ -145,7 +169,7 @@ export default function ProfileScreen() {
 
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Logros m�gicos</Text>
+            <Text style={styles.sectionTitle}>Logros m?gicos</Text>
             <Pressable
               onPress={() => setModalVisible(true)}
               style={styles.sectionLink}
@@ -168,7 +192,7 @@ export default function ProfileScreen() {
               </Text>
             </View>
             <View style={styles.achievementTag}>
-              <Text style={styles.achievementTagText}>Pr�ximo</Text>
+              <Text style={styles.achievementTagText}>Pr?ximo</Text>
             </View>
           </View>
           <AchievementsPanel limit={3} />
@@ -198,7 +222,46 @@ export default function ProfileScreen() {
 
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Configuraci�n m�gica</Text>
+            <Text style={styles.sectionTitle}>Diario personal</Text>
+          </View>
+          {journalLogEntries.length === 0 && visualizeEntries.length === 0 ? (
+            <Text style={styles.diaryEmpty}>
+              A�n no registras notas ni visiones. Empieza un ritual para
+              desbloquear este espacio.
+            </Text>
+          ) : (
+            <>
+              {journalLogEntries.slice(0, 2).map((entry) => (
+                <View key={entry.createdAt} style={styles.diaryEntry}>
+                  <View style={styles.diaryTag}>
+                    <Text style={styles.diaryTagText}>Nota</Text>
+                  </View>
+                  <Text style={styles.diaryTitle}>
+                    {entry.title || "Entrada sin t�tulo"}
+                  </Text>
+                  <Text style={styles.diaryBody}>{entry.note}</Text>
+                  <Text style={styles.diaryDate}>
+                    {formatDate(entry.createdAt)}
+                  </Text>
+                </View>
+              ))}
+              {visualizeEntries.slice(0, 2).map((entry) => (
+                <View key={entry.createdAt || entry.id} style={styles.diaryEntry}>
+                  <View style={[styles.diaryTag, styles.diaryTagVision]}>
+                    <Text style={styles.diaryTagText}>Visi�n</Text>
+                  </View>
+                  <Text style={styles.diaryBody}>{entry.text}</Text>
+                  <Text style={styles.diaryDate}>
+                    {formatDate(entry.createdAt)}
+                  </Text>
+                </View>
+              ))}
+            </>
+          )}
+        </View>
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Configuraci?n m?gica</Text>
           </View>
           {settings.map((item) => (
             <View key={item.id} style={styles.settingRow}>
@@ -247,6 +310,46 @@ export default function ProfileScreen() {
             />
           </View>
         </View>
+
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Diario personal</Text>
+          </View>
+          {journalLogEntries.length === 0 && visualizeEntries.length === 0 ? (
+            <Text style={styles.diaryEmpty}>
+              A�n no registras notas ni visiones. Empieza un ritual para
+              desbloquear este espacio.
+            </Text>
+          ) : (
+            <>
+              {journalLogEntries.slice(0, 2).map((entry) => (
+                <View key={entry.createdAt} style={styles.diaryEntry}>
+                  <View style={styles.diaryTag}>
+                    <Text style={styles.diaryTagText}>Nota</Text>
+                  </View>
+                  <Text style={styles.diaryTitle}>
+                    {entry.title || "Entrada sin t�tulo"}
+                  </Text>
+                  <Text style={styles.diaryBody}>{entry.note}</Text>
+                  <Text style={styles.diaryDate}>
+                    {formatDate(entry.createdAt)}
+                  </Text>
+                </View>
+              ))}
+              {visualizeEntries.slice(0, 2).map((entry) => (
+                <View key={entry.createdAt || entry.id} style={styles.diaryEntry}>
+                  <View style={[styles.diaryTag, styles.diaryTagVision]}>
+                    <Text style={styles.diaryTagText}>Visi�n</Text>
+                  </View>
+                  <Text style={styles.diaryBody}>{entry.text}</Text>
+                  <Text style={styles.diaryDate}>
+                    {formatDate(entry.createdAt)}
+                  </Text>
+                </View>
+              ))}
+            </>
+          )}
+        </View>
       </ScrollView>
       <AchievementsModal
         visible={modalVisible}
@@ -257,7 +360,17 @@ export default function ProfileScreen() {
   );
 }
 
-
-
-
-
+function formatDate(value) {
+  if (!value) return "Reciente";
+  try {
+    const date = new Date(value);
+    return date.toLocaleDateString("es-CO", {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return "Reciente";
+  }
+}

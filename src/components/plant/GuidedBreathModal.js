@@ -5,7 +5,7 @@
 // Autor: Codex - Fecha: 2025-10-22
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Modal, View, Text, Pressable, StyleSheet } from "react-native";
+import { Modal, View, Text, Pressable, StyleSheet, Animated } from "react-native";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
 
 const BREATH_STEPS = [
@@ -49,6 +49,8 @@ export default function GuidedBreathModal({
   const timerRef = useRef(null);
   const stepRef = useRef(0);
   const cycleRef = useRef(0);
+  const breatheAnim = useRef(new Animated.Value(0)).current;
+  const breatheLoopRef = useRef(null);
 
   const stopTimer = useCallback(() => {
     if (timerRef.current) {
@@ -56,6 +58,33 @@ export default function GuidedBreathModal({
       timerRef.current = null;
     }
   }, []);
+
+  const stopBreathLoop = useCallback(() => {
+    if (breatheLoopRef.current) {
+      breatheLoopRef.current.stop();
+      breatheLoopRef.current = null;
+    }
+  }, []);
+
+  const startBreathLoop = useCallback(() => {
+    stopBreathLoop();
+    breatheAnim.setValue(0);
+    breatheLoopRef.current = Animated.loop(
+      Animated.sequence([
+        Animated.timing(breatheAnim, {
+          toValue: 1,
+          duration: 1800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(breatheAnim, {
+          toValue: 0,
+          duration: 1800,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    breatheLoopRef.current.start();
+  }, [breatheAnim, stopBreathLoop]);
 
   const resetState = useCallback(() => {
     setPhase("intro");
@@ -112,26 +141,49 @@ export default function GuidedBreathModal({
     if (!visible) {
       stopTimer();
       resetState();
+      stopBreathLoop();
+      return;
     }
-  }, [visible, resetState, stopTimer]);
+    if (phase === "active") {
+      startBreathLoop();
+    }
+  }, [visible, resetState, stopTimer, startBreathLoop, stopBreathLoop, phase]);
 
-  useEffect(() => stopTimer, [stopTimer]);
+  useEffect(
+    () => () => {
+      stopTimer();
+      stopBreathLoop();
+    },
+    [stopTimer, stopBreathLoop]
+  );
 
   const handleStart = useCallback(() => {
     beginSession();
-  }, [beginSession]);
+    startBreathLoop();
+  }, [beginSession, startBreathLoop]);
 
   const handleCancel = useCallback(() => {
     stopTimer();
+    stopBreathLoop();
     resetState();
     onClose?.();
-  }, [onClose, resetState, stopTimer]);
+  }, [onClose, resetState, stopTimer, stopBreathLoop]);
 
   const handleFinish = useCallback(() => {
     stopTimer();
+    stopBreathLoop();
     resetState();
     onComplete?.();
-  }, [onComplete, resetState, stopTimer]);
+  }, [onComplete, resetState, stopTimer, stopBreathLoop]);
+
+  const pulseScale = breatheAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.08],
+  });
+  const pulseOpacity = breatheAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.75, 1],
+  });
 
   const currentStep = useMemo(() => BREATH_STEPS[stepIndex], [stepIndex]);
   const displayCycle = Math.min(cycleIndex + (phase === "done" ? 0 : 1), cycles);
@@ -182,12 +234,22 @@ export default function GuidedBreathModal({
                 Ciclo {displayCycle} de {cycles}
               </Text>
               <View style={styles.timerBadgeWrapper}>
-                <View style={styles.timerBadgeOuter}>
+                <Animated.View
+                  style={[
+                    styles.timerBadgeOuter,
+                    { transform: [{ scale: pulseScale }], opacity: pulseOpacity },
+                  ]}
+                >
+                  <Animated.View
+                    style={[
+                      styles.timerRing,
+                      { transform: [{ scale: pulseScale }], opacity: pulseOpacity },
+                    ]}
+                  />
                   <View style={styles.timerBadgeInner}>
                     <Text style={styles.timerText}>{timeLeft}s</Text>
                   </View>
-                  <View style={styles.timerRing} />
-                </View>
+                </Animated.View>
               </View>
               <Text style={styles.currentStep}>{currentStep.label}</Text>
               <Text style={styles.currentHint}>{currentStep.hint}</Text>

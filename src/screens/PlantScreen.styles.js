@@ -334,6 +334,11 @@ export default StyleSheet.create({
     padding: Spacing.base + Spacing.small,
     gap: Spacing.large,
   },
+  heroSectionTitle: {
+    ...Typography.title,
+    color: Colors.text,
+    fontWeight: "700",
+  },
   heroGradient: {
     borderRadius: Radii.lg,
     padding: Spacing.base,

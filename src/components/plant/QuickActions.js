@@ -13,7 +13,7 @@ import ActionInfoModal from "./ActionInfoModal";
 import { ACTION_MECHANICS } from "./actionMechanics";
 import { Colors, Spacing, Typography } from "../../theme";
 
-const CARE_KEYS = ["water", "feed", "clean", "prune"];
+const CARE_KEYS = ["water", "feed", "clean", "prune", "light", "mist"];
 const RITUAL_KEYS = [
   "meditate",
   "hydrate",
@@ -30,6 +30,8 @@ const ACTION_LABELS = {
   feed: "Nutrir",
   clean: "Limpiar",
   prune: "Podar",
+  light: "Luz directa",
+  mist: "Neblina",
   meditate: "Meditar",
   hydrate: "Hidratar",
   stretch: "Estirar",
@@ -45,6 +47,8 @@ const ACTION_ACCENTS = {
   feed: "nutrients",
   clean: "clean",
   prune: "vitality",
+  light: "clarity",
+  mist: "reflection",
   meditate: "ritualCalm",
   hydrate: "ritualHydrate",
   stretch: "ritualStretch",
@@ -60,6 +64,8 @@ const ICON_MAP = {
   feed: "seedling",
   clean: "broom",
   prune: "cut",
+  light: "lightbulb",
+  mist: "cloud",
   meditate: "om",
   hydrate: "glass-whiskey",
   stretch: "running",
@@ -109,6 +115,8 @@ const AVAILABILITY_PROPS = {
   journal: "canJournal",
   gratitude: "canGratitude",
   restEyes: "canRestEyes",
+  light: "canLight",
+  mist: "canMist",
 };
 
 const buildActionConfig = (keys, props, variant) =>
@@ -182,17 +190,21 @@ export default function QuickActions({ cooldowns = {}, onAction, healthPercent, 
       const cdMin = ACTION_MECHANICS[key]?.cooldownMin;
       const isInactive = Boolean(payload?.inactive);
       const isCooldown = (payload?.cooldownMs ?? 0) > 0;
-      // Si no está inactiva y tiene cooldown definido, inicia cooldown local
-      if (!isInactive && cdMin && cdMin > 0 && (!cooldowns[key] || cooldowns[key] <= 0)) {
-        const ms = Math.max(0, Math.floor(cdMin * 60 * 1000));
-        setLocalCooldowns((prev) => ({ ...prev, [key]: ms }));
-        setTimeout(() => {
-          setLocalCooldowns((prev) => ({ ...prev, [key]: 0 }));
-        }, ms);
-      }
+      const shouldStartLocalCooldown =
+        !isInactive && cdMin && cdMin > 0 && (!cooldowns[key] || cooldowns[key] <= 0);
+      const localCooldownMs = shouldStartLocalCooldown ? Math.max(0, Math.floor(cdMin * 60 * 1000)) : 0;
       // Si está en cooldown, no consumas recursos ni propagues acción
       if (isCooldown) return;
-      onAction?.(key, payload);
+      const result = onAction?.(key, payload);
+      if (result === false) {
+        return;
+      }
+      if (localCooldownMs > 0) {
+        setLocalCooldowns((prev) => ({ ...prev, [key]: localCooldownMs }));
+        setTimeout(() => {
+          setLocalCooldowns((prev) => ({ ...prev, [key]: 0 }));
+        }, localCooldownMs);
+      }
     },
     [onAction, cooldowns]
   );
@@ -299,6 +311,48 @@ export default function QuickActions({ cooldowns = {}, onAction, healthPercent, 
               ) : null;
             })()}
           </View>
+          <View style={styles.careRow}>
+            {(() => {
+              const item = careActions.find((a) => a.key === "light");
+              return item ? (
+                <View style={styles.careCol}>
+                  <ActionButton
+                    key={item.key}
+                    title={item.title}
+                    helper={item.helper}
+                    accentKey={item.accentKey}
+                    icon={item.icon}
+                    cooldownMs={item.cooldownMs}
+                    disabled={item.disabled}
+                    variant={item.variant}
+                    onPress={handlePress(item.key)}
+                    onInfoPress={() => handleInfo(item.key)}
+                    infoAccessibilityLabel={`Abrir detalles de ${item.title}`}
+                  />
+                </View>
+              ) : null;
+            })()}
+            {(() => {
+              const item = careActions.find((a) => a.key === "mist");
+              return item ? (
+                <View style={styles.careCol}>
+                  <ActionButton
+                    key={item.key}
+                    title={item.title}
+                    helper={item.helper}
+                    accentKey={item.accentKey}
+                    icon={item.icon}
+                    cooldownMs={item.cooldownMs}
+                    disabled={item.disabled}
+                    variant={item.variant}
+                    onPress={handlePress(item.key)}
+                    onInfoPress={() => handleInfo(item.key)}
+                    infoAccessibilityLabel={`Abrir detalles de ${item.title}`}
+                  />
+                </View>
+              ) : null;
+            })()}
+          </View>
         </View>
       </View>
 
@@ -362,6 +416,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    rowGap: Spacing.tiny,
+    columnGap: Spacing.small,
   },
   sectionTag: {
     ...Typography.caption,
@@ -372,6 +429,7 @@ const styles = StyleSheet.create({
     ...Typography.body,
     fontWeight: "700",
     color: Colors.text,
+    flexShrink: 1,
   },
   sectionCaption: {
     ...Typography.caption,

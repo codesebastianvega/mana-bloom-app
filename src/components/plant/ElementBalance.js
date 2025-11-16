@@ -5,7 +5,7 @@
 // Autor: Codex - Fecha: 2025-11-13
 
 import React, { useMemo } from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
 
 const withAlpha = (hex = "", alpha = 1) => {
@@ -37,8 +37,7 @@ const COLORS = {
   wind: Colors.elementAir,
 };
 
-export default function ElementBalance({ values = {}, style }) {
-  const description = "Distribución de energías ganadas en la semana (Fuego = retos intensos, Agua = pausas, Tierra = proyectos largos, Viento = exploración).";
+export default function ElementBalance({ values = {}, style, onSelectElement }) {
   const data = {
     fire: clamp01(values.fire ?? 0.5),
     water: clamp01(values.water ?? 0.5),
@@ -52,31 +51,34 @@ export default function ElementBalance({ values = {}, style }) {
   }, [data.fire, data.water, data.earth, data.wind]);
 
   const percent = Math.round(avg * 100);
+  const description = "Tu energía se reparte en cuatro elementos. Mira el promedio para saber si estás equilibrado y usa los tips para decidir qué ritual o tarea activar.";
 
   return (
     <View style={[styles.container, style]}>
-      <View style={styles.topRow}>
-        <View style={styles.donut}>
-          <View style={styles.donutInner}>
-            <Text style={styles.donutValue}>{percent}%</Text>
-            <Text style={styles.donutLabel}>Balance</Text>
-            <Text style={styles.donutSubLabel}>elemental</Text>
-          </View>
-        </View>
-        <View style={styles.legend}>
-          {Object.entries(data).map(([key, val]) => (
-            <View key={key} style={styles.legendRow}>
-              <View style={[styles.legendDot, { backgroundColor: COLORS[key] }]} />
-              <Text style={styles.legendText}>{labelFor(key)}</Text>
-              <Text style={styles.legendPerc}>{Math.round(val * 100)}%</Text>
+        <Pressable
+          style={styles.donutWrapper}
+          onPress={() => onSelectElement?.("all")}
+          accessibilityRole="button"
+          accessibilityLabel="Crear tarea para equilibrar tus elementos"
+        >
+          <View style={styles.donut}>
+            <View style={styles.donutInner}>
+              <Text style={styles.donutValue}>{percent}%</Text>
+              <Text style={styles.donutSubLabel}>equilibrio semanal</Text>
             </View>
-          ))}
-        </View>
-      </View>
+          </View>
+          <Text style={styles.donutDescription}>{description}</Text>
+        </Pressable>
 
       <View style={styles.grid}>
         {(["fire", "water", "earth", "wind"]).map((key) => (
-          <View key={key} style={styles.tile}>
+          <Pressable
+            key={key}
+            style={styles.tile}
+            onPress={() => onSelectElement?.(key)}
+            accessibilityRole="button"
+            accessibilityLabel={`Mostrar tareas de ${labelFor(key)}`}
+          >
             <View style={styles.tileHeader}>
               <Image source={ICONS[key]} style={styles.tileIcon} />
               <View style={styles.tileInfo}>
@@ -88,7 +90,7 @@ export default function ElementBalance({ values = {}, style }) {
             <View style={styles.track}>
               <View style={[styles.fill, { width: `${Math.round(data[key] * 100)}%`, backgroundColor: COLORS[key] }]} />
             </View>
-          </View>
+          </Pressable>
         ))}
       </View>
     </View>
@@ -131,22 +133,9 @@ const styles = StyleSheet.create({
   container: {
     gap: Spacing.base,
   },
-  headerRow: {
-    gap: Spacing.tiny,
-  },
-  headerTitle: {
-    ...Typography.body,
-    color: Colors.text,
-    fontWeight: "700",
-  },
-  headerCaption: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  topRow: {
-    flexDirection: "row",
+  donutWrapper: {
     alignItems: "center",
-    gap: Spacing.base,
+    gap: Spacing.tiny,
   },
   donut: {
     width: DONUT_SIZE,
@@ -178,29 +167,10 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     fontSize: 11,
   },
-  legend: {
-    flex: 1,
-    gap: Spacing.tiny,
-  },
-  legendRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.small,
-  },
-  legendDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
-  legendText: {
+  donutDescription: {
     ...Typography.caption,
-    color: Colors.text,
-    flex: 1,
-  },
-  legendPerc: {
-    ...Typography.caption,
-    color: Colors.text,
-    fontWeight: "700",
+    color: Colors.textMuted,
+    textAlign: "center",
   },
   grid: {
     flexDirection: "row",
@@ -239,6 +209,11 @@ const styles = StyleSheet.create({
     ...Typography.body,
     color: Colors.text,
     fontWeight: "700",
+  },
+  tileTip: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontSize: 11,
   },
   track: {
     height: 6,
