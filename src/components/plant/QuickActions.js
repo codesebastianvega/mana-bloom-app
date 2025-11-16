@@ -13,7 +13,7 @@ import ActionInfoModal from "./ActionInfoModal";
 import { ACTION_MECHANICS } from "./actionMechanics";
 import { Colors, Spacing, Typography } from "../../theme";
 
-const CARE_KEYS = ["water", "feed", "clean", "prune", "light", "mist"];
+const CARE_KEYS = ["water", "feed", "clean", "prune"];
 const RITUAL_KEYS = [
   "meditate",
   "hydrate",
@@ -30,8 +30,6 @@ const ACTION_LABELS = {
   feed: "Nutrir",
   clean: "Limpiar",
   prune: "Podar",
-  light: "Luz directa",
-  mist: "Neblina",
   meditate: "Meditar",
   hydrate: "Hidratar",
   stretch: "Estirar",
@@ -47,8 +45,6 @@ const ACTION_ACCENTS = {
   feed: "nutrients",
   clean: "clean",
   prune: "vitality",
-  light: "clarity",
-  mist: "reflection",
   meditate: "ritualCalm",
   hydrate: "ritualHydrate",
   stretch: "ritualStretch",
@@ -64,8 +60,6 @@ const ICON_MAP = {
   feed: "seedling",
   clean: "broom",
   prune: "cut",
-  light: "lightbulb",
-  mist: "cloud",
   meditate: "om",
   hydrate: "glass-whiskey",
   stretch: "running",
@@ -115,8 +109,6 @@ const AVAILABILITY_PROPS = {
   journal: "canJournal",
   gratitude: "canGratitude",
   restEyes: "canRestEyes",
-  light: "canLight",
-  mist: "canMist",
 };
 
 const buildActionConfig = (keys, props, variant) =>
@@ -125,23 +117,34 @@ const buildActionConfig = (keys, props, variant) =>
     const accentKey = ACTION_ACCENTS[key] || "clean";
     const iconName = ICON_MAP[key];
     const label = ACTION_LABELS[key] || mechanic.title || key;
-    const cooldownMs = props.cooldowns?.[key] || props.localCooldowns?.[key] || 0; // define antes de usar
+    const cooldownMs = props.cooldowns?.[key] || props.localCooldowns?.[key] || 0;
     const availabilityProp = AVAILABILITY_PROPS[key];
     const isAvailable =
       availabilityProp && Object.prototype.hasOwnProperty.call(props, availabilityProp)
         ? props[availabilityProp]
         : true;
+
     // Recursos suficientes segun economy y costos del actionMechanic
     let hasResources = true;
     if (props.economy && Array.isArray(mechanic.cost) && mechanic.cost.length > 0) {
-      const map = { mana: 'mana', coin: 'coins', coins: 'coins', diamond: 'gems', diamonds: 'gems', gem: 'gems', gems: 'gems' };
+      const map = {
+        mana: "mana",
+        coin: "coins",
+        coins: "coins",
+        diamond: "gems",
+        diamonds: "gems",
+        gem: "gems",
+        gems: "gems",
+      };
       hasResources = mechanic.cost.every((c) => {
-        const keyMap = map[String(c?.type || '').toLowerCase()] || String(c?.type || '').toLowerCase();
+        const keyMap =
+          map[String(c?.type || "").toLowerCase()] || String(c?.type || "").toLowerCase();
         const balance = Number(props.economy?.[keyMap] ?? 0);
         const needed = Number(c?.amount ?? 0);
         return balance >= needed;
       });
     }
+
     let helper;
     if (variant === "dual") {
       helper = mechanic.headline || mechanic.summary;
@@ -165,7 +168,13 @@ const buildActionConfig = (keys, props, variant) =>
     };
   });
 
-export default function QuickActions({ cooldowns = {}, onAction, healthPercent, economy, ...availability }) {
+export default function QuickActions({
+  cooldowns = {},
+  onAction,
+  healthPercent,
+  economy,
+  ...availability
+}) {
   const [infoKey, setInfoKey] = useState(null);
   const [localCooldowns, setLocalCooldowns] = useState({});
   const activatingRef = useRef({});
@@ -186,24 +195,28 @@ export default function QuickActions({ cooldowns = {}, onAction, healthPercent, 
     (key) => (payload) => {
       if (activatingRef.current[key]) return; // anti-double-tap
       activatingRef.current[key] = true;
-      setTimeout(() => { delete activatingRef.current[key]; }, 300);
+      setTimeout(() => {
+        delete activatingRef.current[key];
+      }, 300);
+
       const cdMin = ACTION_MECHANICS[key]?.cooldownMin;
       const isInactive = Boolean(payload?.inactive);
       const isCooldown = (payload?.cooldownMs ?? 0) > 0;
-      const shouldStartLocalCooldown =
-        !isInactive && cdMin && cdMin > 0 && (!cooldowns[key] || cooldowns[key] <= 0);
-      const localCooldownMs = shouldStartLocalCooldown ? Math.max(0, Math.floor(cdMin * 60 * 1000)) : 0;
-      // Si está en cooldown, no consumas recursos ni propagues acción
+
+      // Si está en cooldown, no consumas recursos ni abras modales
       if (isCooldown) return;
+
       const result = onAction?.(key, payload);
-      if (result === false) {
-        return;
-      }
-      if (localCooldownMs > 0) {
-        setLocalCooldowns((prev) => ({ ...prev, [key]: localCooldownMs }));
+      // onAction puede devolver false para indicar "solo abrí un modal, no ejecutes aún"
+      if (result === false) return;
+
+      // Si la acción realmente se ejecutó y no está inactiva, inicia cooldown local
+      if (!isInactive && cdMin && cdMin > 0 && (!cooldowns[key] || cooldowns[key] <= 0)) {
+        const ms = Math.max(0, Math.floor(cdMin * 60 * 1000));
+        setLocalCooldowns((prev) => ({ ...prev, [key]: ms }));
         setTimeout(() => {
           setLocalCooldowns((prev) => ({ ...prev, [key]: 0 }));
-        }, localCooldownMs);
+        }, ms);
       }
     },
     [onAction, cooldowns]
@@ -311,59 +324,19 @@ export default function QuickActions({ cooldowns = {}, onAction, healthPercent, 
               ) : null;
             })()}
           </View>
-          <View style={styles.careRow}>
-            {(() => {
-              const item = careActions.find((a) => a.key === "light");
-              return item ? (
-                <View style={styles.careCol}>
-                  <ActionButton
-                    key={item.key}
-                    title={item.title}
-                    helper={item.helper}
-                    accentKey={item.accentKey}
-                    icon={item.icon}
-                    cooldownMs={item.cooldownMs}
-                    disabled={item.disabled}
-                    variant={item.variant}
-                    onPress={handlePress(item.key)}
-                    onInfoPress={() => handleInfo(item.key)}
-                    infoAccessibilityLabel={`Abrir detalles de ${item.title}`}
-                  />
-                </View>
-              ) : null;
-            })()}
-            {(() => {
-              const item = careActions.find((a) => a.key === "mist");
-              return item ? (
-                <View style={styles.careCol}>
-                  <ActionButton
-                    key={item.key}
-                    title={item.title}
-                    helper={item.helper}
-                    accentKey={item.accentKey}
-                    icon={item.icon}
-                    cooldownMs={item.cooldownMs}
-                    disabled={item.disabled}
-                    variant={item.variant}
-                    onPress={handlePress(item.key)}
-                    onInfoPress={() => handleInfo(item.key)}
-                    infoAccessibilityLabel={`Abrir detalles de ${item.title}`}
-                  />
-                </View>
-              ) : null;
-            })()}
-          </View>
         </View>
       </View>
 
       <View style={styles.section}>
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Rituales de bienestar</Text>
-          {typeof healthPercent === 'number' ? (
+          {typeof healthPercent === "number" ? (
             <Text style={styles.sectionTag}>{`Salud ${healthPercent}%`}</Text>
           ) : null}
         </View>
-        <Text style={styles.sectionCaption}>Micro pausas para recargar energia junto a la planta.</Text>
+        <Text style={styles.sectionCaption}>
+          Micro pausas para recargar energia junto a la planta.
+        </Text>
         <View style={styles.ritualGrid}>
           {(() => {
             const rows = [];
@@ -413,12 +386,9 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.small,
   },
   sectionHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    rowGap: Spacing.tiny,
-    columnGap: Spacing.small,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   sectionTag: {
     ...Typography.caption,
@@ -429,7 +399,6 @@ const styles = StyleSheet.create({
     ...Typography.body,
     fontWeight: "700",
     color: Colors.text,
-    flexShrink: 1,
   },
   sectionCaption: {
     ...Typography.caption,
@@ -465,3 +434,4 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
 });
+

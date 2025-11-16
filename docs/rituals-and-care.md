@@ -1,15 +1,15 @@
-# Rituals & Plant Care (App State Overview)
+﻿# Rituals & Plant Care (App State Overview)
 
-> Última actualización: 2025-11-14  
-> Mantén este archivo vivo cada vez que añadamos/ajustemos rituales o métricas.
+> Ãšltima actualizaciÃ³n: 2025-11-14  
+> MantÃ©n este archivo vivo cada vez que aÃ±adamos/ajustemos rituales o mÃ©tricas.
 
 ## 1. Acciones de cuidado de la planta (QuickActions)
 
 Archivo principal: `src/components/plant/QuickActions.js`  
-Mecánicas (textos, cooldowns, costos): `src/components/plant/actionMechanics.js`  
+MecÃ¡nicas (textos, cooldowns, costos): `src/components/plant/actionMechanics.js`  
 Uso en pantalla: `src/screens/PlantScreen.js`
 
-| Key     | Título UI      | Ícono | Acento        | Coste (ver `ACTION_COSTS`) | Efectos clave (`METRIC_EFFECT_MAP`) |
+| Key     | TÃ­tulo UI      | Ãcono | Acento        | Coste (ver `ACTION_COSTS`) | Efectos clave (`METRIC_EFFECT_MAP`) |
 |---------|----------------|-------|---------------|----------------------------|-------------------------------------|
 | water   | Regar          | tint  | water         | `-20 mana`                 | `water +0.12`, buff Vitalidad       |
 | feed    | Nutrir         | seedling | nutrients  | `-120 coins`              | `nutrients +0.10`, buff Crecimiento |
@@ -21,45 +21,45 @@ Uso en pantalla: `src/screens/PlantScreen.js`
 Notas:
 - QuickActions recibe props `cooldowns` y un handler `onAction(key) -> boolean`.  
 - Si `onAction` devuelve `false` (porque abrimos un modal de ritual), **no** se inicia cooldown local.  
-- Todos los botones muestran un helper corto (`helper` en `buildActionConfig`); al hacer long-press (o usar `ActionInfoModal`) se muestra la descripción completa (`ACTION_MECHANICS[key]`).
+- Todos los botones muestran un helper corto (`helper` en `buildActionConfig`); al hacer long-press (o usar `ActionInfoModal`) se muestra la descripciÃ³n completa (`ACTION_MECHANICS[key]`).
 
 ## 2. Rituales personales y modales
 
 ### Listado de rituales (`RITUAL_ACTIONS`)
 
-| Key         | Modal / Archivo                                 | Flujo en `PlantScreen`                          | Efectos sobre métricas |
+| Key         | Modal / Archivo                                 | Flujo en `PlantScreen`                          | Efectos sobre mÃ©tricas |
 |-------------|-------------------------------------------------|------------------------------------------------|------------------------|
-| meditate    | `GuidedBreathModal.js`                          | `launchBreathModal()` → `handleBreathComplete` | `mood +0.05`, `purity +0.03` |
-| hydrate     | `HydrateModal.js`                               | `launchHydrateModal()` → `handleHydrateComplete` | `water +0.08`, `mood +0.02` |
-| stretch     | `StretchModal.js`                               | `launchStretchModal()` → `handleStretchComplete` | `focus +0.05`, `temperature +0.02` |
-| sunlight    | `SunlightModal.js`                              | `launchSunlightModal()` → `handleSunlightComplete` | `light +0.08`, `mood +0.01` |
-| visualize   | `VisualizeModal.js`                             | `launchVisualizeModal()` → `handleVisualizeComplete` | `focus +0.03`, `mood +0.02` |
-| journal     | `JournalModal.js`                               | `launchJournalModal()` → `handleJournalComplete` | `focus +0.02`, `mood +0.03` |
-| gratitude   | `GratitudeModal.js`                             | `launchGratitudeModal()` → `handleGratitudeComplete` | `mood +0.04`, `purity +0.02` |
-| restEyes    | `RestEyesModal.js`                              | `launchRestEyesModal()` → `handleRestEyesComplete` | `focus +0.04` |
+| meditate    | `GuidedBreathModal.js`                          | `launchBreathModal()` â†’ `handleBreathComplete` | `mood +0.05`, `purity +0.03` |
+| hydrate     | `HydrateModal.js`                               | `launchHydrateModal()` â†’ `handleHydrateComplete` | `water +0.08`, `mood +0.02` |
+| stretch     | `StretchModal.js`                               | `launchStretchModal()` â†’ `handleStretchComplete` | `focus +0.05`, `temperature +0.02` |
+| sunlight    | `SunlightModal.js`                              | `launchSunlightModal()` â†’ `handleSunlightComplete` | `light +0.08`, `mood +0.01` |
+| visualize   | `VisualizeModal.js`                             | `launchVisualizeModal()` â†’ `handleVisualizeComplete` | `focus +0.03`, `mood +0.02` |
+| journal     | `JournalModal.js`                               | `launchJournalModal()` â†’ `handleJournalComplete` | `focus +0.02`, `mood +0.03` |
+| gratitude   | `GratitudeModal.js`                             | `launchGratitudeModal()` â†’ `handleGratitudeComplete` | `mood +0.04`, `purity +0.02` |
+| restEyes    | `RestEyesModal.js`                              | `launchRestEyesModal()` â†’ `handleRestEyesComplete` | `focus +0.04` |
 
 Detalles clave por modal:
 
 - **GuidedBreath** (`src/components/plant/GuidedBreathModal.js`)
   - Estados: `phase (intro/active/done)`, `stepIndex`, `cycleIndex`, `timeLeft`.
-  - Animación: `breatheAnim` para el pulso del timer (Animated loop).
+  - AnimaciÃ³n: `breatheAnim` para el pulso del timer (Animated loop).
   - Timer basado en `BREATH_STEPS`.
-  - `onComplete` se dispara cuando termina la sesión o al pulsar “Reclamar XP”.
+  - `onComplete` se dispara cuando termina la sesiÃ³n o al pulsar â€œReclamar XPâ€.
 
 - **Hydrate**
-  - Cada vaso incrementa `hydrateCount` (persistido por día con `HYDRATION_STATE_KEY`).
+  - Cada vaso incrementa `hydrateCount` (persistido por dÃ­a con `HYDRATION_STATE_KEY`).
   - Barra de progreso (`progressAnim`) con easing.
-  - Sólo permite “Sincronizar con la planta” cuando `count >= goal`.
+  - SÃ³lo permite â€œSincronizar con la plantaâ€ cuando `count >= goal`.
 
 - **Stretch**
   - Secuencia de 4 pasos guiados + temporizador.
-  - `progressAnim` da un leve “breathing” al badge del timer.
+  - `progressAnim` da un leve â€œbreathingâ€ al badge del timer.
   - Terminar la rutina llama `handleStretchComplete`.
 
 - **Sunlight**
-  - Timer de 5 minutos con botón `Iniciar/Pausar`.
+  - Timer de 5 minutos con botÃ³n `Iniciar/Pausar`.
   - `glowAnim` produce un halo animado alrededor del badge.
-  - `handleSunlightComplete` se habilita sólo cuando el timer llega a 0.
+  - `handleSunlightComplete` se habilita sÃ³lo cuando el timer llega a 0.
 
 - **Visualize**
   - `PROMPTS` rotativos; se guardan borradores en AsyncStorage (`mb:visualizeDraft`).
@@ -67,9 +67,9 @@ Detalles clave por modal:
   - `addVisualizeEntry` registra el texto final en `mb:visualizeEntries`.
 
 - **Journal**
-  - Estética dramática (gradient + quote).
+  - EstÃ©tica dramÃ¡tica (gradient + quote).
   - Persiste borradores (`mb:journalDraft`) y entradas (`mb:journalLog`).
-  - `onSave` envía un objeto `{ title, note, createdAt }` a `addJournalEntry`.
+  - `onSave` envÃ­a un objeto `{ title, note, createdAt }` a `addJournalEntry`.
 
 - **Gratitude**
   - Selecciona un mensaje al azar y muestra un CTA para abrir WhatsApp.
@@ -79,7 +79,7 @@ Detalles clave por modal:
   - Temporizador simple de 20s con pulso (`Animated`).
   - Al completar llama `onComplete`, que a su vez ejecuta `handleAction("restEyes")`.
 
-## 3. Métricas del Hero y efectos (`careMetrics`)
+## 3. MÃ©tricas del Hero y efectos (`careMetrics`)
 
 Variables en `PlantScreen.js`:
 
@@ -108,17 +108,17 @@ const METRIC_EFFECT_MAP = {
 };
 ```
 
-`handleAction(key)` llama `applyMetricEffects(key)` siempre que la acción se ejecute correctamente. La función:
+`handleAction(key)` llama `applyMetricEffects(key)` siempre que la acciÃ³n se ejecute correctamente. La funciÃ³n:
 
 1. Obtiene los deltas del mapa.
 2. Hace `setCareMetrics` sumando cada delta y clampenando `[0, 1]`.
-3. Las chips del Hero se actualizan automáticamente porque dependen del estado de `careMetrics`.
+3. Las chips del Hero se actualizan automÃ¡ticamente porque dependen del estado de `careMetrics`.
 
 ## 4. Persistencia (storage.js)
 
 Claves relevantes:
 
-| Clave             | Descripción                              | Helpers                     |
+| Clave             | DescripciÃ³n                              | Helpers                     |
 |-------------------|------------------------------------------|-----------------------------|
 | `mb:hydrationState` | Conteo diario de vasos                 | `getHydrationState` / `setHydrationState` |
 | `mb:visualizeDraft` | Borrador actual de Visualizar          | `getVisualizeDraft` / `setVisualizeDraft` |
@@ -127,7 +127,7 @@ Claves relevantes:
 | `mb:journalLog`    | Log de notas (formato `{ title, note, createdAt }`) | `getJournalEntries` / `addJournalEntry` |
 | `mb:journalEntries` | Clave legacy (se migra a `journalLog`) | manejada dentro de `getJournalEntries` |
 
-Migración Journal:
+MigraciÃ³n Journal:
 - `getJournalEntries` intenta primero `mb:journalLog`.
 - Si no existe, busca `mb:journalEntries`, copia su contenido al nuevo key y elimina el viejo.
 
@@ -141,18 +141,54 @@ Estado en `PlantScreen`:
 `ProfileScreen.js`:
 - Estados: `visualizeEntries`, `journalLogEntries`.
 - `useEffect` carga los logs desde storage.
-- Sección “Diario personal” muestra:
-  - Entradas de Journal (máx. 2) con título, nota y fecha (`formatDate` helper).
-  - Visiones (máx. 2) con texto y fecha.
-  - Mensaje vacío cuando no hay datos.
+- SecciÃ³n â€œDiario personalâ€ muestra:
+  - Entradas de Journal (mÃ¡x. 2) con tÃ­tulo, nota y fecha (`formatDate` helper).
+  - Visiones (mÃ¡x. 2) con texto y fecha.
+  - Mensaje vacÃ­o cuando no hay datos.
 
 Estilos en `ProfileScreen.styles.js`:
 - `diaryEntry`, `diaryTag`, `diaryTagVision`, `diaryTitle`, `diaryBody`, `diaryDate`, `diaryEmpty` definen el look de las tarjetas.
 
 ---
 
-### Próximos pasos sugeridos
-1. **Contexto global**: mover `careMetrics`, `hydrateCount`, `journalLogEntries`, etc. a un provider (AppContext) para compartir entre pantallas y evitar múltiples lecturas de AsyncStorage.
-2. **Backend**: sincronizar los logs (visualizar / journal / hidratación) con el servidor cuando exista autenticación.
+### PrÃ³ximos pasos sugeridos
+1. **Contexto global**: mover `careMetrics`, `hydrateCount`, `journalLogEntries`, etc. a un provider (AppContext) para compartir entre pantallas y evitar mÃºltiples lecturas de AsyncStorage.
+2. **Backend**: sincronizar los logs (visualizar / journal / hidrataciÃ³n) con el servidor cuando exista autenticaciÃ³n.
 3. **UI**: mostrar un historial completo (modal/pantalla) y permitir borrar/editar entradas.
 4. **Notificaciones**: conectar recordatorios push con el estado de cada ritual (goal, streak).
+
+## 6. Mecanicas y reglas pendientes
+
+### Economia (resumen actual)
+- **Mana**: llega desde tareas y rachas; se gasta en Regar (-20) y Meditar (-10).
+- **Monedas**: recompensas de retos/logros; Nutrir (-120) es su principal sink hoy.
+- **Gemas**: reservadas para cosméticos/buffs legendarios (sin mecánica activa).
+
+### Recompensas deseadas por ritual
+- Hidratarme: +3 Monedas por vaso y bonus al completar 8/8.
+- Estirar / Descansar ojos: reducir cooldown global por unos minutos.
+- Visualizar / Journal: bonificaciones de Focus/Claridad convertidas en XP extra.
+- Gratitud: +Mood y chance de recibir “gifts” semanales.
+
+### Penalizaciones / salud
+- Añadir decay cuando alguna métrica < 30%.
+- Estado “marchita”: salud < 10% por 24h ? no gana XP hasta recibir cuidado.
+- Buff “Escudo de racha”: pendiente de implementación.
+
+### Integración con AppContext
+1. Crear un provider de rituales/métricas que exponga careMetrics, hydrateCount, drafts y logs.
+2. PlantScreen y ProfileScreen deberían consumir este contexto para evitar múltiples lecturas de storage.
+
+### Sincronización backend (cuando exista)
+- Mantener helpers de storage como interfaz; reemplazar su implementación con fetch/axios cuando haya API.
+- Endpoints previstos: `/rituals/log`, `/journal`, `/metrics`.
+
+### Ajustes de UI pendientes
+- PlantScreen: paddingBottom en el ScrollView para evitar que el Footer tape el contenido.
+- ProfileScreen: CTA “Ver más” y padding adicional en Diario.
+- Revisión de textos con tildes/carácteres dañados.
+- GratitudeModal: reemplazar el env�o directo a WhatsApp por un share sheet nativo (apps frecuentes y contactos recientes).
+
+### Documentación futura
+- Crear `docs/gameplay-rules.md` con tabla completa de costos, recompensas, penalizaciones y misiones.
+

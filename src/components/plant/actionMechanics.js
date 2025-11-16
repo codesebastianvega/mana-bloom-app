@@ -155,16 +155,16 @@ export const ACTION_MECHANICS = {
     headline: "Recuerda hidratarte cada vez que la planta lo necesite.",
     summary: "Te invita a tomar un vaso de agua y suma Monedas por formarte el habito.",
     cost: [],
-    rewards: [
+  rewards: [
       { type: "coin", label: "+Monedas", amount: 3 },
       { type: "streak", label: "+Racha agua", amount: 1 },
     ],
     buffs: [{ key: "vitality", label: "Vitalidad", durationMin: 30 }],
-    cooldownMin: 60,
-    cadence: "8 vasos al dia",
+    cooldownMin: 720,
+    cadence: "8 vasos al dia (dos bloques de 4)",
     cues: [
-      "Configura recordatorios de hora en hora.",
-      "Completa antes de desbloquear nuevas acciones de cuidado.",
+      "Completa 4 vasos antes del mediodia y otros 4 por la tarde.",
+      "El contador se reinicia cada 12 horas para evitar spam de recompensas.",
     ],
     tips: [
       "Registra tu vaso en un journal rapido para seguir el progreso.",

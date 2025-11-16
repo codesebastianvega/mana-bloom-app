@@ -1,13 +1,17 @@
-
-// [MB] Módulo: Planta / Sección: Ritual Hidratar
+// [MB] Modulo: Planta / Seccion: Ritual Hidratar
 // Afecta: PlantScreen (rituales de bienestar)
-// Propósito: Contar vasos de agua diarios y conectar con la planta
-// Puntos de edición futura: Persistir conteo y sincronizar con Perfil
+// Proposito: Contar vasos de agua diarios y conectar con la planta
+// Puntos de edicion futura: Persistir conteo y sincronizar con Perfil
 // Autor: Codex - Fecha: 2025-11-13
 
-import React, { useEffect, useRef } from "react";
-import { Modal, View, Text, Pressable, StyleSheet, Animated, Easing } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { View, Text, Pressable, StyleSheet, Animated, Easing, ScrollView } from "react-native";
+import { FontAwesome5 } from "@expo/vector-icons";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
+import RitualModalLayout from "./RitualModalLayout";
+import { ACTION_MECHANICS } from "./actionMechanics";
+
+const HYDRATE_MECHANIC = ACTION_MECHANICS.hydrate || {};
 
 export default function HydrateModal({
   visible,
@@ -17,6 +21,7 @@ export default function HydrateModal({
   onComplete,
   onClose,
 }) {
+  const [guideExpanded, setGuideExpanded] = useState(false);
   const remaining = Math.max(0, goal - count);
   const progress = Math.min(1, goal === 0 ? 1 : count / goal);
   const canIncrement = count < goal;
@@ -32,60 +37,131 @@ export default function HydrateModal({
     }).start();
   }, [progress, progressAnim]);
 
-  return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.card}>
-          <Text style={styles.title}>Hidratarme</Text>
-          <Text style={styles.subtitle}>
-            Registra cada vaso para cuidar tu cuerpo y darle humedad a la planta.
-          </Text>
+  useEffect(() => {
+    if (!visible) {
+      setGuideExpanded(false);
+    }
+  }, [visible]);
 
-          <View style={styles.progressSection}>
-            <Text style={styles.progressLabel}>
-              Vasos {count}/{goal}
-            </Text>
-            <View style={styles.progressTrack}>
-              <Animated.View
-                style={[
-                  styles.progressFill,
-                  {
-                    width: progressAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: ["0%", "100%"],
-                    }),
-                  },
-                ]}
-              />
+  const cadenceCopy = HYDRATE_MECHANIC.cadence || "8 vasos al dia";
+  const summaryCopy =
+    HYDRATE_MECHANIC.summary ||
+    "Pequenas pausas para tomar agua refrescan tu cuerpo y el aura de la planta.";
+  const cues = useMemo(
+    () => (Array.isArray(HYDRATE_MECHANIC.cues) ? HYDRATE_MECHANIC.cues.slice(0, 2) : []),
+    []
+  );
+  const tips = useMemo(
+    () => (Array.isArray(HYDRATE_MECHANIC.tips) ? HYDRATE_MECHANIC.tips.slice(0, 2) : []),
+    []
+  );
+  const stackCopy = Array.isArray(HYDRATE_MECHANIC.stack) ? HYDRATE_MECHANIC.stack[0] : null;
+  const cooldownCopy = HYDRATE_MECHANIC.cooldownMin ? `${HYDRATE_MECHANIC.cooldownMin} min` : null;
+  const rewards = Array.isArray(HYDRATE_MECHANIC.rewards) ? HYDRATE_MECHANIC.rewards : [];
+  const rewardText = rewards.length
+    ? rewards
+        .map((entry) =>
+          entry?.amount ? `+${entry.amount} ${entry?.label || entry?.type || ""}` : entry?.label
+        )
+        .filter(Boolean)
+        .join(" • ")
+    : null;
+
+  const metaEntries = [
+    { icon: "tint", text: `Meta ${goal} vasos`, color: Colors.ritualHydrate },
+    rewardText ? { icon: "coins", text: rewardText, color: Colors.accent } : null,
+    cadenceCopy ? { icon: "redo-alt", text: cadenceCopy, color: Colors.ritualStretch } : null,
+    cooldownCopy ? { icon: "history", text: cooldownCopy, color: Colors.ritualSun } : null,
+  ].filter(Boolean);
+
+  const metaTrack =
+    metaEntries.length > 0 ? (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.metaInlineTrack}
+      >
+        {metaEntries.map((entry, index) => (
+          <React.Fragment key={`${entry.icon}-${entry.text}-${index}`}>
+            <View style={styles.metaInlineItem}>
+              <FontAwesome5 name={entry.icon} size={12} color={entry.color} />
+              <Text style={[styles.metaInlineText, { color: entry.color }]}>{entry.text}</Text>
             </View>
-            <Text style={styles.progressHint}>
-              {remaining > 0 ? `Faltan ${remaining} vasos hoy` : "Meta diaria completada"}
+            {index < metaEntries.length - 1 ? (
+              <Text style={styles.metaInlineDivider}>|</Text>
+            ) : null}
+          </React.Fragment>
+        ))}
+      </ScrollView>
+    ) : null;
+
+  const guidanceBlock =
+    summaryCopy || cues.length || tips.length || stackCopy ? (
+      <View style={[styles.guidance, !guideExpanded && styles.guidanceCollapsed]}>
+        <Text style={styles.guidanceTitle}>Momento de hidratacion</Text>
+        {summaryCopy ? <Text style={styles.guidanceCopy}>{summaryCopy}</Text> : null}
+        {guideExpanded ? (
+          <View style={styles.fullGuide}>
+            {cues.length ? (
+              <View style={styles.guidanceGroup}>
+                <Text style={styles.groupLabel}>Cuando hacerlo</Text>
+                {cues.map((cue) => (
+                  <View key={cue} style={styles.groupItem}>
+                    <View style={styles.groupBullet} />
+                    <Text style={styles.groupText}>{cue}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : null}
+            {tips.length ? (
+              <View style={styles.guidanceGroup}>
+                <Text style={styles.groupLabel}>Consejos</Text>
+                {tips.map((tip) => (
+                  <View key={tip} style={styles.groupItem}>
+                    <View style={styles.groupBullet} />
+                    <Text style={styles.groupText}>{tip}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : null}
+            {stackCopy ? (
+              <View style={styles.guidanceGroup}>
+                <Text style={styles.groupLabel}>Combinalo con</Text>
+                <View style={styles.groupItem}>
+                  <View style={styles.groupBullet} />
+                  <Text style={styles.groupText}>{stackCopy}</Text>
+                </View>
+              </View>
+            ) : null}
+          </View>
+        ) : null}
+        {(cues.length || tips.length || stackCopy) ? (
+          <Pressable style={styles.linkButton} onPress={() => setGuideExpanded((prev) => !prev)}>
+            <Text style={styles.linkButtonText}>
+              {guideExpanded ? "Ocultar guia completa" : "Ver guia completa"}
             </Text>
-          </View>
+          </Pressable>
+        ) : null}
+      </View>
+    ) : null;
 
-          <View style={styles.glassGrid}>
-            {Array.from({ length: goal }).map((_, index) => {
-              const filled = index < count;
-              return (
-                <View
-                  key={`glass-${index}`}
-                  style={[styles.glass, filled && styles.glassFilled]}
-                  accessibilityLabel={`Vaso ${index + 1} ${filled ? "completo" : "pendiente"}`}
-                />
-              );
-            })}
-          </View>
-
+  return (
+    <RitualModalLayout
+      visible={visible}
+      onClose={onClose}
+      title="Hidratarme"
+      subtitle="Toma agua con calma, cada vaso mantiene viva la conexion con tu planta."
+      footer={
+        <View style={styles.buttonStack}>
           <Pressable
             style={[styles.primaryButton, !canIncrement && styles.primaryButtonDisabled]}
             onPress={onIncrement}
             disabled={!canIncrement}
           >
             <Text style={styles.primaryText}>
-              {canIncrement ? "Tomé un vaso" : "Meta alcanzada"}
+              {canIncrement ? "Tomar un vaso con agua" : "Meta alcanzada"}
             </Text>
           </Pressable>
-
           <Pressable
             style={[styles.completeButton, !canComplete && styles.completeButtonDisabled]}
             onPress={onComplete}
@@ -93,78 +169,161 @@ export default function HydrateModal({
           >
             <Text style={styles.completeText}>Sincronizar con la planta</Text>
           </Pressable>
-
           <Pressable style={styles.secondaryButton} onPress={onClose}>
             <Text style={styles.secondaryText}>Cerrar</Text>
           </Pressable>
         </View>
+      }
+    >
+      {metaTrack}
+      {guidanceBlock}
+      <View style={styles.progressSection}>
+        <View style={styles.hydrationCard}>
+          <Animated.View
+            style={[
+              styles.hydrationFill,
+              {
+                width: progressAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ["0%", "100%"],
+                }),
+              },
+            ]}
+          />
+          <View style={styles.hydrationContent}>
+            <Text style={styles.hydrationTitle}>Hidratacion diaria</Text>
+            <Text style={styles.hydrationMeta}>
+              {count}/{goal} vasos
+            </Text>
+            <Text style={styles.hydrationHint}>
+              {remaining > 0 ? `Faltan ${remaining} sorbos.` : "Meta lograda, sincroniza cuando quieras."}
+            </Text>
+          </View>
+        </View>
       </View>
-    </Modal>
+    </RitualModalLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "flex-end",
+  buttonStack: {
+    gap: Spacing.small,
+    marginTop: Spacing.small,
   },
-  card: {
-    backgroundColor: Colors.surfaceElevated,
-    padding: Spacing.large,
-    borderTopLeftRadius: Radii.xl,
-    borderTopRightRadius: Radii.xl,
-    gap: Spacing.base,
+  metaInlineTrack: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.small,
   },
-  title: {
-    ...Typography.h2,
+  metaInlineItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
+    marginRight: Spacing.tiny,
+  },
+  metaInlineText: {
+    ...Typography.caption,
     color: Colors.text,
   },
-  subtitle: {
-    ...Typography.body,
+  metaInlineDivider: {
+    ...Typography.caption,
     color: Colors.textMuted,
+    marginHorizontal: Spacing.small,
   },
-  progressSection: {
+  guidance: {
+    borderRadius: Radii.lg,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.small,
+    backgroundColor: "rgba(6,40,56,0.4)",
+    borderWidth: 1,
+    borderColor: "rgba(65,200,244,0.35)",
+    gap: Spacing.small,
+    marginBottom: Spacing.small,
+  },
+  guidanceCollapsed: {
+    backgroundColor: "transparent",
+    borderColor: "transparent",
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+  },
+  guidanceTitle: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  guidanceCopy: {
+    ...Typography.body,
+    color: Colors.text,
+  },
+  fullGuide: {
+    gap: Spacing.small,
+  },
+  guidanceGroup: {
     gap: Spacing.tiny,
   },
-  progressLabel: {
-    ...Typography.body,
+  groupLabel: {
+    ...Typography.caption,
     color: Colors.text,
     fontWeight: "700",
   },
-  progressTrack: {
-    height: 10,
-    borderRadius: Radii.pill,
-    backgroundColor: "rgba(255,255,255,0.12)",
-    overflow: "hidden",
+  groupItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: Spacing.tiny,
   },
-  progressFill: {
-    height: "100%",
+  groupBullet: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: Colors.ritualHydrate,
-    borderRadius: Radii.pill,
+    marginTop: 6,
   },
-  progressHint: {
+  groupText: {
     ...Typography.caption,
     color: Colors.textMuted,
+    flex: 1,
   },
-  glassGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+  linkButton: {
+    paddingVertical: Spacing.tiny,
+  },
+  linkButtonText: {
+    ...Typography.caption,
+    color: Colors.ritualHydrate,
+    fontWeight: "700",
+  },
+  progressSection: {
     gap: Spacing.small,
-    justifyContent: "space-between",
   },
-  glass: {
-    width: "11%",
-    aspectRatio: 1 / 2,
-    minWidth: 26,
-    borderRadius: Radii.md,
+  hydrationCard: {
+    borderRadius: Radii.xl,
+    overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.3)",
-    backgroundColor: "transparent",
+    borderColor: "rgba(65,200,244,0.35)",
+    backgroundColor: "rgba(65,200,244,0.08)",
   },
-  glassFilled: {
-    backgroundColor: Colors.ritualHydrate,
-    borderColor: Colors.ritualHydrate,
+  hydrationFill: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(65,200,244,0.35)",
+  },
+  hydrationContent: {
+    padding: Spacing.base,
+    gap: 4,
+  },
+  hydrationTitle: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    textTransform: "uppercase",
+  },
+  hydrationMeta: {
+    ...Typography.title,
+    color: Colors.text,
+    fontWeight: "700",
+  },
+  hydrationHint: {
+    ...Typography.caption,
+    color: Colors.textMuted,
   },
   primaryButton: {
     borderRadius: Radii.pill,

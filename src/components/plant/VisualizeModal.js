@@ -1,19 +1,23 @@
-
-// [MB] Módulo: Planta / Sección: Ritual Visualizar
+// [MB] Modulo: Planta / Seccion: Ritual Visualizar
 // Afecta: PlantScreen (rituales de bienestar)
-// Propósito: Registrar mini visiones/objetivos diarios conectados a la planta
-// Puntos de edición futura: Persistir en Perfil y mostrar historial
+// Proposito: Registrar mini visiones/objetivos diarios conectados a la planta
+// Puntos de edicion futura: Persistir en Perfil y mostrar historial
 // Autor: Codex - Fecha: 2025-11-13
 
-import React, { useState, useEffect, useRef } from "react";
-import { Modal, View, Text, Pressable, StyleSheet, TextInput, Animated, Easing } from "react-native";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { View, Text, Pressable, StyleSheet, TextInput, Animated, Easing, ScrollView } from "react-native";
+import { FontAwesome5 } from "@expo/vector-icons";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
+import RitualModalLayout from "./RitualModalLayout";
+import { ACTION_MECHANICS } from "./actionMechanics";
 
 const PROMPTS = [
-  "¿Qué meta quieres alcanzar hoy?",
-  "Describe cómo se ve tu mejor versión.",
-  "¿Qué emoción quieres cultivar junto a la planta?",
+  "Que meta quieres alcanzar hoy?",
+  "Describe como se ve tu mejor version.",
+  "Que emocion quieres cultivar junto a la planta?",
 ];
+
+const VISUALIZE_MECHANIC = ACTION_MECHANICS.visualize || {};
 
 export default function VisualizeModal({
   visible,
@@ -25,6 +29,7 @@ export default function VisualizeModal({
   const [promptIndex, setPromptIndex] = useState(0);
   const [text, setText] = useState(initialDraft);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [guideExpanded, setGuideExpanded] = useState(false);
 
   useEffect(() => {
     if (visible) {
@@ -37,6 +42,7 @@ export default function VisualizeModal({
         useNativeDriver: true,
       }).start();
     } else {
+      setGuideExpanded(false);
       fadeAnim.setValue(0);
     }
   }, [visible, initialDraft, fadeAnim]);
@@ -55,56 +61,208 @@ export default function VisualizeModal({
   };
 
   const prompt = PROMPTS[promptIndex] || PROMPTS[0];
+  const cadenceCopy = VISUALIZE_MECHANIC.cadence || "1 vez al dia";
+  const summaryCopy =
+    VISUALIZE_MECHANIC.summary ||
+    "Describir tu meta en detalle conecta tu mente con la planta y refuerza el enfoque.";
+  const cues = useMemo(
+    () => (Array.isArray(VISUALIZE_MECHANIC.cues) ? VISUALIZE_MECHANIC.cues.slice(0, 2) : []),
+    []
+  );
+  const tips = useMemo(
+    () => (Array.isArray(VISUALIZE_MECHANIC.tips) ? VISUALIZE_MECHANIC.tips.slice(0, 2) : []),
+    []
+  );
+  const stackCopy = Array.isArray(VISUALIZE_MECHANIC.stack) ? VISUALIZE_MECHANIC.stack[0] : null;
+  const hasExtendedGuide = cues.length || tips.length || stackCopy;
+  const metaEntries = [
+    { icon: "pen-fancy", text: "1 frase consciente", color: Colors.ritualFocus },
+    cadenceCopy ? { icon: "redo-alt", text: cadenceCopy, color: Colors.ritualStretch } : null,
+    VISUALIZE_MECHANIC.cooldownMin
+      ? { icon: "history", text: `${VISUALIZE_MECHANIC.cooldownMin} min cooldown`, color: Colors.ritualHydrate }
+      : null,
+  ].filter(Boolean);
+
+  const metaTrack =
+    metaEntries.length > 0 ? (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.metaInlineTrack}
+      >
+        {metaEntries.map((entry, index) => (
+          <React.Fragment key={`${entry.icon}-${entry.text}-${index}`}>
+            <View style={styles.metaInlineItem}>
+              <FontAwesome5 name={entry.icon} size={12} color={entry.color} />
+              <Text style={[styles.metaInlineText, { color: entry.color }]}>{entry.text}</Text>
+            </View>
+            {index < metaEntries.length - 1 ? (
+              <Text style={styles.metaInlineDivider}>|</Text>
+            ) : null}
+          </React.Fragment>
+        ))}
+      </ScrollView>
+    ) : null;
+
+  const guidanceBlock =
+    summaryCopy || hasExtendedGuide ? (
+      <View style={[styles.guidance, !guideExpanded && !hasExtendedGuide && styles.guidanceTight]}>
+        <Text style={styles.guidanceTitle}>Momento de vision</Text>
+        {summaryCopy ? <Text style={styles.guidanceCopy}>{summaryCopy}</Text> : null}
+        {guideExpanded && hasExtendedGuide ? (
+          <View style={styles.guidanceGroup}>
+            {cues.map((cue) => (
+              <View key={cue} style={styles.groupItem}>
+                <View style={styles.groupBullet} />
+                <Text style={styles.groupText}>{cue}</Text>
+              </View>
+            ))}
+            {tips.map((tip) => (
+              <View key={tip} style={styles.groupItem}>
+                <View style={styles.groupBullet} />
+                <Text style={styles.groupText}>{tip}</Text>
+              </View>
+            ))}
+            {stackCopy ? (
+              <View style={styles.groupItem}>
+                <View style={styles.groupBullet} />
+                <Text style={styles.groupText}>{stackCopy}</Text>
+              </View>
+            ) : null}
+          </View>
+        ) : null}
+        {hasExtendedGuide ? (
+          <Pressable style={styles.linkButton} onPress={() => setGuideExpanded((prev) => !prev)}>
+            <Text style={styles.linkButtonText}>
+              {guideExpanded ? "Ocultar guia completa" : "Ver guia completa"}
+            </Text>
+          </Pressable>
+        ) : null}
+      </View>
+    ) : null;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
-      <View style={styles.backdrop}>
-        <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
-          <Text style={styles.title}>Visualizar</Text>
-          <Text style={styles.subtitle}>Escribe una frase que conecte tu objetivo con la planta.</Text>
-          <Animated.Text style={[styles.prompt, { opacity: fadeAnim }]}>
-            {prompt}
-          </Animated.Text>
-          <TextInput
-            style={styles.input}
-            multiline
-            placeholder="Describe tu visión..."
-            placeholderTextColor="rgba(255,255,255,0.4)"
-            value={text}
-            onChangeText={setText}
-          />
-          <Pressable style={[styles.primaryButton, !text.trim() && styles.primaryButtonDisabled]} onPress={handleComplete} disabled={!text.trim()}>
-            <Text style={styles.primaryText}>Sincronizar visión</Text>
+    <RitualModalLayout
+      visible={visible}
+      onClose={handleClose}
+      title="Visualizar"
+      subtitle="Escribe una frase que conecte tu objetivo con la planta."
+      footer={
+        <View style={styles.footerStack}>
+          <Pressable
+            style={[styles.primaryButton, !text.trim() && styles.primaryButtonDisabled]}
+            onPress={handleComplete}
+            disabled={!text.trim()}
+          >
+            <Text style={styles.primaryText}>Sincronizar vision</Text>
           </Pressable>
           <Pressable style={styles.secondaryButton} onPress={handleClose}>
             <Text style={styles.secondaryText}>Cerrar</Text>
           </Pressable>
-        </Animated.View>
+        </View>
+      }
+    >
+      {metaTrack}
+      {guidanceBlock}
+      <View style={styles.visionCard}>
+        <Animated.Text style={[styles.prompt, { opacity: fadeAnim }]}>
+          {prompt}
+        </Animated.Text>
+        <TextInput
+          style={styles.input}
+          multiline
+          placeholder="Describe tu vision..."
+          placeholderTextColor="rgba(255,255,255,0.4)"
+          value={text}
+          onChangeText={setText}
+        />
       </View>
-    </Modal>
+    </RitualModalLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.75)",
-    justifyContent: "center",
-    padding: Spacing.base,
+  metaInlineTrack: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.small,
   },
-  card: {
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: Radii.xl,
-    padding: Spacing.large,
-    gap: Spacing.base,
+  metaInlineItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
   },
-  title: {
-    ...Typography.h2,
+  metaInlineText: {
+    ...Typography.caption,
     color: Colors.text,
   },
-  subtitle: {
-    ...Typography.body,
+  metaInlineDivider: {
+    ...Typography.caption,
     color: Colors.textMuted,
+    marginHorizontal: Spacing.small,
+  },
+  guidance: {
+    borderRadius: Radii.lg,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.small,
+    backgroundColor: "rgba(192,165,255,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(192,165,255,0.35)",
+    gap: Spacing.small,
+    marginBottom: Spacing.small,
+  },
+  guidanceTight: {
+    paddingVertical: Spacing.tiny,
+  },
+  guidanceTitle: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  guidanceCopy: {
+    ...Typography.body,
+    color: Colors.text,
+  },
+  guidanceGroup: {
+    gap: Spacing.tiny,
+  },
+  groupItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: Spacing.tiny,
+  },
+  groupBullet: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.ritualFocus,
+    marginTop: 6,
+  },
+  groupText: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    flex: 1,
+  },
+  linkButton: {
+    paddingVertical: Spacing.tiny,
+  },
+  linkButtonText: {
+    ...Typography.caption,
+    color: Colors.ritualFocus,
+    fontWeight: "700",
+  },
+  visionCard: {
+    borderRadius: Radii.xl,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+    backgroundColor: "rgba(255,255,255,0.04)",
+    padding: Spacing.base,
+    gap: Spacing.small,
+  },
+  footerStack: {
+    gap: Spacing.small,
   },
   prompt: {
     ...Typography.caption,

@@ -1,4 +1,4 @@
-// [MB] Modulo: Planta / Seccion: Acciones rapidas
+﻿// [MB] Modulo: Planta / Seccion: Acciones rapidas
 // Afecta: PlantScreen (botones pill reutilizables)
 // Proposito: boton con acento y CTA secundarios
 // Puntos de edicion futura: mover estilos a .styles.js cuando crezca
