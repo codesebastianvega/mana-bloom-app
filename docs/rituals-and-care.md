@@ -20,8 +20,8 @@ Uso en pantalla: `src/screens/PlantScreen.js`
 
 Notas:
 - QuickActions recibe props `cooldowns` y un handler `onAction(key) -> boolean`.  
-- Si `onAction` devuelve `false` (porque abrimos un modal de ritual), **no** se inicia cooldown local.  
-- Todos los botones muestran un helper corto (`helper` en `buildActionConfig`); al hacer long-press (o usar `ActionInfoModal`) se muestra la descripciÃ³n completa (`ACTION_MECHANICS[key]`).
+- Si `onAction` devuelve `false` (porque abrimos un modal de ritual), **no** se inicia cooldown local ni se consumen recursos. El cooldown de los rituales se aplica **solo cuando se completa el ritual** y `handleAction(key)` se ejecuta correctamente desde `PlantScreen`.  
+- Todos los botones muestran un helper corto (`helper` en `buildActionConfig`); al hacer long-press (o usar `ActionInfoModal`) se muestra la descripción completa (`ACTION_MECHANICS[key]`).
 
 ## 2. Rituales personales y modales
 

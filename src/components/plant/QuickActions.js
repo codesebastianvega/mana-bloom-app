@@ -4,8 +4,8 @@
 // Puntos de edicion futura: mover estilos a .styles.js al crecer
 // Autor: Codex - Fecha: 2025-10-31
 
-import React, { useMemo, useState, useCallback, useRef } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
+import { View, Text, StyleSheet, ScrollView, useWindowDimensions } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 
 import ActionButton from "./ActionButton";
@@ -68,6 +68,16 @@ const ICON_MAP = {
   journal: "pen-fancy",
   gratitude: "heart",
   restEyes: "spa",
+};
+
+const CARE_ILLUSTRATIONS = {
+  water: require("../../../assets/care/regar.png"),
+  feed: require("../../../assets/care/nutrir.png"),
+  clean: require("../../../assets/care/limpiar.png"),
+  prune: require("../../../assets/care/podar.png"),
+  light: require("../../../assets/care/iluminar.png"),
+  mist: require("../../../assets/care/neblina.png"),
+  search: require("../../../assets/care/buscar.png"),
 };
 
 // Frases cortas para rituales (helper compacto)
@@ -147,7 +157,7 @@ const buildActionConfig = (keys, props, variant) =>
 
     let helper;
     if (variant === "dual") {
-      helper = mechanic.headline || mechanic.summary;
+      helper = mechanic.summary || mechanic.headline;
     } else {
       const shortText = RITUAL_SHORT_HELPERS[key] || mechanic.summary || mechanic.headline;
       helper = cooldownMs > 0 ? null : shortText;
@@ -155,6 +165,8 @@ const buildActionConfig = (keys, props, variant) =>
 
     const iconColor = ACCENT_COLORS[accentKey] || Colors.icon;
     const icon = iconName ? <FontAwesome5 name={iconName} size={16} color={iconColor} /> : null;
+    const illustration = CARE_ILLUSTRATIONS[key];
+    const statusText = mechanic.statusLabel || mechanic.headline;
 
     return {
       key,
@@ -162,6 +174,8 @@ const buildActionConfig = (keys, props, variant) =>
       helper,
       accentKey,
       icon,
+      illustration,
+      statusText,
       cooldownMs,
       disabled: !isAvailable || !hasResources,
       variant,
@@ -178,6 +192,9 @@ export default function QuickActions({
   const [infoKey, setInfoKey] = useState(null);
   const [localCooldowns, setLocalCooldowns] = useState({});
   const activatingRef = useRef({});
+  const [careIndex, setCareIndex] = useState(0);
+  const { width: screenWidth } = useWindowDimensions();
+  const careScrollRef = useRef(null);
 
   const careActions = useMemo(
     () =>
@@ -231,6 +248,20 @@ export default function QuickActions({
   }, []);
 
   const infoMechanics = infoKey ? ACTION_MECHANICS[infoKey] : null;
+  const careCardWidth = screenWidth;
+  const careSlideWidth = Math.max(260, screenWidth - Spacing.large * 1.3);
+  const loopedCareActions = useMemo(() => {
+    if (!careActions.length) return [];
+    return [careActions[careActions.length - 1], ...careActions, careActions[0]];
+  }, [careActions]);
+
+  useEffect(() => {
+    if (loopedCareActions.length && careScrollRef.current) {
+      requestAnimationFrame(() => {
+        careScrollRef.current.scrollTo({ x: careCardWidth, animated: false });
+      });
+    }
+  }, [loopedCareActions.length, careCardWidth]);
 
   return (
     <View style={styles.container}>
@@ -239,91 +270,72 @@ export default function QuickActions({
         <Text style={styles.sectionCaption}>
           Acciones base para mantener agua, nutrientes y pureza.
         </Text>
-        <View style={styles.careGrid}>
-          <View style={styles.careRow}>
-            {(() => {
-              const item = careActions.find((a) => a.key === "water");
-              return item ? (
-                <View style={styles.careCol}>
-                  <ActionButton
-                    key={item.key}
-                    title={item.title}
-                    helper={item.helper}
-                    accentKey={item.accentKey}
-                    icon={item.icon}
-                    cooldownMs={item.cooldownMs}
-                    disabled={item.disabled}
-                    variant={item.variant}
-                    onPress={handlePress(item.key)}
-                    onInfoPress={() => handleInfo(item.key)}
-                    infoAccessibilityLabel={`Abrir detalles de ${item.title}`}
-                  />
-                </View>
-              ) : null;
-            })()}
-            {(() => {
-              const item = careActions.find((a) => a.key === "feed");
-              return item ? (
-                <View style={styles.careCol}>
-                  <ActionButton
-                    key={item.key}
-                    title={item.title}
-                    helper={item.helper}
-                    accentKey={item.accentKey}
-                    icon={item.icon}
-                    cooldownMs={item.cooldownMs}
-                    disabled={item.disabled}
-                    variant={item.variant}
-                    onPress={handlePress(item.key)}
-                    onInfoPress={() => handleInfo(item.key)}
-                    infoAccessibilityLabel={`Abrir detalles de ${item.title}`}
-                  />
-                </View>
-              ) : null;
-            })()}
-          </View>
-          <View style={styles.careRow}>
-            {(() => {
-              const item = careActions.find((a) => a.key === "clean");
-              return item ? (
-                <View style={styles.careCol}>
-                  <ActionButton
-                    key={item.key}
-                    title={item.title}
-                    helper={item.helper}
-                    accentKey={item.accentKey}
-                    icon={item.icon}
-                    cooldownMs={item.cooldownMs}
-                    disabled={item.disabled}
-                    variant={item.variant}
-                    onPress={handlePress(item.key)}
-                    onInfoPress={() => handleInfo(item.key)}
-                    infoAccessibilityLabel={`Abrir detalles de ${item.title}`}
-                  />
-                </View>
-              ) : null;
-            })()}
-            {(() => {
-              const item = careActions.find((a) => a.key === "prune");
-              return item ? (
-                <View style={styles.careCol}>
-                  <ActionButton
-                    key={item.key}
-                    title={item.title}
-                    helper={item.helper}
-                    accentKey={item.accentKey}
-                    icon={item.icon}
-                    cooldownMs={item.cooldownMs}
-                    disabled={item.disabled}
-                    variant={item.variant}
-                    onPress={handlePress(item.key)}
-                    onInfoPress={() => handleInfo(item.key)}
-                    infoAccessibilityLabel={`Abrir detalles de ${item.title}`}
-                  />
-                </View>
-              ) : null;
-            })()}
-          </View>
+        <View style={styles.careSliderWrapper}>
+          <ScrollView
+            ref={careScrollRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            style={{ width: careCardWidth }}
+            contentContainerStyle={styles.careSliderContent}
+            onMomentumScrollEnd={(evt) => {
+              if (!loopedCareActions.length) return;
+              const offsetX = evt.nativeEvent.contentOffset.x;
+              const page = Math.round(offsetX / careCardWidth);
+              const lastPage = loopedCareActions.length - 1;
+              if (page === 0) {
+                careScrollRef.current?.scrollTo({
+                  x: careCardWidth * (lastPage - 1),
+                  animated: false,
+                });
+                setCareIndex(careActions.length - 1);
+                return;
+              }
+              if (page === lastPage) {
+                careScrollRef.current?.scrollTo({ x: careCardWidth, animated: false });
+                setCareIndex(0);
+                return;
+              }
+              setCareIndex(page - 1);
+            }}
+          >
+            {loopedCareActions.map((item, idx) => (
+              <View
+                key={`${item.key ?? idx}-${idx}`}
+                style={[
+                  styles.careSlide,
+                  {
+                    width: careSlideWidth,
+                    marginHorizontal:
+                      idx === 0 || idx === loopedCareActions.length - 1 ? 0 : Spacing.small,
+                  },
+                ]}
+              >
+                <ActionButton
+                  title={item.title}
+                  helper={item.helper}
+                  accentKey={item.accentKey}
+                  icon={item.icon}
+                  illustration={item.illustration}
+                  statusText={item.statusText}
+                  cooldownMs={item.cooldownMs}
+                  disabled={item.disabled}
+                  variant={item.variant}
+                  onPress={handlePress(item.key)}
+                  onInfoPress={() => handleInfo(item.key)}
+                  infoAccessibilityLabel={`Abrir detalles de ${item.title}`}
+                />
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+        <View style={styles.carePagination}>
+          {careActions.map((action, idx) => (
+            <View
+              key={`${action.key}-dot`}
+              style={[styles.careDot, idx === careIndex && styles.careDotActive]}
+            />
+          ))}
         </View>
       </View>
 
@@ -407,21 +419,45 @@ const styles = StyleSheet.create({
   stack: {
     gap: Spacing.small,
   },
-  careGrid: {
-    gap: Spacing.small,
+  careSliderContainer: {
+    paddingHorizontal: Spacing.small * 0.6,
+    paddingVertical: Spacing.small * 0.6,
+    gap: Spacing.tiny,
+    alignItems: "center",
   },
-  careRow: {
+  careSliderContent: {
+    paddingHorizontal: 0,
+  },
+  careSlide: {
+    paddingHorizontal: Spacing.tiny,
+    paddingVertical: Spacing.tiny,
+    alignSelf: "center",
+  },
+  careSliderWrapper: {
+    marginHorizontal: 0,
+    alignItems: "center",
+  },
+  carePagination: {
     flexDirection: "row",
-    gap: Spacing.small,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: Spacing.tiny,
   },
-  careCol: {
-    flex: 1,
+  careDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.textMuted,
+    opacity: 0.35,
   },
-  careFull: {
-    marginTop: Spacing.small,
+  careDotActive: {
+    backgroundColor: Colors.text,
   },
   ritualGrid: {
     gap: Spacing.small,
+  },
+  ritualCard: {
+    padding: Spacing.small,
   },
   ritualRow: {
     flexDirection: "row",
@@ -434,4 +470,3 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
 });
-

@@ -627,56 +627,56 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
             ritualSummary={{ active: ritualActiveCount, total: RITUAL_ACTIONS.length, tags: ritualTags }}
             climateInfo={climateInfo}
           />
-          <QuickActions
-            canWater
-            canFeed
-            canClean
-            canMeditate
-            economy={economy}
-            cooldowns={actionCooldowns}
-            onAction={(key) => {
-              if (key === "meditate") {
-                launchBreathModal();
-                return false;
-              }
-              if (key === "hydrate") {
-                launchHydrateModal();
-                return false;
-              }
-              if (key === "stretch") {
-                launchStretchModal();
-                return false;
-              }
-              if (key === "sunlight") {
-                launchSunlightModal();
-                return false;
-              }
-              if (key === "visualize") {
-                launchVisualizeModal();
-                return false;
-              }
-              if (key === "journal") {
-                launchJournalModal();
-                return false;
-              }
-              if (key === "gratitude") {
-                launchGratitudeModal();
-                return false;
-              }
-              if (key === "restEyes") {
-                launchRestEyesModal();
-                return false;
-              }
-              const executed = handleAction(key);
-              if (!executed) return false;
-              if (key === "clean") {
-                setSelectedSkinId(equippedSkinId);
-                setInvOpen(true);
-              }
-              return true;
-            }}
-          />
         </PlantSectionCard>
+        <QuickActions
+          canWater
+          canFeed
+          canClean
+          canMeditate
+          economy={economy}
+          cooldowns={actionCooldowns}
+          onAction={(key) => {
+            if (key === "meditate") {
+              launchBreathModal();
+              return false;
+            }
+            if (key === "hydrate") {
+              launchHydrateModal();
+              return false;
+            }
+            if (key === "stretch") {
+              launchStretchModal();
+              return false;
+            }
+            if (key === "sunlight") {
+              launchSunlightModal();
+              return false;
+            }
+            if (key === "visualize") {
+              launchVisualizeModal();
+              return false;
+            }
+            if (key === "journal") {
+              launchJournalModal();
+              return false;
+            }
+            if (key === "gratitude") {
+              launchGratitudeModal();
+              return false;
+            }
+            if (key === "restEyes") {
+              launchRestEyesModal();
+              return false;
+            }
+            const executed = handleAction(key);
+            if (!executed) return false;
+            if (key === "clean") {
+              setSelectedSkinId(equippedSkinId);
+              setInvOpen(true);
+            }
+            return true;
+          }}
+        />
         <ScreenSection>
           <SectionHeader title="Balance elemental" />
           <ElementBalance

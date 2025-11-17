@@ -5,7 +5,7 @@
 // Autor: Codex - Fecha: 2025-10-30
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Pressable, Text, View, StyleSheet } from "react-native";
+import { Pressable, Text, View, StyleSheet, Image } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 
 import { Colors, Spacing, Radii, Typography, Opacity } from "../../theme";
@@ -69,6 +69,8 @@ export default function ActionButton({
   icon,
   accentKey,
   helper,
+  illustration,
+  statusText,
   disabled,
   cooldownMs = 0,
   onPress,
@@ -97,6 +99,7 @@ export default function ActionButton({
   const inactive = disabled || remainingMs > 0;
 
   const backgroundColor = withAlpha(accent, 0.18);
+  const cardTint = variant === "dual" ? withAlpha(accent, 0.16) : backgroundColor;
   const borderColor = withAlpha(accent, 0.4);
 
   const emitPress = () => {
@@ -134,66 +137,75 @@ export default function ActionButton({
       if (remainingMs > 0) {
         primaryLabel = `Disponible en ${formatted}`;
       } else {
-        // Mensajes mas intuitivos para recursos insuficientes
         if (accentKey === "water") primaryLabel = "Falta mana";
         else if (accentKey === "nutrients") primaryLabel = "Faltan monedas";
         else primaryLabel = "No disponible";
       }
     }
-    const showIconOnly = false; // Mostrar texto "Activar" incluso cuando esta disponible
     const a11yLabel = primaryLabel;
+    const copyText = helper || statusText;
+
     return (
       <View
         style={[
           styles.card,
           styles.dualCard,
           styles.dualCompact,
-          { backgroundColor, borderColor, borderLeftWidth: 3, borderLeftColor: accent },
+          { backgroundColor: cardTint, borderColor, borderLeftWidth: 3, borderLeftColor: accent },
         ]}
       >
-        <View style={styles.header}>
-          {icon ? <View style={styles.iconWrap}>{icon}</View> : null}
-          <Text style={styles.title} numberOfLines={2}>
-            {title}
-          </Text>
-          {onInfoPress ? (
+        <View style={styles.careRow}>
+          <View style={styles.careImageColumn}>
+            {illustration ? (
+              <Image source={illustration} style={styles.careIllustration} resizeMode="contain" />
+            ) : icon ? (
+              <View style={styles.iconWrap}>{icon}</View>
+            ) : null}
+          </View>
+          <View style={styles.careInfoColumn}>
+            <View style={styles.careHeader}>
+              <Text style={styles.careTitle} numberOfLines={1}>
+                {title}
+              </Text>
+              {onInfoPress ? (
+                <Pressable
+                  onPress={onInfoPress}
+                  hitSlop={Spacing.base}
+                  accessibilityRole="button"
+                  accessibilityLabel={infoAccessibilityLabel}
+                  style={styles.infoIconButton}
+                >
+                  <FontAwesome5 name="info-circle" size={14} color={Colors.text} />
+                </Pressable>
+              ) : null}
+            </View>
+            {copyText ? (
+              <Text style={styles.careCopy} numberOfLines={3}>
+                {copyText}
+              </Text>
+            ) : null}
             <Pressable
-              onPress={onInfoPress}
-              hitSlop={Spacing.base}
-              accessibilityRole="button"
-              accessibilityLabel={infoAccessibilityLabel}
-              style={styles.infoIconButton}
-            >
-              <FontAwesome5 name="info-circle" size={14} color={accent} />
-            </Pressable>
-          ) : null}
-        </View>
-        {helper ? (
-          <Text style={[styles.helper, styles.helperMuted]} numberOfLines={1}>
-            {helper}
-          </Text>
-        ) : null}
-        <View style={styles.dualRow}>
-          <Pressable
-            onPress={emitPress}
-            style={[
-              styles.dualPrimary,
-              { backgroundColor: inactive ? withAlpha(accent, 0.25) : accent },
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel={a11yLabel}
-            accessibilityHint={inactive ? undefined : accessibilityHint}
-            accessibilityState={{ disabled: inactive }}
-          >
-            <Text
+              onPress={emitPress}
               style={[
-                styles.dualPrimaryTextSmall,
-                { color: inactive ? withAlpha(Colors.text, 0.7) : Colors.background },
+                styles.careCTA,
+                { backgroundColor: inactive ? withAlpha(accent, 0.25) : accent },
               ]}
+              accessibilityRole="button"
+              accessibilityLabel={a11yLabel}
+              accessibilityHint={inactive ? undefined : accessibilityHint}
+              accessibilityState={{ disabled: inactive }}
             >
-              {primaryLabel}
-            </Text>
-          </Pressable>
+              <Text
+                style={[
+                  styles.careCTAText,
+                  { color: inactive ? withAlpha(Colors.text, 0.7) : Colors.background },
+                ]}
+              >
+                {primaryLabel}
+              </Text>
+            </Pressable>
+            {inactive && remainingMs > 0 ? null : null}
+          </View>
         </View>
       </View>
     );
@@ -233,6 +245,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: Spacing.base,
     gap: Spacing.small,
+    backgroundColor: Colors.surface,
   },
   tileCard: {
     paddingVertical: Spacing.tiny,
@@ -243,8 +256,62 @@ const styles = StyleSheet.create({
     gap: Spacing.small,
   },
   dualCompact: {
-    padding: Spacing.small,
-    gap: Spacing.tiny,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.small * 0.85,
+    gap: Spacing.small,
+    minHeight: 140,
+  },
+  careRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.medium,
+  },
+  careInfoColumn: {
+    flex: 0.6,
+    gap: Spacing.small,
+    paddingVertical: Spacing.small * 0.8,
+    paddingRight: Spacing.small,
+  },
+  careHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: Spacing.small,
+  },
+  careTitle: {
+    ...Typography.subheader,
+    fontWeight: "800",
+    color: Colors.text,
+  },
+  careCopy: {
+    ...Typography.caption,
+    color: Colors.text,
+    lineHeight: 18,
+  },
+  careCTA: {
+    borderRadius: Radii.pill,
+    paddingVertical: Spacing.small * 0.75,
+    paddingHorizontal: Spacing.medium,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: Spacing.small,
+    alignSelf: "stretch",
+    marginBottom: Spacing.tiny,
+  },
+  careCTAText: {
+    ...Typography.body,
+    fontWeight: "700",
+  },
+  careImageColumn: {
+    flex: 0.4,
+    alignItems: "flex-start",
+    justifyContent: "center",
+    paddingLeft: 0,
+  },
+  careIllustration: {
+    width: 125,
+    height: 125,
+    marginLeft: -Spacing.small,
   },
   header: {
     flexDirection: "row",
@@ -281,6 +348,18 @@ const styles = StyleSheet.create({
   helperCompact: {
     marginTop: 2,
     marginBottom: Spacing.tiny,
+  },
+  dualCopy: {
+    ...Typography.caption,
+    color: Colors.text,
+    flex: 1,
+    marginRight: Spacing.small,
+  },
+  splitHelperRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: Spacing.small,
   },
   linkRow: {
     alignItems: "flex-end",
