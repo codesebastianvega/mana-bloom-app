@@ -5,7 +5,7 @@
 // Autor: Codex - Fecha: 2025-11-13
 
 import React, { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Pressable, ScrollView, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
@@ -25,16 +25,24 @@ const STAGES = [
 
 const LEVELS_PER_STAGE = 10;
 
+const CARE_ILLUSTRATIONS = {
+  water: require("../../../assets/care/regar.png"),
+  feed: require("../../../assets/care/nutrir.png"),
+  clean: require("../../../assets/care/limpiar.png"),
+  prune: require("../../../assets/care/podar.png"),
+  light: require("../../../assets/care/iluminar.png"),
+  mist: require("../../../assets/care/neblina.png"),
+  search: require("../../../assets/care/buscar.png"),
+};
+
 export default function PlantProgressCard({
   stage = "brote",
   progress = 0,
   etaText = "faltan ~3 tareas",
-  suggestedAction = "Limpiar",
-  onPressAction,
-  actionCtaLabel = "Activar",
-  actionCompleted = false,
-  actionCompletedLabel = "Acción activada",
   showStageBadge = false,
+  edgeToEdge = false,
+  miniActions = [],
+  onPressMiniAction,
 }) {
   const percent = Math.max(0, Math.min(100, Math.round(progress * 100)));
   const totalLevels = STAGES.length * LEVELS_PER_STAGE;
@@ -50,7 +58,9 @@ export default function PlantProgressCard({
   const levelWithinStage = absoluteLevel - stageIndex * LEVELS_PER_STAGE;
   const subPercent = Math.round((levelWithinStage / LEVELS_PER_STAGE) * 100);
   const sliderRef = useRef(null);
-  const motivationText = "Sigue cuidando la planta para desbloquear la próxima etapa";
+  const motivationText = etaText
+    ? `Sigue cuidando la planta: ${etaText}`
+    : "Sigue cuidando la planta para desbloquear la próxima etapa";
 
   useEffect(() => {
     if (!sliderRef.current) return;
@@ -59,8 +69,13 @@ export default function PlantProgressCard({
     sliderRef.current.scrollTo({ x: offset, animated: true });
   }, [stageIndex]);
 
+  const containerStyles = [styles.card];
+  if (edgeToEdge) {
+    containerStyles.push(styles.edgeCard);
+  }
+
   return (
-    <View style={styles.card}>
+    <View style={containerStyles}>
       <View style={styles.headerRow}>
         <View style={styles.headerCopy}>
           <Text style={styles.title}>Estado de la planta</Text>
@@ -131,25 +146,30 @@ export default function PlantProgressCard({
       </View>
 
       <View style={styles.actionRow}>
-        <Text style={styles.actionLabel}>Siguiente ritual sugerido</Text>
-        <View style={styles.actionPill}>
-          <View style={styles.actionTextBlock}>
-            <Text style={styles.actionText}>{suggestedAction}</Text>
-            {actionCompleted ? (
-              <Text style={styles.actionHint}>{actionCompletedLabel}</Text>
-            ) : null}
-          </View>
-          {!actionCompleted ? (
-            <Pressable
-              onPress={onPressAction}
-              accessibilityRole="button"
-              accessibilityLabel={`Activar ${suggestedAction}`}
-              hitSlop={12}
-            >
-              <Text style={styles.actionCta}>{actionCtaLabel}</Text>
-            </Pressable>
-          ) : null}
-        </View>
+        <Text style={styles.chipSectionTitle}>Cuidados sugeridos</Text>
+        {miniActions?.length ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.chipCarousel}
+          >
+            {miniActions.map((item, idx) => (
+              <MiniActionChip
+                key={item.key}
+                actionKey={item.key}
+                label={item.label}
+                accent={item.accent}
+                onPress={() => onPressMiniAction?.(item.key)}
+                style={[
+                  styles.chipSpacing,
+                  idx === miniActions.length - 1 && styles.chipSpacingLast,
+                ]}
+              />
+            ))}
+          </ScrollView>
+        ) : (
+          <Text style={styles.miniEmptyText}>Todo en equilibrio 🌿</Text>
+        )}
       </View>
     </View>
   );
@@ -199,6 +219,29 @@ function labelFor(stage) {
   return found ? found.label : stage;
 }
 
+function MiniActionChip({ label, accent, onPress, actionKey, style }) {
+  const color = accent || Colors.primary;
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[
+        styles.miniChip,
+        style,
+        {
+          borderColor: withAlpha(color, 0.35),
+          backgroundColor: withAlpha(color, 0.12),
+        },
+      ]}
+      accessibilityRole="button"
+      accessibilityLabel={`Activar ${label}`}
+    >
+      <Text style={[styles.miniLabel, { color }]} numberOfLines={1}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   card: {
     borderRadius: Radii.xl,
@@ -207,6 +250,16 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.05)",
     backgroundColor: "rgba(17, 10, 28, 0.8)",
     gap: Spacing.base,
+  },
+  edgeCard: {
+    marginHorizontal: -Spacing.base,
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.large,
+    paddingBottom: Spacing.large,
+    borderRadius: 0,
+    borderWidth: 0,
+    borderColor: "transparent",
+    backgroundColor: "transparent",
   },
   headerRow: {
     flexDirection: "row",
@@ -345,34 +398,81 @@ const styles = StyleSheet.create({
     ...Typography.caption,
     color: Colors.textMuted,
   },
-  actionPill: {
+  miniGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.small,
+  },
+  miniWrapper: {
+    borderRadius: Radii.xl,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "rgba(14,10,30,0.85)",
+    padding: Spacing.base,
+    gap: Spacing.small,
+  },
+  miniHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderRadius: Radii.lg,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
   },
-  actionText: {
-    ...Typography.body,
-    color: Colors.text,
-    fontWeight: "600",
-  },
-  actionTextBlock: {
-    flex: 1,
-    gap: 2,
-  },
-  actionHint: {
+  miniCount: {
     ...Typography.caption,
     color: Colors.textMuted,
   },
-  actionCta: {
+  miniCarousel: {
+    paddingVertical: Spacing.tiny,
+  },
+  chipSpacing: {
+    marginRight: Spacing.small,
+  },
+  chipSpacingLast: {
+    marginRight: 0,
+  },
+  miniChip: {
+    width: 74,
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    paddingVertical: Spacing.small * 0.45,
+    paddingHorizontal: Spacing.tiny / 2,
+    alignItems: "center",
+    gap: Spacing.tiny,
+  },
+  miniIconWrap: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  miniIllustration: {
+    width: 48,
+    height: 48,
+    marginBottom: -10,
+  },
+  miniLabel: {
     ...Typography.caption,
-    color: Colors.primary,
-    fontWeight: "700",
+    color: Colors.text,
+    fontWeight: "600",
+  },
+  chipSectionTitle: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
+  },
+  miniEmpty: {
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.base,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  miniEmptyText: {
+    ...Typography.caption,
+    color: Colors.textMuted,
   },
 });
 

@@ -10,10 +10,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
 
 const SIZE_MAP = {
-  md: Spacing.xlarge * 4,
-  lg: Spacing.xlarge * 5,
-  xl: Spacing.xlarge * 6,
-  hero: Spacing.xlarge * 7,
+  md: Spacing.xlarge * 5.5,
+  lg: Spacing.xlarge * 6.5,
+  xl: Spacing.xlarge * 7.5,
+  hero: Spacing.xlarge * 8.5,
 };
 
 export default function PlantHero({
@@ -68,7 +68,12 @@ export default function PlantHero({
     health * 100
   )}%; ánimo ${mood}`;
   const healthPercent = Math.round(Math.max(0, Math.min(1, health)) * 100);
-  const healthGradient = healthPercent > 66 ? [Colors.success, Colors.success] : healthPercent > 33 ? [Colors.success, Colors.warning] : [Colors.warning, Colors.danger];
+  const healthGradient =
+    healthPercent > 66
+      ? [Colors.success, Colors.success]
+      : healthPercent > 33
+      ? [Colors.success, Colors.warning]
+      : [Colors.warning, Colors.danger];
 
   const healthColor =
     healthPercent > 66
@@ -180,142 +185,165 @@ export default function PlantHero({
           </Animated.View>
         </View>
       </View>
-      <View style={styles.healthBlock}>
-        <View style={styles.healthHeader}>
-          <Text style={styles.healthTitle}>Salud de la planta</Text>
-          <Text style={[styles.healthValue, { color: healthColor }]}>
-            {healthPercent}%
-          </Text>
-        </View>
-        <View
-          style={styles.healthBar}
-          accessibilityRole="progressbar"
-          accessibilityValue={{ now: healthPercent, min: 0, max: 100 }}
-        >
-          <LinearGradient
-            colors={healthGradient}
-            start={{ x: 0, y: 0.5 }}
-            end={{ x: 1, y: 0.5 }}
-            style={[styles.healthFill, { width: `${Math.max(8, healthPercent)}%` }]}
-          />
-        </View>
-      </View>
-      {temperatureChip || secondaryChipsRaw.length > 0 ? (
-        <View style={styles.subChipColumns}>
-          <View style={styles.leftChipColumn}>
-            {moodChip ? (
-              <View
-                style={[styles.subChipStack, { borderColor: moodChip.accent }]}
-              >
-                <View style={styles.subChipStackContent}>
-                  <Text style={styles.subChipEmoji}>
-                    {moodChip.emoji || "😊"}
-                  </Text>
-                  <Text style={styles.subChipLabel}>{moodChip.label}</Text>
-                  <Text
-                    style={[
-                      styles.subChipInlineValue,
-                      { color: moodChip.accent },
-                    ]}
-                  >
-                    {moodChip.display}
-                  </Text>
-                </View>
-                {moodChip.meta ? (
-                  <Text style={styles.subChipMeta}>{moodChip.meta}</Text>
-                ) : null}
-              </View>
-            ) : null}
-            {focusChip ? (
-              <View
-                style={[styles.subChipStack, { borderColor: focusChip.accent }]}
-              >
-                <View style={styles.subChipStackContent}>
-                  <Text style={styles.subChipEmoji}>🧠</Text>
-                  <Text style={styles.subChipLabel}>{focusChip.label}</Text>
-                  <Text
-                    style={[
-                      styles.subChipInlineValue,
-                      { color: focusChip.accent },
-                    ]}
-                  >
-                    {focusChip.display}
-                  </Text>
-                </View>
-                {focusChip.meta ? (
-                  <Text style={styles.subChipMeta}>{focusChip.meta}</Text>
-                ) : null}
-              </View>
-            ) : null}
-          </View>
-          {temperatureChip ? (
-            <View style={styles.rightTempColumn}>
-              <View
-                style={[
-                  styles.subChipFull,
-                  styles.tempChip,
-                  { borderColor: temperatureChip.accent },
-                ]}
-              >
-                <View style={styles.tempChipContent}>
-                  <View style={styles.tempChipHeader}>
-                    <Text style={styles.subChipEmoji}>🌡️</Text>
-                    <Text style={styles.subChipLabel}>
-                      {temperatureChip.label}
-                    </Text>
-                  </View>
-                  <Text
-                    style={[
-                      styles.tempValue,
-                      { color: temperatureChip.accent },
-                    ]}
-                  >
-                    {temperatureChip.display}
-                  </Text>
-                  {temperatureChip.meta ? (
-                    <Text style={styles.subChipMeta}>
-                      {temperatureChip.meta}
-                    </Text>
-                  ) : null}
-                </View>
-              </View>
-            </View>
-          ) : null}
-        </View>
-      ) : null}
-      {derivedRitualSummary ? (
-        <View style={styles.ritualCard}>
-          <View style={styles.ritualHeader}>
-            <Text style={styles.ritualTitle}>Rituales</Text>
-            <Text
-              style={[
-                styles.ritualCount,
-                { color: derivedRitualSummary.accent },
-              ]}
-            >
-              {derivedRitualSummary.display}
+      <View style={styles.statsCard}>
+        <View style={styles.healthBlock}>
+          <View style={styles.healthHeader}>
+            <Text style={styles.healthTitle}>Salud de la planta</Text>
+            <Text style={[styles.healthValue, { color: healthColor }]}>
+              {healthPercent}%
             </Text>
           </View>
-          <Text style={styles.ritualHint}>
-            Tus hábitos personales mantienen motivada a la planta.
-          </Text>
-          {derivedRitualSummary.active > 0 ? (
-            <View style={styles.ritualTags}>
-              {derivedRitualSummary.tags.map((hint) => (
-                <View key={hint} style={styles.ritualTag}>
-                  <Text style={styles.ritualTagText}>{hint}</Text>
-                </View>
-              ))}
-            </View>
-          ) : null}
+          <View
+            style={styles.healthBar}
+            accessibilityRole="progressbar"
+            accessibilityValue={{ now: healthPercent, min: 0, max: 100 }}
+          >
+            <LinearGradient
+              colors={healthGradient}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={[
+                styles.healthFill,
+                { width: `${Math.max(8, healthPercent)}%` },
+              ]}
+            />
+          </View>
         </View>
-      ) : null}
+        {temperatureChip || secondaryChipsRaw.length > 0 ? (
+          <View style={styles.subChipColumns}>
+            <View style={styles.leftChipColumn}>
+              {moodChip ? (
+                <View
+                  style={[
+                    styles.subChipStack,
+                    { borderColor: moodChip.accent },
+                  ]}
+                >
+                  <View style={styles.subChipStackContent}>
+                    <Text style={styles.subChipEmoji}>
+                      {moodChip.emoji || "😊"}
+                    </Text>
+                    <Text style={styles.subChipLabel}>{moodChip.label}</Text>
+                    <Text
+                      style={[
+                        styles.subChipInlineValue,
+                        { color: moodChip.accent },
+                      ]}
+                    >
+                      {moodChip.display}
+                    </Text>
+                  </View>
+                  {moodChip.meta ? (
+                    <Text style={styles.subChipMeta}>{moodChip.meta}</Text>
+                  ) : null}
+                </View>
+              ) : null}
+              {focusChip ? (
+                <View
+                  style={[
+                    styles.subChipStack,
+                    { borderColor: focusChip.accent },
+                  ]}
+                >
+                  <View style={styles.subChipStackContent}>
+                    <Text style={styles.subChipEmoji}>🧠</Text>
+                    <Text style={styles.subChipLabel}>{focusChip.label}</Text>
+                    <Text
+                      style={[
+                        styles.subChipInlineValue,
+                        { color: focusChip.accent },
+                      ]}
+                    >
+                      {focusChip.display}
+                    </Text>
+                  </View>
+                  {focusChip.meta ? (
+                    <Text style={styles.subChipMeta}>{focusChip.meta}</Text>
+                  ) : null}
+                </View>
+              ) : null}
+            </View>
+            {temperatureChip ? (
+              <View style={styles.rightTempColumn}>
+                <View
+                  style={[
+                    styles.subChipFull,
+                    styles.tempChip,
+                    { borderColor: temperatureChip.accent },
+                  ]}
+                >
+                  <View style={styles.tempChipContent}>
+                    <View style={styles.tempChipHeader}>
+                      <Text style={styles.subChipEmoji}>🌡️</Text>
+                      <Text style={styles.subChipLabel}>
+                        {temperatureChip.label}
+                      </Text>
+                    </View>
+                    <Text
+                      style={[
+                        styles.tempValue,
+                        { color: temperatureChip.accent },
+                      ]}
+                    >
+                      {temperatureChip.display}
+                    </Text>
+                    {temperatureChip.meta ? (
+                      <Text style={styles.subChipMeta}>
+                        {temperatureChip.meta}
+                      </Text>
+                    ) : null}
+                  </View>
+                </View>
+              </View>
+            ) : null}
+          </View>
+        ) : null}
+        {derivedRitualSummary ? (
+          <View style={styles.ritualCard}>
+            <View style={styles.ritualHeader}>
+              <Text style={styles.ritualTitle}>Rituales</Text>
+              <Text
+                style={[
+                  styles.ritualCount,
+                  { color: derivedRitualSummary.accent },
+                ]}
+              >
+                {derivedRitualSummary.display}
+              </Text>
+            </View>
+            <Text style={styles.ritualHint}>
+              Tus hábitos personales mantienen motivada a la planta.
+            </Text>
+            {derivedRitualSummary.active > 0 ? (
+              <View style={styles.ritualTags}>
+                {derivedRitualSummary.tags.map((hint) => (
+                  <View key={hint} style={styles.ritualTag}>
+                    <Text style={styles.ritualTagText}>{hint}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : null}
+          </View>
+        ) : null}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    gap: Spacing.base,
+  },
+  statsCard: {
+    borderRadius: Radii.xl,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "rgba(28,24,52,0.9)",
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    padding: Spacing.base,
     gap: Spacing.base,
   },
   heroRow: {

@@ -1,166 +1,164 @@
-// [MB] Módulo: Planta / Sección: Header mejorado
-// Afecta: PlantHeader
-// Propósito: layout vidrio con barras, chips y avatar
-// Puntos de edición futura: ajustar CTA y tamaños del avatar
-// Autor: Codex - Fecha: 2025-11-13
+// [MB] Módulo: Planta / Sección: PlantHeader estilos
+// Afecta: cabecera edge-to-edge
+// Propósito: armonizar barra superior con el hero
+// Autor: Codex - Fecha: 2025-11-17
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Typography, Elevation } from "../../theme";
+import { Colors, Spacing, Radii, Typography } from "../../theme";
 
 export default StyleSheet.create({
-  wrapper: {
+  container: {
+    marginHorizontal: -Spacing.base,
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.large,
+    paddingBottom: Spacing.base,
+    gap: Spacing.small,
+  },
+  identityWrapper: {
     borderRadius: Radii.xl,
     overflow: "hidden",
-    backgroundColor: Colors.surfaceElevated,
-    ...Elevation.card,
+    marginHorizontal: -Spacing.base,
+    marginBottom: Spacing.small * 0.5,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
   },
-  gradientBg: {
+  identityGradient: {
     padding: Spacing.base,
-    borderRadius: Radii.xl,
     gap: Spacing.small,
+    backgroundColor: "transparent",
   },
-  titleRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: Spacing.small,
-  },
-  nameWrap: {
+  identityRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+    gap: Spacing.small,
+  },
+  identityBlock: {
+    flex: 1,
+  },
+  nameStack: {
     flex: 1,
     gap: Spacing.tiny,
   },
   name: {
     ...Typography.h2,
     color: Colors.text,
-    flex: 1,
   },
-  nameInput: {
-    ...Typography.h2,
-    color: Colors.text,
-    flex: 1,
-  },
-  editBtn: {
-    padding: Spacing.tiny,
-  },
-  editIcon: {
-    fontSize: Typography.body.fontSize,
-    color: Colors.text,
-  },
-  mission: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    letterSpacing: 0.4,
-    textTransform: "uppercase",
-  },
-  stageRow: {
+  stageChips: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.tiny,
+    gap: Spacing.small,
     flexWrap: "wrap",
   },
-  stageIcon: {
-    opacity: 0.85,
-  },
   stageLabel: {
-    ...Typography.body,
+    ...Typography.caption,
     color: Colors.text,
-    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
   },
   ritualTarget: {
     ...Typography.caption,
     color: Colors.textMuted,
   },
-  agendaCard: {
-    borderRadius: Radii.lg,
-    backgroundColor: "rgba(0,0,0,0.25)",
-    padding: Spacing.base,
-    gap: Spacing.small,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.05)",
-    marginTop: Spacing.small,
+  missionText: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    letterSpacing: 0.4,
   },
-  agendaHeader: {
+  reminderHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: Spacing.small,
   },
-  agendaTitle: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    textTransform: "uppercase",
-    letterSpacing: 0.6,
-  },
-  agendaSummary: {
-    ...Typography.caption,
-    color: Colors.text,
-    marginTop: 2,
-  },
-  agendaEmpty: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  agendaList: {
-    gap: Spacing.small,
-  },
-  agendaItem: {
+  reminderHeaderActions: {
     flexDirection: "row",
     alignItems: "center",
+    gap: Spacing.tiny,
+  },
+  toggleBtn: {
+    padding: Spacing.tiny,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.16)",
+  },
+  reminderTitle: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "600",
+  },
+  reminderBtn: {
+    flexDirection: "row",
+    gap: Spacing.tiny,
+    alignItems: "center",
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.22)",
+    backgroundColor: "rgba(255,255,255,0.04)",
+  },
+  reminderBtnLabel: {
+    ...Typography.caption,
+    color: Colors.text,
+  },
+  reminderList: {
     gap: Spacing.small,
   },
-  agendaDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: Colors.secondary,
+  reminderListItem: {
+    flexDirection: "row",
+    gap: Spacing.small,
+    alignItems: "flex-start",
+    borderRadius: Radii.md,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "rgba(255,255,255,0.03)",
+    padding: Spacing.small,
   },
-  agendaCopy: {
+  reminderDot: {
+    display: "none",
+  },
+  reminderCheckbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.3)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 4,
+  },
+  reminderCheckboxChecked: {
+    backgroundColor: Colors.secondary,
+    borderColor: Colors.secondary,
+  },
+  reminderListBody: {
     flex: 1,
-    gap: 2,
+    gap: Spacing.tiny / 2,
+  },
+  reminderTimeRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   agendaTime: {
     ...Typography.caption,
     color: Colors.textMuted,
+  },
+  agendaImpact: {
+    ...Typography.caption,
+    color: Colors.secondary,
+    fontWeight: "600",
   },
   agendaAction: {
     ...Typography.body,
     color: Colors.text,
     fontWeight: "600",
   },
-  agendaImpact: {
-    ...Typography.caption,
-    color: Colors.secondary,
-    textAlign: "right",
+  reminderDoneText: {
+    color: Colors.textMuted,
+    textDecorationLine: "line-through",
   },
-  climateRow: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    gap: Spacing.small,
-  },
-  climateInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.tiny,
-  },
-  climateEmoji: {
-    fontSize: 16,
-  },
-  climateTemp: {
-    ...Typography.title,
-    color: Colors.text,
-    fontWeight: "700",
-  },
-  climateLocation: {
+  agendaEmpty: {
     ...Typography.caption,
     color: Colors.textMuted,
-  },
-  climateHint: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    textAlign: "right",
-    flex: 1,
   },
 });

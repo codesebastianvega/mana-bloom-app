@@ -4,8 +4,20 @@
 // Puntos de edicion futura: mover estilos a .styles.js al crecer
 // Autor: Codex - Fecha: 2025-10-31
 
-import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, useWindowDimensions } from "react-native";
+import React, {
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+} from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  useWindowDimensions,
+} from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 
 import ActionButton from "./ActionButton";
@@ -13,7 +25,15 @@ import ActionInfoModal from "./ActionInfoModal";
 import { ACTION_MECHANICS } from "./actionMechanics";
 import { Colors, Spacing, Typography } from "../../theme";
 
-const CARE_KEYS = ["water", "feed", "clean", "prune"];
+const CARE_KEYS = [
+  "water",
+  "feed",
+  "clean",
+  "prune",
+  "light",
+  "mist",
+  "search",
+];
 const RITUAL_KEYS = [
   "meditate",
   "hydrate",
@@ -30,6 +50,9 @@ const ACTION_LABELS = {
   feed: "Nutrir",
   clean: "Limpiar",
   prune: "Podar",
+  light: "Luz directa",
+  mist: "Neblina",
+  search: "Buscar plagas",
   meditate: "Meditar",
   hydrate: "Hidratar",
   stretch: "Estirar",
@@ -45,6 +68,9 @@ const ACTION_ACCENTS = {
   feed: "nutrients",
   clean: "clean",
   prune: "vitality",
+  light: "clarity",
+  mist: "reflection",
+  search: "ritualJournal",
   meditate: "ritualCalm",
   hydrate: "ritualHydrate",
   stretch: "ritualStretch",
@@ -60,6 +86,9 @@ const ICON_MAP = {
   feed: "seedling",
   clean: "broom",
   prune: "cut",
+  light: "sun",
+  mist: "cloud",
+  search: "bug",
   meditate: "om",
   hydrate: "glass-whiskey",
   stretch: "running",
@@ -79,17 +108,27 @@ const CARE_ILLUSTRATIONS = {
   mist: require("../../../assets/care/neblina.png"),
   search: require("../../../assets/care/buscar.png"),
 };
+const RITUAL_ILLUSTRATIONS = {
+  meditate: require("../../../assets/ritualicons/meditar.png"),
+  hydrate: require("../../../assets/ritualicons/hidratar.png"),
+  stretch: require("../../../assets/ritualicons/estirar.png"),
+  sunlight: require("../../../assets/ritualicons/luz.png"),
+  visualize: require("../../../assets/ritualicons/visualizar.png"),
+  journal: require("../../../assets/ritualicons/notas.png"),
+  gratitude: require("../../../assets/ritualicons/gratitud.png"),
+  restEyes: require("../../../assets/ritualicons/descanso.png"),
+};
 
 // Frases cortas para rituales (helper compacto)
 const RITUAL_SHORT_HELPERS = {
-  meditate: "Respirar",
-  hydrate: "Tomar agua",
-  stretch: "Estirar",
-  sunlight: "Luz natural",
-  visualize: "Visualizar",
-  journal: "Notas rapidas",
-  gratitude: "Dar gracias",
-  restEyes: "Descansar ojos",
+  meditate: "Respira 3 ciclos profundos.",
+  hydrate: "Toma un vaso de agua ahora.",
+  stretch: "Suelta la tensión en 60 segundos.",
+  sunlight: "Busca luz suave y recárgate.",
+  visualize: "Enfoca tu meta          del día.",
+  journal: "Escribe una línea honesta.",
+  gratitude: "Envía un mensaje lleno de gratitud.",
+  restEyes: "Cierra los ojos durante 20s.",
 };
 
 const ACCENT_COLORS = {
@@ -111,6 +150,10 @@ const AVAILABILITY_PROPS = {
   water: "canWater",
   feed: "canFeed",
   clean: "canClean",
+  prune: "canPrune",
+  light: "canLight",
+  mist: "canMist",
+  search: "canSearch",
   meditate: "canMeditate",
   hydrate: "canHydrate",
   stretch: "canStretch",
@@ -127,16 +170,22 @@ const buildActionConfig = (keys, props, variant) =>
     const accentKey = ACTION_ACCENTS[key] || "clean";
     const iconName = ICON_MAP[key];
     const label = ACTION_LABELS[key] || mechanic.title || key;
-    const cooldownMs = props.cooldowns?.[key] || props.localCooldowns?.[key] || 0;
+    const cooldownMs =
+      props.cooldowns?.[key] || props.localCooldowns?.[key] || 0;
     const availabilityProp = AVAILABILITY_PROPS[key];
     const isAvailable =
-      availabilityProp && Object.prototype.hasOwnProperty.call(props, availabilityProp)
+      availabilityProp &&
+      Object.prototype.hasOwnProperty.call(props, availabilityProp)
         ? props[availabilityProp]
         : true;
 
     // Recursos suficientes segun economy y costos del actionMechanic
     let hasResources = true;
-    if (props.economy && Array.isArray(mechanic.cost) && mechanic.cost.length > 0) {
+    if (
+      props.economy &&
+      Array.isArray(mechanic.cost) &&
+      mechanic.cost.length > 0
+    ) {
       const map = {
         mana: "mana",
         coin: "coins",
@@ -148,7 +197,8 @@ const buildActionConfig = (keys, props, variant) =>
       };
       hasResources = mechanic.cost.every((c) => {
         const keyMap =
-          map[String(c?.type || "").toLowerCase()] || String(c?.type || "").toLowerCase();
+          map[String(c?.type || "").toLowerCase()] ||
+          String(c?.type || "").toLowerCase();
         const balance = Number(props.economy?.[keyMap] ?? 0);
         const needed = Number(c?.amount ?? 0);
         return balance >= needed;
@@ -159,13 +209,22 @@ const buildActionConfig = (keys, props, variant) =>
     if (variant === "dual") {
       helper = mechanic.summary || mechanic.headline;
     } else {
-      const shortText = RITUAL_SHORT_HELPERS[key] || mechanic.summary || mechanic.headline;
-      helper = cooldownMs > 0 ? null : shortText;
+      const shortText =
+        RITUAL_SHORT_HELPERS[key] || mechanic.summary || mechanic.headline;
+      helper =
+        variant === "ritual" ? shortText : cooldownMs > 0 ? null : shortText;
     }
 
     const iconColor = ACCENT_COLORS[accentKey] || Colors.icon;
-    const icon = iconName ? <FontAwesome5 name={iconName} size={16} color={iconColor} /> : null;
-    const illustration = CARE_ILLUSTRATIONS[key];
+    const icon = iconName ? (
+      <FontAwesome5 name={iconName} size={16} color={iconColor} />
+    ) : null;
+    const illustration =
+      variant === "dual"
+        ? CARE_ILLUSTRATIONS[key]
+        : variant === "ritual"
+        ? RITUAL_ILLUSTRATIONS[key]
+        : null;
     const statusText = mechanic.statusLabel || mechanic.headline;
 
     return {
@@ -198,13 +257,21 @@ export default function QuickActions({
 
   const careActions = useMemo(
     () =>
-      buildActionConfig(CARE_KEYS, { ...availability, cooldowns, localCooldowns, economy }, "dual"),
+      buildActionConfig(
+        CARE_KEYS,
+        { ...availability, cooldowns, localCooldowns, economy },
+        "dual"
+      ),
     [availability, cooldowns, localCooldowns, economy]
   );
 
   const ritualActions = useMemo(
     () =>
-      buildActionConfig(RITUAL_KEYS, { ...availability, cooldowns, localCooldowns, economy }, "link"),
+      buildActionConfig(
+        RITUAL_KEYS,
+        { ...availability, cooldowns, localCooldowns, economy },
+        "ritual"
+      ),
     [availability, cooldowns, localCooldowns, economy]
   );
 
@@ -228,7 +295,12 @@ export default function QuickActions({
       if (result === false) return;
 
       // Si la acción realmente se ejecutó y no está inactiva, inicia cooldown local
-      if (!isInactive && cdMin && cdMin > 0 && (!cooldowns[key] || cooldowns[key] <= 0)) {
+      if (
+        !isInactive &&
+        cdMin &&
+        cdMin > 0 &&
+        (!cooldowns[key] || cooldowns[key] <= 0)
+      ) {
         const ms = Math.max(0, Math.floor(cdMin * 60 * 1000));
         setLocalCooldowns((prev) => ({ ...prev, [key]: ms }));
         setTimeout(() => {
@@ -249,19 +321,26 @@ export default function QuickActions({
 
   const infoMechanics = infoKey ? ACTION_MECHANICS[infoKey] : null;
   const careCardWidth = screenWidth;
-  const careSlideWidth = Math.max(260, screenWidth - Spacing.large * 1.3);
+  const sideInset = Math.max(screenWidth * 0.12, Spacing.base * 0.8);
+  const careSlideWidth = Math.max(220, screenWidth - sideInset * 2);
+  const slideGap = Spacing.small * 0.4;
+  const careSlideStride = careSlideWidth + slideGap * 2;
   const loopedCareActions = useMemo(() => {
     if (!careActions.length) return [];
-    return [careActions[careActions.length - 1], ...careActions, careActions[0]];
+    return [
+      careActions[careActions.length - 1],
+      ...careActions,
+      careActions[0],
+    ];
   }, [careActions]);
 
   useEffect(() => {
     if (loopedCareActions.length && careScrollRef.current) {
       requestAnimationFrame(() => {
-        careScrollRef.current.scrollTo({ x: careCardWidth, animated: false });
+        careScrollRef.current.scrollTo({ x: careSlideStride, animated: false });
       });
     }
-  }, [loopedCareActions.length, careCardWidth]);
+  }, [loopedCareActions.length, careSlideStride]);
 
   return (
     <View style={styles.container}>
@@ -274,25 +353,33 @@ export default function QuickActions({
           <ScrollView
             ref={careScrollRef}
             horizontal
-            pagingEnabled
             showsHorizontalScrollIndicator={false}
             style={{ width: careCardWidth }}
-            contentContainerStyle={styles.careSliderContent}
+            decelerationRate="fast"
+            snapToInterval={careSlideStride}
+            snapToAlignment="start"
+            contentContainerStyle={[
+              styles.careSliderContent,
+              { paddingHorizontal: Math.max(0, sideInset - slideGap) },
+            ]}
             onMomentumScrollEnd={(evt) => {
               if (!loopedCareActions.length) return;
               const offsetX = evt.nativeEvent.contentOffset.x;
-              const page = Math.round(offsetX / careCardWidth);
+              const page = Math.round(offsetX / careSlideStride);
               const lastPage = loopedCareActions.length - 1;
               if (page === 0) {
                 careScrollRef.current?.scrollTo({
-                  x: careCardWidth * (lastPage - 1),
+                  x: careSlideStride * (lastPage - 1),
                   animated: false,
                 });
                 setCareIndex(careActions.length - 1);
                 return;
               }
               if (page === lastPage) {
-                careScrollRef.current?.scrollTo({ x: careCardWidth, animated: false });
+                careScrollRef.current?.scrollTo({
+                  x: careSlideStride,
+                  animated: false,
+                });
                 setCareIndex(0);
                 return;
               }
@@ -307,7 +394,9 @@ export default function QuickActions({
                   {
                     width: careSlideWidth,
                     marginHorizontal:
-                      idx === 0 || idx === loopedCareActions.length - 1 ? 0 : Spacing.small,
+                      idx === 0 || idx === loopedCareActions.length - 1
+                        ? 0
+                        : slideGap,
                   },
                 ]}
               >
@@ -333,7 +422,10 @@ export default function QuickActions({
           {careActions.map((action, idx) => (
             <View
               key={`${action.key}-dot`}
-              style={[styles.careDot, idx === careIndex && styles.careDotActive]}
+              style={[
+                styles.careDot,
+                idx === careIndex && styles.careDotActive,
+              ]}
             />
           ))}
         </View>
@@ -364,6 +456,7 @@ export default function QuickActions({
                       helper={item.helper}
                       accentKey={item.accentKey}
                       icon={item.icon}
+                      illustration={item.illustration}
                       cooldownMs={item.cooldownMs}
                       disabled={item.disabled}
                       variant={item.variant}
@@ -384,18 +477,23 @@ export default function QuickActions({
         </View>
       </View>
 
-      <ActionInfoModal visible={Boolean(infoKey)} onClose={closeInfo} mechanics={infoMechanics} />
+      <ActionInfoModal
+        visible={Boolean(infoKey)}
+        onClose={closeInfo}
+        mechanics={infoMechanics}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    gap: Spacing.large,
+    gap: Spacing.base * 1.5,
   },
   section: {
     gap: Spacing.small,
-    paddingVertical: Spacing.small,
+    paddingTop: Spacing.small,
+    paddingBottom: Spacing.small,
   },
   sectionHeaderRow: {
     flexDirection: "row",
@@ -408,7 +506,7 @@ const styles = StyleSheet.create({
     opacity: 0.85,
   },
   sectionTitle: {
-    ...Typography.body,
+    ...Typography.title,
     fontWeight: "700",
     color: Colors.text,
   },
@@ -419,12 +517,6 @@ const styles = StyleSheet.create({
   stack: {
     gap: Spacing.small,
   },
-  careSliderContainer: {
-    paddingHorizontal: Spacing.small * 0.6,
-    paddingVertical: Spacing.small * 0.6,
-    gap: Spacing.tiny,
-    alignItems: "center",
-  },
   careSliderContent: {
     paddingHorizontal: 0,
   },
@@ -434,7 +526,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   careSliderWrapper: {
-    marginHorizontal: 0,
+    marginHorizontal: -Spacing.base,
     alignItems: "center",
   },
   carePagination: {
@@ -455,9 +547,6 @@ const styles = StyleSheet.create({
   },
   ritualGrid: {
     gap: Spacing.small,
-  },
-  ritualCard: {
-    padding: Spacing.small,
   },
   ritualRow: {
     flexDirection: "row",

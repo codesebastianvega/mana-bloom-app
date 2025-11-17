@@ -339,6 +339,13 @@ export default StyleSheet.create({
     color: Colors.text,
     fontWeight: "700",
   },
+  heroEdgeSection: {
+    marginHorizontal: -Spacing.base,
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.small * 0.5,
+    paddingBottom: Spacing.large,
+    gap: Spacing.small,
+  },
   heroGradient: {
     borderRadius: Radii.lg,
     padding: Spacing.base,

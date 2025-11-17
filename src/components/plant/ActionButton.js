@@ -57,11 +57,20 @@ const withAlpha = (color = "#000000", alpha = 1) => {
 
 const formatMs = (ms = 0) => {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-  const minutes = Math.floor(totalSeconds / 60)
-    .toString()
-    .padStart(2, "0");
-  const seconds = (totalSeconds % 60).toString().padStart(2, "0");
-  return `${minutes}:${seconds}`;
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    const minutesPadded = minutes.toString().padStart(2, "0");
+    const secondsPadded = seconds.toString().padStart(2, "0");
+    return `${hours}h ${minutesPadded}m ${secondsPadded}s`;
+  }
+  if (minutes > 0) {
+    const secondsPadded = seconds.toString().padStart(2, "0");
+    return `${minutes}m ${secondsPadded}s`;
+  }
+  return `${seconds}s`;
 };
 
 export default function ActionButton({
@@ -99,7 +108,8 @@ export default function ActionButton({
   const inactive = disabled || remainingMs > 0;
 
   const backgroundColor = withAlpha(accent, 0.18);
-  const cardTint = variant === "dual" ? withAlpha(accent, 0.16) : backgroundColor;
+  const cardTint =
+    variant === "dual" ? withAlpha(accent, 0.16) : backgroundColor;
   const borderColor = withAlpha(accent, 0.4);
 
   const emitPress = () => {
@@ -135,7 +145,7 @@ export default function ActionButton({
     let primaryLabel = "Activar";
     if (inactive) {
       if (remainingMs > 0) {
-        primaryLabel = `Disponible en ${formatted}`;
+        primaryLabel = `Úsalo en ${formatted}`;
       } else {
         if (accentKey === "water") primaryLabel = "Falta mana";
         else if (accentKey === "nutrients") primaryLabel = "Faltan monedas";
@@ -151,34 +161,47 @@ export default function ActionButton({
           styles.card,
           styles.dualCard,
           styles.dualCompact,
-          { backgroundColor: cardTint, borderColor, borderLeftWidth: 3, borderLeftColor: accent },
+          {
+            backgroundColor: cardTint,
+            borderColor,
+            borderLeftWidth: 3,
+            borderLeftColor: accent,
+          },
         ]}
       >
+        {onInfoPress ? (
+          <Pressable
+            onPress={onInfoPress}
+            hitSlop={Spacing.base}
+            accessibilityRole="button"
+            accessibilityLabel={infoAccessibilityLabel}
+            style={[
+              styles.careInfoFloating,
+              {
+                backgroundColor: withAlpha(accent, 0.2),
+                borderColor: withAlpha(accent, 0.65),
+              },
+            ]}
+          >
+            <FontAwesome5 name="info-circle" size={14} color={accent} />
+          </Pressable>
+        ) : null}
         <View style={styles.careRow}>
           <View style={styles.careImageColumn}>
             {illustration ? (
-              <Image source={illustration} style={styles.careIllustration} resizeMode="contain" />
+              <Image
+                source={illustration}
+                style={styles.careIllustration}
+                resizeMode="contain"
+              />
             ) : icon ? (
               <View style={styles.iconWrap}>{icon}</View>
             ) : null}
           </View>
           <View style={styles.careInfoColumn}>
-            <View style={styles.careHeader}>
-              <Text style={styles.careTitle} numberOfLines={1}>
-                {title}
-              </Text>
-              {onInfoPress ? (
-                <Pressable
-                  onPress={onInfoPress}
-                  hitSlop={Spacing.base}
-                  accessibilityRole="button"
-                  accessibilityLabel={infoAccessibilityLabel}
-                  style={styles.infoIconButton}
-                >
-                  <FontAwesome5 name="info-circle" size={14} color={Colors.text} />
-                </Pressable>
-              ) : null}
-            </View>
+            <Text style={styles.careTitle} numberOfLines={1}>
+              {title}
+            </Text>
             {copyText ? (
               <Text style={styles.careCopy} numberOfLines={3}>
                 {copyText}
@@ -188,7 +211,9 @@ export default function ActionButton({
               onPress={emitPress}
               style={[
                 styles.careCTA,
-                { backgroundColor: inactive ? withAlpha(accent, 0.25) : accent },
+                {
+                  backgroundColor: inactive ? withAlpha(accent, 0.25) : accent,
+                },
               ]}
               accessibilityRole="button"
               accessibilityLabel={a11yLabel}
@@ -198,16 +223,64 @@ export default function ActionButton({
               <Text
                 style={[
                   styles.careCTAText,
-                  { color: inactive ? withAlpha(Colors.text, 0.7) : Colors.background },
+                  {
+                    color: inactive
+                      ? withAlpha(Colors.text, 0.7)
+                      : Colors.background,
+                  },
                 ]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                ellipsizeMode="tail"
               >
                 {primaryLabel}
               </Text>
             </Pressable>
-            {inactive && remainingMs > 0 ? null : null}
           </View>
         </View>
       </View>
+    );
+  }
+
+  // Variant: ritual card
+  if (variant === "ritual") {
+    const tint = withAlpha(accent, 0.25);
+    return (
+      <Pressable
+        onPress={emitPress}
+        style={[
+          styles.card,
+          styles.ritualCard,
+          { backgroundColor: tint, borderColor: withAlpha(accent, 0.5) },
+          inactive && { opacity: Opacity.disabled },
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel={title}
+        accessibilityHint={accessibilityHint}
+        accessibilityState={{ disabled: inactive }}
+      >
+        <View style={styles.ritualContent}>
+          <View style={styles.ritualText}>
+            <Text style={styles.ritualTitle} numberOfLines={1}>
+              {title}
+            </Text>
+            {helper ? (
+              <Text style={styles.ritualSubtitle} numberOfLines={2}>
+                {helper}
+              </Text>
+            ) : null}
+          </View>
+          {illustration ? (
+            <Image
+              source={illustration}
+              style={styles.ritualIllustration}
+              resizeMode="contain"
+            />
+          ) : icon ? (
+            <View style={styles.iconWrap}>{icon}</View>
+          ) : null}
+        </View>
+      </Pressable>
     );
   }
 
@@ -257,9 +330,23 @@ const styles = StyleSheet.create({
   },
   dualCompact: {
     paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small * 0.85,
+    paddingVertical: Spacing.small * 0.75,
     gap: Spacing.small,
-    minHeight: 140,
+    minHeight: 120,
+  },
+  careInfoFloating: {
+    position: "absolute",
+    top: Spacing.small,
+    right: Spacing.small,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    padding: Spacing.small * 0.6,
+    zIndex: 2,
+    elevation: 2,
+    shadowColor: Colors.background,
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
   careRow: {
     flexDirection: "row",
@@ -267,10 +354,11 @@ const styles = StyleSheet.create({
     gap: Spacing.medium,
   },
   careInfoColumn: {
-    flex: 0.6,
+    flex: 0.55,
     gap: Spacing.small,
-    paddingVertical: Spacing.small * 0.8,
-    paddingRight: Spacing.small,
+    paddingVertical: Spacing.small * 0.7,
+    paddingRight: Spacing.small * 0.7,
+    paddingLeft: Spacing.small,
   },
   careHeader: {
     flexDirection: "row",
@@ -299,18 +387,18 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.tiny,
   },
   careCTAText: {
-    ...Typography.body,
+    ...Typography.caption,
     fontWeight: "700",
   },
   careImageColumn: {
-    flex: 0.4,
+    flex: 0.45,
     alignItems: "flex-start",
     justifyContent: "center",
     paddingLeft: 0,
   },
   careIllustration: {
-    width: 125,
-    height: 125,
+    width: 115,
+    height: 115,
     marginLeft: -Spacing.small,
   },
   header: {
@@ -426,5 +514,42 @@ const styles = StyleSheet.create({
   },
   infoIconButton: {
     padding: Spacing.tiny,
+  },
+  ritualCard: {
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.base,
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    overflow: "visible",
+    minHeight: 65,
+    justifyContent: "center",
+  },
+  ritualContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+    overflow: "visible",
+  },
+  ritualText: {
+    flex: 1,
+    gap: Spacing.tiny,
+    paddingRight: Spacing.large * 0.9,
+  },
+  ritualTitle: {
+    ...Typography.body,
+    fontWeight: "800",
+    color: Colors.text,
+  },
+  ritualSubtitle: {
+    ...Typography.caption,
+    color: Colors.text,
+    opacity: 0.9,
+  },
+  ritualIllustration: {
+    width: 65,
+    height: 65,
+    position: "absolute",
+    right: -Spacing.base * 1.4,
+    top: -Spacing.base * 0.4,
   },
 });

@@ -192,3 +192,41 @@ Estilos en `ProfileScreen.styles.js`:
 ### Documentación futura
 - Crear `docs/gameplay-rules.md` con tabla completa de costos, recompensas, penalizaciones y misiones.
 
+## 7. Animaciones futuras por acción
+
+**Objetivo**  
+Dar feedback inmediato cuando se activa cada acción de cuidado sin bloquear la UI.
+
+**Formato recomendado**  
+- Priorizar animaciones Lottie (`assets/animations/care/<accion>.json`) para mantener peso bajo y permitir vectores.  
+- Alternativa: spritesheets PNG si ya existe un clip (ej. limpiar.mp4 → 12 frames).  
+- Para efectos simples (sacudidas, halos) podemos usar Reanimated/Moti sin assets externos.
+
+**Arquitectura propuesta**  
+1. Crear `ACTION_ANIMATIONS` con `{ type: "lottie"|"sprite"|"code", source, durationMs, loop }`.  
+2. `QuickActions` seguirá llamando `onAction(key)`. Cuando `handleAction(key)` retorna `true`, `PlantScreen` llamará `AnimationManager.play(key)` para iniciar la animación asociada.  
+3. Incluir un overlay opcional dentro de `ActionButton` para mostrar chispas o partículas locales, y otro en `PlantHero` para efectos globales (ej. halo iluminado).  
+4. Duración sugerida: 1–1.5s; detener automáticamente al iniciar el cooldown o al recibir `AnimationManager.stop(key)`.
+
+**Notas operativas**  
+- No se almacenan videos crudos: conviene exportar desde Figma/After Effects directo a Lottie.  
+- Documentar en `assets/animations/README.md` los fps, tamaños y responsables de cada animación.  
+- Al migrar a AppContext, exponer también `playActionAnimation(actionKey)` para que otras pantallas puedan reutilizar la misma experiencia.
+
+## 8. Features premium / paywall pendiente
+
+**Cuidado recomendado (chips del hero)**  
+- El carrusel de mini botones (regado, podar, etc.) se considera beneficio “Pro”.  
+- Cuando activemos el plan premium:  
+  1. Leer `featureFlags.recommendedCare` (ej. de AppContext/API).  
+  2. Si es `false`, mostrar sólo un CTA genérico “Sube a Pro para ver recomendaciones” y bloquear `MiniActionChip`.  
+  3. Mantener la lógica actual en modo gratuito para pruebas internas mientras definimos precios.
+
+**Checklist premium (ideas futuras)**  
+- Historial completo de rituales + métricas detalladas.  
+- Animaciones exclusivas en QuickActions (ver sección 7).  
+- Compartir diarios / exportar reportes semanales.  
+- Boosts temporales (ej. reducción de cooldown) tras ver contenido patrocinado.
+
+> Nota: Dejar documentado en cada feature nuevo si pertenece a “core” o “premium” para evitar mezclar experiencia gratuita con beneficios pagos.
+

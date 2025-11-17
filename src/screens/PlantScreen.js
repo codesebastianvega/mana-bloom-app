@@ -8,7 +8,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollView, AccessibilityInfo, View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PlantHero from "../components/plant/PlantHero";
-import PlantSectionCard from "../components/plant/PlantSectionCard";
 import PlantHeader from "../components/plant/PlantHeader";
 import QuickActions from "../components/plant/QuickActions";
 import BuffsBar from "../components/plant/BuffsBar";
@@ -70,9 +69,10 @@ const ELEMENT_KEY_MAP = {
   water: "water",
   earth: "earth",
   air: "wind",
+  wind: "wind",
 };
 
-const HERO_SPRITE = require("../../assets/matureplant.png");
+const HERO_SPRITE = require("../../assets/plants/bonsai.png");
 
 const ElementAccents = {
   neutral: Colors.surfaceAlt,
@@ -88,6 +88,27 @@ const PLANT_ACTION_LABELS = {
   prune: "Podar",
   light: "Luz directa",
   mist: "Neblina",
+  search: "Buscar plagas",
+};
+
+const PLANT_ACTION_ICONS = {
+  water: "tint",
+  feed: "seedling",
+  clean: "broom",
+  prune: "cut",
+  light: "sun",
+  mist: "cloud",
+  search: "bug",
+};
+
+const PLANT_ACTION_ACCENTS = {
+  water: Colors.elementWater,
+  feed: Colors.elementEarth,
+  clean: Colors.primary,
+  prune: Colors.secondary,
+  light: Colors.elementFire,
+  mist: Colors.elementAir,
+  search: Colors.ritualJournal,
 };
 
 const INITIAL_CARE_METRICS = {
@@ -115,13 +136,18 @@ const METRIC_EFFECT_MAP = {
   prune: { purity: 0.05, focus: 0.02 },
   light: { light: 0.1 },
   mist: { temperature: 0.04, purity: 0.03 },
+  search: { purity: 0.06, focus: 0.01 },
 };
 
 // [MB] TODO: Al conectar datos reales, ajustar estos umbrales y origen para que provengan de AppContext/backend.
 const CARE_SUGGESTION_RULES = [
-  { key: "water", metric: "water", threshold: 0.6, label: PLANT_ACTION_LABELS.water },
-  { key: "feed", metric: "nutrients", threshold: 0.65, label: PLANT_ACTION_LABELS.feed },
+  { key: "water", metric: "water", threshold: 0.65, label: PLANT_ACTION_LABELS.water },
+  { key: "feed", metric: "nutrients", threshold: 0.7, label: PLANT_ACTION_LABELS.feed },
   { key: "clean", metric: "purity", threshold: 0.85, label: PLANT_ACTION_LABELS.clean },
+  { key: "light", metric: "light", threshold: 0.7, label: PLANT_ACTION_LABELS.light },
+  { key: "mist", metric: "temperature", threshold: 0.65, label: PLANT_ACTION_LABELS.mist },
+  { key: "prune", metric: "focus", threshold: 0.8, label: PLANT_ACTION_LABELS.prune },
+  { key: "search", metric: "purity", threshold: 0.7, label: PLANT_ACTION_LABELS.search },
 ];
 
 export default function PlantScreen() {
@@ -185,7 +211,7 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
   const skinAccent = equippedSkin ? ElementAccents[equippedSkin.accentKey] : undefined;
 
   const etaText = "faltan ~3 tareas";
-  const missionText = "Hoy fortalecemos ra�ces y descanso";
+  const missionText = "";
   const xpProgress = 0.62; // Por ahora fijo para maqueta
   const climateInfo = { location: "Zipaquir�, COL", tempC: 24 };
   const agendaItems = [
@@ -360,10 +386,22 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
 
   const careSuggestion = useMemo(() => deriveCareSuggestion(careMetrics), [careMetrics]);
   const suggestionKey = careSuggestion?.key;
-  const suggestionLabel = careSuggestion?.label || PLANT_ACTION_LABELS.clean;
-  const suggestionCooldownMs = suggestionKey ? actionCooldowns[suggestionKey] || 0 : 0;
-  const suggestionCompleted =
-    Boolean(snoozedSuggestionKey === suggestionKey) || suggestionCooldownMs > 0;
+  const miniCareActions = useMemo(() => {
+    return CARE_SUGGESTION_RULES.map((rule) => {
+      const value = careMetrics[rule.metric];
+      const deficit = typeof value === "number" ? rule.threshold - value : 0;
+      return {
+        key: rule.key,
+        label: rule.label,
+        accent: PLANT_ACTION_ACCENTS[rule.key],
+        deficit,
+        cooldownMs: actionCooldowns[rule.key] || 0,
+      };
+    })
+      .filter((item) => item.deficit > 0 && item.cooldownMs <= 0)
+      .sort((a, b) => b.deficit - a.deficit)
+      .slice(0, 4);
+  }, [careMetrics, actionCooldowns]);
 
   useEffect(() => {
     if (snoozedSuggestionKey && snoozedSuggestionKey !== suggestionKey) {
@@ -372,15 +410,16 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
   }, [snoozedSuggestionKey, suggestionKey]);
 
   // [MB] Costos mock por acci�n (solo UI)
-  const ACTION_COSTS = {
-    water: { mana: 20 },
-    feed: { coins: 120 },
-    clean: { coins: 0 },
-    prune: {},
-    light: {},
-    mist: {},
-    meditate: { mana: 10 },
-  };
+    const ACTION_COSTS = {
+      water: { mana: 20 },
+      feed: { coins: 120 },
+      clean: { coins: 0 },
+      prune: {},
+      light: {},
+      mist: {},
+      search: {},
+      meditate: { mana: 10 },
+    };
   const formatResourceLabel = (resource) =>
     resource === "mana" ? "Man�" : resource === "coins" ? "Monedas" : "Diamantes";
 
@@ -436,41 +475,45 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
     setBreathModalVisible(true);
   };
 
-  const handleSuggestedAction = () => {
-    if (!suggestionKey || suggestionCompleted) return;
-    if (suggestionKey === "meditate") {
+  const triggerActionKey = (targetKey) => {
+    if (!targetKey) return;
+    if (targetKey === "meditate") {
       launchBreathModal();
       return;
     }
-    if (suggestionKey === "hydrate") {
+    if (targetKey === "hydrate") {
       launchHydrateModal();
       return;
     }
-    if (suggestionKey === "stretch") {
+    if (targetKey === "stretch") {
       launchStretchModal();
       return;
     }
-    if (suggestionKey === "sunlight") {
+    if (targetKey === "sunlight") {
       launchSunlightModal();
       return;
     }
-    if (suggestionKey === "visualize") {
+    if (targetKey === "visualize") {
       launchVisualizeModal();
       return;
     }
-    if (suggestionKey === "journal") {
+    if (targetKey === "journal") {
       launchJournalModal();
       return;
     }
-    if (suggestionKey === "gratitude") {
+    if (targetKey === "gratitude") {
       launchGratitudeModal();
       return;
     }
-    if (suggestionKey === "restEyes") {
+    if (targetKey === "restEyes") {
       launchRestEyesModal();
       return;
     }
-    handleAction(suggestionKey);
+    handleAction(targetKey);
+  };
+
+  const handleMiniActionPress = (actionKey) => {
+    triggerActionKey(actionKey);
   };
 
   const closeBreathModal = () => {
@@ -602,17 +645,11 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
           stage="brote"
           progress={xpProgress}
           etaText={etaText}
-          suggestedAction={suggestionLabel}
-          onPressAction={handleSuggestedAction}
-          actionCtaLabel="Activar"
-          actionCompleted={suggestionCompleted}
-          actionCompletedLabel={
-            suggestionCompleted
-              ? `En cooldown (${formatCooldownLabel(suggestionCooldownMs)})`
-              : undefined
-          }
+          edgeToEdge
+          miniActions={miniCareActions}
+          onPressMiniAction={handleMiniActionPress}
         />
-        <PlantSectionCard style={{ gap: Spacing.base }}>
+        <View style={styles.heroEdgeSection}>
           <Text style={styles.heroSectionTitle}>Cuidado activo de la planta</Text>
           <PlantHero
             source={HERO_SPRITE}
@@ -627,11 +664,15 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
             ritualSummary={{ active: ritualActiveCount, total: RITUAL_ACTIONS.length, tags: ritualTags }}
             climateInfo={climateInfo}
           />
-        </PlantSectionCard>
+        </View>
         <QuickActions
           canWater
           canFeed
           canClean
+          canPrune
+          canLight
+          canMist
+          canSearch
           canMeditate
           economy={economy}
           cooldowns={actionCooldowns}
@@ -670,10 +711,6 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
             }
             const executed = handleAction(key);
             if (!executed) return false;
-            if (key === "clean") {
-              setSelectedSkinId(equippedSkinId);
-              setInvOpen(true);
-            }
             return true;
           }}
         />
@@ -791,22 +828,53 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
 }
 
 function computeElementStatsFromTasks(tasks = []) {
-  const counts = { fire: 0, water: 0, earth: 0, wind: 0 };
-  tasks.forEach((task) => {
-    const mapped = ELEMENT_KEY_MAP[task?.element];
-    if (mapped && counts[mapped] !== undefined) {
-      counts[mapped] += 1;
+  const counts = createEmptyElementCounts();
+  (tasks || []).forEach((task) => {
+    if (!task || task.isDeleted) {
+      return;
     }
+    const mapped = ELEMENT_KEY_MAP[task.element];
+    if (!mapped || !counts[mapped]) {
+      return;
+    }
+    const isHabit = (task.type || "single") === "habit";
+    const bucket = counts[mapped];
+    bucket[isHabit ? "habits" : "tasks"] += 1;
   });
-  const total = Object.values(counts).reduce((sum, val) => sum + val, 0);
+  const total = Object.values(counts).reduce(
+    (sum, bucket) => sum + bucket.tasks + bucket.habits,
+    0
+  );
   if (!total) {
-    return { ...DEFAULT_ELEMENT_STATS };
+    const defaults = createDefaultElementStats();
+    defaults.counts = counts;
+    return defaults;
   }
-  const stats = {};
-  Object.keys(counts).forEach((key) => {
-    stats[key] = counts[key] / total;
+  const stats = { counts };
+  Object.entries(counts).forEach(([key, bucket]) => {
+    const bucketTotal = bucket.tasks + bucket.habits;
+    stats[key] = bucketTotal / total;
   });
   return stats;
+}
+
+function createEmptyElementCounts() {
+  return {
+    fire: { tasks: 0, habits: 0 },
+    water: { tasks: 0, habits: 0 },
+    earth: { tasks: 0, habits: 0 },
+    wind: { tasks: 0, habits: 0 },
+  };
+}
+
+function createDefaultElementStats() {
+  return {
+    fire: 0.25,
+    water: 0.25,
+    earth: 0.25,
+    wind: 0.25,
+    counts: createEmptyElementCounts(),
+  };
 }
 
 function formatCooldownLabel(ms = 0) {
@@ -842,12 +910,7 @@ const ELEMENT_FILTER_MAP = {
   wind: "air",
 };
 
-const DEFAULT_ELEMENT_STATS = {
-  fire: 0.25,
-  water: 0.25,
-  earth: 0.25,
-  wind: 0.25,
-};
+const DEFAULT_ELEMENT_STATS = createDefaultElementStats();
 
 const ELEMENT_OPTIONS = [
   { key: "water", label: "Agua", color: Colors.elementWater },
@@ -867,3 +930,4 @@ const DIFFICULTY_OPTIONS = [
   { key: "medium", label: "Media" },
   { key: "hard", label: "Dif�cil" },
 ];
+

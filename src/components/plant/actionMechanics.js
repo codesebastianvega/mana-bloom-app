@@ -129,6 +129,29 @@ export const ACTION_MECHANICS = {
     ],
     stack: ["Neblina + Gratitud conecta el cuidado personal con el de la planta."],
   },
+  search: {
+    title: "Buscar plagas",
+    category: "core",
+    headline: "Inspecciona hojas cuando Pureza o Salud bajen de 60%.",
+    summary: "Detecta bichos o manchas temprano y protege la planta con un spray ligero.",
+    cost: [],
+    rewards: [
+      { type: "plant.purity", label: "+Pureza", amount: 7 },
+      { type: "xp", label: "+XP atención", amount: 8 },
+    ],
+    buffs: [{ key: "guardian", label: "Guardian verde", durationMin: 120 }],
+    cooldownMin: 180,
+    cadence: "1 vez por semana",
+    cues: [
+      "Si notas puntos cafés, telarañas o crecimiento detenido.",
+      "Después de traer plantas nuevas al mismo espacio.",
+    ],
+    tips: [
+      "Usa una linterna cálida y revisa el envés de cada hoja.",
+      "Anota en el journal los hallazgos para detectar patrones.",
+    ],
+    stack: ["Buscar plagas + Limpiar asegura que los restos no vuelvan."],
+  },
   meditate: {
     title: "Meditar",
     category: "core",

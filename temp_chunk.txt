@@ -1,0 +1,121 @@
+              {
+                width: baseSize,
+                height: baseSize,
+                borderRadius: baseSize / 2,
+                transform: [{ scale }],
+                backgroundColor: showAura ? Colors.surface : "transparent",
+                shadowOpacity: showAura ? 0.25 : 0,
+              },
+            ]}
+          >
+            {source ? (
+              <Image
+                source={source}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: baseSize / 2,
+                }}
+                resizeMode="contain"
+              />
+            ) : (
+              <Text style={{ fontSize: baseSize * 0.6 }}>🌱</Text>
+            )}
+            {skinAccent && showAura && (
+              <View
+                pointerEvents="none"
+                style={[
+                  styles.pot,
+                  {
+                    backgroundColor: skinAccent,
+                    width: baseSize * 0.6,
+                    height: baseSize * 0.25,
+                    borderRadius: (baseSize * 0.6) / 2,
+                    left: (baseSize - baseSize * 0.6) / 2,
+                    bottom: Spacing.small,
+                  },
+                ]}
+              />
+            )}
+          </Animated.View>
+        </View>
+      </View>
+      <View style={styles.healthBlock}>
+        <View style={styles.healthHeader}>
+          <Text style={styles.healthTitle}>Salud de la planta</Text>
+          <Text style={[styles.healthValue, { color: healthColor }]}>
+            {healthPercent}%
+          </Text>
+        </View>
+        <View
+          style={styles.healthBar}
+          accessibilityRole="progressbar"
+          accessibilityValue={{ now: healthPercent, min: 0, max: 100 }}
+        >
+          <LinearGradient
+            colors={healthGradient}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            style={[styles.healthFill, { width: `${Math.max(8, healthPercent)}%` }]}
+          />
+        </View>
+      </View>
+      {(temperatureChip || secondaryChipsRaw.length > 0 || derivedRitualSummary) ? (
+        <View style={styles.statsCard}>
+          {temperatureChip || secondaryChipsRaw.length > 0 ? (
+            <View style={styles.subChipColumns}>
+              <View style={styles.leftChipColumn}>
+                {moodChip ? (
+                  <View
+                    style={[styles.subChipStack, { borderColor: moodChip.accent }]}
+                  >
+                    <View style={styles.subChipStackContent}>
+                      <Text style={styles.subChipEmoji}>
+                        {moodChip.emoji || "😊"}
+                      </Text>
+                      <Text style={styles.subChipLabel}>{moodChip.label}</Text>
+                      <Text
+                        style={[
+                          styles.subChipInlineValue,
+                          { color: moodChip.accent },
+                        ]}
+                      >
+                        {moodChip.display}
+                      </Text>
+                    </View>
+                    {moodChip.meta ? (
+                      <Text style={styles.subChipMeta}>{moodChip.meta}</Text>
+                    ) : null}
+                  </View>
+                ) : null}
+                {focusChip ? (
+                  <View
+                    style={[styles.subChipStack, { borderColor: focusChip.accent }]}
+                  >
+                    <View style={styles.subChipStackContent}>
+                      <Text style={styles.subChipEmoji}>🧠</Text>
+                      <Text style={styles.subChipLabel}>{focusChip.label}</Text>
+                      <Text
+                        style={[
+                          styles.subChipInlineValue,
+                          { color: focusChip.accent },
+                        ]}
+                      >
+                        {focusChip.display}
+                      </Text>
+                    </View>
+                    {focusChip.meta ? (
+                      <Text style={styles.subChipMeta}>{focusChip.meta}</Text>
+                    ) : null}
+                  </View>
+                ) : null}
+              </View>
+              {temperatureChip ? (
+                <View style={styles.rightTempColumn}>
+                  <View
+                    style={[
+                      styles.subChipFull,
+                      styles.tempChip,
+                      { borderColor: temperatureChip.accent },
+                    ]}
+                  >

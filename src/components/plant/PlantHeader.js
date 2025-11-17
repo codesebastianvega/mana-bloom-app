@@ -1,11 +1,16 @@
 // [MB] Módulo: Planta / Sección: Header diario
 // Afecta: PlantScreen (cabecera principal)
-// Propósito: resumir misión del día, agenda y clima sin duplicar el hero
-// Puntos de edición futura: conectar con recordatorios reales y UI de CTA
-// Autor: Codex - Fecha: 2025-11-13
+// Propósito: resumir misión, clima y agenda alineados al hero edge-to-edge
+// Puntos de edición futura: conectar con recordatorios reales y CTA
+// Autor: Codex - Fecha: 2025-11-17
 
-import React, { useState, useRef } from "react";
-import { View, Text, TextInput, Pressable, Animated, AccessibilityInfo } from "react-native";
+import React, { useState } from "react";
+import {
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Colors, Spacing } from "../../theme";
@@ -18,158 +23,117 @@ export default function PlantHeader({
   stageLabel,
   ritualTargets,
   agendaItems = [],
-  climateInfo,
+  onAddReminder,
+  onToggleReminder,
 }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [draftName, setDraftName] = useState(name);
-  const scale = useRef(new Animated.Value(1)).current;
-  const [agendaExpanded, setAgendaExpanded] = useState(false);
-
-  const temperatureDisplay =
-    typeof climateInfo?.tempC === "number"
-      ? `${Math.round(climateInfo.tempC)}°`
-      : "—";
-  const agendaPreview = agendaItems.slice(0, 3);
-
-  const handleStartEdit = () => {
-    setDraftName(name);
-    setIsEditing(true);
-  };
-
-  const handleCancel = () => {
-    setDraftName(name);
-    setIsEditing(false);
-  };
-
-  const handleSubmit = () => {
-    const next = draftName.trim().slice(0, 40);
-    if (!next) {
-      handleCancel();
-      return;
-    }
-    if (next !== name) {
-      onRename && onRename(next);
-      AccessibilityInfo.announceForAccessibility?.(
-        "Nombre de planta actualizado a " + next
-      );
-    }
-    setIsEditing(false);
-    Animated.sequence([
-      Animated.timing(scale, {
-        toValue: 1.02,
-        duration: 90,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scale, { toValue: 1, duration: 90, useNativeDriver: true }),
-    ]).start();
-  };
+  const [reminderExpanded, setReminderExpanded] = useState(false);
+  const agendaPreview = agendaItems.slice(0, 4);
 
   return (
-    <View style={styles.wrapper} accessibilityRole="header">
-      <LinearGradient
-        colors={[Colors.surfaceElevated, Colors.surface]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.gradientBg}
-      >
-        <View style={styles.titleRow}>
-          <View style={styles.nameWrap}>
-            {isEditing ? (
-              <TextInput
-                value={draftName}
-                onChangeText={setDraftName}
-                maxLength={40}
-                style={styles.nameInput}
-                autoFocus
-                selectTextOnFocus
-                onSubmitEditing={handleSubmit}
-                onBlur={handleSubmit}
-                onKeyPress={(e) => {
-                  if (e.nativeEvent.key === "Escape") {
-                    handleCancel();
-                  }
-                }}
-                accessibilityLabel="Nombre de la planta"
-              />
-            ) : (
-              <Animated.Text
-                style={[styles.name, { transform: [{ scale }] }]}
-                numberOfLines={2}
-              >
-                {name}
-              </Animated.Text>
-            )}
-            <Pressable
-              onPress={handleStartEdit}
-              hitSlop={Spacing.small}
-              style={styles.editBtn}
-              accessibilityRole="button"
-              accessibilityLabel="Editar nombre de la planta"
-            >
-              <Text style={styles.editIcon}>✏️</Text>
-            </Pressable>
+    <View style={styles.container} accessibilityRole="header">
+      <View style={styles.identityWrapper}>
+        <LinearGradient
+          colors={[
+            "rgba(120,110,255,0.35)",
+            "rgba(94,168,255,0.22)",
+            "rgba(52,250,195,0.18)",
+            "rgba(18,10,28,0.65)",
+          ]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.identityGradient}
+        >
+          <View style={styles.identityRow}>
+            <View style={styles.identityBlock}>
+              <View style={styles.nameStack}>
+                <Text style={styles.name} numberOfLines={1}>
+                  {name}
+                </Text>
+                <View style={styles.stageChips}>
+                  <Text style={styles.stageLabel}>{stageLabel}</Text>
+                  {ritualTargets ? (
+                    <Text style={styles.ritualTarget}>{ritualTargets}</Text>
+                  ) : null}
+                </View>
+              </View>
+            </View>
           </View>
-        </View>
-        <Text style={styles.mission}>{mission}</Text>
-        <View style={styles.stageRow}>
-          <FontAwesome5 name="seedling" size={12} color={Colors.text} style={styles.stageIcon} />
-          <Text style={styles.stageLabel}>{stageLabel}</Text>
-          {ritualTargets ? (
-            <Text style={styles.ritualTarget}>{ritualTargets}</Text>
+
+          {mission ? (
+            <Text style={styles.missionText} numberOfLines={2}>
+              {mission}
+            </Text>
           ) : null}
-        </View>
-        <View style={styles.agendaCard}>
-          <Pressable
-            style={styles.agendaHeader}
-            onPress={() => setAgendaExpanded((prev) => !prev)}
-            accessibilityRole="button"
-            accessibilityLabel="Mostrar u ocultar agenda de cuidado"
-          >
-            <View>
-              <Text style={styles.agendaTitle}>Agenda de cuidado</Text>
-              <Text style={styles.agendaSummary}>
-                {agendaPreview.length === 0
-                  ? "Sin recordatorios para hoy"
-                  : `${agendaPreview.length} recordatorio${agendaPreview.length > 1 ? "s" : ""}`}
-              </Text>
+
+          <View style={styles.reminderHeader}>
+            <Text style={styles.reminderTitle}>Recordatorios</Text>
+            <View style={styles.reminderHeaderActions}>
+              <Pressable
+                onPress={() => setReminderExpanded((prev) => !prev)}
+                style={styles.toggleBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Mostrar u ocultar recordatorios"
+              >
+                <FontAwesome5
+                  name={reminderExpanded ? "chevron-up" : "chevron-down"}
+                  size={12}
+                  color={Colors.text}
+                />
+              </Pressable>
+              <Pressable
+                onPress={onAddReminder}
+                style={styles.reminderBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Crear recordatorio"
+              >
+                <FontAwesome5 name="plus" size={12} color={Colors.text} />
+                <Text style={styles.reminderBtnLabel}>Nuevo</Text>
+              </Pressable>
             </View>
-            <FontAwesome5
-              name={agendaExpanded ? "chevron-up" : "chevron-down"}
-              size={12}
-              color={Colors.textMuted}
-            />
-          </Pressable>
-          {agendaExpanded && (
-            <View style={styles.agendaList}>
-              {agendaPreview.length === 0 ? (
-                <Text style={styles.agendaEmpty}>Agrega rituales para verlos aquí.</Text>
-              ) : (
-                agendaPreview.map((item) => (
-                  <View key={item.id} style={styles.agendaItem}>
-                    <View style={styles.agendaDot} />
-                    <View style={styles.agendaCopy}>
-                      <Text style={styles.agendaTime}>{item.timeLabel}</Text>
-                      <Text style={styles.agendaAction}>{item.label}</Text>
-                    </View>
-                    <Text style={styles.agendaImpact}>{item.impact}</Text>
-                  </View>
-                ))
-              )}
-            </View>
-          )}
-        </View>
-        <View style={styles.climateRow}>
-          <View style={styles.climateInfo}>
-            <Text style={styles.climateEmoji}>🌤️</Text>
-            <Text style={styles.climateTemp}>{temperatureDisplay}</Text>
-            {climateInfo?.location ? (
-              <Text style={styles.climateLocation}>{climateInfo.location}</Text>
-            ) : null}
           </View>
-          <Text style={styles.climateHint}>{climateInfo?.hint}</Text>
-        </View>
-      </LinearGradient>
+
+          {reminderExpanded ? (
+            agendaPreview.length ? (
+              <View style={styles.reminderList}>
+                {agendaPreview.map((item) => (
+                  <View key={item.id} style={styles.reminderListItem}>
+                    <Pressable
+                      onPress={() => onToggleReminder?.(item.id, !item.completed)}
+                      style={[
+                        styles.reminderCheckbox,
+                        item.completed && styles.reminderCheckboxChecked,
+                      ]}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: item.completed }}
+                    >
+                      {item.completed ? (
+                        <FontAwesome5 name="check" size={10} color={Colors.background} />
+                      ) : null}
+                    </Pressable>
+                    <View style={styles.reminderListBody}>
+                      <View style={styles.reminderTimeRow}>
+                        <Text style={styles.agendaTime}>{item.timeLabel}</Text>
+                        <Text style={styles.agendaImpact}>{item.impact}</Text>
+                      </View>
+                      <Text
+                        style={[
+                          styles.agendaAction,
+                          item.completed && styles.reminderDoneText,
+                        ]}
+                        numberOfLines={2}
+                      >
+                        {item.label}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.agendaEmpty}>No tienes recordatorios aún. Toca “Nuevo”.</Text>
+            )
+          ) : null}
+        </LinearGradient>
+      </View>
     </View>
   );
 }
-
