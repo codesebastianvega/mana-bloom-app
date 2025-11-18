@@ -5,7 +5,7 @@
 // Autor: Codex - Fecha: 2025-11-13
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ScrollView, AccessibilityInfo, View, Text } from "react-native";
+import { ScrollView, AccessibilityInfo, View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PlantHero from "../components/plant/PlantHero";
 import PlantHeader from "../components/plant/PlantHeader";
@@ -37,10 +37,10 @@ import {
 import ScreenSection from "../components/ui/ScreenSection";
 import SectionHeader from "../components/ui/SectionHeader";
 import ElementBalance from "../components/plant/ElementBalance";
-import PlantProgressCard from "../components/plant/PlantProgressCard";
 import { Colors, Spacing } from "../theme";
 import { ACTION_MECHANICS } from "../components/plant/actionMechanics";
 import styles from "./PlantScreen.styles";
+import { useActiveBuffs } from "../state/AppContext";
 
 const RITUAL_ACTIONS = [
   "meditate",
@@ -80,6 +80,23 @@ const ElementAccents = {
   spirit: Colors.secondaryFantasy,
   mana: Colors.primaryFantasy,
 };
+
+const BUFF_PRESETS = {
+  xp_double: { title: "Poción Sabiduría", emoji: "🧪" },
+  default: { title: "Potenciador activo", emoji: "✨" },
+};
+
+function formatDurationShort(ms = 0) {
+  if (!ms) return "En curso";
+  const minutes = Math.max(1, Math.round(ms / 60000));
+  if (minutes >= 60) {
+    const hours = Math.floor(minutes / 60);
+    const rem = minutes % 60;
+    if (rem === 0) return `${hours}h`;
+    return `${hours}h ${rem}m`;
+  }
+  return `${minutes}m`;
+}
 
 const PLANT_ACTION_LABELS = {
   water: "Regar",
@@ -190,6 +207,7 @@ export default function PlantScreen() {
   const [gratitudeModalVisible, setGratitudeModalVisible] = useState(false);
   const [restEyesModalVisible, setRestEyesModalVisible] = useState(false);
   const [careMetrics, setCareMetrics] = useState({ ...INITIAL_CARE_METRICS });
+  const activeBuffs = useActiveBuffs();
 const HYDRATE_GOAL = 8;
 
   const applyMetricEffects = React.useCallback((actionKey) => {
@@ -402,6 +420,21 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
       .sort((a, b) => b.deficit - a.deficit)
       .slice(0, 4);
   }, [careMetrics, actionCooldowns]);
+  const companionStatus = useMemo(() => {
+    const nowTs = Date.now();
+    const potions =
+      activeBuffs?.map((buff) => {
+        const preset = BUFF_PRESETS[buff.type] || BUFF_PRESETS.default;
+        const remainingMs = Math.max(0, (buff.expiresAt || 0) - nowTs);
+        return {
+          id: buff.id,
+          label: preset.title,
+          emoji: preset.emoji,
+          remaining: formatDurationShort(remainingMs),
+        };
+      }) || [];
+    return { pet: null, potions };
+  }, [activeBuffs]);
 
   useEffect(() => {
     if (snoozedSuggestionKey && snoozedSuggestionKey !== suggestionKey) {
@@ -514,6 +547,10 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
 
   const handleMiniActionPress = (actionKey) => {
     triggerActionKey(actionKey);
+  };
+  const handleOpenInventoryFromHero = () => {
+    setSelectedSkinId(equippedSkinId);
+    setInvOpen(true);
   };
 
   const closeBreathModal = () => {
@@ -641,16 +678,26 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
           agendaItems={agendaItems}
           climateInfo={{ ...climateInfo, hint: "Clima templado, aprovecha para tareas de luz" }}
         />
-        <PlantProgressCard
-          stage="brote"
-          progress={xpProgress}
-          etaText={etaText}
-          edgeToEdge
-          miniActions={miniCareActions}
-          onPressMiniAction={handleMiniActionPress}
-        />
         <View style={styles.heroEdgeSection}>
-          <Text style={styles.heroSectionTitle}>Cuidado activo de la planta</Text>
+          <View style={styles.heroHeaderRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.heroSectionTitle}>Estado de la planta</Text>
+              <Text style={styles.heroSectionCopy}>
+                Observa métricas, etapa y sugerencias para mantenerla equilibrada.
+              </Text>
+            </View>
+            <Pressable
+              style={styles.heroSectionButton}
+              onPress={() => {
+                setSelectedSkinId(equippedSkinId);
+                setInvOpen(true);
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir inventario de la planta"
+            >
+              <Text style={styles.heroSectionButtonText}>Inventario</Text>
+            </Pressable>
+          </View>
           <PlantHero
             source={HERO_SPRITE}
             health={plantHealth}
@@ -663,6 +710,11 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
             wellbeingMetrics={wellbeingMetricChips}
             ritualSummary={{ active: ritualActiveCount, total: RITUAL_ACTIONS.length, tags: ritualTags }}
             climateInfo={climateInfo}
+            stageProgress={{ stage: "brote", progress: xpProgress, etaText }}
+            careSuggestions={miniCareActions}
+            onPressCareSuggestion={handleMiniActionPress}
+            companionStatus={companionStatus}
+            onPressCompanion={handleOpenInventoryFromHero}
           />
         </View>
         <QuickActions
@@ -714,13 +766,10 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
             return true;
           }}
         />
-        <ScreenSection>
+        <View style={styles.elementBalanceSection}>
           <SectionHeader title="Balance elemental" />
-          <ElementBalance
-            values={elementStats}
-            onSelectElement={handleSelectElement}
-          />
-        </ScreenSection>
+          <ElementBalance values={elementStats} onSelectElement={handleSelectElement} />
+        </View>
         {/* BuffsBar omitido en esta tarjeta para asemejar captura base
         <BuffsBar 
           buffs={[
@@ -930,4 +979,5 @@ const DIFFICULTY_OPTIONS = [
   { key: "medium", label: "Media" },
   { key: "hard", label: "Dif�cil" },
 ];
+
 

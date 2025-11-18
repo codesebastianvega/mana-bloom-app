@@ -41,6 +41,9 @@ export default StyleSheet.create({
     paddingBottom: Spacing.xlarge * 2,
     gap: Spacing.large,
   },
+  elementBalanceSection: {
+    gap: Spacing.small,
+  },
   contentTablet: {
     paddingHorizontal: Spacing.xlarge,
     maxWidth: 960,
@@ -338,6 +341,30 @@ export default StyleSheet.create({
     ...Typography.title,
     color: Colors.text,
     fontWeight: "700",
+  },
+  heroHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.base,
+  },
+  heroSectionCopy: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  heroSectionButton: {
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.tiny,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    borderColor: Colors.secondary,
+    backgroundColor: Colors.surfaceAlt,
+  },
+  heroSectionButtonText: {
+    ...Typography.caption,
+    color: Colors.secondary,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
   },
   heroEdgeSection: {
     marginHorizontal: -Spacing.base,
