@@ -346,119 +346,132 @@ export default function TasksScreen() {
   };
 
   const toggleTaskDone = (id) => {
-    const target = tasks.find((t) => t.id === id);
-    if (!target) return;
-    
-    const newDone = !target.done;
-    
-    // Si está marcando como completada
-    if (newDone) {
-      // Verificar si puede completar (cooldown)
-      const completionCheck = canCompleteTask(target);
-      
-      if (completionCheck.penalty) {
-        // Mostrar advertencia de penalización
-        alert(`⚠️ ${completionCheck.reason}\n\n¿Estás seguro de que quieres completarla ahora?`);
+    try {
+      const target = tasks.find((t) => t.id === id);
+      if (!target) {
+        console.warn('[TasksScreen] toggleTaskDone: Task not found', id);
+        return;
       }
       
-      // Calcular cuántas tareas se completaron hoy
-      const today = new Date().toISOString().split('T')[0];
-      const tasksCompletedToday = tasks.filter(t => 
-        t.completed && 
-        t.completedAt && 
-        t.completedAt.startsWith(today)
-      ).length;
+      const newDone = !target.done;
       
-      // Calcular recompensas con el nuevo sistema
-      const baseReward = calculateTaskReward(
-        target,
-        null, // plantElement - TODO: obtener del contexto
-        false // isPro - TODO: obtener del contexto
-      );
-      
-      const finalReward = calculateFinalReward(baseReward, {
-        earlyCompletion: completionCheck.penalty,
-        tasksCompletedToday: tasksCompletedToday,
-        trustScore: 75, // TODO: obtener del contexto
-        isPro: false, // TODO: obtener del contexto
-      });
-      
-      // Actualizar tarea
-      const updated = {
-        ...target,
-        done: newDone,
-        completed: newDone,
-        completedAt: new Date().toISOString(),
-        isDeleted: false,
-      };
-      
-      setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
-      syncTaskToCloud(updated);
-      
-      // Aplicar recompensas
-      dispatch({
-        type: "APPLY_TASK_REWARD",
-        payload: { 
-          xpDelta: finalReward.xp, 
-          manaDelta: finalReward.mana 
-        },
-      });
-      
-      // Si ganó monedas, agregarlas
-      if (finalReward.coin > 0) {
-        dispatch({
-          type: "ADD_COIN",
-          payload: finalReward.coin,
-        });
-      }
-      
-      // Si ganó gemas, agregarlas
-      if (finalReward.gem > 0) {
-        dispatch({
-          type: "ADD_GEM",
-          payload: finalReward.gem,
-        });
-      }
-      
-      // Actualizar desafíos
-      const priorityLabel =
-        priorityOptions.find((p) => p.key === target.priority)?.label || "";
-      dispatch({
-        type: "UPDATE_DAILY_CHALLENGES_ON_TASK_DONE",
-        payload: { priority: priorityLabel },
-      });
-      
-      // Logro
-      dispatch({
-        type: "ACHIEVEMENT_EVENT",
-        payload: { type: "task_done", payload: { priority: priorityLabel } },
-      });
-      
-      // Mostrar mensaje de recompensas
-      if (completionCheck.penalty) {
-        alert(`Tarea completada antes de tiempo.\n\nRecompensas reducidas:\n+${finalReward.xp} XP`);
-      } else {
-        const rewardMsg = [];
-        if (finalReward.mana > 0) rewardMsg.push(`+${finalReward.mana} Maná`);
-        if (finalReward.coin > 0) rewardMsg.push(`+${finalReward.coin} Monedas`);
-        if (finalReward.gem > 0) rewardMsg.push(`+${finalReward.gem} Gemas`);
-        if (finalReward.xp > 0) rewardMsg.push(`+${finalReward.xp} XP`);
+      // Si está marcando como completada
+      if (newDone) {
+        // Verificar si puede completar (cooldown)
+        const completionCheck = canCompleteTask(target);
         
-        if (rewardMsg.length > 0) {
-          console.log(`✅ Tarea completada! ${rewardMsg.join(', ')}`);
+        if (completionCheck.penalty) {
+          // Mostrar advertencia de penalización
+          alert(`⚠️ ${completionCheck.reason}\n\n¿Estás seguro de que quieres completarla ahora?`);
         }
+        
+        // Calcular cuántas tareas se completaron hoy
+        const today = new Date().toISOString().split('T')[0];
+        const tasksCompletedToday = (tasks || []).filter(t => 
+          t && 
+          t.completed && 
+          t.completedAt && 
+          typeof t.completedAt === 'string' &&
+          t.completedAt.startsWith(today)
+        ).length;
+        
+        // Calcular recompensas con el nuevo sistema
+        const baseReward = calculateTaskReward(
+          target,
+          null, // plantElement - TODO: obtener del contexto
+          false // isPro - TODO: obtener del contexto
+        );
+        
+        const finalReward = calculateFinalReward(baseReward, {
+          earlyCompletion: completionCheck.penalty || false,
+          tasksCompletedToday: tasksCompletedToday,
+          trustScore: 75, // TODO: obtener del contexto
+          isPro: false, // TODO: obtener del contexto
+        });
+        
+        // Actualizar tarea
+        const updated = {
+          ...target,
+          done: newDone,
+          completed: newDone,
+          completedAt: new Date().toISOString(),
+          isDeleted: false,
+        };
+        
+        setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+        syncTaskToCloud(updated);
+        
+        // Aplicar recompensas
+        dispatch({
+          type: "APPLY_TASK_REWARD",
+          payload: { 
+            xpDelta: finalReward.xp || 0, 
+            manaDelta: finalReward.mana || 0
+          },
+        });
+        
+        // Si ganó monedas, agregarlas
+        if (finalReward.coin > 0) {
+          dispatch({
+            type: "ADD_COIN",
+            payload: finalReward.coin,
+          });
+        }
+        
+        // Si ganó gemas, agregarlas
+        if (finalReward.gem > 0) {
+          dispatch({
+            type: "ADD_GEM",
+            payload: finalReward.gem,
+          });
+        }
+        
+        // Actualizar desafíos
+        const priorityLabel =
+          priorityOptions.find((p) => p.key === target.priority)?.label || "";
+        dispatch({
+          type: "UPDATE_DAILY_CHALLENGES_ON_TASK_DONE",
+          payload: { priority: priorityLabel },
+        });
+        
+        // Logro
+        dispatch({
+          type: "ACHIEVEMENT_EVENT",
+          payload: { type: "task_done", payload: { priority: priorityLabel } },
+        });
+        
+        // Mostrar mensaje de recompensas
+        if (completionCheck.penalty) {
+          console.log(`⚠️ Tarea completada antes de tiempo. Recompensas reducidas: +${finalReward.xp} XP`);
+        } else {
+          const rewardMsg = [];
+          if (finalReward.mana > 0) rewardMsg.push(`+${finalReward.mana} Maná`);
+          if (finalReward.coin > 0) rewardMsg.push(`+${finalReward.coin} Monedas`);
+          if (finalReward.gem > 0) rewardMsg.push(`+${finalReward.gem} Gemas`);
+          if (finalReward.xp > 0) rewardMsg.push(`+${finalReward.xp} XP`);
+          
+          if (rewardMsg.length > 0) {
+            console.log(`✅ Tarea completada! ${rewardMsg.join(', ')}`);
+          }
+        }
+      } else {
+        // Desmarcar como completada
+        const updated = {
+          ...target,
+          done: newDone,
+          completed: newDone,
+          completedAt: null,
+          isDeleted: false,
+        };
+        setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+        syncTaskToCloud(updated);
       }
-    } else {
-      // Desmarcar como completada
-      const updated = {
-        ...target,
-        done: newDone,
-        completed: newDone,
-        completedAt: null,
-        isDeleted: false,
-      };
-      setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
-      syncTaskToCloud(updated);
+    } catch (error) {
+      console.error('[TasksScreen] Error in toggleTaskDone:', error);
+      console.error('[TasksScreen] Error stack:', error.stack);
+      console.error('[TasksScreen] Task ID:', id);
+      console.error('[TasksScreen] Tasks array length:', tasks?.length);
+      alert(`Error al completar tarea: ${error.message}`);
     }
   };
 
