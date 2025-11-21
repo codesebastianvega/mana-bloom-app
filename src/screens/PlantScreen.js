@@ -4,9 +4,10 @@
 // Puntos de edici�n futura: enlazar datos reales y persistencia global
 // Autor: Codex - Fecha: 2025-11-13
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { ScrollView, AccessibilityInfo, View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
 import PlantHero from "../components/plant/PlantHero";
 import PlantHeader from "../components/plant/PlantHeader";
 import QuickActions from "../components/plant/QuickActions";
@@ -40,7 +41,9 @@ import ElementBalance from "../components/plant/ElementBalance";
 import { Colors, Spacing } from "../theme";
 import { ACTION_MECHANICS } from "../components/plant/actionMechanics";
 import styles from "./PlantScreen.styles";
-import { useActiveBuffs } from "../state/AppContext";
+import { useActiveBuffs, useAppState, useAppDispatch } from "../state/AppContext";
+import { supabase } from "../lib/supabase";
+import { pushJournalEntry, updateDailyMetrics } from "../lib/sync";
 
 const RITUAL_ACTIONS = [
   "meditate",
@@ -55,7 +58,7 @@ const RITUAL_ACTIONS = [
 const RITUAL_ACTION_SET = new Set(RITUAL_ACTIONS);
 const RITUAL_LABELS = {
   meditate: "Meditando",
-  hydrate: "Hidrat�ndome",
+  hydrate: "Hidratándome",
   stretch: "Estirando",
   sunlight: "Cargando luz",
   visualize: "Visualizando",
@@ -168,20 +171,31 @@ const CARE_SUGGESTION_RULES = [
 ];
 
 export default function PlantScreen() {
+  const { mana, wallet, inventory } = useAppState();
+  const dispatch = useAppDispatch();
+  
   const [plantName, setPlantName] = useState("Mi Planta");
   const [invOpen, setInvOpen] = useState(false);
-  const [equippedSkinId, setEquippedSkinId] = useState();
+  const [equippedSkinId, setEquippedSkinId] = useState("s1"); // Default
   const [selectedSkinId, setSelectedSkinId] = useState();
-  const [economy, setEconomy] = useState({ mana: 140, coins: 850, gems: 12 });
+  
+  // [MB] Derived Economy from AppContext
+  const economy = { mana, coins: wallet.coin, gems: wallet.gem };
+
   const [streakDays, setStreakDays] = useState(3);
   const [txn, setTxn] = useState(null);
   const [insufficient, setInsufficient] = useState(null);
-  const [skins, setSkins] = useState([
-    { id: "s1", name: "Maceta R�stica", rarity: "common", owned: true, equipped: true, accentKey: "neutral", thumb: "??" },
+  
+  // [MB] Skins from Inventory (Mock + Real)
+  // We merge default skins with inventory items of category 'skin'
+  const defaultSkins = [
+    { id: "s1", name: "Maceta Rústica", rarity: "common", owned: true, equipped: true, accentKey: "neutral", thumb: "??" },
     { id: "s2", name: "Arcana Azul", rarity: "rare", owned: true, accentKey: "water", thumb: "??" },
-    { id: "s3", name: "Esencia Et�rea", rarity: "epic", owned: false, accentKey: "spirit", cost: { currency: "diamonds", amount: 120 }, thumb: "??" },
-    { id: "s4", name: "Coraz�n de Man�", rarity: "legendary", owned: false, accentKey: "mana", cost: { currency: "coins", amount: 2400 }, thumb: "??" },
-  ]);
+  ];
+  // TODO: Map inventory items to skins if we have them. For now using defaults + inventory check?
+  // For Phase 3, we stick to defaults until Shop is ready.
+  const skins = defaultSkins; 
+
   const [ritualStatus, setRitualStatus] = useState(() =>
     RITUAL_ACTIONS.reduce((acc, key) => {
       acc[key] = false;
@@ -209,6 +223,66 @@ export default function PlantScreen() {
   const [careMetrics, setCareMetrics] = useState({ ...INITIAL_CARE_METRICS });
   const activeBuffs = useActiveBuffs();
 const HYDRATE_GOAL = 8;
+  const launchGratitudeModal = () => setGratitudeModalVisible(true);
+  const closeGratitudeModal = () => setGratitudeModalVisible(false);
+  const handleGratitudeComplete = () => {
+    const executed = handleAction("gratitude");
+    if (!executed) return;
+    setGratitudeModalVisible(false);
+  };
+  const launchRestEyesModal = () => setRestEyesModalVisible(true);
+  const closeRestEyesModal = () => setRestEyesModalVisible(false);
+  const handleRestEyesComplete = () => {
+    const executed = handleAction("restEyes");
+    if (!executed) return;
+    setRestEyesModalVisible(false);
+  };
+
+  // [MB] Mock data for PlantHeader
+  const etaText = "faltan ~3 tareas";
+  const missionText = "";
+  const xpProgress = 0.62;
+  const climateInfo = { location: "Zipaquirá, COL", tempC: 24 };
+  const agendaItems = [
+    { id: "ag1", timeLabel: "08:00", label: "Regar ligero", impact: "+10% hidratación" },
+    { id: "ag2", timeLabel: "14:00", label: "Revisar luz", impact: "Mantén 20 min de sol" },
+    { id: "ag3", timeLabel: "21:00", label: "Respirar profundo", impact: "Activa rituales" },
+  ];
+  
+  const activeRitualKeys = RITUAL_ACTIONS.filter((key) => ritualStatus[key]);
+  const ritualActiveCount = activeRitualKeys.length;
+  const ritualCompletion = ritualActiveCount / RITUAL_ACTIONS.length;
+  const ritualTags = activeRitualKeys.map((key) => RITUAL_LABELS[key] || key);
+  
+  const careMetricChips = useMemo(
+    () => [
+      { key: "water", label: "Humedad", value: careMetrics.water },
+      { key: "light", label: "Luz", value: careMetrics.light },
+      { key: "nutrients", label: "Nutrientes", value: careMetrics.nutrients },
+      { key: "purity", label: "Pureza", value: careMetrics.purity },
+    ],
+    [careMetrics]
+  );
+  
+  const plantHealth =
+    Object.values(careMetrics).reduce((sum, value) => sum + (value ?? 0), 0) /
+    Object.keys(careMetrics).length;
+    
+  const wellbeingMetricChips = useMemo(
+    () => [
+      { key: "mood", label: "Ánimo", value: careMetrics.mood },
+      { key: "temperature", label: "Temperatura", value: careMetrics.temperature },
+      { key: "rituals", label: "Rituales", value: ritualCompletion },
+      { key: "focus", label: "Focus", value: careMetrics.focus },
+    ],
+    [careMetrics, ritualCompletion]
+  );
+
+  // [MB] Helper functions
+  const getTodayKey = () => new Date().toISOString().split("T")[0];
+  
+  const equippedSkin = skins.find((s) => s.id === equippedSkinId);
+  const skinAccent = equippedSkin ? ElementAccents[equippedSkin.accentKey] : undefined;
 
   const applyMetricEffects = React.useCallback((actionKey) => {
     const deltas = METRIC_EFFECT_MAP[actionKey];
@@ -223,69 +297,116 @@ const HYDRATE_GOAL = 8;
       return next;
     });
   }, []);
-const getTodayKey = () => new Date().toISOString().split("T")[0];
 
-  const equippedSkin = skins.find((s) => s.id === equippedSkinId);
-  const skinAccent = equippedSkin ? ElementAccents[equippedSkin.accentKey] : undefined;
-
-  const etaText = "faltan ~3 tareas";
-  const missionText = "";
-  const xpProgress = 0.62; // Por ahora fijo para maqueta
-  const climateInfo = { location: "Zipaquir�, COL", tempC: 24 };
-  const agendaItems = [
-    { id: "ag1", timeLabel: "08:00", label: "Regar ligero", impact: "+10% hidrataci�n" },
-    { id: "ag2", timeLabel: "14:00", label: "Revisar luz", impact: "Mant�n 20 min de sol" },
-    { id: "ag3", timeLabel: "21:00", label: "Respirar profundo", impact: "Activa rituales" },
-  ];
-  const [taskModalVisible, setTaskModalVisible] = useState(false);
-  const [taskModalElement, setTaskModalElement] = useState("all");
-  const activeRitualKeys = RITUAL_ACTIONS.filter((key) => ritualStatus[key]);
-  const ritualActiveCount = activeRitualKeys.length;
-  const ritualCompletion = ritualActiveCount / RITUAL_ACTIONS.length;
-  const ritualTags = activeRitualKeys.map((key) => RITUAL_LABELS[key] || key);
-  // [MB] M�tricas mock: hasta conectar AppContext + clima usamos datos ficticios
-  const careMetricChips = useMemo(
-    () => [
-      { key: "water", label: "Humedad", value: careMetrics.water },
-      { key: "light", label: "Luz", value: careMetrics.light },
-      { key: "nutrients", label: "Nutrientes", value: careMetrics.nutrients },
-      { key: "purity", label: "Pureza", value: careMetrics.purity },
-    ],
-    [careMetrics]
-  );
-  const plantHealth =
-    Object.values(careMetrics).reduce((sum, value) => sum + (value ?? 0), 0) /
-    Object.keys(careMetrics).length;
-  const wellbeingMetricChips = useMemo(
-    () => [
-      { key: "mood", label: "�nimo", value: careMetrics.mood },
-      { key: "temperature", label: "Temperatura", value: careMetrics.temperature },
-      { key: "rituals", label: "Rituales", value: ritualCompletion },
-      { key: "focus", label: "Focus", value: careMetrics.focus },
-    ],
-    [careMetrics, ritualCompletion]
-  );
-  const handleSelectElement = (key) => {
-    const mapped = ELEMENT_FILTER_MAP[key] || "all";
-    setTaskModalElement(mapped);
-    setTaskModalVisible(true);
+  const registerActionCooldown = (key) => {
+    const mechanic = ACTION_MECHANICS[key];
+    const cooldownMin = mechanic?.cooldownMin;
+    if (!cooldownMin || cooldownMin <= 0) {
+      setActionCooldowns((prev) => {
+        if (prev[key]) {
+          const next = { ...prev };
+          next[key] = 0;
+          return next;
+        }
+        return prev;
+      });
+      return 0;
+    }
+    const ms = Math.max(0, Math.floor(cooldownMin * 60 * 1000));
+    setActionCooldowns((prev) => ({ ...prev, [key]: ms }));
+    if (cooldownTimersRef.current[key]) {
+      clearTimeout(cooldownTimersRef.current[key]);
+    }
+    cooldownTimersRef.current[key] = setTimeout(() => {
+      setActionCooldowns((prev) => ({ ...prev, [key]: 0 }));
+      cooldownTimersRef.current[key] = null;
+      setSnoozedSuggestionKey((prev) => (prev === key ? null : prev));
+    }, ms);
+    return ms;
   };
 
-  useEffect(() => {
-    const loadTasksAndTags = async () => {
-      try {
-        const stored = await getTasks();
-        const safeTasks = stored || [];
-        setElementStats(computeElementStatsFromTasks(safeTasks));
-        const tagSet = new Set();
-        safeTasks.forEach((task) => (task.tags || []).forEach((tag) => tagSet.add(tag)));
-        setAvailableTags(Array.from(tagSet));
-      } catch (e) {
-        console.warn("[MB] No se pudieron cargar tareas para PlantScreen", e);
+  const ACTION_COSTS = {
+    water: { mana: 20 },
+    feed: { coins: 120 },
+    clean: { coins: 0 },
+    prune: {},
+    light: {},
+    mist: {},
+    search: {},
+    meditate: { mana: 10 },
+  };
+
+  const formatResourceLabel = (resource) =>
+    resource === "mana" ? "Maná" : resource === "coins" ? "Monedas" : "Diamantes";
+
+  function handleAction(key) {
+    const costs = ACTION_COSTS[key] || {};
+    const hasCost = Object.keys(costs).length > 0;
+    if (hasCost) {
+      const lacks = Object.entries(costs).find(
+        ([res, amt]) => (economy[res] ?? 0) < amt
+      );
+      if (lacks) {
+        const [res] = lacks;
+        setInsufficient({ id: String(Date.now()), resource: res });
+        AccessibilityInfo.announceForAccessibility?.(
+          "Saldo insuficiente de " + formatResourceLabel(res)
+        );
+        return false;
       }
-    };
-    loadTasksAndTags();
-  }, []);
+      Object.entries(costs).forEach(([res, amt]) => {
+        if (amt > 0) {
+          if (res === 'mana') dispatch({ type: "PURCHASE_WITH_MANA", payload: amt });
+          if (res === 'coins') dispatch({ type: "SPEND_COIN", payload: amt });
+          if (res === 'gems') dispatch({ type: "SPEND_GEM", payload: amt });
+        }
+      });
+      const resKey = Object.keys(costs)[0];
+      setTxn({ id: String(Date.now()), resource: resKey, amount: -1 * (costs[resKey] || 0) });
+      AccessibilityInfo.announceForAccessibility?.(
+        `Gastaste ${costs[resKey]} ${formatResourceLabel(resKey)}, saldo ${economy[resKey] - costs[resKey]}`
+      );
+    }
+    if (RITUAL_ACTION_SET.has(key)) {
+      setRitualStatus((prev) => {
+        if (prev[key]) return prev;
+        return { ...prev, [key]: true };
+      });
+    }
+    const cooldownMs = registerActionCooldown(key);
+    const suggestionKey = careSuggestion?.key;
+    if (suggestionKey === key && cooldownMs > 0) {
+      setSnoozedSuggestionKey(key);
+    }
+    applyMetricEffects(key);
+    const actionLabel = PLANT_ACTION_LABELS[key] || ACTION_MECHANICS[key]?.title || "Acción";
+    const statusMessage =
+      cooldownMs > 0
+        ? `${actionLabel} activada, quedan ${formatCooldownLabel(cooldownMs)}`
+        : `${actionLabel} activada`;
+    setActionStatus({ id: String(Date.now()), message: statusMessage });
+    return true;
+  }
+
+  // [MB] useEffects for hydration and cleanup
+  // Reload tasks whenever the screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      const loadTasksAndTags = async () => {
+        try {
+          const stored = await getTasks();
+          const safeTasks = stored || [];
+          setElementStats(computeElementStatsFromTasks(safeTasks));
+          const tagSet = new Set();
+          safeTasks.forEach((task) => (task.tags || []).forEach((tag) => tagSet.add(tag)));
+          setAvailableTags(Array.from(tagSet));
+        } catch (e) {
+          console.warn("[MB] No se pudieron cargar tareas para PlantScreen", e);
+        }
+      };
+      loadTasksAndTags();
+    }, [])
+  );
 
   useEffect(() => {
     const loadRitualPersistence = async () => {
@@ -323,6 +444,60 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
     };
   }, []);
 
+  useEffect(() => {
+    if (txn || insufficient || actionStatus) {
+      const id = setTimeout(() => {
+        setTxn(null);
+        setInsufficient(null);
+        setActionStatus(null);
+      }, 1800);
+      return () => clearTimeout(id);
+    }
+  }, [txn, insufficient, actionStatus]);
+
+  const careSuggestion = useMemo(() => deriveCareSuggestion(careMetrics), [careMetrics]);
+  const suggestionKey = careSuggestion?.key;
+
+  const miniCareActions = useMemo(() => {
+    return CARE_SUGGESTION_RULES.map((rule) => {
+      const value = careMetrics[rule.metric];
+      const deficit = typeof value === "number" ? rule.threshold - value : 0;
+      return {
+        key: rule.key,
+        label: rule.label,
+        accent: PLANT_ACTION_ACCENTS[rule.key],
+        deficit,
+        cooldownMs: actionCooldowns[rule.key] || 0,
+      };
+    })
+      .filter((item) => item.deficit > 0 && item.cooldownMs <= 0)
+      .sort((a, b) => b.deficit - a.deficit)
+      .slice(0, 4);
+  }, [careMetrics, actionCooldowns]);
+
+  const companionStatus = useMemo(() => {
+    const nowTs = Date.now();
+    const potions =
+      activeBuffs?.map((buff) => {
+        const preset = BUFF_PRESETS[buff.type] || BUFF_PRESETS.default;
+        const remainingMs = Math.max(0, (buff.expiresAt || 0) - nowTs);
+        return {
+          id: buff.id,
+          label: preset.title,
+          emoji: preset.emoji,
+          remaining: formatDurationShort(remainingMs),
+        };
+      }) || [];
+    return { pet: null, potions };
+  }, [activeBuffs]);
+
+  useEffect(() => {
+    if (snoozedSuggestionKey && snoozedSuggestionKey !== suggestionKey) {
+      setSnoozedSuggestionKey(null);
+    }
+  }, [snoozedSuggestionKey, suggestionKey]);
+
+  // [MB] Modal handlers
   const handleSaveTaskFromPlant = async (draft) => {
     try {
       const stored = await getTasks();
@@ -363,149 +538,13 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
     }
   };
 
-  const registerActionCooldown = (key) => {
-    const mechanic = ACTION_MECHANICS[key];
-    const cooldownMin = mechanic?.cooldownMin;
-    if (!cooldownMin || cooldownMin <= 0) {
-      setActionCooldowns((prev) => {
-        if (prev[key]) {
-          const next = { ...prev };
-          next[key] = 0;
-          return next;
-        }
-        return prev;
-      });
-      return 0;
-    }
-    const ms = Math.max(0, Math.floor(cooldownMin * 60 * 1000));
-    setActionCooldowns((prev) => ({ ...prev, [key]: ms }));
-    if (cooldownTimersRef.current[key]) {
-      clearTimeout(cooldownTimersRef.current[key]);
-    }
-    cooldownTimersRef.current[key] = setTimeout(() => {
-      setActionCooldowns((prev) => ({ ...prev, [key]: 0 }));
-      cooldownTimersRef.current[key] = null;
-      setSnoozedSuggestionKey((prev) => (prev === key ? null : prev));
-    }, ms);
-    return ms;
-  };
+  const [taskModalVisible, setTaskModalVisible] = useState(false);
+  const [taskModalElement, setTaskModalElement] = useState("all");
 
-  // Auto-ocultar toasts breves
-  useEffect(() => {
-    if (txn || insufficient || actionStatus) {
-      const id = setTimeout(() => {
-        setTxn(null);
-        setInsufficient(null);
-        setActionStatus(null);
-      }, 1800);
-      return () => clearTimeout(id);
-    }
-  }, [txn, insufficient, actionStatus]);
-
-  const careSuggestion = useMemo(() => deriveCareSuggestion(careMetrics), [careMetrics]);
-  const suggestionKey = careSuggestion?.key;
-  const miniCareActions = useMemo(() => {
-    return CARE_SUGGESTION_RULES.map((rule) => {
-      const value = careMetrics[rule.metric];
-      const deficit = typeof value === "number" ? rule.threshold - value : 0;
-      return {
-        key: rule.key,
-        label: rule.label,
-        accent: PLANT_ACTION_ACCENTS[rule.key],
-        deficit,
-        cooldownMs: actionCooldowns[rule.key] || 0,
-      };
-    })
-      .filter((item) => item.deficit > 0 && item.cooldownMs <= 0)
-      .sort((a, b) => b.deficit - a.deficit)
-      .slice(0, 4);
-  }, [careMetrics, actionCooldowns]);
-  const companionStatus = useMemo(() => {
-    const nowTs = Date.now();
-    const potions =
-      activeBuffs?.map((buff) => {
-        const preset = BUFF_PRESETS[buff.type] || BUFF_PRESETS.default;
-        const remainingMs = Math.max(0, (buff.expiresAt || 0) - nowTs);
-        return {
-          id: buff.id,
-          label: preset.title,
-          emoji: preset.emoji,
-          remaining: formatDurationShort(remainingMs),
-        };
-      }) || [];
-    return { pet: null, potions };
-  }, [activeBuffs]);
-
-  useEffect(() => {
-    if (snoozedSuggestionKey && snoozedSuggestionKey !== suggestionKey) {
-      setSnoozedSuggestionKey(null);
-    }
-  }, [snoozedSuggestionKey, suggestionKey]);
-
-  // [MB] Costos mock por acci�n (solo UI)
-    const ACTION_COSTS = {
-      water: { mana: 20 },
-      feed: { coins: 120 },
-      clean: { coins: 0 },
-      prune: {},
-      light: {},
-      mist: {},
-      search: {},
-      meditate: { mana: 10 },
-    };
-  const formatResourceLabel = (resource) =>
-    resource === "mana" ? "Man�" : resource === "coins" ? "Monedas" : "Diamantes";
-
-  // [MB] Handler central de acciones
-  function handleAction(key) {
-    const costs = ACTION_COSTS[key] || {};
-    const hasCost = Object.keys(costs).length > 0;
-    if (hasCost) {
-      const lacks = Object.entries(costs).find(
-        ([res, amt]) => (economy[res] ?? 0) < amt
-      );
-      if (lacks) {
-        const [res] = lacks;
-        setInsufficient({ id: String(Date.now()), resource: res });
-        AccessibilityInfo.announceForAccessibility?.(
-          "Saldo insuficiente de " + formatResourceLabel(res)
-        );
-        return false;
-      }
-      const next = { ...economy };
-      Object.entries(costs).forEach(([res, amt]) => {
-        next[res] -= amt || 0;
-      });
-      setEconomy(next);
-      const resKey = Object.keys(costs)[0];
-      setTxn({ id: String(Date.now()), resource: resKey, amount: -1 * (costs[resKey] || 0) });
-      AccessibilityInfo.announceForAccessibility?.(
-        `Gastaste ${costs[resKey]} ${formatResourceLabel(resKey)}, saldo ${next[resKey]}`
-      );
-    }
-    if (RITUAL_ACTION_SET.has(key)) {
-      setRitualStatus((prev) => {
-        if (prev[key]) return prev;
-        return { ...prev, [key]: true };
-      });
-    }
-    const cooldownMs = registerActionCooldown(key);
-    if (suggestionKey === key && cooldownMs > 0) {
-      setSnoozedSuggestionKey(key);
-    }
-    applyMetricEffects(key);
-    const actionLabel = PLANT_ACTION_LABELS[key] || ACTION_MECHANICS[key]?.title || "Acci�n";
-    const statusMessage =
-      cooldownMs > 0
-        ? `${actionLabel} activada, quedan ${formatCooldownLabel(cooldownMs)}`
-        : `${actionLabel} activada`;
-    setActionStatus({ id: String(Date.now()), message: statusMessage });
-    return true;
-  }
-
-  const launchBreathModal = () => {
-    setPendingBreathAction("meditate");
-    setBreathModalVisible(true);
+  const handleSelectElement = (key) => {
+    const mapped = ELEMENT_FILTER_MAP[key] || "all";
+    setTaskModalElement(mapped);
+    setTaskModalVisible(true);
   };
 
   const triggerActionKey = (targetKey) => {
@@ -548,15 +587,22 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
   const handleMiniActionPress = (actionKey) => {
     triggerActionKey(actionKey);
   };
+
   const handleOpenInventoryFromHero = () => {
     setSelectedSkinId(equippedSkinId);
     setInvOpen(true);
+  };
+
+  const launchBreathModal = () => {
+    setPendingBreathAction("meditate");
+    setBreathModalVisible(true);
   };
 
   const closeBreathModal = () => {
     setBreathModalVisible(false);
     setPendingBreathAction(null);
   };
+
   const handleBreathComplete = () => {
     if (pendingBreathAction) {
       const executed = handleAction(pendingBreathAction);
@@ -570,13 +616,21 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
 
   const launchHydrateModal = () => setHydrateModalVisible(true);
   const closeHydrateModal = () => setHydrateModalVisible(false);
+  
   const handleHydrateIncrement = () => {
     setHydrateCount((prev) => {
       const next = Math.min(HYDRATE_GOAL, prev + 1);
       setHydrationState({ date: getTodayKey(), count: next });
+      
+      // [MB] Cloud Sync
+      supabase.auth.getUser().then(({ data }) => {
+         if (data?.user) updateDailyMetrics(data.user.id, { hydration_count: next });
+      });
+      
       return next;
     });
   };
+
   const handleHydrateComplete = () => {
     if (hydrateCount < HYDRATE_GOAL) return;
     const executed = handleAction("hydrate");
@@ -585,6 +639,7 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
     setHydrateModalVisible(false);
     setHydrationState({ date: getTodayKey(), count: 0, completedAt: new Date().toISOString() });
   };
+
   const launchStretchModal = () => setStretchModalVisible(true);
   const closeStretchModal = () => setStretchModalVisible(false);
   const handleStretchComplete = () => {
@@ -592,6 +647,7 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
     if (!executed) return;
     setStretchModalVisible(false);
   };
+
   const launchSunlightModal = () => setSunlightModalVisible(true);
   const closeSunlightModal = () => setSunlightModalVisible(false);
   const handleSunlightComplete = () => {
@@ -599,47 +655,53 @@ const getTodayKey = () => new Date().toISOString().split("T")[0];
     if (!executed) return;
     setSunlightModalVisible(false);
   };
+
   const launchVisualizeModal = () => setVisualizeModalVisible(true);
   const closeVisualizeModal = () => setVisualizeModalVisible(false);
+  
   const handleVisualizeComplete = (text) => {
     const executed = handleAction("visualize");
     if (!executed) return;
     setVisualizeDraft("");
     persistVisualizeDraft("");
-    addVisualizeEntry({ id: Date.now().toString(), text, createdAt: new Date().toISOString() });
+    const entry = { id: Date.now().toString(), text, createdAt: new Date().toISOString() };
+    addVisualizeEntry(entry);
+    
+    // [MB] Cloud Sync
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) pushJournalEntry(data.user.id, { ...entry, type: 'visualize' });
+    });
+    
     setVisualizeModalVisible(false);
   };
+
   const handleSaveVisualizeDraft = (draft) => {
     setVisualizeDraft(draft);
     persistVisualizeDraft(draft || "");
   };
+
   const launchJournalModal = () => setJournalModalVisible(true);
   const closeJournalModal = () => setJournalModalVisible(false);
+  
   const handleJournalComplete = (data) => {
     const executed = handleAction("journal");
     if (!executed) return;
-    addJournalEntry({ ...data });
+    const entry = { ...data, id: Date.now().toString(), createdAt: new Date().toISOString() };
+    addJournalEntry(entry);
     setJournalDraft("");
     persistJournalDraft("");
+    
+    // [MB] Cloud Sync
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) pushJournalEntry(data.user.id, { ...entry, type: 'journal' });
+    });
+    
     setJournalModalVisible(false);
   };
+
   const handleJournalDraftChange = (value) => {
     setJournalDraft(value);
     persistJournalDraft(value || "");
-  };
-  const launchGratitudeModal = () => setGratitudeModalVisible(true);
-  const closeGratitudeModal = () => setGratitudeModalVisible(false);
-  const handleGratitudeComplete = () => {
-    const executed = handleAction("gratitude");
-    if (!executed) return;
-    setGratitudeModalVisible(false);
-  };
-  const launchRestEyesModal = () => setRestEyesModalVisible(true);
-  const closeRestEyesModal = () => setRestEyesModalVisible(false);
-  const handleRestEyesComplete = () => {
-    const executed = handleAction("restEyes");
-    if (!executed) return;
-    setRestEyesModalVisible(false);
   };
 
   const toastMessage = insufficient

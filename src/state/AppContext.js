@@ -37,6 +37,8 @@ import {
   getAchievementsState,
   setAchievementsState,
 } from "../storage";
+import { supabase } from "../lib/supabase";
+import { fetchUserData, pushProfile, pushInventoryItem } from "../lib/sync";
 import { DAILY_REWARDS } from "../constants/dailyRewards";
 import { SHOP_LOOKUP } from "../constants/shopCatalog";
 import { CHALLENGE_TEMPLATES } from "../constants/challengeTemplates";
@@ -476,6 +478,7 @@ function appReducer(state, action) {
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const isHydrating = useRef(true);
+  const userIdRef = useRef(null);
   const prevLevel = useRef(initialState.level);
   const prevStreak = useRef(initialState.streak);
   const [hydration, setHydration] = useState({
@@ -575,6 +578,34 @@ export function AppProvider({ children }) {
       dispatch({ type: "SET_DAILY_REWARD", payload: dailyReward });
       setHydration((h) => ({ ...h, dailyReward: false }));
       isHydrating.current = false;
+
+      // [MB] Cloud Sync
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        userIdRef.current = session.user.id;
+        const cloudData = await fetchUserData(session.user.id);
+        if (cloudData) {
+          if (cloudData.profile) {
+            dispatch({ type: "SET_MANA", payload: cloudData.profile.mana });
+            dispatch({ type: "SET_STREAK", payload: cloudData.profile.streak });
+            // Merge wallet
+            dispatch({ type: "SET_WALLET", payload: { 
+              coin: cloudData.profile.coin || 0, 
+              gem: cloudData.profile.gem || 0 
+            }});
+            // Merge progress
+            dispatch({ type: "SET_PROGRESS", payload: {
+              level: cloudData.profile.level || 1,
+              xp: cloudData.profile.xp || 0,
+              xpGoal: cloudData.profile.xp_goal || 100
+            }});
+          }
+          if (cloudData.inventory && cloudData.inventory.length > 0) {
+             dispatch({ type: "SET_INVENTORY", payload: cloudData.inventory });
+          }
+          // Tasks and Journal sync deferred for next step
+        }
+      }
     }
     hydrate();
   }, []);
@@ -582,6 +613,7 @@ export function AppProvider({ children }) {
   useEffect(() => {
     if (isHydrating.current) return;
     setMana(state.mana);
+    if (userIdRef.current) pushProfile(userIdRef.current, { mana: state.mana });
   }, [state.mana]);
 
   useEffect(() => {
@@ -604,11 +636,24 @@ export function AppProvider({ children }) {
   useEffect(() => {
     if (isHydrating.current) return;
     setInventory(state.inventory);
+    // Inventory push is complex (array vs single item). 
+    // For now, we don't push the whole array. 
+    // We rely on specific actions (ADD_TO_INVENTORY) to call pushInventoryItem?
+    // No, actions are in reducer. Reducer is pure.
+    // We should push here, but pushing the whole array is inefficient.
+    // However, for MVP, let's iterate and upsert? No, too heavy.
+    // Better: The reducer actions should probably trigger a side effect or we accept "Save on Change" for now.
+    // Let's leave inventory sync for specific item updates if possible, or just push the whole list if small.
+    // Given the list is small (skins, potions), we can iterate.
+    if (userIdRef.current) {
+      state.inventory.forEach(item => pushInventoryItem(userIdRef.current, item));
+    }
   }, [state.inventory]);
 
   useEffect(() => {
     if (isHydrating.current) return;
     setWallet(state.wallet);
+    if (userIdRef.current) pushProfile(userIdRef.current, { wallet: state.wallet });
   }, [state.wallet]);
 
   useEffect(() => {

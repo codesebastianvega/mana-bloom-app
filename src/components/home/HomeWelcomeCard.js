@@ -4,10 +4,11 @@
 // Puntos de edicion futura: animaciones y origen de datos real
 // Autor: Codex - Fecha: 2025-10-07 (V6)
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { View, Text, Pressable, Animated, Image, Easing } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 import styles from "./HomeWelcomeCard.styles";
 import { ElementAccents } from "../../theme";
@@ -335,13 +336,16 @@ export default function HomeWelcomeCard({ onNext }) {
     };
   }, [orbitAnim]);
 
-  useEffect(() => {
-    getTasks().then((ts) => {
-      const tasks = ts.filter((t) => t.type === "single" && !t.completed).length;
-      const habits = ts.filter((t) => t.type === "habit" && !t.completed).length;
-      setTaskCounts({ tasks, habits });
-    });
-  }, []);
+  // Reload tasks whenever the screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      getTasks().then((ts) => {
+        const tasks = ts.filter((t) => t.type === "single" && !t.completed).length;
+        const habits = ts.filter((t) => t.type === "habit" && !t.completed).length;
+        setTaskCounts({ tasks, habits });
+      });
+    }, [])
+  );
 
   const completedChallenges = items.filter((it) => it.claimed).length;
   const totalChallenges = items.length;

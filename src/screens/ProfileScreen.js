@@ -11,6 +11,7 @@ import {
   ScrollView,
   Pressable,
   Switch,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -19,12 +20,16 @@ import AchievementToast from "../components/common/AchievementToast";
 import { useAchievementToast, useAppDispatch, useAppState } from "../state/AppContext";
 import useProfileMock from "./profile/useProfileMock";
 import styles from "./ProfileScreen.styles";
+import { Colors } from "../theme";
 import AchievementsPanel from "../components/profile/AchievementsPanel";
 import AchievementsModal from "../components/profile/AchievementsModal";
 import { ACHIEVEMENTS } from "../constants/achievements";
 import { getJournalEntries, getVisualizeEntries } from "../storage";
+import { supabase } from "../lib/supabase";
+import { useNavigation } from "@react-navigation/native";
 
 export default function ProfileScreen() {
+  const navigation = useNavigation();
   const achievementToast = useAchievementToast();
   const dispatch = useAppDispatch();
   const { achievements: achievementState, level, streak } = useAppState();
@@ -59,6 +64,25 @@ export default function ProfileScreen() {
       mounted = false;
     };
   }, []);
+
+  const handleLogout = async () => {
+    Alert.alert(
+      "Cerrar Sesión",
+      "¿Estás seguro que deseas salir?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Salir",
+          style: "destructive",
+          onPress: async () => {
+            const { error } = await supabase.auth.signOut();
+            if (error) Alert.alert("Error", error.message);
+            else navigation.replace("Login");
+          },
+        },
+      ]
+    );
+  };
 
   const achievementsFull = useMemo(() => {
     if (!achievementState) return [];
@@ -165,6 +189,36 @@ export default function ProfileScreen() {
               <Text style={styles.statLabel}>{stat.label}</Text>
             </View>
           ))}
+        </View>
+
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Cuenta</Text>
+          </View>
+          
+          <Pressable style={styles.actionRow} onPress={() => Alert.alert("Próximamente", "Podrás cambiar tu contraseña aquí.")}>
+            <View style={styles.actionIcon}>
+              <FontAwesome5 name="lock" size={14} color={Colors.textMuted} />
+            </View>
+            <Text style={styles.actionLabel}>Cambiar Contraseña</Text>
+            <FontAwesome5 name="chevron-right" size={12} color={Colors.textMuted} />
+          </Pressable>
+
+          <Pressable style={styles.actionRow} onPress={handleLogout}>
+            <View style={styles.actionIcon}>
+              <FontAwesome5 name="sign-out-alt" size={14} color={Colors.warning} />
+            </View>
+            <Text style={[styles.actionLabel, { color: Colors.warning }]}>Cerrar Sesión</Text>
+            <FontAwesome5 name="chevron-right" size={12} color={Colors.warning} />
+          </Pressable>
+
+          <Pressable style={styles.actionRow} onPress={() => Alert.alert("Zona de Peligro", "Esta acción eliminará tu cuenta permanentemente.")}>
+            <View style={styles.actionIcon}>
+              <FontAwesome5 name="trash-alt" size={14} color={Colors.danger} />
+            </View>
+            <Text style={[styles.actionLabel, { color: Colors.danger }]}>Eliminar Cuenta</Text>
+            <FontAwesome5 name="chevron-right" size={12} color={Colors.danger} />
+          </Pressable>
         </View>
 
         <View style={styles.sectionCard}>
@@ -294,6 +348,8 @@ export default function ProfileScreen() {
             </Pressable>
           ))}
         </View>
+
+
 
         <View style={styles.levelCallout}>
           <View style={styles.levelCalloutHeader}>

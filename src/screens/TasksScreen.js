@@ -11,6 +11,8 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { getTasks as getStoredTasks, setTasks as setStoredTasks } from "../storage";
+import { supabase } from "../lib/supabase";
+import { fetchUserData, pushTask } from "../lib/sync";
 
 import StatsHeader from "../components/StatsHeader";
 import TaskFilters from "../components/TaskFilters";
@@ -216,6 +218,34 @@ export default function TasksScreen() {
         note: t.note ?? t.description ?? "",
         completed: t.done,
       }));
+      
+      // [MB] Cloud Sync
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const cloudData = await fetchUserData(session.user.id);
+        if (cloudData?.tasks) {
+          // Merge cloud tasks
+          const merged = [...normalized];
+          cloudData.tasks.forEach(cloudTask => {
+             const idx = merged.findIndex(t => t.id === cloudTask.id);
+             const localTask = {
+                 ...cloudTask,
+                 done: cloudTask.is_completed,
+                 completed: cloudTask.is_completed,
+                 completedAt: cloudTask.completed_at,
+                 isDeleted: cloudTask.is_deleted,
+                 note: cloudTask.description || "",
+             };
+             if (idx >= 0) {
+                 merged[idx] = { ...merged[idx], ...localTask };
+             } else {
+                 merged.push(localTask);
+             }
+          });
+          setTasks(merged);
+          return;
+        }
+      }
       setTasks(normalized);
     };
     hydrate();
@@ -259,6 +289,22 @@ export default function TasksScreen() {
     return [Colors.primaryFantasy, Colors.secondary, Colors.accent];
   }, [fabGradientPreset]);
   const fabGradientLocations = fabGradientPreset?.locations;
+
+  const syncTaskToCloud = async (task) => {
+    console.log('[TasksScreen] syncTaskToCloud called for task:', task.id, task.title);
+    const { data } = await supabase.auth.getUser();
+    console.log('[TasksScreen] User from auth:', data?.user?.id);
+    if (data?.user) {
+      const newId = await pushTask(data.user.id, task);
+      console.log('[TasksScreen] pushTask returned:', newId);
+      // If pushTask returns a new UUID (different from task.id), update local state
+      if (newId && newId !== task.id) {
+        console.log('[TasksScreen] Updating task ID from', task.id, 'to', newId);
+        setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, id: newId } : t)));
+      }
+    }
+  };
+
   const addTask = (draft) => {
     const newTask = {
       id: Date.now().toString(),
@@ -278,6 +324,7 @@ export default function TasksScreen() {
       completedAt: null,
     };
     setTasks((prev) => [newTask, ...prev]);
+    syncTaskToCloud(newTask);
   };
 
   const updateTask = (updated) => {
@@ -288,6 +335,7 @@ export default function TasksScreen() {
     setTasks((prev) =>
       prev.map((t) => (t.id === toSave.id ? { ...t, ...toSave } : t))
     );
+    syncTaskToCloud(toSave);
   };
 
   const deleteTask = (id) => {
@@ -306,6 +354,7 @@ export default function TasksScreen() {
       isDeleted: false,
     };
     setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+    syncTaskToCloud(updated);
     if (newDone) {
       const priorityLabel =
         priorityOptions.find((p) => p.key === target.priority)?.label || "";
@@ -326,8 +375,11 @@ export default function TasksScreen() {
       }
     };
 
-  const onSoftDeleteTask = (id) =>
+  const onSoftDeleteTask = (id) => {
+    const task = tasks.find(t => t.id === id);
+    if (task) syncTaskToCloud({ ...task, isDeleted: true });
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, isDeleted: true } : t)));
+  };
 
   const onRestoreTask = (id) =>
     setTasks((prev) =>
