@@ -398,10 +398,15 @@ const HYDRATE_GOAL = 8;
           const safeTasks = stored || [];
           setElementStats(computeElementStatsFromTasks(safeTasks));
           const tagSet = new Set();
-          safeTasks.forEach((task) => (task.tags || []).forEach((tag) => tagSet.add(tag)));
+          safeTasks.forEach((task) => {
+            if (task && Array.isArray(task.tags)) {
+              task.tags.forEach((tag) => tagSet.add(tag));
+            }
+          });
           setAvailableTags(Array.from(tagSet));
         } catch (e) {
           console.warn("[MB] No se pudieron cargar tareas para PlantScreen", e);
+          console.error("[MB] Error details:", e.message, e.stack);
         }
       };
       loadTasksAndTags();
