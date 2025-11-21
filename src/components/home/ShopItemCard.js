@@ -1,19 +1,14 @@
-// [MB] Modulo: Home / Seccion: Tienda Magica (Pestanas)
-// Afecta: HomeScreen (layout principal)
-// Proposito: Card de item reutilizable para la tienda magica
-// Puntos de edicion futura: integrar logica de compra y seleccion
-// Autor: Codex - Fecha: 2025-08-12
-
 import React from "react";
 import { Pressable, View, Text } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import styles from "./ShopItemCard.styles";
 import { Colors, Opacity } from "../../theme";
+import { RARITY_TIERS, CURRENCIES } from "../../constants/shopCatalog";
 
 const currencyIcons = {
-  mana: "water",
-  coin: "circle-multiple-outline",
-  gem: "diamond-stone",
+  [CURRENCIES.MANA]: "water",
+  [CURRENCIES.COIN]: "circle-multiple-outline",
+  [CURRENCIES.GEM]: "diamond-stone",
 };
 
 const DEFAULT_CARD_BG = "rgba(255,255,255,0.18)";
@@ -45,8 +40,8 @@ function stripBuyPrefix(label = "") {
 export default function ShopItemCard({
   title,
   emoji = "✨",
-  price,
-  currency = "mana",
+  cost = {}, // { mana: 10, coin: 50 }
+  rarity = "basic",
   accent = {},
   disabled,
   onPrimaryAction,
@@ -57,35 +52,68 @@ export default function ShopItemCard({
   ...rest
 }) {
   const { bg, border, pill } = accent || {};
+  
+  // Rarity Logic
+  const rarityKey = rarity ? rarity.toUpperCase() : "BASIC";
+  const rarityInfo = RARITY_TIERS[rarityKey] || RARITY_TIERS.BASIC;
+  const rarityBorder = rarityInfo.border;
+
   const accentColor = pill || border || Colors.accent;
   const cardBackground =
     hexToRgba(bg, 0.22) ||
     hexToRgba(accentColor, 0.18) ||
     DEFAULT_CARD_BG;
-  const cardBorder =
+  
+  // Use rarity border if available, otherwise fallback
+  const cardBorder = rarityBorder || 
     hexToRgba(border, 0.4) ||
     hexToRgba(accentColor, 0.28) ||
     DEFAULT_CARD_BORDER;
+
   const chipBackground =
     hexToRgba(accentColor, 0.22) ||
     hexToRgba(border, 0.2) ||
     DEFAULT_CHIP_BG;
 
-  const currencyIcon = currencyIcons[currency] || currencyIcons.mana;
   const detailColor = pill || Colors.textMuted;
   const safeHighlights = highlights.slice(0, 2).filter(Boolean);
   const actionValue = stripBuyPrefix(actionLabel || "");
+
+  // Render Cost Chips
+  const renderCost = () => {
+    return Object.entries(cost).map(([currency, amount]) => {
+      const icon = currencyIcons[currency] || "star";
+      return (
+        <View
+          key={currency}
+          style={[
+            styles.pricePill,
+            { backgroundColor: chipBackground, borderColor: cardBorder, marginRight: 4 },
+          ]}
+        >
+          <MaterialCommunityIcons
+            name={icon}
+            size={14}
+            color={Colors.onAccent}
+          />
+          <Text style={styles.priceText}>{amount}</Text>
+        </View>
+      );
+    });
+  };
 
   return (
     <View
       style={[
         styles.card,
-        { borderColor: cardBorder, backgroundColor: cardBackground },
+        { borderColor: cardBorder, backgroundColor: cardBackground, borderWidth: 1.5 }, // Increased border width for rarity visibility
         disabled && { opacity: Opacity.disabled },
         containerStyle,
       ]}
       {...rest}
     >
+      {/* Rarity Badge (Optional, maybe just border is enough, but let's add a tiny indicator if needed) */}
+      
       <View style={styles.header}>
         <View style={[styles.emojiBubble, { borderColor: accentColor }]}>
           <Text style={styles.emojiText}>{emoji}</Text>
@@ -94,18 +122,10 @@ export default function ShopItemCard({
           <Text style={styles.title}>{title}</Text>
           {headline ? <Text style={styles.headline}>{headline}</Text> : null}
         </View>
-        <View
-          style={[
-            styles.pricePill,
-            { backgroundColor: chipBackground, borderColor: cardBorder },
-          ]}
-        >
-          <MaterialCommunityIcons
-            name={currencyIcon}
-            size={14}
-            color={Colors.onAccent}
-          />
-          <Text style={styles.priceText}>{price}</Text>
+        
+        {/* Cost Row */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', maxWidth: 100 }}>
+            {renderCost()}
         </View>
       </View>
 
@@ -139,13 +159,8 @@ export default function ShopItemCard({
         >
           <Text style={styles.ctaLabel}>Comprar</Text>
           <View style={styles.ctaValueWrap}>
-            <MaterialCommunityIcons
-              name={currencyIcon}
-              size={14}
-              color={Colors.text}
-              style={styles.ctaIcon}
-            />
-            <Text style={styles.ctaValue}>{actionValue}</Text>
+            {/* We can show the total cost summary or just the label passed */}
+             <Text style={styles.ctaValue}>{actionValue}</Text>
             <MaterialCommunityIcons
               name="chevron-right"
               size={16}

@@ -761,11 +761,13 @@ export function useInventoryCounts() {
   const { inventory } = useAppState();
   const counts = inventory.reduce(
     (acc, item) => {
-      acc[item.category] += item.quantity;
+      if (acc[item.category] !== undefined) {
+        acc[item.category] += item.quantity;
+      }
       acc.total += item.quantity;
       return acc;
     },
-    { potions: 0, tools: 0, cosmetics: 0, total: 0 }
+    { potions: 0, tools: 0, cosmetics: 0, seeds: 0, pets: 0, total: 0 }
   );
   return counts;
 }
