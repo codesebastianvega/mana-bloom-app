@@ -318,6 +318,7 @@ export default function TasksScreen() {
       element: draft.element,
       tags: draft.tags || [],
       difficulty: draft.difficulty,
+      timeEstimate: draft.timeEstimate || "medium", // Default: 1-2 horas
       subtasks: draft.subtasks || [],
       done: false,
       completed: false,
