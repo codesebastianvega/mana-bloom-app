@@ -8,7 +8,7 @@ import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 
-import styles from "./Footer.styles";
+import styles from "./TabBar.styles";
 import { Colors } from "../theme";
 
 const NAV_ITEMS = [
