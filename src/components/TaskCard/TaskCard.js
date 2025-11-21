@@ -335,7 +335,7 @@ export default function TaskCard({
                           { marginRight: Spacing.small },
                         ]}
                       >
-                        {task.subtasks.slice(0, 5).map((st) => (
+                        {(task.subtasks || []).slice(0, 5).map((st) => (
                           <TouchableOpacity
                             key={st.id}
                             style={styles.subtaskItem}
@@ -362,7 +362,7 @@ export default function TaskCard({
                         ))}
                       </View>
                       <View style={styles.subtaskColumn}>
-                        {task.subtasks.slice(5, 10).map((st) => (
+                        {(task.subtasks || []).slice(5, 10).map((st) => (
                           <TouchableOpacity
                             key={st.id}
                             style={styles.subtaskItem}
@@ -390,7 +390,7 @@ export default function TaskCard({
                       </View>
                     </View>
                   ) : (
-                    task.subtasks.map((st) => (
+                    (task.subtasks || []).map((st) => (
                       <TouchableOpacity
                         key={st.id}
                         style={styles.subtaskItem}
@@ -460,7 +460,7 @@ export default function TaskCard({
 
           {task.tags?.length > 0 && (
             <View style={styles.tagsRow}>
-              {task.tags.map((tag) => (
+              {(task.tags || []).map((tag) => (
                 <View key={tag} style={styles.tagChip} accessibilityRole="text">
                   <Text
                     style={styles.tagText}

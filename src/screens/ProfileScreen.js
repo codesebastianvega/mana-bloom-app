@@ -23,7 +23,7 @@ import styles from "./ProfileScreen.styles";
 import { Colors } from "../theme";
 import AchievementsPanel from "../components/profile/AchievementsPanel";
 import AchievementsModal from "../components/profile/AchievementsModal";
-import { ACHIEVEMENTS } from "../constants/achievements";
+import { getAllAchievements } from "../constants/achievements";
 import { getJournalEntries, getVisualizeEntries } from "../storage";
 import { supabase } from "../lib/supabase";
 import { useNavigation } from "@react-navigation/native";
@@ -86,7 +86,8 @@ export default function ProfileScreen() {
 
   const achievementsFull = useMemo(() => {
     if (!achievementState) return [];
-    const list = ACHIEVEMENTS.map((achievement) => {
+    const allAchievements = getAllAchievements() || [];
+    const list = allAchievements.map((achievement) => {
       let progressValue = 0;
       if (achievement.type === "count_event") {
         progressValue =
@@ -183,7 +184,7 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.statsRow}>
-          {stats.map((stat) => (
+          {(stats || []).map((stat) => (
             <View key={stat.id} style={styles.statCard}>
               <Text style={styles.statValue}>{stat.value}</Text>
               <Text style={styles.statLabel}>{stat.label}</Text>
@@ -256,7 +257,7 @@ export default function ProfileScreen() {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Progreso personal</Text>
           </View>
-          {progress.map((item) => (
+          {(progress || []).map((item) => (
             <View key={item.id} style={styles.progressRow}>
               <View style={styles.progressIcon}>
                 <FontAwesome5
@@ -280,7 +281,7 @@ export default function ProfileScreen() {
           </View>
           {journalLogEntries.length === 0 && visualizeEntries.length === 0 ? (
             <Text style={styles.diaryEmpty}>
-              A�n no registras notas ni visiones. Empieza un ritual para
+              An no registras notas ni visiones. Empieza un ritual para
               desbloquear este espacio.
             </Text>
           ) : (
@@ -291,7 +292,7 @@ export default function ProfileScreen() {
                     <Text style={styles.diaryTagText}>Nota</Text>
                   </View>
                   <Text style={styles.diaryTitle}>
-                    {entry.title || "Entrada sin t�tulo"}
+                    {entry.title || "Entrada sin ttulo"}
                   </Text>
                   <Text style={styles.diaryBody}>{entry.note}</Text>
                   <Text style={styles.diaryDate}>
@@ -302,7 +303,7 @@ export default function ProfileScreen() {
               {visualizeEntries.slice(0, 2).map((entry) => (
                 <View key={entry.createdAt || entry.id} style={styles.diaryEntry}>
                   <View style={[styles.diaryTag, styles.diaryTagVision]}>
-                    <Text style={styles.diaryTagText}>Visi�n</Text>
+                    <Text style={styles.diaryTagText}>Visin</Text>
                   </View>
                   <Text style={styles.diaryBody}>{entry.text}</Text>
                   <Text style={styles.diaryDate}>
@@ -317,7 +318,7 @@ export default function ProfileScreen() {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Configuraci?n m?gica</Text>
           </View>
-          {settings.map((item) => (
+          {(settings || []).map((item) => (
             <View key={item.id} style={styles.settingRow}>
               <View style={styles.settingText}>
                 <Text style={styles.settingLabel}>{item.label}</Text>
@@ -334,7 +335,7 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.sectionCard}>
-          {actions.map((action) => (
+          {(actions || []).map((action) => (
             <Pressable key={action.id} style={styles.actionRow}>
               <View style={styles.actionIcon}>
                 <FontAwesome5 name={action.icon} size={14} color="#80deea" />
@@ -365,46 +366,6 @@ export default function ProfileScreen() {
               ]}
             />
           </View>
-        </View>
-
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Diario personal</Text>
-          </View>
-          {journalLogEntries.length === 0 && visualizeEntries.length === 0 ? (
-            <Text style={styles.diaryEmpty}>
-              A�n no registras notas ni visiones. Empieza un ritual para
-              desbloquear este espacio.
-            </Text>
-          ) : (
-            <>
-              {journalLogEntries.slice(0, 2).map((entry) => (
-                <View key={entry.createdAt} style={styles.diaryEntry}>
-                  <View style={styles.diaryTag}>
-                    <Text style={styles.diaryTagText}>Nota</Text>
-                  </View>
-                  <Text style={styles.diaryTitle}>
-                    {entry.title || "Entrada sin t�tulo"}
-                  </Text>
-                  <Text style={styles.diaryBody}>{entry.note}</Text>
-                  <Text style={styles.diaryDate}>
-                    {formatDate(entry.createdAt)}
-                  </Text>
-                </View>
-              ))}
-              {visualizeEntries.slice(0, 2).map((entry) => (
-                <View key={entry.createdAt || entry.id} style={styles.diaryEntry}>
-                  <View style={[styles.diaryTag, styles.diaryTagVision]}>
-                    <Text style={styles.diaryTagText}>Visi�n</Text>
-                  </View>
-                  <Text style={styles.diaryBody}>{entry.text}</Text>
-                  <Text style={styles.diaryDate}>
-                    {formatDate(entry.createdAt)}
-                  </Text>
-                </View>
-              ))}
-            </>
-          )}
         </View>
       </ScrollView>
       <AchievementsModal

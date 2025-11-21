@@ -8,7 +8,7 @@ import React from "react";
 import { View, Text, Pressable } from "react-native";
 import styles from "./AchievementsPanel.styles";
 import { useAppState, useAppDispatch, useHydrationStatus } from "../../state/AppContext";
-import { ACHIEVEMENTS } from "../../constants/achievements";
+import { getAllAchievements } from "../../constants/achievements";
 import SectionPlaceholder from "../common/SectionPlaceholder";
 
 export default function AchievementsPanel({ limit, onViewAll }) {
@@ -20,7 +20,8 @@ export default function AchievementsPanel({ limit, onViewAll }) {
     return <SectionPlaceholder height={220} />;
   }
 
-  const list = ACHIEVEMENTS.map((a) => {
+  const allAchievements = getAllAchievements() || [];
+  const list = allAchievements.map((a) => {
     let progress = 0;
     if (a.type === "count_event") {
       progress = achievements.progress[a.id]?.count || 0;

@@ -24,6 +24,10 @@ import SplashScreen from "./src/screens/auth/SplashScreen";
 import LoginScreen from "./src/screens/auth/LoginScreen";
 import SignUpScreen from "./src/screens/auth/SignUpScreen";
 import { AppProvider } from "./src/state/AppContext";
+import { setupGlobalErrorHandler } from "./src/utils/errorTracker";
+
+// Setup global error tracking
+setupGlobalErrorHandler();
 
 const Tab = createBottomTabNavigator();
 const RootStack = createNativeStackNavigator();

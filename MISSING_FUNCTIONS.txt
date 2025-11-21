@@ -1,0 +1,113 @@
+// [MB] Temporary file to restore missing PlantScreen functions
+// These functions were lost during refactoring and need to be added back
+
+// Missing helper functions that need to be added to PlantScreen.js:
+
+const getTodayKey = () => new Date().toISOString().split("T")[0];
+
+const equippedSkin = skins.find((s) => s.id === equippedSkinId);
+const skinAccent = equippedSkin ? ElementAccents[equippedSkin.accentKey] : undefined;
+
+const applyMetricEffects = React.useCallback((actionKey) => {
+  const deltas = METRIC_EFFECT_MAP[actionKey];
+  if (!deltas) return;
+  setCareMetrics((prev) => {
+    const next = { ...prev };
+    Object.entries(deltas).forEach(([metric, delta]) => {
+      if (typeof delta !== "number") return;
+      const current = next[metric] ?? 0;
+      next[metric] = Math.max(0, Math.min(1, current + delta));
+    });
+    return next;
+  });
+}, []);
+
+const registerActionCooldown = (key) => {
+  const mechanic = ACTION_MECHANICS[key];
+  const cooldownMin = mechanic?.cooldownMin;
+  if (!cooldownMin || cooldownMin <= 0) {
+    setActionCooldowns((prev) => {
+      if (prev[key]) {
+        const next = { ...prev };
+        next[key] = 0;
+        return next;
+      }
+      return prev;
+    });
+    return 0;
+  }
+  const ms = Math.max(0, Math.floor(cooldownMin * 60 * 1000));
+  setActionCooldowns((prev) => ({ ...prev, [key]: ms }));
+  if (cooldownTimersRef.current[key]) {
+    clearTimeout(cooldownTimersRef.current[key]);
+  }
+  cooldownTimersRef.current[key] = setTimeout(() => {
+    setActionCooldowns((prev) => ({ ...prev, [key]: 0 }));
+    cooldownTimersRef.current[key] = null;
+    setSnoozedSuggestionKey((prev) => (prev === key ? null : prev));
+  }, ms);
+  return ms;
+};
+
+const ACTION_COSTS = {
+  water: { mana: 20 },
+  feed: { coins: 120 },
+  clean: { coins: 0 },
+  prune: {},
+  light: {},
+  mist: {},
+  search: {},
+  meditate: { mana: 10 },
+};
+
+const formatResourceLabel = (resource) =>
+  resource === "mana" ? "Maná" : resource === "coins" ? "Monedas" : "Diamantes";
+
+function handleAction(key) {
+  const costs = ACTION_COSTS[key] || {};
+  const hasCost = Object.keys(costs).length > 0;
+  if (hasCost) {
+    const lacks = Object.entries(costs).find(
+      ([res, amt]) => (economy[res] ?? 0) < amt
+    );
+    if (lacks) {
+      const [res] = lacks;
+      setInsufficient({ id: String(Date.now()), resource: res });
+      AccessibilityInfo.announceForAccessibility?.(
+        "Saldo insuficiente de " + formatResourceLabel(res)
+      );
+      return false;
+    }
+    // Dispatch actions to AppContext
+    Object.entries(costs).forEach(([res, amt]) => {
+      if (amt > 0) {
+        if (res === 'mana') dispatch({ type: "PURCHASE_WITH_MANA", payload: amt });
+        if (res === 'coins') dispatch({ type: "SPEND_COIN", payload: amt });
+        if (res === 'gems') dispatch({ type: "SPEND_GEM", payload: amt });
+      }
+    });
+    const resKey = Object.keys(costs)[0];
+    setTxn({ id: String(Date.now()), resource: resKey, amount: -1 * (costs[resKey] || 0) });
+    AccessibilityInfo.announceForAccessibility?.(
+      `Gastaste ${costs[resKey]} ${formatResourceLabel(resKey)}, saldo ${economy[resKey] - costs[resKey]}`
+    );
+  }
+  if (RITUAL_ACTION_SET.has(key)) {
+    setRitualStatus((prev) => {
+      if (prev[key]) return prev;
+      return { ...prev, [key]: true };
+    });
+  }
+  const cooldownMs = registerActionCooldown(key);
+  if (suggestionKey === key && cooldownMs > 0) {
+    setSnoozedSuggestionKey(key);
+  }
+  applyMetricEffects(key);
+  const actionLabel = PLANT_ACTION_LABELS[key] || ACTION_MECHANICS[key]?.title || "Acción";
+  const statusMessage =
+    cooldownMs > 0
+      ? `${actionLabel} activada, quedan ${formatCooldownLabel(cooldownMs)}`
+      : `${actionLabel} activada`;
+  setActionStatus({ id: String(Date.now()), message: statusMessage });
+  return true;
+}

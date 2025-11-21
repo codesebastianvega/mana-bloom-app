@@ -27,16 +27,20 @@ import { Colors, Opacity } from "../theme";
 
 const TABS = [
   { key: "potions", label: "Pociones" },
+  { key: "seeds", label: "Semillas" },
   { key: "tools", label: "Herramientas" },
   { key: "cosmetics", label: "Cosmeticos" },
+  { key: "pets", label: "Mascotas" },
   { key: "all", label: "Todos" },
 ];
 
-const CATEGORY_EMOJI = { potions: "??", tools: "???", cosmetics: "??" };
+const CATEGORY_EMOJI = { potions: "🧪", seeds: "🌱", tools: "🛠️", cosmetics: "🎨", pets: "🐾" };
 const CHIP_ACCENTS = {
   potions: "#B542F6",
+  seeds: "#4caf50",
   tools: "#1cd47b",
   cosmetics: "#FFD700",
+  pets: "#FF9800",
   all: "#8E9AC6",
 };
 
@@ -172,8 +176,10 @@ export default function InventoryScreen() {
 
   const chips = [
     { key: "potions", label: "Pociones", value: counts.potions },
+    { key: "seeds", label: "Semillas", value: counts.seeds },
     { key: "tools", label: "Herramientas", value: counts.tools },
     { key: "cosmetics", label: "Cosmeticos", value: counts.cosmetics },
+    { key: "pets", label: "Mascotas", value: counts.pets },
   ];
 
   return (

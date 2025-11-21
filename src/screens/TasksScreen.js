@@ -26,13 +26,13 @@ import { XP_REWARD_BY_PRIORITY } from "../constants/rewards";
 import { canCompleteTask, calculateFinalReward } from "../constants/taskIntegrity";
 import { calculateTaskReward } from "../constants/economyConfig";
 
-// â€”â€”â€” 1) ConfiguraciÃ³n de filtros â€”â€”â€”
+// ——— 1) Configuración de filtros ———
 const mainFilters = [
   { key: "all", label: "Todos", icon: "star", color: Colors.text },
   { key: "single", label: "Tareas", icon: "calendar", color: Colors.text },
   {
     key: "habit",
-    label: "HÃ¡bitos",
+    label: "Hábitos",
     icon: "check-square",
     color: Colors.text,
   },
@@ -116,57 +116,57 @@ const elementOptions = [
 
 const elementInfo = {
   fire: {
-    title: "Fuego ðŸ”¥ (Poder y PasiÃ³n)",
+    title: "Fuego 🔥 (Poder y Pasión)",
     description:
-      "Se usa para tareas que requieren alta energÃ­a, urgencia o creatividad espontÃ¡nea.",
+      "Se usa para tareas que requieren alta energía, urgencia o creatividad espontánea.",
     examples: [
       "Enviar propuesta con deadline hoy",
-      "Pitch rÃ¡pido/brainstorm",
+      "Pitch rápido/brainstorm",
       "Entrenamiento intenso",
-      "Resolver bug crÃ­tico",
+      "Resolver bug crítico",
       "Grabar video/toma creativa",
-      "Lanzar campaÃ±a",
+      "Lanzar campaña",
       "Limpiar backlog urgente",
     ],
     purpose:
-      'PropÃ³sito: "Inyecta poder y acelera el crecimiento de la planta."',
+      'Propósito: "Inyecta poder y acelera el crecimiento de la planta."',
   },
   water: {
-    title: "Agua ðŸ’§ (Calma y Flujo)",
+    title: "Agua 💧 (Calma y Flujo)",
     description:
-      "Se usa para tareas que necesitan atenciÃ³n continua, concentraciÃ³n o un estado de calma.",
+      "Se usa para tareas que necesitan atención continua, concentración o un estado de calma.",
     examples: [
       "Planificar semana",
-      "Leer/estudiar 30â€“60 min",
+      "Leer/estudiar 30–60 min",
       "Redactar documento largo",
       "Procesar correos",
-      "MeditaciÃ³n/respiraciÃ³n",
+      "Meditación/respiración",
       "Refinar notas",
-      "RevisiÃ³n tranquila de PRs",
+      "Revisión tranquila de PRs",
     ],
     purpose:
-      'PropÃ³sito: "Mantiene la planta hidratada y en un crecimiento estable."',
+      'Propósito: "Mantiene la planta hidratada y en un crecimiento estable."',
   },
   earth: {
-    title: "Tierra ðŸŒ± (Estabilidad y Crecimiento)",
+    title: "Tierra 🌱 (Estabilidad y Crecimiento)",
     description:
-      "Se usa para tareas fundamentales, repetitivas o que construyen un hÃ¡bito.",
+      "Se usa para tareas fundamentales, repetitivas o que construyen un hábito.",
     examples: [
       "Rutina de ejercicio",
       "Ordenar escritorio",
       "Lavar/organizar",
-      "Contabilidad/domÃ©sticos",
+      "Contabilidad/domésticos",
       "Repasar vocabulario",
       "Backup/limpieza sistema",
-      "HÃ¡bitos diarios",
+      "Hábitos diarios",
     ],
     purpose:
-      'PropÃ³sito: "Proporciona una base sÃ³lida y nutrientes para un crecimiento sostenible."',
+      'Propósito: "Proporciona una base sólida y nutrientes para un crecimiento sostenible."',
   },
   air: {
-    title: "Aire ðŸŒ¬ï¸ (Libertad y Movimiento)",
+    title: "Aire 🌬️ (Libertad y Movimiento)",
     description:
-      "Se usa para tareas que requieren claridad mental, comunicaciÃ³n o flexibilidad.",
+      "Se usa para tareas que requieren claridad mental, comunicación o flexibilidad.",
     examples: [
       "Escribir correo importante",
       "Organizar ideas/Mindmap",
@@ -177,7 +177,7 @@ const elementInfo = {
       "Documentar decisiones",
     ],
     purpose:
-      'PropÃ³sito: "Le da a la planta el espacio para respirar y expandirse."',
+      'Propósito: "Le da a la planta el espacio para respirar y expandirse."',
   },
 };
 
@@ -186,7 +186,7 @@ export default function TasksScreen() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight?.() ?? 56;
   const fabOffset = tabBarHeight + insets.bottom + Spacing.large;
-  // â€”â€”â€” 2) Estados â€”â€”â€”
+  // ——— 2) Estados ———
   const [tasks, setTasks] = useState([]);
   const uniqueTags = Array.from(new Set(tasks.flatMap((t) => t.tags || [])));
   const [typeFilter, setTypeFilter] = useState("all");
@@ -196,7 +196,7 @@ export default function TasksScreen() {
   const [tagFilter, setTagFilter] = useState("all");
   const [activeFilter, setActiveFilter] = useState("pending");
   const [filtersVisible, setFiltersVisible] = useState(false); // BottomSheet de filtros
-  const [showAddModal, setShowAddModal] = useState(false); // Para el botÃ³n de aÃ±adir tarea
+  const [showAddModal, setShowAddModal] = useState(false); // Para el botón de añadir tarea
   const [editingTask, setEditingTask] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -258,9 +258,9 @@ export default function TasksScreen() {
   }, [tasks]);
 
   const difficultyOptions = [
-    { key: "easy", label: "FÃ¡cil", color: Colors.secondary },
+    { key: "easy", label: "Fácil", color: Colors.secondary },
     { key: "medium", label: "Medio", color: Colors.accent },
-    { key: "hard", label: "DifÃ­cil", color: Colors.danger },
+    { key: "hard", label: "Difícil", color: Colors.danger },
   ];
   // filtro avanzado
   const [difficultyFilter, setDifficultyFilter] = useState("all");
@@ -325,13 +325,18 @@ export default function TasksScreen() {
       isDeleted: false,
       createdAt: new Date().toISOString(),
       completedAt: null,
+      // [MB] Ensure arrays are initialized
     };
     setTasks((prev) => [newTask, ...prev]);
     syncTaskToCloud(newTask);
   };
 
   const updateTask = (updated) => {
-    const toSave = { ...updated };
+    const toSave = { 
+      ...updated,
+      tags: updated.tags || [],
+      subtasks: updated.subtasks || [],
+    };
     if (updated.note !== undefined) {
       toSave.description = updated.note;
     }
@@ -525,7 +530,7 @@ export default function TasksScreen() {
     setShowAddModal(true);
   };
 
-  // â€”â€”â€” 4) Filtrado combinado â€”â€”â€”
+  // ——— 4) Filtrado combinado ———
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
       let stateOK;
@@ -565,7 +570,7 @@ export default function TasksScreen() {
     difficultyFilter,
   ]);
 
-  // â€”â€”â€” 5) Render â€”â€”â€”
+  // ——— 5) Render ———
   const listData = useMemo(
     () => [{ type: "filters", key: "filters" }, ...filteredTasks],
     [filteredTasks]

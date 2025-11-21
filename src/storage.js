@@ -392,4 +392,3 @@ export async function addJournalEntry(entry) {
     console.warn("Error guardando entrada de diario", e);
   }
 }
-
