@@ -21,6 +21,7 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
 import { XP_REWARD_BY_PRIORITY as PRIORITY_REWARDS } from "../../constants/rewards";
 import { ELEMENT_INFO } from "../../constants/elements";
+import { TIME_ESTIMATES } from "../../constants/taskIntegrity";
 
 import ElementGrid from "./ElementGrid";
 import StarfieldOverlay from "./StarfieldOverlay";
@@ -80,6 +81,7 @@ export default function CreateTaskModal({
   const [newElement, setNewElement] = useState("all");
   const [newPriority, setNewPriority] = useState("easy");
   const [newDifficulty, setNewDifficulty] = useState("easy");
+  const [newTimeEstimate, setNewTimeEstimate] = useState("medium"); // 1-2 horas por defecto
   const [newTagInput, setNewTagInput] = useState("");
   const [newTags, setNewTags] = useState([]);
   const [newSubtaskInput, setNewSubtaskInput] = useState("");
@@ -96,6 +98,7 @@ export default function CreateTaskModal({
       setNewElement(task.element || "all");
       setNewPriority(task.priority || "easy");
       setNewDifficulty(task.difficulty || "easy");
+      setNewTimeEstimate(task.timeEstimate || "medium");
       setNewTags(task.tags || []);
       setNewSubtasks(
         task.subtasks ? task.subtasks.map((st) => ({ ...st })) : []
@@ -114,6 +117,7 @@ export default function CreateTaskModal({
     setNewElement(initialElement || "all");
     setNewPriority("easy");
     setNewDifficulty("easy");
+    setNewTimeEstimate("medium");
     setNewTagInput("");
     setNewTags([]);
     setNewSubtaskInput("");
@@ -139,6 +143,7 @@ export default function CreateTaskModal({
       priority: newPriority,
       tags: newTags,
       difficulty: newDifficulty,
+      timeEstimate: newTimeEstimate,
       subtasks: newSubtasks.map((st, index) => ({
         id: st.id ?? index + 1,
         text: st.text,
@@ -468,6 +473,74 @@ export default function CreateTaskModal({
                   );
                 })}
               </View>
+
+              <Text style={styles.sectionLabel}>Tiempo Estimado</Text>
+              <Text style={styles.helperText}>
+                ¿Cuánto tiempo crees que tomará? Esto ayuda a mantener expectativas realistas.
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingVertical: Spacing.small }}
+              >
+                {TIME_ESTIMATES.map((estimate) => {
+                  const selected = newTimeEstimate === estimate.id;
+                  const accent = Colors.info;
+                  return (
+                    <Pressable
+                      key={estimate.id}
+                      onPress={() => setNewTimeEstimate(estimate.id)}
+                      style={[
+                        styles.difficultyChip,
+                        { marginRight: Spacing.small },
+                        selected && [
+                          styles.chipActive,
+                          {
+                            borderColor: withAlpha(accent, 0.7),
+                            backgroundColor: withAlpha(accent, 0.22),
+                            shadowColor: accent,
+                          },
+                        ],
+                      ]}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected }}
+                      accessibilityLabel={`Tiempo estimado: ${estimate.label}`}
+                    >
+                      <Text
+                        style={[
+                          styles.chipLabel,
+                          selected && styles.chipLabelActive,
+                        ]}
+                      >
+                        {estimate.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+              {newTimeEstimate && (
+                <View style={{ 
+                  marginTop: Spacing.tiny,
+                  padding: Spacing.small,
+                  backgroundColor: withAlpha(Colors.info, 0.1),
+                  borderRadius: Radii.md,
+                  borderLeftWidth: 3,
+                  borderLeftColor: Colors.info,
+                }}>
+                  <Text style={{ color: Colors.textMuted, fontSize: 12 }}>
+                    💡 Cooldown mínimo: {(() => {
+                      const estimate = TIME_ESTIMATES.find(e => e.id === newTimeEstimate);
+                      const hours = Math.floor(estimate.cooldownMs / (60 * 60 * 1000));
+                      const minutes = Math.floor((estimate.cooldownMs % (60 * 60 * 1000)) / (60 * 1000));
+                      if (hours > 0) return `${hours}h ${minutes > 0 ? minutes + 'm' : ''}`;
+                      return `${minutes}m`;
+                    })()}
+                  </Text>
+                  <Text style={{ color: Colors.textMuted, fontSize: 11, marginTop: 2 }}>
+                    Podrás completar la tarea después de este tiempo
+                  </Text>
+                </View>
+              )}
 
               <Text style={styles.sectionLabel}>Etiquetas</Text>
               <Text style={styles.helperText}>
