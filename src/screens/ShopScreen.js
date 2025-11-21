@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import styles from "./ShopScreen.styles";
 import ShopItemCard from "../components/home/ShopItemCard";
 import SubscriptionCard from "../components/shop/SubscriptionCard";
-import { SHOP_CATALOG, ShopColors, CURRENCIES } from "../constants/shopCatalog";
+import { SHOP_CATALOG, ShopColors, CURRENCIES, RARITY_TIERS } from "../constants/shopCatalog";
 import {
   useAppState,
   useAppDispatch,
@@ -26,8 +26,10 @@ import { Colors } from "../theme";
 
 const TABS = [
   { key: "potions", label: "Pociones", icon: "bottle-tonic-plus" },
+  { key: "seeds", label: "Semillas", icon: "sprout" },
   { key: "tools", label: "Herramientas", icon: "hammer-screwdriver" },
   { key: "cosmetics", label: "Cosmeticos", icon: "palette-swatch" },
+  { key: "pets", label: "Mascotas", icon: "paw" },
   { key: "subs", label: "Suscripciones", icon: "crown-outline" },
 ];
 
@@ -61,8 +63,10 @@ const currencyLabels = {
 
 const SECONDARY_HIGHLIGHTS = {
   potions: "Aplica efectos temporales desde el inventario.",
+  seeds: "Planta nuevas compañeras en tu jardín.",
   tools: "Mejora tu estrategia diaria y permanece hasta usarla.",
   cosmetics: "Solo modifica la apariencia de tu planta.",
+  pets: "Compañeros leales para tu aventura.",
 };
 
 const ITEM_EMOJIS = {
@@ -134,10 +138,10 @@ export default function ShopScreen() {
       id: item.sku,
       title: item.title,
       description: item.desc,
-      price: item.price,
-      currency: item.currency || CURRENCIES.MANA,
+      cost: item.cost || { mana: 9999 }, // Fallback if missing
+      rarity: item.rarity || "basic",
       sku: item.sku,
-      emoji: ITEM_EMOJIS[item.sku] || "✨",
+      emoji: item.emoji || ITEM_EMOJIS[item.sku] || "✨",
     }));
   }, [activeTab, isSubsView]);
 
@@ -169,35 +173,49 @@ export default function ShopScreen() {
 
   const isAffordable = useCallback(
     (item) => {
-      const currency = item.currency || CURRENCIES.MANA;
-      if (currency === CURRENCIES.MANA) {
-        return canAffordMana(item.price);
-      }
-      if (currency === CURRENCIES.COIN) {
-        return coin >= item.price;
-      }
-      return gem >= item.price;
+      if (!item.cost) return false;
+      return Object.entries(item.cost).every(([currency, amount]) => {
+        if (currency === CURRENCIES.MANA) return canAffordMana(amount);
+        if (currency === CURRENCIES.COIN) return coin >= amount;
+        if (currency === CURRENCIES.GEM) return gem >= amount;
+        return false;
+      });
     },
     [canAffordMana, coin, gem]
   );
 
+  const getCostLabel = (cost) => {
+    if (!cost) return "";
+    return Object.entries(cost)
+      .map(([curr, amt]) => {
+        // Simple short labels for button
+        if (curr === CURRENCIES.MANA) return `${amt} Mana`;
+        if (curr === CURRENCIES.COIN) return `${amt} Monedas`;
+        if (curr === CURRENCIES.GEM) return `${amt} Gemas`;
+        return `${amt}`;
+      })
+      .join(" + ");
+  };
+
   const handlePurchase = useCallback(
     (item) => {
       if (!item) return;
-      const currency = item.currency || CURRENCIES.MANA;
+      
       if (!isAffordable(item)) {
-        const label = currencyLabels[currency] || "saldo";
-        Alert.alert("Saldo insuficiente", "No tienes suficientes " + label + ".");
+        Alert.alert("Saldo insuficiente", "No tienes suficientes recursos para comprar este item.");
         return;
       }
 
-      if (currency === CURRENCIES.MANA) {
-        dispatch({ type: "PURCHASE_WITH_MANA", payload: item.price });
-      } else if (currency === CURRENCIES.COIN) {
-        dispatch({ type: "SPEND_COIN", payload: item.price });
-      } else if (currency === CURRENCIES.GEM) {
-        dispatch({ type: "SPEND_GEM", payload: item.price });
-      }
+      // Deduct all costs
+      Object.entries(item.cost).forEach(([currency, amount]) => {
+        if (currency === CURRENCIES.MANA) {
+          dispatch({ type: "PURCHASE_WITH_MANA", payload: amount });
+        } else if (currency === CURRENCIES.COIN) {
+          dispatch({ type: "SPEND_COIN", payload: amount });
+        } else if (currency === CURRENCIES.GEM) {
+          dispatch({ type: "SPEND_GEM", payload: amount });
+        }
+      });
 
       const sku = item.sku || item.id;
       dispatch({
@@ -356,21 +374,22 @@ export default function ShopScreen() {
           <View style={styles.cardStack}>
             {catalogItems.map((item) => {
               const affordable = isAffordable(item);
-              const label = currencyLabels[item.currency] || "mana";
               const highlights = buildHighlights(item, activeTab);
               const [headline, ...detailHighlights] = highlights;
+              const costLabel = getCostLabel(item.cost);
+              
               return (
                 <ShopItemCard
                   key={item.id}
                   title={item.title}
                   emoji={item.emoji}
-                  price={item.price}
-                  currency={item.currency}
+                  cost={item.cost}
+                  rarity={item.rarity}
                   accent={accent}
                   disabled={!affordable}
                   actionLabel={
                     affordable
-                      ? `Comprar por ${item.price} ${label}`
+                      ? `Comprar (${costLabel})`
                       : "Saldo insuficiente"
                   }
                   onPrimaryAction={() => handlePurchase(item)}
