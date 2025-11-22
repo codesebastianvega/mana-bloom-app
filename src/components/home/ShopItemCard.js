@@ -1,6 +1,13 @@
+﻿// [MB] Módulo: Home / Sección: ShopItemCard
+// Afecta: ShopScreen (grid productos)
+// Propósito: Renderizar cards de tienda con imagen destacada, rareza y costos
+// Puntos de edición futura: vincular estados de stock y wishlist
+// Autor: Codex - Fecha: 2025-11-21
+
 import React from "react";
-import { Pressable, View, Text } from "react-native";
+import { View, Text, Image, Pressable } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 import styles from "./ShopItemCard.styles";
 import { Colors, Opacity } from "../../theme";
 import { RARITY_TIERS, CURRENCIES } from "../../constants/shopCatalog";
@@ -11,9 +18,19 @@ const currencyIcons = {
   [CURRENCIES.GEM]: "diamond-stone",
 };
 
-const DEFAULT_CARD_BG = "rgba(255,255,255,0.18)";
-const DEFAULT_CARD_BORDER = "rgba(255,255,255,0.28)";
-const DEFAULT_CHIP_BG = "rgba(255,255,255,0.12)";
+const currencyNames = {
+  [CURRENCIES.MANA]: "Maná",
+  [CURRENCIES.COIN]: "Monedas",
+  [CURRENCIES.GEM]: "Gemas",
+};
+
+const CTA_LABEL_ACTIVE = "Comprar";
+const CTA_LABEL_DISABLED = "Adquirir recursos";
+
+
+const DEFAULT_CARD_BG = "rgba(255,255,255,0.08)";
+const DEFAULT_CARD_BORDER = "rgba(255,255,255,0.22)";
+const DEFAULT_CHIP_BG = "rgba(255,255,255,0.1)";
 
 function hexToRgba(hex = "", alpha = 1) {
   if (!hex) return undefined;
@@ -33,142 +50,174 @@ function hexToRgba(hex = "", alpha = 1) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-function stripBuyPrefix(label = "") {
-  return label.replace(/^[Cc]omprar\s+/, "").trim();
-}
+const formatDeficit = (deficits = []) =>
+  deficits
+    .map((item) => `${item.amount} ${currencyNames[item.currency] || item.currency}`)
+    .join(" · ");
+
+const getCtaLabel = (canAfford) =>
+  canAfford ? CTA_LABEL_ACTIVE : CTA_LABEL_DISABLED;
 
 export default function ShopItemCard({
   title,
   emoji = "✨",
-  cost = {}, // { mana: 10, coin: 50 }
+  image,
+  cost = {},
   rarity = "basic",
   accent = {},
   disabled,
+  canAfford = true,
   onPrimaryAction,
-  actionLabel = "",
+  onNavigateToStore,
   containerStyle,
   headline = "",
   highlights = [],
+  deficits = [],
+  lifespanText,
+  metaHelperText = "",
   ...rest
 }) {
+  const imageSource = image || null;
   const { bg, border, pill } = accent || {};
-  
-  // Rarity Logic
   const rarityKey = rarity ? rarity.toUpperCase() : "BASIC";
   const rarityInfo = RARITY_TIERS[rarityKey] || RARITY_TIERS.BASIC;
-  const rarityBorder = rarityInfo.border;
 
-  const accentColor = pill || border || Colors.accent;
+  const accentColor =
+    (typeof pill === "string" && pill.length ? pill : undefined) ||
+    (typeof border === "string" && border.length ? border : undefined) ||
+    Colors.accent;
+  const rarityAccent = rarityInfo.color || accentColor;
   const cardBackground =
-    hexToRgba(bg, 0.22) ||
-    hexToRgba(accentColor, 0.18) ||
+    hexToRgba(bg, 0.18) ||
+    hexToRgba(accentColor, 0.12) ||
     DEFAULT_CARD_BG;
-  
-  // Use rarity border if available, otherwise fallback
-  const cardBorder = rarityBorder || 
-    hexToRgba(border, 0.4) ||
-    hexToRgba(accentColor, 0.28) ||
+  const cardBorder =
+    rarityInfo.border ||
+    hexToRgba(border, 0.35) ||
+    hexToRgba(accentColor, 0.25) ||
     DEFAULT_CARD_BORDER;
-
   const chipBackground =
-    hexToRgba(accentColor, 0.22) ||
-    hexToRgba(border, 0.2) ||
+    hexToRgba(rarityAccent, 0.18) ||
+    hexToRgba(border, 0.18) ||
     DEFAULT_CHIP_BG;
-
   const detailColor = pill || Colors.textMuted;
-  const safeHighlights = highlights.slice(0, 2).filter(Boolean);
-  const actionValue = stripBuyPrefix(actionLabel || "");
+  const accentBorderColor = hexToRgba(rarityAccent, 0.5) || cardBorder;
+  const accentTextColor =
+    hexToRgba(rarityAccent, 0.9) || hexToRgba(Colors.text, 0.9);
 
-  // Render Cost Chips
-  const renderCost = () => {
-    return Object.entries(cost).map(([currency, amount]) => {
+  const safeHighlights = highlights.slice(0, 2).filter(Boolean);
+  const showCardDisabled = disabled ?? !canAfford;
+  const pressableDisabled = !canAfford && !onNavigateToStore;
+  const ctaText = getCtaLabel(canAfford);
+
+  const renderCost = () =>
+    Object.entries(cost).map(([currency, amount]) => {
       const icon = currencyIcons[currency] || "star";
       return (
         <View
           key={currency}
-          style={[
-            styles.pricePill,
-            { backgroundColor: chipBackground, borderColor: cardBorder, marginRight: 4 },
-          ]}
-        >
-          <MaterialCommunityIcons
-            name={icon}
-            size={14}
-            color={Colors.onAccent}
-          />
-          <Text style={styles.priceText}>{amount}</Text>
-        </View>
-      );
-    });
-  };
+            style={[
+              styles.pricePill,
+            { borderColor: accentBorderColor, backgroundColor: chipBackground },
+            ]}
+          >
+            <MaterialCommunityIcons
+              name={icon}
+              size={14}
+              color={accentTextColor}
+            />
+          <Text style={[styles.priceAmount, { color: accentTextColor }]}>{amount}</Text>
+          </View>
+        );
+      });
 
   return (
     <View
       style={[
         styles.card,
-        { borderColor: cardBorder, backgroundColor: cardBackground, borderWidth: 1.5 }, // Increased border width for rarity visibility
-        disabled && { opacity: Opacity.disabled },
+        {
+          borderColor: cardBorder,
+          backgroundColor: cardBackground,
+        },
+        showCardDisabled && { opacity: Opacity.disabled },
         containerStyle,
       ]}
       {...rest}
     >
-      {/* Rarity Badge (Optional, maybe just border is enough, but let's add a tiny indicator if needed) */}
-      
-      <View style={styles.header}>
-        <View style={[styles.emojiBubble, { borderColor: accentColor }]}>
-          <Text style={styles.emojiText}>{emoji}</Text>
-        </View>
-        <View style={styles.headerContent}>
-          <Text style={styles.title}>{title}</Text>
-          {headline ? <Text style={styles.headline}>{headline}</Text> : null}
-        </View>
-        
-        {/* Cost Row */}
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', maxWidth: 100 }}>
-            {renderCost()}
+      <View style={styles.media}>
+        {imageSource ? (
+          <Image source={imageSource} style={styles.mediaImage} resizeMode="contain" />
+        ) : (
+          <View style={styles.mediaEmoji}>
+            <Text style={styles.mediaEmojiText}>{emoji}</Text>
+          </View>
+        )}
+        <View
+          style={[
+            styles.rarityBadge,
+            {
+              borderColor: cardBorder,
+              backgroundColor: hexToRgba(rarityInfo.color, 0.15),
+            },
+          ]}
+        >
+          <Text style={styles.rarityText}>{rarityInfo.label}</Text>
         </View>
       </View>
 
-      {safeHighlights.length > 0 ? (
-        <View style={styles.highlights}>
-          {safeHighlights.map((line, index) => (
-            <View key={`${line}-${index}`} style={styles.highlightRow}>
-              <MaterialCommunityIcons
-                name={index === 0 ? "sparkles" : "star-four-points-outline"}
-                size={14}
-                color={detailColor}
-                style={styles.highlightIcon}
-              />
-              <Text style={styles.highlightText}>{line}</Text>
-            </View>
-          ))}
-        </View>
+      <View style={styles.body}>
+        <Text style={styles.title}>{title}</Text>
+        {headline ? <Text style={styles.subtitle}>{headline}</Text> : null}
+        {Object.keys(cost).length ? (
+          <View style={styles.costRow}>{renderCost()}</View>
+        ) : null}
+
+        {safeHighlights.length > 0 ? (
+          <View style={styles.highlights}>
+            {safeHighlights.map((line, index) => (
+              <View key={`${line}-${index}`} style={styles.highlightRow}>
+                <MaterialCommunityIcons
+                  name={index === 0 ? "star-four-points" : "star-four-points-outline"}
+                  size={14}
+                  color={detailColor}
+                />
+                <Text style={styles.highlightText}>{line}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
+      </View>
+
+      {deficits.length ? (
+        <Text style={styles.helperText}>{`Te faltan ${formatDeficit(
+          deficits
+        )}`}</Text>
+      ) : lifespanText ? (
+        <Text style={styles.helperText}>{`Tiempo de vida: ${lifespanText}`}</Text>
+      ) : metaHelperText ? (
+        <Text style={styles.helperText}>{metaHelperText}</Text>
       ) : null}
 
-      {actionValue ? (
-        <Pressable
-          onPress={onPrimaryAction}
-          disabled={disabled}
-          style={({ pressed }) => [
-            styles.ctaRow,
-            { borderColor: cardBorder, backgroundColor: chipBackground },
-            pressed && !disabled ? { opacity: 0.9 } : null,
-          ]}
-          accessibilityRole="button"
-          accessibilityState={{ disabled }}
-        >
-          <Text style={styles.ctaLabel}>Comprar</Text>
-          <View style={styles.ctaValueWrap}>
-            {/* We can show the total cost summary or just the label passed */}
-             <Text style={styles.ctaValue}>{actionValue}</Text>
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={16}
-              color={Colors.textMuted}
-            />
-          </View>
-        </Pressable>
-      ) : null}
+      <Pressable
+        onPress={() => {
+          if (!canAfford) {
+            onNavigateToStore?.();
+            return;
+          }
+          onPrimaryAction?.();
+        }}
+        disabled={pressableDisabled}
+        style={({ pressed }) => [
+          styles.ctaRow,
+          { borderColor: accentBorderColor },
+          pressed && !pressableDisabled ? { opacity: 0.9 } : null,
+        ]}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: pressableDisabled }}
+      >
+        <Text style={[styles.ctaLabel, { color: accentTextColor }]}>{ctaText}</Text>
+        <MaterialCommunityIcons name="arrow-right" size={16} color={accentTextColor} />
+      </Pressable>
     </View>
   );
 }

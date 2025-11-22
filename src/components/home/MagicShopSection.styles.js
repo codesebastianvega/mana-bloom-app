@@ -1,4 +1,4 @@
-// [MB] Modulo: Home / Seccion: Tienda Magica (Estilos)
+﻿// [MB] Modulo: Home / Seccion: Tienda Magica (Estilos)
 // Afecta: HomeScreen
 // Proposito: Estilos para seccion de tienda con tabs y badges vidriados
 // Puntos de edicion futura: ajustar glass, sombras y responsivo
@@ -7,19 +7,22 @@
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Typography, Opacity } from "../../theme";
 
-const BADGE_GLASS_ALPHA = Math.min(0.24, Opacity.overlay * 4);
-const BADGE_BORDER_ALPHA = Math.min(0.32, BADGE_GLASS_ALPHA + 0.08);
-const BADGE_BACKGROUND = `rgba(255,255,255,${BADGE_GLASS_ALPHA})`;
-const BADGE_BORDER = `rgba(255,255,255,${BADGE_BORDER_ALPHA})`;
-
 export default StyleSheet.create({
-  container: {
-    backgroundColor: Colors.surface,
-    borderRadius: Radii.xl,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    padding: Spacing.base,
+  section: {
+    marginHorizontal: -Spacing.base,
+    paddingHorizontal: Spacing.base * 1.5,
+    paddingVertical: Spacing.large,
     gap: Spacing.base,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: Spacing.large,
+  },
+  titleStack: {
+    flex: 1,
+    gap: Spacing.xxxs,
   },
   title: {
     ...Typography.h2,
@@ -28,60 +31,32 @@ export default StyleSheet.create({
   subtitle: {
     ...Typography.caption,
     color: Colors.textMuted,
+  },
+  tabsScroll: {
     marginTop: Spacing.tiny,
-  },
-  walletCard: {
-    backgroundColor: Colors.surfaceAlt,
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    padding: Spacing.base,
-    flexDirection: "row",
-    gap: Spacing.small,
-  },
-  walletStat: {
-    flex: 1,
-    gap: Spacing.tiny / 2,
-  },
-  walletHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.tiny,
-  },
-  walletTitle: {
-    ...Typography.body,
-    color: Colors.text,
-    fontWeight: "600",
-  },
-  walletSubtitle: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  walletValue: {
-    ...Typography.title,
-    color: Colors.text,
   },
   tabsRow: {
     flexDirection: "row",
     gap: Spacing.small,
+    paddingRight: Spacing.base,
   },
   tabButton: {
-    flex: 1,
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    paddingVertical: Spacing.small,
-    paddingHorizontal: Spacing.base,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.base,
     gap: Spacing.tiny,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   tabText: {
-    ...Typography.body,
-    color: Colors.text,
-    fontSize: 12,
-    fontWeight: "600",
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
   },
   tabIcon: {
     marginRight: Spacing.tiny,
@@ -89,79 +64,94 @@ export default StyleSheet.create({
   badgeGrid: {
     gap: Spacing.small,
   },
-  badge: {
+  cardList: {
+    gap: Spacing.small,
+    width: "100%",
+  },
+  previewCard: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: Spacing.small,
     paddingVertical: Spacing.small,
     paddingHorizontal: Spacing.base,
-    borderRadius: Radii.lg,
+    width: "100%",
+    borderRadius: Radii.xl,
     borderWidth: 1,
-    borderColor: BADGE_BORDER,
-    backgroundColor: BADGE_BACKGROUND,
-    gap: Spacing.small,
+    borderColor: "rgba(255,255,255,0.18)",
+    backgroundColor: "rgba(255,255,255,0.08)",
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
   },
-  badgePressed: {
+  previewCardPressed: {
     opacity: 0.9,
   },
-  badgeLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.small,
-    flexShrink: 1,
-  },
-  badgeIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: Radii.md,
-    alignItems: "center",
+  previewImageWrapper: {
+    width: 48,
+    height: 48,
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: BADGE_BORDER,
-    backgroundColor: BADGE_BACKGROUND,
+    alignItems: "center",
+    overflow: "visible",
   },
-  badgeEmoji: {
-    fontSize: 18,
-    lineHeight: 20,
+  previewImage: {
+    position: "absolute",
+    top: -24,
+    bottom: -12,
+    left: -18,
+    right: -18,
+    width: "auto",
+    height: "auto",
+  },
+  previewEmoji: {
+    width: 48,
+    height: 48,
+    textAlign: "center",
+    textAlignVertical: "center",
+    fontSize: 24,
+  },
+  previewDetails: {
+    flex: 1,
+    gap: Spacing.xxxs,
+    paddingLeft: Spacing.base,
   },
   badgeTitle: {
     ...Typography.body,
     color: Colors.text,
     fontWeight: "600",
-    flexShrink: 1,
-  },
-  badgeRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.tiny,
   },
   badgePrice: {
     ...Typography.caption,
     color: Colors.textMuted,
     fontWeight: "600",
   },
-  badgePriceValue: {
-    ...Typography.body,
-    color: Colors.text,
+  badgeMeta: {
+    ...Typography.caption,
+    color: Colors.textMuted,
     fontWeight: "600",
+  },
+  badgeEmoji: {
+    fontSize: 20,
   },
   viewAllButton: {
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    paddingVertical: Spacing.small,
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
     gap: Spacing.tiny,
+    borderWidth: 1,
+    borderRadius: Radii.pill,
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.base,
   },
   viewAllText: {
-    ...Typography.body,
+    ...Typography.caption,
     color: Colors.text,
-    fontWeight: "600",
+    fontWeight: "700",
+    letterSpacing: 0.5,
   },
   debugButton: {
-    alignSelf: "flex-end",
+    alignSelf: "flex-start",
+    marginTop: Spacing.small,
     paddingVertical: Spacing.tiny,
     paddingHorizontal: Spacing.base,
     borderRadius: Radii.pill,

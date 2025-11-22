@@ -1,8 +1,8 @@
 // [MB] Modulo: Home / Estilos: ShopItemCard (Tienda Magica)
-// Afecta: HomeScreen (layout principal)
-// Proposito: Estilos para card de item de la tienda
-// Puntos de edicion futura: ajustar tipografia y sombras
-// Autor: Codex - Fecha: 2025-08-12
+// Afecta: ShopScreen (grid productos)
+// Propósito: Estilos para cards con imagen hero, rareza y CTA
+// Puntos de edición futura: soporte para estados de stock y wishlist
+// Autor: Codex - Fecha: 2025-11-21
 
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
@@ -11,41 +11,63 @@ export default StyleSheet.create({
   card: {
     borderWidth: 1,
     borderRadius: Radii.xl,
-    paddingVertical: Spacing.small,
-    paddingHorizontal: Spacing.base,
-    gap: Spacing.small,
-    backgroundColor: "rgba(255,255,255,0.18)",
-    borderColor: "rgba(255,255,255,0.28)",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
+    padding: Spacing.small,
+    backgroundColor: Colors.surfaceAlt,
     gap: Spacing.small,
   },
-  emojiBubble: {
-    width: 32,
-    height: 32,
+  media: {
+    height: 150,
     borderRadius: Radii.lg,
-    borderWidth: 1,
-    justifyContent: "center",
+    backgroundColor: Colors.surface,
     alignItems: "center",
-    backgroundColor: Colors.overlay,
+    justifyContent: "center",
+    overflow: "hidden",
   },
-  emojiText: {
-    fontSize: 18,
+  mediaImage: {
+    width: "100%",
+    height: "100%",
   },
-  headerContent: {
+  mediaEmoji: {
     flex: 1,
-    gap: Spacing.tiny / 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  mediaEmojiText: {
+    fontSize: 64,
+  },
+  rarityBadge: {
+    position: "absolute",
+    top: Spacing.tiny,
+    right: Spacing.tiny,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny / 1.5,
+  },
+  rarityText: {
+    ...Typography.caption,
+    fontSize: 10,
+    color: Colors.text,
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+  },
+  body: {
+    gap: Spacing.tiny,
   },
   title: {
     ...Typography.title,
-    fontSize: 17,
+    fontSize: 16,
     color: Colors.text,
   },
-  headline: {
+  subtitle: {
     ...Typography.caption,
     color: Colors.textMuted,
+  },
+  costRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.tiny,
+    marginTop: Spacing.tiny,
   },
   pricePill: {
     flexDirection: "row",
@@ -54,57 +76,43 @@ export default StyleSheet.create({
     borderRadius: Radii.pill,
     borderWidth: 1,
     paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny,
+    paddingVertical: Spacing.tiny / 1.5,
   },
-  priceText: {
+  priceAmount: {
     ...Typography.caption,
-    color: Colors.onAccent,
     fontWeight: "700",
   },
   highlights: {
     gap: Spacing.tiny,
+    marginTop: Spacing.small / 2,
   },
   highlightRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.tiny,
   },
-  highlightIcon: {
-    marginTop: 1,
-  },
   highlightText: {
-    ...Typography.body,
+    ...Typography.caption,
     color: Colors.text,
     flex: 1,
   },
   ctaRow: {
-    marginTop: Spacing.small,
     borderRadius: Radii.lg,
     borderWidth: 1,
     paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny,
+    paddingVertical: Spacing.small * 0.75,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: Spacing.small,
   },
   ctaLabel: {
+    ...Typography.body,
+    fontWeight: "700",
+  },
+  helperText: {
     ...Typography.caption,
     color: Colors.textMuted,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  ctaValueWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.tiny,
-  },
-  ctaIcon: {
-    marginRight: 2,
-  },
-  ctaValue: {
-    ...Typography.body,
-    color: Colors.text,
-    fontWeight: "600",
+    marginTop: Spacing.tiny,
   },
 });

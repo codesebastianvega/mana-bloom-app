@@ -15,11 +15,12 @@ export default StyleSheet.create({
     width: "100%",
   },
   card: {
-    borderRadius: Radii.lg,
-    padding: Spacing.base,
+    borderRadius: Radii.xl,
+    padding: Spacing.base * 1.1,
     borderWidth: 1,
     borderColor: ShopColors.subs.border,
     ...Elevation.card,
+    gap: Spacing.small,
   },
   header: {
     flexDirection: "row",
@@ -32,7 +33,6 @@ export default StyleSheet.create({
     textTransform: "capitalize",
   },
   badge: {
-    backgroundColor: ShopColors.subs.pill,
     borderRadius: Radii.pill,
     paddingHorizontal: Spacing.small,
     paddingVertical: Spacing.tiny,
@@ -40,20 +40,37 @@ export default StyleSheet.create({
   badgeText: {
     ...Typography.caption,
     color: Colors.textInverse,
+    fontWeight: "700",
   },
   price: {
     ...Typography.h2,
     color: Colors.text,
-    marginTop: Spacing.small,
   },
   desc: {
     ...Typography.body,
     color: Colors.textMuted,
-    marginTop: Spacing.small,
-    marginBottom: Spacing.base,
+  },
+  perksList: {
+    gap: Spacing.tiny,
+    marginBottom: Spacing.small,
+  },
+  perkRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+  },
+  perkDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    opacity: 0.9,
+  },
+  perkText: {
+    ...Typography.caption,
+    color: Colors.text,
+    flex: 1,
   },
   cta: {
-    backgroundColor: ShopColors.subs.pill,
     borderRadius: Radii.pill,
     paddingVertical: Spacing.small,
     alignItems: "center",
