@@ -132,7 +132,7 @@ function generateDefaultNewsFeed() {
       {
         id: `news-${now}-1`,
         title: "Bienvenido a Mana Bloom",
-        iconName: "sparkles",
+        iconName: "star",
         timestamp: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
         read: false,
       },
@@ -153,7 +153,7 @@ function generateDefaultNewsFeed() {
       {
         id: `news-${now}-4`,
         title: "Evento especial de hace 3 días",
-        iconName: "sparkles",
+        iconName: "star",
         timestamp: new Date(now - 3 * 24 * 60 * 60 * 1000).toISOString(),
         read: false,
       },
@@ -246,12 +246,13 @@ function appReducer(state, action) {
     }
     case "ADD_TO_INVENTORY": {
       const { sku, title, category } = action.payload;
+      const quantityDelta = Math.max(1, Number(action.payload.quantity) || 1);
       const existing = state.inventory.find((it) => it.sku === sku);
       if (existing) {
         return {
           ...state,
           inventory: state.inventory.map((it) =>
-            it.sku === sku ? { ...it, quantity: it.quantity + 1 } : it
+            it.sku === sku ? { ...it, quantity: it.quantity + quantityDelta } : it
           ),
         };
       }
@@ -260,7 +261,7 @@ function appReducer(state, action) {
         sku,
         title,
         category,
-        quantity: 1,
+        quantity: quantityDelta,
         createdAt: new Date().toISOString(),
       };
       return { ...state, inventory: [...state.inventory, newItem] };

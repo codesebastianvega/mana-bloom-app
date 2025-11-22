@@ -34,7 +34,7 @@ function DailyRewardSection() {
   const { claimed, reward } = dailyReward;
   const iconName =
     reward?.kind === "mana"
-      ? "sparkles"
+      ? "star"
       : reward?.kind === "coin"
       ? "pricetag"
       : reward?.kind === "gem"

@@ -332,11 +332,9 @@ export default function HomeHeroSection() {
 
 const styles = StyleSheet.create({
   wrapper: {
-    backgroundColor: Colors.surface,
-    borderRadius: Radii.xl,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    padding: Spacing.base,
+    marginHorizontal: -Spacing.base,
+    paddingHorizontal: Spacing.base * 1.5,
+    paddingVertical: Spacing.large,
     gap: Spacing.base,
   },
   sectionTitle: {

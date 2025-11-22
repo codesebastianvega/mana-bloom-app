@@ -9,11 +9,9 @@ import { Colors, Spacing, Radii, Typography } from "../../theme";
 
 export default StyleSheet.create({
   container: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.border,
-    borderWidth: 1,
-    borderRadius: Radii.xl,
-    padding: Spacing.base,
+    marginHorizontal: -Spacing.base,
+    paddingHorizontal: Spacing.base * 1.5,
+    paddingVertical: Spacing.large,
     gap: Spacing.base,
   },
   titleRow: {
