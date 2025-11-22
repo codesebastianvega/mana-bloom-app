@@ -457,8 +457,13 @@ const styles = StyleSheet.create({
     gap: Spacing.small,
     borderRadius: Radii.lg,
     backgroundColor: Colors.accent,
-    paddingVertical: Spacing.small + 2,
-    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.small + 4,
+    paddingHorizontal: Spacing.base * 1.25,
+    shadowColor: Colors.accent,
+    shadowOpacity: 0.32,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 5,
   },
   dailyIconWrap: {
     width: 36,
@@ -477,6 +482,8 @@ const styles = StyleSheet.create({
   },
   dailyButtonDisabled: {
     backgroundColor: Colors.border,
+    shadowOpacity: 0,
+    elevation: 0,
   },
   dailyButtonText: {
     ...Typography.title,
