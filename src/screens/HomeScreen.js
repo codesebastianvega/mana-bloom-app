@@ -10,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors, Spacing } from "../theme";
 import HomeHeader from "../components/home/HomeHeader";
 import HomeWelcomeCard from "../components/home/HomeWelcomeCard";
+import PromoBannerSlider from "../components/home/PromoBannerSlider";
 import DailyChallengesSection from "../components/home/DailyChallengesSection";
 import MagicShopSection from "../components/home/MagicShopSection";
 import InventorySection from "../components/home/InventorySection";
@@ -93,6 +94,7 @@ export default function HomeScreen() {
           <View onLayout={setAnchor("welcome")}>
             <HomeWelcomeCard onNext={goToTasks} />
           </View>
+          <PromoBannerSlider />
           <View onLayout={setAnchor("hero")}>
             <HomeHeroSection />
           </View>
