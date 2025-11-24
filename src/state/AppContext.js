@@ -36,18 +36,65 @@ import {
   setWallet,
   getAchievementsState,
   setAchievementsState,
+  getGardenState,
+  setGardenState,
 } from "../storage";
 import { supabase } from "../lib/supabase";
 import { fetchUserData, pushProfile, pushInventoryItem } from "../lib/sync";
 import { DAILY_REWARDS } from "../constants/dailyRewards";
 import { SHOP_LOOKUP } from "../constants/shopCatalog";
-import { CHALLENGE_TEMPLATES } from "../constants/challengeTemplates";
 import {
   hashStringToInt,
   mulberry32,
   pickWeightedDeterministic,
 } from "../utils/rand";
 import { ACHIEVEMENTS } from "../constants/achievements";
+
+// Simple challenge templates
+const CHALLENGE_TEMPLATES = [
+  {
+    type: "complete_tasks",
+    title: "Completar tareas",
+    description: "Completa 5 tareas de cualquier tipo",
+    goal: 5,
+    weight: 10,
+    reward: { xp: 25, mana: 20 },
+  },
+  {
+    type: "complete_priority",
+    param: "Urgente",
+    title: "Tareas urgentes",
+    description: "Completa 3 tareas marcadas como urgentes",
+    goal: 3,
+    weight: 8,
+    reward: { xp: 30, mana: 25 },
+  },
+  {
+    type: "complete_priority",
+    param: "Alta",
+    title: "Tareas de alta prioridad",
+    description: "Completa 4 tareas de prioridad alta",
+    goal: 4,
+    weight: 7,
+    reward: { xp: 20, mana: 15 },
+  },
+  {
+    type: "complete_tasks",
+    title: "Día productivo",
+    description: "Completa 8 tareas en un solo día",
+    goal: 8,
+    weight: 6,
+    reward: { xp: 50, mana: 40 },
+  },
+  {
+    type: "complete_tasks",
+    title: "Primeros pasos",
+    description: "Completa tus primeras 3 tareas del día",
+    goal: 3,
+    weight: 9,
+    reward: { xp: 15, mana: 10 },
+  },
+];
 
 function getLocalISODate(date = new Date()) {
   return date.toLocaleDateString("en-CA");
@@ -116,6 +163,7 @@ function generateDailyChallenges(todayKey, lastTypes = new Set(), userId = "gues
   return selected.map((t, idx) => ({
     id: `${Date.now().toString()}_${idx}`,
     title: t.title,
+    description: t.description,
     type: t.type,
     param: t.param,
     goal: t.goal,
@@ -177,6 +225,7 @@ const initialState = {
   dailyReward: { dateKey: null, rewardId: null, claimed: false },
   achievements: { progress: {}, unlocked: {} },
   achievementToast: null,
+  garden: { items: [] },
 };
 
 function roundToNearest10(n) {
@@ -234,6 +283,8 @@ function appReducer(state, action) {
       return { ...state, dailyReward: action.payload };
     case "SET_ACHIEVEMENTS":
       return { ...state, achievements: action.payload };
+    case "SET_GARDEN_ITEMS":
+      return { ...state, garden: { ...state.garden, items: action.payload } };
     case "MARK_NEWS_READ": {
       const items = state.news.items.map((it) =>
         it.id === action.payload.id ? { ...it, read: true } : it
@@ -537,9 +588,17 @@ export function AppProvider({ children }) {
       setHydration((h) => ({ ...h, wallet: false }));
       dispatch({ type: "SET_ACHIEVEMENTS", payload: storedAchievements });
       setHydration((h) => ({ ...h, achievements: false }));
+      const storedGarden = await getGardenState();
+      dispatch({ type: "SET_GARDEN_ITEMS", payload: storedGarden.items || [] });
       const todayKey = getLocalISODate();
       let dailyChallenges = storedDailyChallenges;
-      if (!dailyChallenges || dailyChallenges.dateKey !== todayKey) {
+      
+      // Regenerate if date changed OR if challenges are missing description field
+      const needsRegeneration = !dailyChallenges || 
+        dailyChallenges.dateKey !== todayKey ||
+        (dailyChallenges.items && dailyChallenges.items.some(item => !item.description));
+      
+      if (needsRegeneration) {
         const lastTypes = new Set(
           (dailyChallenges?.items || []).map(
             (i) => `${i.type}:${i.param || ""}`
@@ -681,6 +740,11 @@ export function AppProvider({ children }) {
     if (isHydrating.current) return;
     setAchievementsState(state.achievements);
   }, [state.achievements]);
+
+  useEffect(() => {
+    if (isHydrating.current) return;
+    setGardenState(state.garden);
+  }, [state.garden]);
 
   useEffect(() => {
     if (isHydrating.current) {
@@ -853,4 +917,28 @@ export function useAchievementToast() {
 
 export function canUseItem(sku) {
   return sku === "shop/potions/p1" || sku === "shop/potions/p2";
+}
+
+export function useDrawer() {
+  const { drawerOpen } = useAppState();
+  const dispatch = useAppDispatch();
+  
+  const openDrawer = useCallback(() => {
+    dispatch({ type: "OPEN_DRAWER" });
+  }, [dispatch]);
+  
+  const closeDrawer = useCallback(() => {
+    dispatch({ type: "CLOSE_DRAWER" });
+  }, [dispatch]);
+  
+  const toggleDrawer = useCallback(() => {
+    dispatch({ type: "TOGGLE_DRAWER" });
+  }, [dispatch]);
+  
+  return {
+    isDrawerOpen: drawerOpen,
+    openDrawer,
+    closeDrawer,
+    toggleDrawer,
+  };
 }
