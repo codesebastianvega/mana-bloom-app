@@ -5,6 +5,7 @@
 // Autor: Codex - Fecha: 2025-08-13
 
 import React from "react";
+import { View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -20,10 +21,13 @@ import InventoryScreen from "./src/screens/InventoryScreen";
 import NewsInboxScreen from "./src/screens/NewsInboxScreen";
 import ShopScreen from "./src/screens/ShopScreen";
 import RewardsScreen from "./src/screens/RewardsScreen";
+import GardenScreen from "./src/screens/GardenScreen";
 import SplashScreen from "./src/screens/auth/SplashScreen";
 import LoginScreen from "./src/screens/auth/LoginScreen";
 import SignUpScreen from "./src/screens/auth/SignUpScreen";
 import { AppProvider } from "./src/state/AppContext";
+import AppDrawer from "./src/components/navigation/AppDrawer";
+import { navigationRef } from "./src/navigationRef";
 import { setupGlobalErrorHandler } from "./src/utils/errorTracker";
 
 // Setup global error tracking
@@ -67,8 +71,9 @@ function TabsNavigator() {
 export default function App() {
   return (
     <AppProvider>
-      <NavigationContainer linking={linking}>
-        <RootStack.Navigator 
+      <View style={{ flex: 1 }}>
+        <NavigationContainer ref={navigationRef} linking={linking}>
+          <RootStack.Navigator 
           screenOptions={{ 
             headerShown: false,
             animation: 'fade', // Transición suave entre pantallas
@@ -100,8 +105,15 @@ export default function App() {
             component={RewardsScreen}
             options={{ headerShown: false }}
           />
-        </RootStack.Navigator>
-      </NavigationContainer>
+          <RootStack.Screen
+            name="Garden"
+            component={GardenScreen}
+            options={{ headerShown: false }}
+          />
+          </RootStack.Navigator>
+        </NavigationContainer>
+        <AppDrawer />
+      </View>
     </AppProvider>
   );
 }
