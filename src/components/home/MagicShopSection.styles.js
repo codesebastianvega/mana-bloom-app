@@ -9,8 +9,8 @@ import { Colors, Spacing, Radii, Typography, Opacity } from "../../theme";
 
 export default StyleSheet.create({
   section: {
-    marginHorizontal: -Spacing.base,
-    paddingHorizontal: Spacing.base * 1.5,
+    marginHorizontal: 0,
+    paddingHorizontal: 0,
     paddingVertical: Spacing.large,
     gap: Spacing.base,
   },
@@ -19,6 +19,8 @@ export default StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     gap: Spacing.large,
+    paddingHorizontal: Spacing.base,
+    paddingBottom: Spacing.small,
   },
   titleStack: {
     flex: 1,

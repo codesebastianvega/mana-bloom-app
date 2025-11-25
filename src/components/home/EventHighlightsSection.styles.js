@@ -8,12 +8,19 @@ import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
 
 export default StyleSheet.create({
-  container: {
-    backgroundColor: Colors.surface,
-    borderColor: Colors.border,
+  gradient: {
+    borderRadius: Radii.lg,
     borderWidth: 1,
-    borderRadius: Radii.xl,
-    padding: Spacing.base,
+    borderColor: "rgba(120, 170, 255, 0.35)",
+    marginHorizontal: Spacing.base,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.base,
+    overflow: "hidden",
+  },
+  container: {
+    borderRadius: Radii.lg,
+    gap: Spacing.base,
+    padding: 0,
     gap: Spacing.base,
   },
   header: {
@@ -24,104 +31,89 @@ export default StyleSheet.create({
   titleBlock: {
     gap: Spacing.tiny / 2,
     flex: 1,
-    paddingRight: Spacing.small,
+  },
+  titleIconRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
   },
   title: {
-    ...Typography.h2,
+    ...Typography.sectionTitle,
     color: Colors.text,
   },
   subtitle: {
     ...Typography.caption,
     color: Colors.textMuted,
   },
-  viewAllButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.tiny,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny,
-    borderRadius: Radii.pill,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surfaceAlt,
-  },
-  viewAllText: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    fontWeight: "600",
-  },
   timeline: {
     gap: Spacing.small,
+    paddingVertical: Spacing.tiny,
   },
-  timelineItem: {
+  timelineRow: {
     flexDirection: "row",
     gap: Spacing.small,
     alignItems: "flex-start",
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surfaceAlt,
-    padding: Spacing.small,
   },
-  timelineIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: Radii.lg,
-    borderWidth: 1,
+  dotColumn: {
+    width: 14,
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.surface,
   },
-  timelineEmoji: {
-    fontSize: 20,
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  connector: {
+    flex: 1,
+    width: 2,
+    marginTop: Spacing.tiny,
+    borderRadius: 4,
   },
   timelineText: {
     flex: 1,
-    gap: Spacing.tiny / 2,
+    gap: 2,
+  },
+  rowBetween: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: Spacing.small,
   },
   timelineTitle: {
     ...Typography.body,
     color: Colors.text,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   timelineDate: {
     ...Typography.caption,
     color: Colors.textMuted,
   },
-  timelineDescription: {
-    ...Typography.caption,
-    color: Colors.textMuted,
+  badge: {
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    backgroundColor: "rgba(255,255,255,0.08)",
   },
-  promoCard: {
+  badgeText: {
+    ...Typography.caption,
+    fontWeight: "700",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    marginTop: Spacing.small,
+  },
+  viewAllButton: {
+    marginTop: Spacing.small,
+    alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
-    gap: Spacing.small,
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surfaceAlt,
-    paddingVertical: Spacing.small,
-    paddingHorizontal: Spacing.small,
+    gap: Spacing.tiny,
+    paddingVertical: Spacing.tiny + 2,
+    paddingHorizontal: Spacing.base,
   },
-  promoIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.surface,
-  },
-  promoText: {
-    flex: 1,
-    gap: Spacing.tiny / 2,
-  },
-  promoTitle: {
-    ...Typography.body,
-    color: Colors.text,
-    fontWeight: "600",
-  },
-  promoDescription: {
+  viewAllText: {
     ...Typography.caption,
     color: Colors.textMuted,
   },
