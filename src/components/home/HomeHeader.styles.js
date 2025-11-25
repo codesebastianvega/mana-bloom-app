@@ -17,6 +17,11 @@ export default StyleSheet.create({
     paddingBottom: Spacing.small,
     gap: Spacing.small,
   },
+  menuButton: {
+    alignSelf: "flex-start",
+    padding: Spacing.tiny,
+    marginLeft: -Spacing.tiny,
+  },
   title: {
     ...Typography.h1,
     fontSize: 32,

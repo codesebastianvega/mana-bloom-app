@@ -5,9 +5,10 @@
 // Autor: Codex - Fecha: 2025-10-07
 
 import React, { forwardRef, useEffect, useImperativeHandle } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 import styles from "./HomeHeader.styles";
 import { Colors } from "../../theme";
@@ -68,6 +69,7 @@ function resolvePlantState(rawState) {
 
 function HomeHeader({ onHeaderLayout, onChipPopoverToggle }, ref) {
   const { plantState, plantName } = useAppState();
+  const navigation = useNavigation();
   const variant = resolvePlantState(plantState);
   const plantDisplayName = plantName?.trim() || "Ernesto Perez";
 
@@ -97,6 +99,10 @@ function HomeHeader({ onHeaderLayout, onChipPopoverToggle }, ref) {
     <View style={dotStyle} />
   );
 
+  const handleMenuPress = () => {
+    navigation.navigate("ProfileScreen");
+  };
+
   return (
     <SafeAreaView
       style={styles.safeArea}
@@ -106,6 +112,19 @@ function HomeHeader({ onHeaderLayout, onChipPopoverToggle }, ref) {
       accessibilityLabel="Encabezado: Mana Bloom"
     >
         <View style={styles.container}>
+          <Pressable
+            onPress={handleMenuPress}
+            style={styles.menuButton}
+            accessibilityRole="button"
+            accessibilityLabel="Abrir menú"
+            hitSlop={12}
+          >
+            <MaterialCommunityIcons
+              name="menu"
+              size={24}
+              color={Colors.text}
+            />
+          </Pressable>
           <Text style={styles.title}>Mana Bloom</Text>
           <View style={chipStyle} accessibilityRole="text">
             {statusIndicator}
