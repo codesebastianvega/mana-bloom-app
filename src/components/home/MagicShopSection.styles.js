@@ -11,7 +11,8 @@ export default StyleSheet.create({
   section: {
     marginHorizontal: 0,
     paddingHorizontal: 0,
-    paddingVertical: Spacing.large,
+    paddingTop: Spacing.small,
+    paddingBottom: Spacing.large,
     gap: Spacing.base,
   },
   headerRow: {
@@ -19,8 +20,6 @@ export default StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     gap: Spacing.large,
-    paddingHorizontal: Spacing.base,
-    paddingBottom: Spacing.small,
   },
   titleStack: {
     flex: 1,
@@ -69,6 +68,7 @@ export default StyleSheet.create({
   cardList: {
     gap: Spacing.small,
     width: "100%",
+    marginTop: Spacing.small,
   },
   previewCard: {
     flexDirection: "row",
@@ -137,13 +137,22 @@ export default StyleSheet.create({
     fontSize: 20,
   },
   viewAllButton: {
+    alignSelf: "stretch",
+    width: "100%",
+    marginTop: Spacing.small,
+    borderRadius: Radii.md,
+    overflow: "hidden",
+    borderWidth: 1,
+  },
+  viewAllInner: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     gap: Spacing.tiny,
-    borderWidth: 1,
-    borderRadius: Radii.pill,
-    paddingVertical: Spacing.tiny,
-    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.base * 1.25,
+    borderRadius: Radii.md,
+    width: "100%",
   },
   viewAllText: {
     ...Typography.caption,

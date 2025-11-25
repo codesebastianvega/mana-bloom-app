@@ -8,6 +8,7 @@ import React, { useState, useMemo, useCallback } from "react";
 import { View, Text, Pressable, Image, ScrollView } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 
 import styles from "./MagicShopSection.styles";
 import SectionPlaceholder from "../common/SectionPlaceholder";
@@ -137,36 +138,6 @@ export default function MagicShopSection() {
             Sube de nivel con pociones, herramientas y cosmeticos.
           </Text>
         </View>
-        <Pressable
-          onPress={() =>
-            navigation.navigate("ShopScreen", { initialTab: activeTab })
-          }
-          style={({ pressed }) => [
-            styles.viewAllButton,
-            {
-              borderColor: sectionAccent.pill || Colors.text,
-              backgroundColor:
-                hexToRgba(sectionAccent.pill, 0.12) || Colors.surfaceAlt,
-            },
-            pressed && { opacity: 0.7 },
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Abrir tienda completa"
-        >
-          <Text
-            style={[
-              styles.viewAllText,
-              { color: sectionAccent.pill || Colors.text },
-            ]}
-          >
-            Ver tienda completa
-          </Text>
-          <MaterialCommunityIcons
-            name="arrow-top-right"
-            size={16}
-            color={sectionAccent.pill || Colors.text}
-          />
-        </Pressable>
       </View>
 
       <ScrollView
@@ -270,19 +241,39 @@ export default function MagicShopSection() {
         })}
       </View>
 
-      {__DEV__ && (
-        <Pressable
-          onPress={addDebugMana}
-          style={({ pressed }) => [
-            styles.debugButton,
-            pressed && { opacity: 0.8 },
+      <Pressable
+        onPress={() =>
+          navigation.navigate("ShopScreen", { initialTab: activeTab })
+        }
+        style={({ pressed }) => [
+          styles.viewAllButton,
+          { borderColor: sectionAccent.pill || "#6b2cd0" },
+          pressed && { opacity: 0.85 },
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel="Abrir tienda completa"
+      >
+        <LinearGradient
+          colors={[
+            hexToRgba(sectionAccent.pill, 0.45) || "rgba(118,90,255,0.45)",
+            hexToRgba(sectionAccent.pill, 0.65) || "rgba(60,34,120,0.7)",
           ]}
-          accessibilityRole="button"
-          accessibilityLabel="Agregar 5 de mana (debug)"
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
+          style={styles.viewAllInner}
         >
-          <Text style={styles.debugButtonText}>+5 mana (debug)</Text>
-        </Pressable>
-      )}
+          <Text
+            style={[styles.viewAllText, { color: Colors.text }]}
+          >
+            Ver tienda completa
+          </Text>
+          <MaterialCommunityIcons
+            name="arrow-top-right"
+            size={16}
+            color={Colors.text}
+          />
+        </LinearGradient>
+      </Pressable>
     </View>
   );
 }

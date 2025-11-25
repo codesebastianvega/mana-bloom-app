@@ -1,98 +1,88 @@
-﻿// [MB] Modulo: Home / Seccion: Inventario (Estilos)
-// Afecta: HomeScreen
-// Proposito: Estilos para resumen de inventario compacto
-// Puntos de edicion futura: responsivo y variantes de color
-// Autor: Codex - Fecha: 2025-10-15
-
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
 
 export default StyleSheet.create({
-  container: {
-    marginHorizontal: -Spacing.base,
-    paddingHorizontal: Spacing.base * 1.5,
-    paddingVertical: Spacing.large,
-    gap: Spacing.base,
-  },
   titleRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    marginBottom: Spacing.small / 2,
+  },
+  titleLeft: {
+    flex: 1,
+    gap: Spacing.tiny / 2,
+    paddingBottom: Spacing.tiny,
+  },
+  titleLeftRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
+  },
+  titleIcon: {
+    marginRight: Spacing.tiny,
   },
   title: {
-    ...Typography.h2,
+    ...Typography.sectionTitle,
     color: Colors.text,
   },
   subtitle: {
     ...Typography.caption,
     color: Colors.textMuted,
   },
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    gap: Spacing.small,
+  openCta: {
+    ...Typography.caption,
+    color: "#7b7bff",
+    fontWeight: "700",
   },
-  pressableTile: {
-    flexBasis: "48%",
-    borderRadius: Radii.lg,
+  sliderContent: {
+    flexDirection: "row",
+    gap: Spacing.small,
+    paddingHorizontal: 0,
+    paddingVertical: Spacing.tiny,
+  },
+  tile: {
+    width: 104,
+    height: 64,
+    borderRadius: Radii.md,
+    borderWidth: 1,
+    paddingVertical: Spacing.tiny + 2,
+    paddingHorizontal: Spacing.base,
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.tiny,
   },
   tilePressed: {
     opacity: 0.85,
   },
-  tile: {
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    paddingVertical: Spacing.small,
-    paddingHorizontal: Spacing.base,
-    backgroundColor: Colors.surfaceAlt,
-    borderColor: Colors.border,
-    gap: Spacing.tiny,
-  },
-  tileLabel: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    fontWeight: "600",
-    textTransform: "uppercase",
+  tileGrow: {
+    flexBasis: "49.5%",
+    maxWidth: "49.5%",
+    aspectRatio: 1,
   },
   tileValue: {
     ...Typography.title,
-    fontSize: 20,
-    fontWeight: "700",
-  },
-  tileCta: {
-    ...Typography.body,
     color: Colors.text,
-    fontWeight: "600",
+    fontWeight: "800",
+    letterSpacing: 0.2,
   },
-  emptyState: {
+  tileLabel: {
+    ...Typography.caption,
+    fontWeight: "700",
+    letterSpacing: 0.2,
+    textTransform: "none",
+    color: Colors.text,
+  },
+  tileIcon: {
+    marginRight: Spacing.tiny / 2,
+  },
+  tileValueRow: {
+    flexDirection: "row",
     alignItems: "center",
     gap: Spacing.small,
   },
-  emptyText: {
-    ...Typography.body,
-    color: Colors.textMuted,
-    textAlign: "center",
-  },
-  emptyLink: {
+  tileLabelRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Spacing.tiny,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny,
-    borderRadius: Radii.pill,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surfaceAlt,
-  },
-  emptyLinkText: {
-    ...Typography.caption,
-    color: Colors.text,
-    fontWeight: "600",
-  },
-  emptyLinkIcon: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    fontWeight: "600",
   },
 });

@@ -1,8 +1,8 @@
-﻿// [MB] Modulo: Home / Seccion: HomeHero
+// [MB] Modulo: Home / Seccion: HomeHero
 // Afecta: HomeScreen
 // Proposito: Bloque expandido con barra de nivel y estadisticas clave
 // Puntos de edicion futura: mover estilos a .styles.js y conectar datos reales
-// Autor: Codex - Fecha: 2025-10-07 (V3)
+// Autor: Codex - Fecha: 2025-10-07 (V4)
 
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
@@ -24,46 +24,23 @@ import {
   useAppState,
 } from "../../state/AppContext";
 
-const TILE_STYLES = {
-  mana: {
-    background: "rgba(126, 87, 194, 0.16)",
-    border: Colors.primary,
-  },
-  streak: {
-    background: "rgba(255, 112, 67, 0.16)",
-    border: Colors.warning,
-  },
-  coins: {
-    background: "rgba(255, 202, 40, 0.14)",
-    border: Colors.accent,
-  },
-  gems: {
-    background: "rgba(128, 222, 234, 0.14)",
-    border: Colors.secondaryLight,
-  },
-  buffs: {
-    background: "rgba(144, 238, 144, 0.14)",
-    border: Colors.success,
-  },
-};
-
 const BUFF_COPY = {
   xp_double: {
-    title: "SabidurÃ­a activa",
+    title: "Sabiduria activa",
     description: "XP doble en tareas completadas",
   },
   streak_shield: {
     title: "Escudo de racha",
-    description: "Protege tu racha si fallas un dÃ­a",
+    description: "Protege tu racha si fallas un dia",
   },
   mana_trickle: {
     title: "Manantial arcano",
-    description: "ManÃ¡ pasivo durante el dÃ­a",
+    description: "Mana pasivo durante el dia",
   },
 };
 
 const BUFF_EMPTY_HINT =
-  "Activa una pociÃ³n desde la tienda para impulsar a tu planta.";
+  "Activa una pocion desde la tienda para impulsar a tu planta.";
 
 function withAlpha(hex = "", alpha = 1) {
   const cleaned = hex.replace("#", "");
@@ -138,6 +115,7 @@ function resolveXpGradient({ buffs, inventory, wallet }) {
   }
   return { colors: Gradients.xp };
 }
+
 function formatRemainingTime(ms) {
   if (typeof ms !== "number" || ms <= 0) {
     return null;
@@ -163,37 +141,34 @@ function formatRemainingTime(ms) {
   return `${totalMinutes}m`;
 }
 
-const StatTile = ({ icon, title, subtitle, value, styleKey }) => {
-  const palette = TILE_STYLES[styleKey] || {};
-  return (
-    <View
-      style={[
-        styles.tile,
-        palette.background && { backgroundColor: palette.background },
-        palette.border && { borderColor: palette.border },
-      ]}
-    >
-      <View style={styles.tileTextBlock}>
-        <View style={styles.titleRow}>
-          <MaterialCommunityIcons
-            name={icon}
-            size={18}
-            color={palette.border || Colors.text}
-          />
-          <Text style={styles.tileTitle}>{title}</Text>
-        </View>
-        {subtitle ? <Text style={styles.tileSubtitle}>{subtitle}</Text> : null}
-      </View>
-      <Text style={styles.tileValue}>{value}</Text>
+const ResourceCard = ({ icon, title, value, accent }) => (
+  <View
+    style={[
+      styles.resourceCard,
+      {
+        backgroundColor: accent.bg,
+        borderColor: accent.border,
+      },
+    ]}
+  >
+    <View style={styles.resourceLabelRow}>
+      <MaterialCommunityIcons
+        name={icon}
+        size={16}
+        color={accent.iconColor}
+        style={styles.resourceIcon}
+      />
+      <Text style={styles.resourceLabel}>{title}</Text>
     </View>
-  );
-};
+    <Text style={styles.resourceValue}>{value}</Text>
+  </View>
+);
 
 export default function HomeHeroSection() {
-  const { mana, streak, inventory } = useAppState();
+  const { mana, inventory } = useAppState();
   const wallet = useWallet();
   const { coin, gem } = wallet;
-  const { level, progress } = useProgress();
+  const { level, progress, xp, xpGoal } = useProgress();
   const buffs = useActiveBuffs();
 
   const clampedProgress = Math.max(0, Math.min(progress, 1));
@@ -203,38 +178,6 @@ export default function HomeHeroSection() {
     inventory,
     wallet,
   });
-
-  const manaTile = {
-    key: "mana",
-    icon: "water-outline",
-    title: "Mana",
-    subtitle: "Reservorio",
-    value: String(mana),
-  };
-
-  const streakTile = {
-    key: "streak",
-    icon: "fire",
-    title: "Racha",
-    subtitle: "Dias activos",
-    value: `${streak} dias`,
-  };
-
-  const coinsTile = {
-    key: "coins",
-    icon: "circle-multiple-outline",
-    title: "Coins",
-    subtitle: "Monedas magicas",
-    value: String(coin),
-  };
-
-  const gemsTile = {
-    key: "gems",
-    icon: "diamond-stone",
-    title: "Gems",
-    subtitle: "Rareza arcana",
-    value: String(gem),
-  };
 
   const buffsActive = buffs.filter(Boolean);
   const nowMs = Date.now();
@@ -248,85 +191,118 @@ export default function HomeHeroSection() {
       buff.type ||
       "Buff activo";
     const remaining = formatRemainingTime((buff.expiresAt || 0) - nowMs);
-    return remaining ? `${base} Â· ${remaining} restantes` : base;
+    return remaining ? `${base} - ${remaining} restantes` : base;
   });
   const buffSummary =
     buffDetails.length > 0 ? buffDetails.join("   ") : BUFF_EMPTY_HINT;
 
-  const topRow = [
+  const xpLabel = `${Math.max(0, xp ?? 0)} XP`;
+  const xpGoalLabel = `${Math.max(0, xpGoal ?? 0)} XP`;
+
+  const resourceCards = [
     {
       key: "mana",
-      ...manaTile,
-      styleKey: "mana",
+      icon: "lightning-bolt",
+      title: "Mana",
+      value: mana,
+      accent: {
+        bg: "rgba(46,73,144,0.18)",
+        border: "rgba(118,167,255,0.18)",
+        iconBg: "rgba(118,167,255,0.08)",
+        iconColor: "#78C2FF",
+      },
     },
-    {
-      key: "streak",
-      ...streakTile,
-      styleKey: "streak",
-    },
-  ];
-
-  const bottomRow = [
     {
       key: "coins",
-      ...coinsTile,
-      styleKey: "coins",
+      icon: "cash-multiple",
+      title: "Coins",
+      value: coin,
+      accent: {
+        bg: "rgba(120,78,12,0.18)",
+        border: "rgba(255,206,134,0.2)",
+        iconBg: "rgba(255,206,134,0.08)",
+        iconColor: "#FFCE86",
+      },
     },
     {
       key: "gems",
-      ...gemsTile,
-      styleKey: "gems",
+      icon: "diamond-stone",
+      title: "Gems",
+      value: gem,
+      accent: {
+        bg: "rgba(103,36,116,0.18)",
+        border: "rgba(255,163,245,0.2)",
+        iconBg: "rgba(255,163,245,0.08)",
+        iconColor: "#FFACF5",
+      },
     },
   ];
 
   return (
-    <View style={styles.wrapper}>
-      <Text style={styles.sectionTitle}>Estado general</Text>
-      <View style={styles.xpWrapper}>
-        {/* [MB] Modulo: Home / Seccion: Barra de nivel
-            Afecta: HomeHeroSection
-            Proposito: Gradiente dinamico segun buffs y efecto glass
-            Puntos de edicion futura: tokens en theme.js (ElementAccents.gradients)
-            Autor: Codex - Fecha: 2025-10-16 */}
-        <LinearGradient
-          colors={xpGradient.colors}
-          locations={xpGradient.locations}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          style={[styles.xpProgress, { width: `${progressPercent}%` }]}
-        />
-        <View style={styles.xpContent}>
-          <Text style={styles.levelLabel}>Nivel {level}</Text>
-          <Text style={styles.levelValue}>{progressPercent}%</Text>
-        </View>
-      </View>
-
-      <View style={styles.gridContainer}>
-        <View style={styles.row}>
-          {topRow.map(({ key, styleKey, ...tileProps }) => (
-            <StatTile key={key} styleKey={styleKey} {...tileProps} />
-          ))}
-        </View>
-        <View style={styles.row}>
-          {bottomRow.map(({ key, styleKey, ...tileProps }) => (
-            <StatTile key={key} styleKey={styleKey} {...tileProps} />
-          ))}
-        </View>
-        <View style={styles.buffTile}>
+    <>
+      <LinearGradient
+        colors={["#3a1675", "#172044"]}
+        start={{ x: 0, y: 0.5 }}
+        end={{ x: 1, y: 0.5 }}
+        style={styles.buffTile}
+      >
+        <View style={styles.buffRow}>
           <View style={styles.buffHeader}>
             <MaterialCommunityIcons
-              name="star-circle"
-              size={20}
-              color={TILE_STYLES.buffs.border}
+              name="clock-outline"
+              size={18}
+              color="#c59bff"
             />
-            <Text style={styles.buffTitle}>
-              {`Buffs activos (${buffsActive.length})`}
-            </Text>
+            <Text style={styles.buffTitle}>Rituales listos en 15 min</Text>
           </View>
-          <Text style={styles.buffDescription}>{buffSummary}</Text>
+          <View style={styles.buffBonus}>
+            <Text style={styles.buffBonusText}>+5% Bonus</Text>
+          </View>
+        </View>
+        <Text style={styles.buffDescription}>{buffSummary}</Text>
+      </LinearGradient>
+
+      <View style={styles.gridContainer}>
+        <LinearGradient
+          colors={["#1e1533", "#110c21"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.levelCard}
+        >
+          <View style={styles.levelHeader}>
+            <Text style={styles.levelLabel}>Nivel</Text>
+            <Text style={styles.levelValue}>{level}</Text>
+          </View>
+
+          <View style={styles.xpNumbers}>
+            <Text style={styles.xpValue}>{xpLabel}</Text>
+            <Text style={styles.xpMax}>{xpGoalLabel}</Text>
+          </View>
+
+          <View style={styles.progressTrack}>
+            <LinearGradient
+              colors={xpGradient.colors}
+              locations={xpGradient.locations}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={[styles.progressFill, { width: `${progressPercent}%` }]}
+            />
+          </View>
+        </LinearGradient>
+
+        <View style={styles.resourceColumn}>
+          {resourceCards.map((card) => (
+            <ResourceCard
+              key={card.key}
+              icon={card.icon}
+              title={card.title}
+              value={card.value}
+              accent={card.accent}
+            />
+          ))}
         </View>
       </View>
-    </View>
+    </>
   );
 }
 
@@ -335,121 +311,162 @@ const styles = StyleSheet.create({
     marginHorizontal: -Spacing.base,
     paddingHorizontal: Spacing.base * 1.5,
     paddingVertical: Spacing.large,
+    gap: Spacing.large,
+  },
+  gridContainer: {
+    flexDirection: "row",
+    flexWrap: "nowrap",
+    alignItems: "flex-start",
     gap: Spacing.base,
   },
-  sectionTitle: {
-    ...Typography.h2,
-    color: Colors.text,
-  },
-  xpWrapper: {
-    backgroundColor: GLASS_BACKGROUND,
+  levelCard: {
+    flex: 1,
+    minWidth: 0,
     borderRadius: Radii.xl,
     borderWidth: 1,
     borderColor: GLASS_BORDER,
-    overflow: "hidden",
-    height: Spacing.large + Spacing.small,
-    justifyContent: "center",
+    paddingHorizontal: Spacing.large - 4,
+    paddingTop: Spacing.large - 10,
+    paddingBottom: Spacing.large - 4,
+    justifyContent: "flex-start",
     shadowColor: GLASS_SHADOW,
-    shadowOpacity: 0.28,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
+    shadowOpacity: 0.35,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 8,
+    gap: Spacing.small,
   },
-  xpProgress: {
-    position: "absolute",
-    top: 1, // evita que el borde superior robe 1px del gradiente
-    bottom: 1, // igual abajo para simetria
-    left: 1, // respeta el trazo del borde izquierdo
-    right: undefined,
-    borderRadius: Radii.md,
-  },
-  xpContent: {
+  levelHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: Spacing.base,
+    marginBottom: Spacing.small - 4,
   },
   levelLabel: {
-    ...Typography.body,
-    color: Colors.text,
+    ...Typography.caption,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    color: Colors.textMuted,
   },
   levelValue: {
-    ...Typography.caption,
-    color: Colors.text,
-    fontWeight: "600",
+    ...Typography.h1,
+    color: Colors.accent,
+    fontSize: 36,
+    lineHeight: 40,
   },
-  gridContainer: {
-    gap: Spacing.small,
-  },
-  row: {
+  xpNumbers: {
     flexDirection: "row",
-    gap: Spacing.small,
-  },
-  tile: {
-    flex: 1,
-    minWidth: 0,
-    backgroundColor: Colors.surfaceAlt,
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    paddingVertical: Spacing.small,
-    paddingHorizontal: Spacing.small + 4,
-    flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    gap: Spacing.small,
-  },
-  tileTextBlock: {
-    flex: 1,
-    gap: 2,
-  },
-  titleRow: {
-    flexDirection: "row",
     alignItems: "center",
-    gap: Spacing.tiny,
+    marginBottom: 2,
+    marginTop: Spacing.small / 2,
   },
-  tileTitle: {
+  xpValue: {
     ...Typography.body,
     color: Colors.text,
     fontWeight: "600",
-    letterSpacing: 0.2,
   },
-  tileSubtitle: {
+  xpMax: {
     ...Typography.caption,
     color: Colors.textMuted,
   },
-  tileValue: {
-    ...Typography.title,
+  progressTrack: {
+    height: 8,
+    borderRadius: 999,
+    backgroundColor: withAlpha(Colors.textMuted, 0.25),
+    overflow: "hidden",
+    marginTop: 0,
+  },
+  progressFill: {
+    height: "100%",
+    borderRadius: 999,
+  },
+  resourceColumn: {
+    width: 135,
+    flexShrink: 0,
+    flexGrow: 0,
+    alignSelf: "flex-start",
+    gap: Spacing.small,
+  },
+  resourceCard: {
+    width: "100%",
+    borderRadius: Radii.md,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.base - 2,
+    paddingVertical: Spacing.tiny + 4,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  resourceLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  resourceIcon: {
+    marginRight: Spacing.tiny,
+    marginLeft: -Spacing.tiny,
+  },
+  resourceLabel: {
+    ...Typography.caption,
     color: Colors.text,
-    fontSize: 18,
+    letterSpacing: 0.6,
+  },
+  resourceValue: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "800",
+    letterSpacing: 0.2,
+    paddingLeft: Spacing.tiny - 2,
   },
   buffTile: {
-    borderRadius: Radii.lg,
+    borderRadius: Radii.xl,
     borderWidth: 1,
-    borderColor: TILE_STYLES.buffs.border,
-    backgroundColor: TILE_STYLES.buffs.background,
-    padding: Spacing.base,
+    borderColor: "rgba(155, 106, 255, 0.45)",
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.small,
+    paddingBottom: Spacing.small + 4,
     gap: Spacing.tiny,
+    shadowColor: Colors.shadow,
+    shadowOpacity: 0.24,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 8,
+    marginBottom: Spacing.base * 1.5,
+  },
+  buffRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: Spacing.small,
   },
   buffHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Spacing.small / 2,
+    gap: Spacing.small,
+  },
+  buffBonus: {
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    borderRadius: Radii.pill,
+    backgroundColor: "rgba(255,255,255,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
+  },
+  buffBonusText: {
+    ...Typography.caption,
+    fontSize: 10,
+    color: Colors.text,
+    letterSpacing: 0.3,
   },
   buffTitle: {
     ...Typography.body,
     color: Colors.text,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   buffDescription: {
     ...Typography.caption,
-    color: Colors.textMuted,
+    color: Colors.text,
+    flex: 1,
+    paddingTop: Spacing.tiny,
   },
 });
-
-
-
-
-
-
-

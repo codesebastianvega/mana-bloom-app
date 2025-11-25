@@ -1,32 +1,31 @@
 // [MB] Modulo: Home / Seccion: Inventario
 // Afecta: HomeScreen
-// Proposito: Resumen compacto de inventario con accesos rapidos
-// Puntos de edicion futura: enlazar inventario completo y estilos responsivos
-// Autor: Codex - Fecha: 2025-10-15
+// Proposito: Resumen compacto de inventario (mock-style)
+// Puntos de edicion futura: enlazar counts reales y modal de inventario
+// Autor: Codex - Fecha: 2025-10-15 (V2)
 
 import React, { useMemo } from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import styles from "./InventorySection.styles";
-import {
-  useAppState,
-  useInventoryCounts,
-  useHydrationStatus,
-} from "../../state/AppContext";
-import SectionPlaceholder from "../common/SectionPlaceholder";
-
-const BUTTON_ACCENTS = {
-  potions: "#B542F6",
-  tools: "#1cd47b",
-  cosmetics: "#FFD700",
-  all: "#8E9AC6",
-};
+import { useInventoryCounts } from "../../state/AppContext";
+import { CategoryAccents, Colors } from "../../theme";
 
 const LABELS = {
   potions: "Pociones",
-  tools: "Herramientas",
-  cosmetics: "Cosmeticos",
-  all: "Ver todo",
+  tools: "Herram.",
+  cosmetics: "Cosméticos",
+  plants: "Plantas",
+  pets: "Mascotas",
+};
+
+const FALLBACK_COUNTS = {
+  potions: 12,
+  tools: 5,
+  cosmetics: 3,
+  plants: 4,
+  pets: 2,
 };
 
 function hexToRgba(hex = "", alpha = 1) {
@@ -46,133 +45,139 @@ function hexToRgba(hex = "", alpha = 1) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-function buildButtonConfig(counts, navigation, onGoToShop) {
-  return [
+function getAccent(key) {
+  return CategoryAccents[key] || Colors.accent;
+}
+
+export default function InventorySection({ onGoToShop }) {
+  const counts = useInventoryCounts();
+  const navigation = useNavigation();
+
+  const safeCounts = useMemo(() => {
+    const mapped = {};
+    Object.keys(FALLBACK_COUNTS).forEach((key) => {
+      const raw = counts?.[key];
+      mapped[key] = typeof raw === "number" ? raw : FALLBACK_COUNTS[key];
+    });
+    return mapped;
+  }, [counts]);
+
+  const buttons = [
     {
       key: "potions",
       label: LABELS.potions,
-      value: counts.potions,
-      accent: BUTTON_ACCENTS.potions,
-      background: hexToRgba(BUTTON_ACCENTS.potions, 0.18),
+      value: safeCounts.potions,
+      accent: getAccent("potions"),
+      background: "rgba(255,255,255,0.08)",
+      borderColor: "rgba(255,255,255,0.22)",
+      icon: "flask-outline",
       onPress: onGoToShop,
     },
     {
       key: "tools",
       label: LABELS.tools,
-      value: counts.tools,
-      accent: BUTTON_ACCENTS.tools,
-      background: hexToRgba(BUTTON_ACCENTS.tools, 0.18),
+      value: safeCounts.tools,
+      accent: "#2dc9ff",
+      background: "rgba(255,255,255,0.08)",
+      borderColor: "rgba(255,255,255,0.22)",
+      icon: "wrench",
       onPress: onGoToShop,
     },
     {
       key: "cosmetics",
       label: LABELS.cosmetics,
-      value: counts.cosmetics,
-      accent: BUTTON_ACCENTS.cosmetics,
-      background: hexToRgba(BUTTON_ACCENTS.cosmetics, 0.18),
+      value: safeCounts.cosmetics,
+      accent: Colors.secondaryFantasy,
+      background: "rgba(255,255,255,0.08)",
+      borderColor: "rgba(255,255,255,0.22)",
+      icon: "brush",
       onPress: onGoToShop,
     },
     {
-      key: "all",
-      label: LABELS.all,
-      value: null,
-      accent: BUTTON_ACCENTS.all,
-      background: hexToRgba(BUTTON_ACCENTS.all, 0.18),
-      onPress: () => navigation.navigate("InventoryModal"),
+      key: "plants",
+      label: LABELS.plants,
+      value: safeCounts.plants,
+      accent: Colors.success,
+      background: "rgba(255,255,255,0.08)",
+      borderColor: "rgba(255,255,255,0.22)",
+      icon: "leaf",
+      onPress: onGoToShop,
+    },
+    {
+      key: "pets",
+      label: LABELS.pets,
+      value: safeCounts.pets,
+      accent: Colors.warning,
+      background: "rgba(255,255,255,0.08)",
+      borderColor: "rgba(255,255,255,0.22)",
+      icon: "paw",
+      onPress: onGoToShop,
     },
   ];
-}
-
-function InventorySection({ onGoToShop }) {
-  const { inventory } = useAppState();
-  const counts = useInventoryCounts();
-  const { modules } = useHydrationStatus();
-  const navigation = useNavigation();
-
-  const totalItems = useMemo(() => inventory.length, [inventory]);
-
-  if (modules.inventory) {
-    return <SectionPlaceholder height={140} />;
-  }
-
-  if (totalItems === 0) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.titleRow}>
-          <Text style={styles.title} accessibilityRole="header">
-            Inventario
-          </Text>
-        </View>
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>Tu inventario esta vacio</Text>
-          <Pressable
-            onPress={() => onGoToShop?.()}
-            style={styles.emptyLink}
-            accessibilityRole="button"
-            accessibilityLabel="Ir a la tienda"
-          >
-            <Text style={styles.emptyLinkText}>Ir a la tienda</Text>
-            <Text style={styles.emptyLinkIcon}>-></Text>
-          </Pressable>
-        </View>
-      </View>
-    );
-  }
-
-  const buttons = buildButtonConfig(counts, navigation, onGoToShop);
-
   return (
-    <View style={styles.container}>
+    <>
       <View style={styles.titleRow}>
-        <View>
-          <Text style={styles.title} accessibilityRole="header">
-            Inventario
-          </Text>
-          <Text style={styles.subtitle}>Tus articulos favoritos, clasificados</Text>
+        <View style={styles.titleLeft}>
+          <View style={styles.titleLeftRow}>
+            <MaterialCommunityIcons
+              name="lock"
+              size={16}
+              color={Colors.text}
+              style={styles.titleIcon}
+            />
+            <Text style={styles.title} accessibilityRole="header">
+              Inventario
+            </Text>
+          </View>
+          <Text style={styles.subtitle}>Visión rápida de tus recursos.</Text>
         </View>
+        <Pressable
+          onPress={() => navigation.navigate("InventoryModal")}
+          accessibilityRole="button"
+          accessibilityLabel="Abrir inventario completo"
+        >
+          <Text style={styles.openCta}>Abrir</Text>
+        </Pressable>
       </View>
 
-      <View style={styles.grid} accessibilityRole="grid">
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.sliderContent}
+        accessibilityRole="list"
+      >
         {buttons.map((button) => (
           <Pressable
             key={button.key}
             accessibilityRole="button"
-            accessibilityLabel={
-              button.value !== null
-                ? `${button.label} ${button.value}`
-                : "Ver inventario completo"
-            }
+            accessibilityLabel={`${button.label} ${button.value}`}
             onPress={button.onPress}
             style={({ pressed }) => [
-              styles.pressableTile,
+              styles.tile,
+              {
+                borderColor: button.borderColor || button.accent,
+                backgroundColor: button.background,
+              },
               pressed && styles.tilePressed,
             ]}
           >
-            <View
-              style={[
-                styles.tile,
-                {
-                  borderColor: button.accent,
-                  backgroundColor: button.background,
-                },
-              ]}
-            >
-              <Text style={styles.tileLabel}>{button.label}</Text>
-              {button.value !== null ? (
-                <Text style={[styles.tileValue, { color: button.accent }]}>
-                  {button.value}
-                </Text>
-              ) : (
-                <Text style={styles.tileCta}>Abrir</Text>
-              )}
+            <View style={styles.tileValueRow}>
+              {button.icon ? (
+                <MaterialCommunityIcons
+                  name={button.icon}
+                  size={18}
+                  color={Colors.text}
+                  style={styles.tileIcon}
+                />
+              ) : null}
+              <Text style={[styles.tileValue, { color: Colors.text }]}>
+                {button.value}
+              </Text>
             </View>
+            <Text style={styles.tileLabel}>{button.label}</Text>
           </Pressable>
         ))}
-      </View>
-    </View>
+      </ScrollView>
+    </>
   );
 }
-
-export default React.memo(InventorySection);
-
-

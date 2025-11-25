@@ -11,7 +11,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 
 import styles from "./HomeWelcomeCard.styles";
-import { ElementAccents } from "../../theme";
+import { Colors, ElementAccents } from "../../theme";
 import {
   useAppState,
   useDailyChallenges,
@@ -349,6 +349,32 @@ export default function HomeWelcomeCard({ onNext }) {
 
   const completedChallenges = items.filter((it) => it.claimed).length;
   const totalChallenges = items.length;
+  const kpiItems = [
+    {
+      key: "tasks",
+      label: "Tareas",
+      value: taskCounts.tasks ?? "--",
+      icon: "check-circle",
+      accent: Colors.secondary,
+      accessibilityLabel: `Tareas pendientes: ${taskCounts.tasks ?? 0}`,
+    },
+    {
+      key: "habits",
+      label: "Hábitos",
+      value: taskCounts.habits ?? "--",
+      icon: "fire",
+      accent: Colors.warning,
+      accessibilityLabel: `Hábitos pendientes: ${taskCounts.habits ?? 0}`,
+    },
+    {
+      key: "challenges",
+      label: "Retos",
+      value: `${completedChallenges}/${totalChallenges}`,
+      icon: "trophy",
+      accent: Colors.accent,
+      accessibilityLabel: `Retos diarios: ${completedChallenges} de ${totalChallenges}`,
+    },
+  ];
   const lensScale = lensAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [0.94, 1.08],
@@ -539,32 +565,20 @@ export default function HomeWelcomeCard({ onNext }) {
             },
           ]}
         >
-          <View
-            style={[styles.kpiBox, styles.kpiPrimary]}
-            accessibilityRole="text"
-            accessibilityLabel={`Tareas para hoy: ${taskCounts.tasks ?? 0}`}
-          >
-            <Text style={styles.kpiNumber}>{taskCounts.tasks ?? "--"}</Text>
-            <Text style={styles.kpiLabel}>Tareas</Text>
-          </View>
-          <View
-            style={styles.kpiBox}
-            accessibilityRole="text"
-            accessibilityLabel={`Habitos pendientes: ${taskCounts.habits ?? 0}`}
-          >
-            <Text style={styles.kpiNumber}>{taskCounts.habits ?? "--"}</Text>
-            <Text style={styles.kpiLabel}>Habitos</Text>
-          </View>
-          <View
-            style={styles.kpiBox}
-            accessibilityRole="text"
-            accessibilityLabel={`Desafios diarios: ${completedChallenges}/${totalChallenges}`}
-          >
-            <Text style={styles.kpiNumber}>
-              {`${completedChallenges}/${totalChallenges}`}
-            </Text>
-            <Text style={styles.kpiLabel}>Desafios</Text>
-          </View>
+          {kpiItems.map((kpi) => (
+            <View
+              key={kpi.key}
+              style={styles.kpiBox}
+              accessibilityRole="text"
+              accessibilityLabel={kpi.accessibilityLabel}
+            >
+              <View style={styles.kpiLabelRow}>
+                <MaterialCommunityIcons name={kpi.icon} size={11} color={kpi.accent} />
+                <Text style={styles.kpiLabel}>{kpi.label}</Text>
+              </View>
+              <Text style={styles.kpiNumber}>{kpi.value}</Text>
+            </View>
+          ))}
         </Animated.View>
         <AnimatedPressable
           onPress={onNext}
@@ -584,9 +598,9 @@ export default function HomeWelcomeCard({ onNext }) {
           }}
           style={[styles.footerButton, { transform: [{ scale: ctaScale }] }]}
           accessibilityRole="button"
-          accessibilityLabel="Abrir agenda del día"
+          accessibilityLabel="Ir a mis tareas"
         >
-          <Text style={styles.footerText}>Ver agenda del día</Text>
+          <Text style={styles.footerText}>Ir a mis tareas</Text>
           <MaterialCommunityIcons
             name="chevron-right"
             size={18}

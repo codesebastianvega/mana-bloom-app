@@ -12,16 +12,16 @@ export default StyleSheet.create({
     borderRadius: Radii.lg,
     borderWidth: 1,
     borderColor: "rgba(120, 170, 255, 0.35)",
-    marginHorizontal: Spacing.base,
-    paddingHorizontal: Spacing.base,
+    marginHorizontal: 0,
+    paddingHorizontal: 0,
     paddingVertical: Spacing.base,
     overflow: "hidden",
   },
   container: {
     borderRadius: Radii.lg,
     gap: Spacing.base,
-    padding: 0,
-    gap: Spacing.base,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: 0,
   },
   header: {
     flexDirection: "row",
@@ -46,7 +46,7 @@ export default StyleSheet.create({
     color: Colors.textMuted,
   },
   timeline: {
-    gap: Spacing.small,
+    gap: Spacing.tiny + 2,
     paddingVertical: Spacing.tiny,
   },
   timelineRow: {
@@ -57,6 +57,7 @@ export default StyleSheet.create({
   dotColumn: {
     width: 14,
     alignItems: "center",
+    paddingTop: 2,
   },
   dot: {
     width: 10,
@@ -72,6 +73,7 @@ export default StyleSheet.create({
   timelineText: {
     flex: 1,
     gap: 2,
+    paddingTop: 1,
   },
   rowBetween: {
     flexDirection: "row",
@@ -93,19 +95,28 @@ export default StyleSheet.create({
     paddingVertical: Spacing.tiny,
     borderRadius: Radii.pill,
     borderWidth: 1,
-    backgroundColor: "rgba(255,255,255,0.08)",
+    backgroundColor: "rgba(16, 133, 184, 0.08)",
   },
   badgeText: {
     ...Typography.caption,
     fontWeight: "700",
   },
+  seasonBadge: {
+    borderColor: Colors.secondary,
+    backgroundColor: "rgba(45,201,255,0.12)",
+  },
+  seasonBadgeText: {
+    color: Colors.secondary,
+    fontWeight: "700",
+  },
   divider: {
     height: 1,
     backgroundColor: "rgba(255,255,255,0.08)",
-    marginTop: Spacing.small,
+    marginTop: Spacing.tiny,
+    marginBottom: 0,
   },
   viewAllButton: {
-    marginTop: Spacing.small,
+    marginTop: 0,
     alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",

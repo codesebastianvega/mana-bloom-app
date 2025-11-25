@@ -4,44 +4,72 @@
 // Puntos de edicion futura: agregar mas banners, cambiar tiempos
 // Autor: Codex - Fecha: 2025-11-22
 
-import React, { useRef, useState, useEffect } from 'react';
-import { View, ScrollView, Pressable, Text, StyleSheet, Dimensions, ImageBackground } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { FontAwesome5 } from '@expo/vector-icons';
-import { Colors, Typography, Spacing } from '../../theme';
-import { useNavigation } from '@react-navigation/native';
+import React, { useRef, useState, useEffect } from "react";
+import {
+  View,
+  ScrollView,
+  Pressable,
+  Text,
+  StyleSheet,
+  Dimensions,
+  ImageBackground,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { FontAwesome5 } from "@expo/vector-icons";
+import { Colors, Typography, Spacing, CategoryAccents, Radii } from "../../theme";
+import { useNavigation } from "@react-navigation/native";
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const BANNER_WIDTH = SCREEN_WIDTH; // Full width for edge-to-edge
-const BANNER_HEIGHT = 200;
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const BANNER_WIDTH = SCREEN_WIDTH * 0.85;
+const BANNER_HEIGHT = 160;
 const AUTO_SCROLL_INTERVAL = 5000;
 
 const BANNERS = [
   {
-    id: 'garden',
-    title: 'Jardín Místico',
-    subtitle: 'Cultiva tu magia interior',
-    cta: 'Explorar',
-    image: require('../../../assets/banners/daycocoa.png'),
-    route: 'Garden',
+    id: "garden",
+    title: "Jardín místico",
+    subtitle: "Cuida a Cocoa y desbloquea nuevos brotes.",
+    cta: "Ir al jardín",
+    image: require("../../../assets/banners/daycocoa.png"),
+    route: "Garden",
+    accentKey: "seeds",
+    gradient: ["#0f5a33", "#18405f"],
   },
   {
-    id: 'inventory',
-    title: 'Tu Inventario',
-    subtitle: 'Descubre tus tesoros mágicos',
-    cta: 'Ver inventario',
-    image: require('../../../assets/banners/bannerinventory.png'),
-    route: 'InventoryModal',
+    id: "inventory",
+    title: "Inventario vivo",
+    subtitle: "Revisa rápidamente tus tesoros mágicos.",
+    cta: "Abrir inventario",
+    image: require("../../../assets/banners/bannerinventory.png"),
+    route: "InventoryModal",
+    accentKey: "tools",
+    gradient: ["#35246c", "#271442"],
   },
   {
-    id: 'premium',
-    title: 'Pases Premium',
-    subtitle: 'Desbloquea todo tu potencial',
-    cta: 'Obtener',
-    image: require('../../../assets/banners/bannerpasessubs.png'),
-    route: 'Shop',
+    id: "premium",
+    title: "Pases premium",
+    subtitle: "Duplica XP y desbloquea misiones exclusivas.",
+    cta: "Ver pases",
+    image: require("../../../assets/banners/bannerpasessubs.png"),
+    route: "Shop",
+    accentKey: "cosmetics",
+    gradient: ["#4a1d59", "#8b2a7e"],
   },
 ];
+
+const withAlpha = (hex = "", alpha = 1) => {
+  if (!hex) return hex;
+  const cleaned = `${hex}`.replace("#", "").trim();
+  const base = cleaned.length === 8 ? cleaned.slice(0, 6) : cleaned;
+  if (base.length !== 6) return hex;
+  const value = parseInt(base, 16);
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+};
+
+const getAccent = (key) => CategoryAccents[key] || Colors.accent;
 
 export default function PromoBannerSlider() {
   const scrollRef = useRef(null);
@@ -59,14 +87,16 @@ export default function PromoBannerSlider() {
     }
   };
 
-  const handleBannerPress = (route) => {
-    if (route === 'Garden') {
-      navigation.navigate('Garden');
-    } else if (route === 'Shop') {
-      navigation.navigate('ShopScreen', { initialTab: 'subs' });
-    } else {
-      navigation.navigate(route);
+  const handleBannerPress = (banner) => {
+    if (banner.route === "Garden") {
+      navigation.navigate("Garden");
+      return;
     }
+    if (banner.route === "Shop") {
+      navigation.navigate("ShopScreen", { initialTab: "subs" });
+      return;
+    }
+    navigation.navigate(banner.route);
   };
 
   useEffect(() => {
@@ -107,53 +137,71 @@ export default function PromoBannerSlider() {
         snapToAlignment="center"
         contentContainerStyle={styles.scrollContent}
       >
-        {BANNERS.map((banner) => (
-          <Pressable
-            key={banner.id}
-            style={styles.bannerWrapper}
-            onPress={() => handleBannerPress(banner.route)}
-          >
-            <ImageBackground
-              source={banner.image}
-              style={styles.banner}
-              imageStyle={styles.bannerImage}
-              resizeMode="cover"
+        {BANNERS.map((banner) => {
+          const accent = getAccent(banner.accentKey);
+          const baseGradient =
+            banner.gradient || [accent, withAlpha(accent, 0.6)];
+          const gradientColors = baseGradient.map((color, idx) =>
+            color.startsWith("#")
+              ? withAlpha(color, idx === 0 ? 0.35 : 0.55)
+              : color
+          );
+          return (
+            <Pressable
+              key={banner.id}
+              style={styles.bannerWrapper}
+              onPress={() => handleBannerPress(banner)}
+              accessibilityRole="button"
+              accessibilityLabel={banner.cta}
             >
-              {/* Bottom gradient for text readability */}
-              <LinearGradient
-                colors={['transparent', 'rgba(0,0,0,0.8)']}
-                style={styles.gradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-              />
-              
-              {/* Epic Games style content - bottom left */}
-              <View style={styles.content}>
-                <View style={styles.textBlock}>
-                  <Text style={styles.title}>{banner.title}</Text>
-                  <Text style={styles.subtitle}>{banner.subtitle}</Text>
+              <ImageBackground
+                source={banner.image}
+                style={styles.banner}
+                imageStyle={styles.bannerImage}
+                resizeMode="cover"
+              >
+                <LinearGradient
+                  colors={gradientColors}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={StyleSheet.absoluteFill}
+                />
+                <View style={styles.patternOverlay} />
+                <View style={styles.content}>
+                  <View style={styles.textBlock}>
+                    <Text style={styles.title}>{banner.title}</Text>
+                    <Text style={styles.subtitle}>{banner.subtitle}</Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.ctaButton,
+                      {
+                        borderColor: withAlpha(Colors.text, 0.3),
+                        backgroundColor: withAlpha(Colors.text, 0.18),
+                      },
+                    ]}
+                  >
+                    <Text style={styles.ctaText}>{banner.cta}</Text>
+                    <FontAwesome5 name="arrow-right" size={12} color={Colors.text} />
+                  </View>
                 </View>
-                
-                {/* CTA Button - Elegant style */}
-                <View style={styles.ctaButton}>
-                  <Text style={styles.ctaText}>{banner.cta}</Text>
-                  <FontAwesome5 name="arrow-right" size={12} color="#FFFFFF" />
-                </View>
-              </View>
-            </ImageBackground>
-          </Pressable>
-        ))}
+              </ImageBackground>
+            </Pressable>
+          );
+        })}
       </ScrollView>
 
-      {/* Pagination Dots - Epic Games style */}
       <View style={styles.pagination}>
-        {BANNERS.map((_, index) => (
+        {BANNERS.map((banner, index) => (
           <Pressable
             key={index}
             onPress={() => scrollToIndex(index)}
             style={[
               styles.dot,
-              currentIndex === index && styles.dotActive,
+              currentIndex === index && [
+                styles.dotActive,
+                { backgroundColor: getAccent(banner.accentKey) },
+              ],
             ]}
           />
         ))}
@@ -164,44 +212,35 @@ export default function PromoBannerSlider() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: Spacing.base,
-    marginBottom: 0, // Remove bottom margin to reduce gap
-    marginHorizontal: -Spacing.base, // Negative margin to break out of parent padding
+    marginTop: Spacing.large,
+    marginBottom: Spacing.small,
   },
   scrollContent: {
-    paddingHorizontal: 0,
+    paddingHorizontal: (SCREEN_WIDTH - BANNER_WIDTH) / 2,
   },
   bannerWrapper: {
-    width: SCREEN_WIDTH,
-    paddingHorizontal: Spacing.base,
+    width: BANNER_WIDTH,
+    marginRight: Spacing.small,
   },
   banner: {
-    width: '100%',
     height: BANNER_HEIGHT,
-    backgroundColor: '#000',
-    borderRadius: 16, // Rounded corners for app style
-    overflow: 'hidden',
+    borderRadius: Radii.lg,
+    overflow: "hidden",
+    padding: Spacing.base,
+    justifyContent: "space-between",
   },
   bannerImage: {
-    borderRadius: 16, // Match container radius
+    borderRadius: Radii.lg,
   },
-  gradient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '60%',
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
+  patternOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.08,
+    backgroundColor: "#ffffff",
   },
   content: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: Spacing.base,
-    paddingBottom: Spacing.base + 4,
-    gap: Spacing.small, // Reduced gap between text and button
+    flex: 1,
+    justifyContent: "space-between",
+    gap: Spacing.small,
   },
   textBlock: {
     gap: Spacing.tiny,
@@ -209,44 +248,43 @@ const styles = StyleSheet.create({
   title: {
     ...Typography.title,
     color: Colors.text,
+    fontWeight: "700",
   },
   subtitle: {
     ...Typography.caption,
     color: Colors.text,
   },
   ctaButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    gap: Spacing.small,
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    gap: Spacing.small / 2,
     paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.8)',
-    borderRadius: 8, // Slightly rounded, not pill
+    paddingVertical: Spacing.small - 2,
+    borderWidth: 1,
+    borderRadius: Radii.md,
   },
   ctaText: {
     ...Typography.caption,
     color: Colors.text,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontWeight: "700",
+    letterSpacing: 0.3,
   },
   pagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     gap: Spacing.small,
-    marginTop: Spacing.base,
+    marginTop: Spacing.small,
   },
   dot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
   dotActive: {
     width: 32,
-    backgroundColor: '#FFFFFF',
   },
 });
+

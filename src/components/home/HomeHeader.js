@@ -6,13 +6,11 @@
 
 import React, { forwardRef, useEffect, useImperativeHandle } from "react";
 import { View, Text, Pressable } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 
 import styles from "./HomeHeader.styles";
 import { Colors } from "../../theme";
-import { useAppState } from "../../state/AppContext";
+import { useAppState, useDrawer } from "../../state/AppContext";
 
 const PLANT_STATE_VARIANTS = {
   floreciendo: {
@@ -69,7 +67,7 @@ function resolvePlantState(rawState) {
 
 function HomeHeader({ onHeaderLayout, onChipPopoverToggle }, ref) {
   const { plantState, plantName } = useAppState();
-  const navigation = useNavigation();
+  const { openDrawer } = useDrawer();
   const variant = resolvePlantState(plantState);
   const plantDisplayName = plantName?.trim() || "Ernesto Perez";
 
@@ -100,41 +98,69 @@ function HomeHeader({ onHeaderLayout, onChipPopoverToggle }, ref) {
   );
 
   const handleMenuPress = () => {
-    navigation.navigate("ProfileScreen");
+    openDrawer();
+  };
+
+  const handleNotifications = () => {
+    // Placeholder para futuras notificaciones
   };
 
   return (
-    <SafeAreaView
+    <View
       style={styles.safeArea}
-      edges={["top"]}
       onLayout={onHeaderLayout}
       accessibilityRole="header"
       accessibilityLabel="Encabezado: Mana Bloom"
     >
-        <View style={styles.container}>
-          <Pressable
-            onPress={handleMenuPress}
-            style={styles.menuButton}
-            accessibilityRole="button"
-            accessibilityLabel="Abrir menú"
-            hitSlop={12}
-          >
-            <MaterialCommunityIcons
-              name="menu"
-              size={24}
-              color={Colors.text}
-            />
-          </Pressable>
-          <Text style={styles.title}>Mana Bloom</Text>
-          <View style={chipStyle} accessibilityRole="text">
-            {statusIndicator}
-            <View style={styles.plantTexts}>
-              <Text style={styles.plantLabel}>{plantDisplayName}</Text>
-              <Text style={stateStyle}>{`esta ${variant.label.toLowerCase()}`}</Text>
+      <View style={styles.container}>
+        <View style={styles.brandRow}>
+          <View style={styles.brandBlock}>
+            <View style={styles.logoBadge}>
+              <MaterialCommunityIcons
+                name="layers-triple"
+                size={20}
+                color={Colors.text}
+              />
             </View>
+            <Text style={styles.title}>Mana Bloom</Text>
+          </View>
+          <View style={styles.actionRow}>
+            <Pressable
+              onPress={handleNotifications}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir notificaciones"
+              style={styles.iconButton}
+              hitSlop={12}
+            >
+              <MaterialCommunityIcons
+                name="bell-outline"
+                size={20}
+                color={Colors.text}
+              />
+            </Pressable>
+            <Pressable
+              onPress={handleMenuPress}
+              style={styles.iconButton}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir menú"
+              hitSlop={12}
+            >
+              <MaterialCommunityIcons name="menu" size={22} color={Colors.text} />
+            </Pressable>
           </View>
         </View>
-    </SafeAreaView>
+        <View style={styles.plantChip} accessibilityRole="text">
+          {statusIndicator}
+          <Text
+            style={styles.plantCopy}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {`${plantDisplayName} · ${variant.label}`}
+          </Text>
+        </View>
+      </View>
+    </View>
   );
 }
 

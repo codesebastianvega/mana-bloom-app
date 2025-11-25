@@ -6,47 +6,53 @@
 
 import React from "react";
 import { View, Text, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import styles from "./EventHighlightsSection.styles";
 import { useHydrationStatus } from "../../state/AppContext";
 import SectionPlaceholder from "../common/SectionPlaceholder";
-import { Colors } from "../../theme";
+import { Colors, CategoryAccents } from "../../theme";
+
+const withAlpha = (hex = "", alpha = 1) => {
+  if (!hex) return hex;
+  const cleaned = `${hex}`.replace("#", "").trim();
+  const base = cleaned.length === 8 ? cleaned.slice(0, 6) : cleaned;
+  if (base.length !== 6) {
+    return hex;
+  }
+  const value = parseInt(base, 16);
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+};
+
+const getAccent = (key) => CategoryAccents[key] || Colors.accent;
 
 const TIMELINE = [
   {
-    key: "upcoming",
-    emoji: "\u{1F31E}",
-    title: "Festival Solar",
-    date: "24 oct - 30 oct",
-    description: "XP doble y tareas radiantes.",
-    accent: "#FFD54F",
+    key: "moon",
+    title: "Luna Llena: XP Doble",
+    date: "Viernes",
+    accentKey: "potions",
+    badge: null,
   },
   {
-    key: "recent",
-    emoji: "\u{1F319}",
-    title: "Noche de Mana",
-    date: "Finalizado 12 oct",
-    description: "Bonos de mana nocturnos y cosmeticos lunares.",
-    accent: "#B542F6",
+    key: "alchemy",
+    title: "Torneo de Alquimia",
+    date: "Sábado",
+    accentKey: "cosmetics",
+    badge: null,
   },
   {
-    key: "rumor",
-    emoji: "\u{1F342}",
-    title: "Equinoccio Umbral",
-    date: "Rumor: noviembre",
-    description: "Se habla de herramientas con descuento y buffs de foco.",
-    accent: "#8BC34A",
+    key: "season",
+    title: "Temporada de Escarcha",
+    date: "En 3 días",
+    accentKey: "tools",
+    badge: "Temporada",
   },
 ];
-
-const PROMO = {
-  title: "Promo del Festival",
-  description: "Durante el Festival Solar, las herramientas tienen 10% menos mana.",
-  icon: "hammer-outline",
-  accent: "#1cd47b",
-  targetTab: "tools",
-};
 
 function EventHighlightsSection() {
   const { modules } = useHydrationStatus();
@@ -54,7 +60,7 @@ function EventHighlightsSection() {
 
   // Temporarily disabled hydration check
   // if (modules.news) {
-  //   return <SectionPlaceholder height={260} />;
+  //   return <SectionPlaceholder height={220} />;
   // }
 
   const handleViewCalendar = () => {
@@ -67,65 +73,79 @@ function EventHighlightsSection() {
     navigation.navigate("NewsInboxModal");
   };
 
-  const handleOpenPromo = () => {
-    navigation.navigate("ShopScreen", { initialTab: PROMO.targetTab });
-  };
-
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.titleBlock}>
-          <Text style={styles.title} accessibilityRole="header">
-            Calendario Arcano
-          </Text>
-          <Text style={styles.subtitle}>
-            Mantente al dia del ciclo de eventos y promociones
-          </Text>
+    <LinearGradient
+      colors={["rgba(64,93,179,0.35)", "rgba(16,25,54,0.9)"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.gradient}
+    >
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.titleBlock}>
+            <View style={styles.titleIconRow}>
+              <MaterialCommunityIcons
+                name="calendar-month-outline"
+                size={16}
+                color={Colors.text}
+              />
+              <Text style={styles.title} accessibilityRole="header">
+                Eventos Misticos
+              </Text>
+            </View>
+            <Text style={styles.subtitle}>Se reinician en 4h</Text>
+          </View>
         </View>
+
+        <View style={styles.timeline} accessibilityRole="list">
+          {TIMELINE.map((item, idx) => {
+            const accentColor = getAccent(item.accentKey);
+            const connectorColor = withAlpha(accentColor, 0.35);
+            const isLast = idx === TIMELINE.length - 1;
+            return (
+              <View key={item.key} style={styles.timelineRow}>
+                <View style={styles.dotColumn}>
+                  <View style={[styles.dot, { backgroundColor: accentColor }]} />
+                  {!isLast ? (
+                    <View
+                      style={[styles.connector, { backgroundColor: connectorColor }]}
+                    />
+                  ) : null}
+                </View>
+                <View style={styles.timelineText}>
+                  <View style={styles.rowBetween}>
+                    <Text style={styles.timelineTitle}>{item.title}</Text>
+                    {item.badge ? (
+                      <View style={[styles.badge, styles.seasonBadge]}>
+                        <Text style={[styles.badgeText, styles.seasonBadgeText]}>
+                          {item.badge}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </View>
+                  <Text style={styles.timelineDate}>{item.date}</Text>
+                </View>
+              </View>
+            );
+          })}
+        </View>
+
+        <View style={styles.divider} />
+
         <Pressable
           onPress={handleViewCalendar}
-          style={({ pressed }) => [styles.viewAllButton, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.viewAllButton,
+            pressed && styles.pressed,
+          ]}
           accessibilityRole="button"
-          accessibilityLabel="Abrir calendario completo de eventos"
+          accessibilityLabel="Explorar calendario"
         >
-          <Text style={styles.viewAllText}>Ver calendario</Text>
+          <Text style={styles.viewAllText}>Explorar Calendario</Text>
           <Ionicons name="arrow-forward" size={14} color={Colors.textMuted} />
         </Pressable>
       </View>
-
-      <View style={styles.timeline} accessibilityRole="list">
-        {TIMELINE.map((item) => (
-          <View key={item.key} style={styles.timelineItem}>
-            <View style={[styles.timelineIcon, { borderColor: item.accent }]}
-            >
-              <Text style={styles.timelineEmoji}>{item.emoji}</Text>
-            </View>
-            <View style={styles.timelineText}>
-              <Text style={styles.timelineTitle}>{item.title}</Text>
-              <Text style={styles.timelineDate}>{item.date}</Text>
-              <Text style={styles.timelineDescription}>{item.description}</Text>
-            </View>
-          </View>
-        ))}
-      </View>
-
-      <Pressable
-        onPress={handleOpenPromo}
-        style={({ pressed }) => [styles.promoCard, pressed && styles.pressed]}
-        accessibilityRole="button"
-        accessibilityLabel="Abrir tienda con la promo del festival"
-      >
-        <View style={[styles.promoIcon, { borderColor: PROMO.accent }]}
-        >
-          <Ionicons name={PROMO.icon} size={18} color={PROMO.accent} />
-        </View>
-        <View style={styles.promoText}>
-          <Text style={styles.promoTitle}>{PROMO.title}</Text>
-          <Text style={styles.promoDescription}>{PROMO.description}</Text>
-        </View>
-        <Ionicons name="arrow-forward" size={18} color={Colors.textMuted} />
-      </Pressable>
-    </View>
+    </LinearGradient>
   );
 }
 
