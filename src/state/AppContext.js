@@ -942,3 +942,16 @@ export function useDrawer() {
     toggleDrawer,
   };
 }
+
+export function useDailyChallenges() {
+  const { dailyChallenges } = useAppState();
+  return dailyChallenges || { items: [] };
+}
+
+export function useHydrationStatus() {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error("useHydrationStatus must be used within an AppContextProvider");
+  }
+  return { modules: context.modules };
+}
