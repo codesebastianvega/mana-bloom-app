@@ -226,6 +226,13 @@ const initialState = {
   achievements: { progress: {}, unlocked: {} },
   achievementToast: null,
   garden: { items: [] },
+  drawerOpen: false,
+  preferences: {
+    themeDark: true,
+    sounds: true,
+    notifications: true,
+    haptics: true,
+  },
 };
 
 function roundToNearest10(n) {
@@ -285,6 +292,24 @@ function appReducer(state, action) {
       return { ...state, achievements: action.payload };
     case "SET_GARDEN_ITEMS":
       return { ...state, garden: { ...state.garden, items: action.payload } };
+    case "OPEN_DRAWER":
+      return { ...state, drawerOpen: true };
+    case "CLOSE_DRAWER":
+      return { ...state, drawerOpen: false };
+    case "TOGGLE_DRAWER":
+      return { ...state, drawerOpen: !state.drawerOpen };
+    case "SET_PREFERENCE": {
+      if (!action.payload?.key) return state;
+      const { key, value } = action.payload;
+      return {
+        ...state,
+        preferences: {
+          ...state.preferences,
+          [key]:
+            typeof value === "boolean" ? value : state.preferences?.[key] ?? true,
+        },
+      };
+    }
     case "MARK_NEWS_READ": {
       const items = state.news.items.map((it) =>
         it.id === action.payload.id ? { ...it, read: true } : it
@@ -596,6 +621,7 @@ export function AppProvider({ children }) {
       // Regenerate if date changed OR if challenges are missing description field
       const needsRegeneration = !dailyChallenges || 
         dailyChallenges.dateKey !== todayKey ||
+        !dailyChallenges.items || dailyChallenges.items.length === 0 ||
         (dailyChallenges.items && dailyChallenges.items.some(item => !item.description));
       
       if (needsRegeneration) {
@@ -943,15 +969,4 @@ export function useDrawer() {
   };
 }
 
-export function useDailyChallenges() {
-  const { dailyChallenges } = useAppState();
-  return dailyChallenges || { items: [] };
-}
 
-export function useHydrationStatus() {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error("useHydrationStatus must be used within an AppContextProvider");
-  }
-  return { modules: context.modules };
-}

@@ -89,35 +89,28 @@ export default StyleSheet.create({
     ...Typography.caption,
     color: Colors.textMuted,
   },
-  heroProgressCard: {
-    backgroundColor: withAlpha(Colors.surfaceElevated, 0.4),
-    borderRadius: Radii.lg,
+  multiProgressCard: {
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.45),
+    borderRadius: Radii.xl,
     borderWidth: 1,
-    borderColor: withAlpha(Colors.primaryLight, 0.22),
-    paddingVertical: Spacing.small + Spacing.tiny,
-    paddingHorizontal: Spacing.base,
-    gap: Spacing.small,
+    borderColor: withAlpha(Colors.primaryLight, 0.2),
+    padding: Spacing.base,
+    gap: Spacing.large,
   },
-  levelRow: {
+  multiProgressRow: {
+    gap: Spacing.tiny,
+  },
+  multiProgressHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  levelChip: {
-    paddingHorizontal: Spacing.small + Spacing.tiny,
-    paddingVertical: Spacing.tiny,
-    borderRadius: Radii.pill,
-    backgroundColor: withAlpha(Colors.secondary || Colors.accent, 0.22),
-    borderWidth: 1,
-    borderColor: withAlpha(Colors.secondaryLight || Colors.accent, 0.4),
-  },
-  levelChipText: {
-    ...Typography.caption,
-    fontWeight: "600",
-    letterSpacing: 0.4,
+  multiProgressLabel: {
+    ...Typography.body,
     color: Colors.text,
+    fontWeight: "700",
   },
-  progressValue: {
+  multiProgressHint: {
     ...Typography.caption,
     color: Colors.textMuted,
   },
@@ -127,10 +120,20 @@ export default StyleSheet.create({
     backgroundColor: withAlpha(Colors.surface, 0.3),
     overflow: "hidden",
   },
-  progressFill: {
+  progressFillLevel: {
     height: "100%",
     borderRadius: Radii.pill,
     backgroundColor: Colors.secondary || Colors.primary,
+  },
+  progressFillPlant: {
+    height: "100%",
+    borderRadius: Radii.pill,
+    backgroundColor: Colors.success,
+  },
+  progressFillPhase: {
+    height: "100%",
+    borderRadius: Radii.pill,
+    backgroundColor: Colors.accent,
   },
   statsRow: {
     flexDirection: "row",
@@ -164,6 +167,20 @@ export default StyleSheet.create({
     borderColor: withAlpha(Colors.primaryLight, 0.18),
     padding: Spacing.base,
     gap: Spacing.small,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  sectionLink: {
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+  },
+  sectionLinkText: {
+    ...Typography.caption,
+    color: Colors.accent,
+    fontWeight: "600",
   },
   sectionTitle: {
     ...Typography.h2,
@@ -219,6 +236,68 @@ export default StyleSheet.create({
     color: Colors.accent,
     fontWeight: "600",
   },
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.small,
+  },
+  chip: {
+    flexGrow: 1,
+    minWidth: 120,
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    padding: Spacing.small,
+    backgroundColor: withAlpha(Colors.surface, 0.35),
+  },
+  chipLabel: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  chipValue: {
+    ...Typography.title,
+    fontSize: 22,
+  },
+  bannerGrid: {
+    gap: Spacing.small,
+  },
+  bannerCard: {
+    borderRadius: Radii.xl,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.primaryLight, 0.25),
+  },
+  bannerImage: {
+    width: "100%",
+    height: 140,
+  },
+  bannerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.45)",
+  },
+  bannerContent: {
+    flex: 1,
+    justifyContent: "space-between",
+    padding: Spacing.base,
+  },
+  bannerTitle: {
+    ...Typography.title,
+    color: Colors.text,
+  },
+  bannerSubtitle: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  bannerCta: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    gap: Spacing.small,
+  },
+  bannerCtaText: {
+    ...Typography.caption,
+    color: Colors.text,
+    fontWeight: "700",
+  },
   progressRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -249,26 +328,6 @@ export default StyleSheet.create({
     ...Typography.body,
     color: Colors.text,
     fontWeight: "600",
-  },
-  settingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: Spacing.small,
-  },
-  settingText: {
-    flex: 1,
-    marginRight: Spacing.small,
-    gap: Spacing.tiny / 2,
-  },
-  settingLabel: {
-    ...Typography.body,
-    color: Colors.text,
-    fontWeight: "600",
-  },
-  settingHint: {
-    ...Typography.caption,
-    color: Colors.textMuted,
   },
   actionRow: {
     flexDirection: "row",

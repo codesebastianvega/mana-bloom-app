@@ -4,37 +4,38 @@
 // Puntos de edicion futura: conectar con contexto real y navegacion
 // Autor: Codex - Fecha: 2025-10-21
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
   View,
   Text,
   ScrollView,
   Pressable,
-  Switch,
-  Alert,
+  ImageBackground,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import AchievementToast from "../components/common/AchievementToast";
-import { useAchievementToast, useAppDispatch, useAppState } from "../state/AppContext";
+import {
+  useAchievementToast,
+  useAppDispatch,
+  useAppState,
+  useInventoryCounts,
+} from "../state/AppContext";
 import useProfileMock from "./profile/useProfileMock";
 import styles from "./ProfileScreen.styles";
-import { Colors } from "../theme";
 import AchievementsPanel from "../components/profile/AchievementsPanel";
 import AchievementsModal from "../components/profile/AchievementsModal";
 import { getAllAchievements } from "../constants/achievements";
 import { getJournalEntries, getVisualizeEntries } from "../storage";
-import { supabase } from "../lib/supabase";
-import { useNavigation } from "@react-navigation/native";
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
   const achievementToast = useAchievementToast();
   const dispatch = useAppDispatch();
   const { achievements: achievementState, level, streak } = useAppState();
-  const { profile, stats, progress, settings, actions, levelHint } =
-    useProfileMock();
+  const { profile, stats, progress, actions, levelHint } = useProfileMock();
 
   const xpPercent = Math.min(
     1,
@@ -43,6 +44,7 @@ export default function ProfileScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [visualizeEntries, setVisualizeEntries] = useState([]);
   const [journalLogEntries, setJournalLogEntries] = useState([]);
+  const counts = useInventoryCounts();
 
   useEffect(() => {
     let mounted = true;
@@ -65,24 +67,97 @@ export default function ProfileScreen() {
     };
   }, []);
 
-  const handleLogout = async () => {
-    Alert.alert(
-      "Cerrar Sesión",
-      "¿Estás seguro que deseas salir?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Salir",
-          style: "destructive",
-          onPress: async () => {
-            const { error } = await supabase.auth.signOut();
-            if (error) Alert.alert("Error", error.message);
-            else navigation.replace("Login");
-          },
-        },
-      ]
-    );
-  };
+  const resourceChips = useMemo(
+    () => [
+      {
+        id: "pets",
+        label: "Mascotas",
+        value: counts.pets,
+        accent: "#FFB347",
+      },
+      {
+        id: "seeds",
+        label: "Plantas",
+        value: counts.seeds,
+        accent: "#80deea",
+      },
+      {
+        id: "potions",
+        label: "Pociones",
+        value: counts.potions,
+        accent: "#B542F6",
+      },
+      {
+        id: "tools",
+        label: "Herramientas",
+        value: counts.tools,
+        accent: "#1cd47b",
+      },
+    ],
+    [counts]
+  );
+
+  const plantHealth = progress.find((item) => item.id === "health");
+  const efficiencyMetric = progress.find((item) => item.id === "efficiency");
+
+  const percentFromLabel = useCallback((value, fallback = 0.5) => {
+    if (typeof value === "number") {
+      return Math.max(0, Math.min(1, value));
+    }
+    if (typeof value === "string") {
+      const match = value.match(/(\d+)/);
+      if (match) {
+        return Math.max(0, Math.min(1, Number(match[1]) / 100));
+      }
+    }
+    return fallback;
+  }, []);
+
+  const plantHealthPct = percentFromLabel(plantHealth?.value, 0.85);
+  const gardenPhasePct = percentFromLabel(levelHint?.progress ?? 0.6);
+  const ritualMomentumPct = percentFromLabel(efficiencyMetric?.value, 0.45);
+
+  const handleGoToGarden = useCallback(() => {
+    navigation.navigate("Garden");
+  }, [navigation]);
+
+  const handleOpenInventory = useCallback(() => {
+    navigation.navigate("InventoryModal");
+  }, [navigation]);
+
+  const handleOpenSubs = useCallback(() => {
+    navigation.navigate("ShopScreen", { initialTab: "subs" });
+  }, [navigation]);
+
+  const bannerCards = useMemo(
+    () => [
+      {
+        id: "garden",
+        title: "Jardín Místico",
+        subtitle: "Cocoa te espera entre las flores",
+        image: require("../../assets/banners/daycocoa.png"),
+        cta: "Ir al jardín",
+        onPress: handleGoToGarden,
+      },
+      {
+        id: "inventory",
+        title: "Inventario vivo",
+        subtitle: "Revisa tus tesoros mágicos",
+        image: require("../../assets/banners/bannerinventory.png"),
+        cta: "Abrir inventario",
+        onPress: handleOpenInventory,
+      },
+      {
+        id: "passes",
+        title: "Pases y suscripciones",
+        subtitle: "Impulsa tu progresión",
+        image: require("../../assets/banners/bannerpasessubs.png"),
+        cta: "Ver pases",
+        onPress: handleOpenSubs,
+      },
+    ],
+    [handleGoToGarden, handleOpenInventory, handleOpenSubs]
+  );
 
   const achievementsFull = useMemo(() => {
     if (!achievementState) return [];
@@ -161,23 +236,72 @@ export default function ProfileScreen() {
                 <Text style={styles.heroRank}>{profile.rank}</Text>
               </View>
               <Text style={styles.heroSub}>
-                {profile.daysInAcademy} d?as en la academia m?gica
+                {profile.daysInAcademy} días en la academia mágica
               </Text>
             </View>
           </View>
+        </View>
 
-          <View style={styles.heroProgressCard}>
-            <View style={styles.levelRow}>
-              <View style={styles.levelChip}>
-                <Text style={styles.levelChipText}>Nivel {profile.level}</Text>
-              </View>
-              <Text style={styles.progressValue}>
+        <View style={styles.multiProgressCard}>
+          <Text style={styles.sectionTitle}>Progreso global</Text>
+          <View style={styles.multiProgressRow}>
+            <View style={styles.multiProgressHeader}>
+              <Text style={styles.multiProgressLabel}>Nivel {profile.level}</Text>
+              <Text style={styles.multiProgressHint}>
                 {profile.xpCurrent}/{profile.xpTarget} XP
               </Text>
             </View>
             <View style={styles.progressBar}>
               <View
-                style={[styles.progressFill, { width: `${xpPercent * 100}%` }]}
+                style={[styles.progressFillLevel, { width: `${xpPercent * 100}%` }]}
+              />
+            </View>
+          </View>
+          <View style={styles.multiProgressRow}>
+            <View style={styles.multiProgressHeader}>
+              <Text style={styles.multiProgressLabel}>Salud de la planta</Text>
+              <Text style={styles.multiProgressHint}>
+                {plantHealth?.hint || "Floreciente"}
+              </Text>
+            </View>
+            <View style={styles.progressBar}>
+              <View
+                style={[styles.progressFillPlant, { width: `${plantHealthPct * 100}%` }]}
+              />
+            </View>
+          </View>
+          <View style={styles.multiProgressRow}>
+            <View style={styles.multiProgressHeader}>
+              <Text style={styles.multiProgressLabel}>Rituales y jardín</Text>
+              <Text style={styles.multiProgressHint}>
+                {efficiencyMetric?.hint || "En marcha"}
+              </Text>
+            </View>
+            <View style={styles.progressBar}>
+              <View
+                style={[
+                  styles.progressFillPhase,
+                  {
+                    width: `${
+                      Math.max(gardenPhasePct, ritualMomentumPct) * 100
+                    }%`,
+                  },
+                ]}
+              />
+            </View>
+          </View>
+          <View style={styles.levelCallout}>
+            <View style={styles.levelCalloutHeader}>
+              <FontAwesome5 name="bolt" size={14} color="#ffca28" />
+              <Text style={styles.levelCalloutTitle}>{levelHint.title}</Text>
+            </View>
+            <Text style={styles.levelCalloutMessage}>{levelHint.message}</Text>
+            <View style={styles.levelCalloutBar}>
+              <View
+                style={[
+                  styles.levelCalloutFill,
+                  { width: `${Math.min(1, levelHint.progress) * 100}%` },
+                ]}
               />
             </View>
           </View>
@@ -194,37 +318,54 @@ export default function ProfileScreen() {
 
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Cuenta</Text>
+            <Text style={styles.sectionTitle}>Jardín y colecciones</Text>
+            <Text style={styles.sectionCounter}>Inventario vivo</Text>
           </View>
-          
-          <Pressable style={styles.actionRow} onPress={() => Alert.alert("Próximamente", "Podrás cambiar tu contraseña aquí.")}>
-            <View style={styles.actionIcon}>
-              <FontAwesome5 name="lock" size={14} color={Colors.textMuted} />
-            </View>
-            <Text style={styles.actionLabel}>Cambiar Contraseña</Text>
-            <FontAwesome5 name="chevron-right" size={12} color={Colors.textMuted} />
-          </Pressable>
-
-          <Pressable style={styles.actionRow} onPress={handleLogout}>
-            <View style={styles.actionIcon}>
-              <FontAwesome5 name="sign-out-alt" size={14} color={Colors.warning} />
-            </View>
-            <Text style={[styles.actionLabel, { color: Colors.warning }]}>Cerrar Sesión</Text>
-            <FontAwesome5 name="chevron-right" size={12} color={Colors.warning} />
-          </Pressable>
-
-          <Pressable style={styles.actionRow} onPress={() => Alert.alert("Zona de Peligro", "Esta acción eliminará tu cuenta permanentemente.")}>
-            <View style={styles.actionIcon}>
-              <FontAwesome5 name="trash-alt" size={14} color={Colors.danger} />
-            </View>
-            <Text style={[styles.actionLabel, { color: Colors.danger }]}>Eliminar Cuenta</Text>
-            <FontAwesome5 name="chevron-right" size={12} color={Colors.danger} />
-          </Pressable>
+          <View style={styles.chipRow}>
+            {resourceChips.map((chip) => (
+              <View
+                key={chip.id}
+                style={[styles.chip, { borderColor: chip.accent }]}
+              >
+                <Text style={styles.chipLabel}>{chip.label}</Text>
+                <Text style={[styles.chipValue, { color: chip.accent }]}>
+                  {chip.value}
+                </Text>
+              </View>
+            ))}
+          </View>
+          <View style={styles.bannerGrid}>
+            {bannerCards.map((banner) => (
+              <Pressable
+                key={banner.id}
+                onPress={banner.onPress}
+                style={styles.bannerCard}
+              >
+                <ImageBackground
+                  source={banner.image}
+                  imageStyle={styles.bannerImage}
+                  style={styles.bannerImage}
+                >
+                  <View style={styles.bannerOverlay} />
+                  <View style={styles.bannerContent}>
+                    <View>
+                      <Text style={styles.bannerTitle}>{banner.title}</Text>
+                      <Text style={styles.bannerSubtitle}>{banner.subtitle}</Text>
+                    </View>
+                    <View style={styles.bannerCta}>
+                      <Text style={styles.bannerCtaText}>{banner.cta}</Text>
+                      <FontAwesome5 name="arrow-right" size={12} color="#ffffff" />
+                    </View>
+                  </View>
+                </ImageBackground>
+              </Pressable>
+            ))}
+          </View>
         </View>
 
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Logros m?gicos</Text>
+            <Text style={styles.sectionTitle}>Logros mágicos</Text>
             <Pressable
               onPress={() => setModalVisible(true)}
               style={styles.sectionLink}
@@ -247,7 +388,7 @@ export default function ProfileScreen() {
               </Text>
             </View>
             <View style={styles.achievementTag}>
-              <Text style={styles.achievementTagText}>Pr?ximo</Text>
+              <Text style={styles.achievementTagText}>Próximo</Text>
             </View>
           </View>
           <AchievementsPanel limit={3} />
@@ -281,7 +422,7 @@ export default function ProfileScreen() {
           </View>
           {journalLogEntries.length === 0 && visualizeEntries.length === 0 ? (
             <Text style={styles.diaryEmpty}>
-              An no registras notas ni visiones. Empieza un ritual para
+              Aún no registras notas ni visiones. Empieza un ritual para
               desbloquear este espacio.
             </Text>
           ) : (
@@ -292,7 +433,7 @@ export default function ProfileScreen() {
                     <Text style={styles.diaryTagText}>Nota</Text>
                   </View>
                   <Text style={styles.diaryTitle}>
-                    {entry.title || "Entrada sin ttulo"}
+                    {entry.title || "Entrada sin título"}
                   </Text>
                   <Text style={styles.diaryBody}>{entry.note}</Text>
                   <Text style={styles.diaryDate}>
@@ -303,7 +444,7 @@ export default function ProfileScreen() {
               {visualizeEntries.slice(0, 2).map((entry) => (
                 <View key={entry.createdAt || entry.id} style={styles.diaryEntry}>
                   <View style={[styles.diaryTag, styles.diaryTagVision]}>
-                    <Text style={styles.diaryTagText}>Visin</Text>
+                    <Text style={styles.diaryTagText}>Visión</Text>
                   </View>
                   <Text style={styles.diaryBody}>{entry.text}</Text>
                   <Text style={styles.diaryDate}>
@@ -314,27 +455,11 @@ export default function ProfileScreen() {
             </>
           )}
         </View>
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Configuraci?n m?gica</Text>
-          </View>
-          {(settings || []).map((item) => (
-            <View key={item.id} style={styles.settingRow}>
-              <View style={styles.settingText}>
-                <Text style={styles.settingLabel}>{item.label}</Text>
-                <Text style={styles.settingHint}>{item.description}</Text>
-              </View>
-              <Switch
-                value={item.value}
-                onValueChange={item.onChange}
-                trackColor={{ false: "rgba(255,255,255,0.15)", true: "#7e57c2" }}
-                thumbColor={item.value ? "#ffffff" : "#b0bec5"}
-              />
-            </View>
-          ))}
-        </View>
 
         <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Acciones suaves</Text>
+          </View>
           {(actions || []).map((action) => (
             <Pressable key={action.id} style={styles.actionRow}>
               <View style={styles.actionIcon}>
@@ -348,24 +473,6 @@ export default function ProfileScreen() {
               />
             </Pressable>
           ))}
-        </View>
-
-
-
-        <View style={styles.levelCallout}>
-          <View style={styles.levelCalloutHeader}>
-            <FontAwesome5 name="bolt" size={14} color="#ffca28" />
-            <Text style={styles.levelCalloutTitle}>{levelHint.title}</Text>
-          </View>
-          <Text style={styles.levelCalloutMessage}>{levelHint.message}</Text>
-          <View style={styles.levelCalloutBar}>
-            <View
-              style={[
-                styles.levelCalloutFill,
-                { width: `${Math.min(1, levelHint.progress) * 100}%` },
-              ]}
-            />
-          </View>
         </View>
       </ScrollView>
       <AchievementsModal

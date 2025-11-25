@@ -26,14 +26,51 @@ export default StyleSheet.create({
     shadowOffset: { width: -4, height: 0 },
     elevation: 20,
   },
+  drawerHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+  },
+  avatarGlow: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarGlyph: {
+    fontSize: 26,
+  },
+  headerText: {
+    flex: 1,
+  },
   drawerTitle: {
     ...Typography.h1,
-    fontSize: 24,
+    fontSize: 22,
     color: Colors.text,
   },
   drawerSubtitle: {
     ...Typography.caption,
     color: Colors.textMuted,
+  },
+  quickLinksSection: {
+    gap: Spacing.small,
+    paddingTop: Spacing.small,
+    borderTopWidth: 1,
+    borderColor: Colors.border,
+  },
+  quickLinksHeader: {
+    gap: Spacing.tiny,
+  },
+  quickLinksHint: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  quickLinksRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.small,
   },
   section: {
     gap: Spacing.small,
@@ -94,5 +131,20 @@ export default StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  versionRow: {
+    borderTopWidth: 1,
+    borderColor: Colors.border,
+    paddingTop: Spacing.small,
+    gap: Spacing.tiny,
+  },
+  versionLabel: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  versionHint: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    opacity: 0.75,
   },
 });

@@ -5,7 +5,7 @@
 // Autor: Codex - Fecha: 2025-10-20
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Elevation } from "../theme";
+import { Colors, Spacing, Radii, Elevation, Typography, CardStyles } from "../theme";
 import { FAB_SIZE } from "../components/AddTaskButton/AddTaskButton.styles";
 
 const glassOverlay = (alpha) => `rgba(22, 16, 41, ${alpha})`;
@@ -39,6 +39,39 @@ export default StyleSheet.create({
   content: {
     paddingHorizontal: Spacing.base,
     paddingTop: Spacing.base,
+  },
+  emptyState: {
+    paddingVertical: Spacing.large,
+    paddingHorizontal: Spacing.large,
+  },
+  emptyCard: {
+    ...CardStyles.base,
+    backgroundColor: Colors.surfaceAlt,
+    padding: Spacing.base,
+    gap: Spacing.small,
+    alignItems: "center",
+  },
+  emptyTitle: {
+    ...Typography.sectionSubtitle,
+    color: Colors.text,
+    textAlign: "center",
+  },
+  emptySubtitle: {
+    ...Typography.cardSubtitle,
+    color: Colors.textMuted,
+    textAlign: "center",
+  },
+  emptyButton: {
+    marginTop: Spacing.small,
+    paddingHorizontal: Spacing.base * 1.5,
+    paddingVertical: Spacing.small,
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    borderColor: Colors.accent,
+  },
+  emptyButtonText: {
+    ...Typography.button,
+    color: Colors.accent,
   },
   filterModalBackground: {
     flex: 1,

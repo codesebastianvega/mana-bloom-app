@@ -15,7 +15,7 @@ import {
 import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./TaskCardStyles";
 
-import { Colors, Spacing } from "../../theme";
+import { Colors, Spacing, PriorityAccents } from "../../theme";
 
 const ElementAccents = {
   water: Colors.elementWater,
@@ -39,18 +39,7 @@ const getElementColor = (element) => {
   }
 };
 
-const getPriorityColor = (p) => {
-  switch (p) {
-    case "easy":
-      return Colors.secondary;
-    case "medium":
-      return Colors.accent;
-    case "hard":
-      return Colors.danger;
-    default:
-      return Colors.textMuted;
-  }
-};
+const getPriorityColor = (p) => PriorityAccents[p] || Colors.textMuted;
 
 const getPriorityLabel = (p) => {
   switch (p) {

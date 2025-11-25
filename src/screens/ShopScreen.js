@@ -31,7 +31,7 @@ import {
   useHydrationStatus,
 } from "../state/AppContext";
 import SectionPlaceholder from "../components/common/SectionPlaceholder";
-import { Colors } from "../theme";
+import { Colors, CategoryAccents } from "../theme";
 
 const TABS = [
   {
@@ -69,12 +69,12 @@ const TABS = [
 ];
 
 const CATEGORY_ACCENTS = {
-  potions: ShopColors.potions,
-  seeds: ShopColors.seeds,
-  tools: ShopColors.tools,
-  cosmetics: ShopColors.cosmetics,
-  pets: ShopColors.pets,
-  subs: ShopColors.subs,
+  potions: { ...ShopColors.potions, pill: CategoryAccents.potions || ShopColors.potions.pill },
+  seeds: { ...ShopColors.seeds, pill: CategoryAccents.seeds || ShopColors.seeds.pill },
+  tools: { ...ShopColors.tools, pill: CategoryAccents.tools || ShopColors.tools.pill },
+  cosmetics: { ...ShopColors.cosmetics, pill: CategoryAccents.cosmetics || ShopColors.cosmetics.pill },
+  pets: { ...ShopColors.pets, pill: CategoryAccents.pets || ShopColors.pets.pill },
+  subs: { ...ShopColors.subs, pill: CategoryAccents.cosmetics || ShopColors.subs.pill },
   default: { pill: Colors.accent, border: Colors.accent, bg: Colors.surfaceAlt },
 };
 

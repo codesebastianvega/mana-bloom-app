@@ -4,13 +4,15 @@
 // Puntos de edicion futura: conectar con tema real y enlaces profundos
 // Autor: Codex - Fecha: 2025-11-22
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useCallback } from "react";
 import { View, Text, Pressable, Switch, Alert, Linking } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./AppDrawer.styles";
-import { useDrawer, useAppDispatch } from "../../state/AppContext";
+import { useDrawer, useAppDispatch, useAppState } from "../../state/AppContext";
+import NavChip from "../common/NavChip";
 import { supabase } from "../../lib/supabase";
 import { navigationRef } from "../../navigationRef";
+import appManifest from "../../../app.json";
 
 const HELP_LINKS = [
   { label: "Centro de ayuda", url: "https://manabloom.app/help" },
@@ -21,15 +23,8 @@ const HELP_LINKS = [
 export default function AppDrawer() {
   const { isDrawerOpen, closeDrawer } = useDrawer();
   const dispatch = useAppDispatch();
-  const [preferences, setPreferences] = useState({
-    themeDark: true,
-    sounds: true,
-    notifications: true,
-  });
-
-  const handleToggle = (key) => (value) => {
-    setPreferences((prev) => ({ ...prev, [key]: value }));
-  };
+  const { level, streak, preferences } = useAppState();
+  const version = appManifest?.expo?.version || "0.0.0";
 
   const handleLogout = async () => {
     try {
@@ -66,17 +61,38 @@ export default function AppDrawer() {
     Linking.openURL(url).catch(() => null);
   };
 
+  const handleNavigate = useCallback(
+    (routeName, params) => () => {
+      closeDrawer();
+      if (navigationRef.isReady()) {
+        navigationRef.navigate(routeName, params);
+      }
+    },
+    [closeDrawer]
+  );
+
+  const handleToggle = (key) => (value) => {
+    dispatch({ type: "SET_PREFERENCE", payload: { key, value } });
+  };
+
+  const quickLinks = [
+    { icon: "leaf", label: "Jardín", action: handleNavigate("Garden") },
+    { icon: "shopping", label: "Tienda", action: handleNavigate("ShopScreen") },
+    { icon: "format-list-bulleted", label: "Tareas", action: handleNavigate("TasksScreen") },
+    {
+      icon: "crown",
+      label: "Logros",
+      action: handleNavigate("ProfileScreen", { focus: "achievements" }),
+      accent: "#ffca28",
+    },
+  ];
+
   const sections = useMemo(
     () => [
       {
         title: "Cuenta",
         items: [
-          { icon: "user", label: "Ver perfil", action: () => {
-            closeDrawer();
-            if (navigationRef.isReady()) {
-              navigationRef.navigate("ProfileScreen");
-            }
-          } },
+          { icon: "user", label: "Ver perfil", action: handleNavigate("ProfileScreen") },
           { icon: "sign-out-alt", label: "Cerrar sesión", action: handleLogout },
           { icon: "trash-alt", label: "Eliminar cuenta", action: handleDeleteAccount, danger: true },
         ],
@@ -85,6 +101,7 @@ export default function AppDrawer() {
         title: "Apariencia",
         toggles: [
           { key: "themeDark", label: "Tema oscuro", value: preferences.themeDark },
+          { key: "haptics", label: "Vibración/Haptics", value: preferences.haptics },
           { key: "sounds", label: "Sonidos mágicos", value: preferences.sounds },
         ],
       },
@@ -99,7 +116,7 @@ export default function AppDrawer() {
         links: HELP_LINKS,
       },
     ],
-    [preferences, closeDrawer]
+    [preferences, handleNavigate]
   );
 
   if (!isDrawerOpen) {
@@ -110,8 +127,36 @@ export default function AppDrawer() {
     <View style={styles.overlay} pointerEvents="auto">
       <Pressable style={styles.backdrop} onPress={closeDrawer} />
       <View style={styles.drawer}>
-        <Text style={styles.drawerTitle}>Menu magico</Text>
-        <Text style={styles.drawerSubtitle}>Accesos rápidos y ajustes.</Text>
+        <View style={styles.drawerHeader}>
+          <View style={styles.avatarGlow}>
+            <Text style={styles.avatarGlyph}>🌱</Text>
+          </View>
+          <View style={styles.headerText}>
+            <Text style={styles.drawerTitle}>Navbar Haven</Text>
+            <Text style={styles.drawerSubtitle}>
+              Nivel {level} • Racha {streak}d
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.quickLinksSection}>
+          <View style={styles.quickLinksHeader}>
+            <Text style={styles.sectionTitle}>Atajos mágicos</Text>
+            <Text style={styles.quickLinksHint}>Disponible desde cualquier pantalla.</Text>
+          </View>
+          <View style={styles.quickLinksRow}>
+            {quickLinks.map((chip) => (
+              <NavChip
+                key={chip.label}
+                icon={chip.icon}
+                label={chip.label}
+                onPress={chip.action}
+                accent={chip.accent}
+              />
+            ))}
+          </View>
+        </View>
+
         {sections.map((section) => (
           <View key={section.title} style={styles.section}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
@@ -166,6 +211,10 @@ export default function AppDrawer() {
               ))}
           </View>
         ))}
+        <View style={styles.versionRow}>
+          <Text style={styles.versionLabel}>Mana Bloom v{version}</Text>
+          <Text style={styles.versionHint}>Notas en documentacion/changelog</Text>
+        </View>
         <Pressable style={styles.closeButton} onPress={closeDrawer}>
           <Text style={styles.closeButtonText}>Cerrar</Text>
         </Pressable>

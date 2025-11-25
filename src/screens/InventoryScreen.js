@@ -23,7 +23,7 @@ import {
   useInventoryCounts,
   canUseItem,
 } from "../state/AppContext";
-import { Colors, Opacity } from "../theme";
+import { Colors, Opacity, CategoryAccents } from "../theme";
 
 const TABS = [
   { key: "potions", label: "Pociones" },
@@ -34,14 +34,10 @@ const TABS = [
   { key: "all", label: "Todos" },
 ];
 
-const CATEGORY_EMOJI = { potions: "🧪", seeds: "🌱", tools: "🛠️", cosmetics: "🎨", pets: "🐾" };
+const CATEGORY_EMOJI = { potions: "??", seeds: "??", tools: "???", cosmetics: "??", pets: "??" };
 const CHIP_ACCENTS = {
-  potions: "#B542F6",
-  seeds: "#4caf50",
-  tools: "#1cd47b",
-  cosmetics: "#FFD700",
-  pets: "#FF9800",
-  all: "#8E9AC6",
+  ...CategoryAccents,
+  all: Colors.textMuted,
 };
 
 function hexToRgba(hex = "", alpha = 1) {

@@ -1,11 +1,11 @@
-// [MB] Modulo: Tasks / Seccion: Pantalla de tareas
+﻿// [MB] Modulo: Tasks / Seccion: Pantalla de tareas
 // Afecta: TasksScreen (listado y gestion de tareas)
 // Proposito: Listar, filtrar y guiar el uso de colores y recompensas
 // Puntos de edicion futura: filtros avanzados y ayudas contextuales
 // Autor: Codex - Fecha: 2025-10-20
 
-import React, { useState, useEffect, useMemo } from "react";
-import { FlatList, Modal, View, StatusBar, TouchableOpacity } from "react-native";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { FlatList, Modal, View, Text, StatusBar, TouchableOpacity } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { FontAwesome } from "@expo/vector-icons";
@@ -25,14 +25,15 @@ import { useAppDispatch } from "../state/AppContext";
 import { XP_REWARD_BY_PRIORITY } from "../constants/rewards";
 import { canCompleteTask, calculateFinalReward } from "../constants/taskIntegrity";
 import { calculateTaskReward } from "../constants/economyConfig";
+import { useHaptics } from "../hooks/useHaptics";
 
-// ——— 1) Configuración de filtros ———
+// â€”â€”â€” 1) ConfiguraciÃ³n de filtros â€”â€”â€”
 const mainFilters = [
   { key: "all", label: "Todos", icon: "star", color: Colors.text },
   { key: "single", label: "Tareas", icon: "calendar", color: Colors.text },
   {
     key: "habit",
-    label: "Hábitos",
+    label: "HÃ¡bitos",
     icon: "check-square",
     color: Colors.text,
   },
@@ -116,57 +117,57 @@ const elementOptions = [
 
 const elementInfo = {
   fire: {
-    title: "Fuego 🔥 (Poder y Pasión)",
+    title: "Fuego ðŸ”¥ (Poder y PasiÃ³n)",
     description:
-      "Se usa para tareas que requieren alta energía, urgencia o creatividad espontánea.",
+      "Se usa para tareas que requieren alta energÃ­a, urgencia o creatividad espontÃ¡nea.",
     examples: [
       "Enviar propuesta con deadline hoy",
-      "Pitch rápido/brainstorm",
+      "Pitch rÃ¡pido/brainstorm",
       "Entrenamiento intenso",
-      "Resolver bug crítico",
+      "Resolver bug crÃ­tico",
       "Grabar video/toma creativa",
-      "Lanzar campaña",
+      "Lanzar campaÃ±a",
       "Limpiar backlog urgente",
     ],
     purpose:
-      'Propósito: "Inyecta poder y acelera el crecimiento de la planta."',
+      'PropÃ³sito: "Inyecta poder y acelera el crecimiento de la planta."',
   },
   water: {
-    title: "Agua 💧 (Calma y Flujo)",
+    title: "Agua ðŸ’§ (Calma y Flujo)",
     description:
-      "Se usa para tareas que necesitan atención continua, concentración o un estado de calma.",
+      "Se usa para tareas que necesitan atenciÃ³n continua, concentraciÃ³n o un estado de calma.",
     examples: [
       "Planificar semana",
-      "Leer/estudiar 30–60 min",
+      "Leer/estudiar 30â€“60 min",
       "Redactar documento largo",
       "Procesar correos",
-      "Meditación/respiración",
+      "MeditaciÃ³n/respiraciÃ³n",
       "Refinar notas",
-      "Revisión tranquila de PRs",
+      "RevisiÃ³n tranquila de PRs",
     ],
     purpose:
-      'Propósito: "Mantiene la planta hidratada y en un crecimiento estable."',
+      'PropÃ³sito: "Mantiene la planta hidratada y en un crecimiento estable."',
   },
   earth: {
-    title: "Tierra 🌱 (Estabilidad y Crecimiento)",
+    title: "Tierra ðŸŒ± (Estabilidad y Crecimiento)",
     description:
-      "Se usa para tareas fundamentales, repetitivas o que construyen un hábito.",
+      "Se usa para tareas fundamentales, repetitivas o que construyen un hÃ¡bito.",
     examples: [
       "Rutina de ejercicio",
       "Ordenar escritorio",
       "Lavar/organizar",
-      "Contabilidad/domésticos",
+      "Contabilidad/domÃ©sticos",
       "Repasar vocabulario",
       "Backup/limpieza sistema",
-      "Hábitos diarios",
+      "HÃ¡bitos diarios",
     ],
     purpose:
-      'Propósito: "Proporciona una base sólida y nutrientes para un crecimiento sostenible."',
+      'PropÃ³sito: "Proporciona una base sÃ³lida y nutrientes para un crecimiento sostenible."',
   },
   air: {
-    title: "Aire 🌬️ (Libertad y Movimiento)",
+    title: "Aire ðŸŒ¬ï¸ (Libertad y Movimiento)",
     description:
-      "Se usa para tareas que requieren claridad mental, comunicación o flexibilidad.",
+      "Se usa para tareas que requieren claridad mental, comunicaciÃ³n o flexibilidad.",
     examples: [
       "Escribir correo importante",
       "Organizar ideas/Mindmap",
@@ -177,16 +178,17 @@ const elementInfo = {
       "Documentar decisiones",
     ],
     purpose:
-      'Propósito: "Le da a la planta el espacio para respirar y expandirse."',
+      'PropÃ³sito: "Le da a la planta el espacio para respirar y expandirse."',
   },
 };
 
 export default function TasksScreen() {
   const dispatch = useAppDispatch();
+  const haptics = useHaptics();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight?.() ?? 56;
   const fabOffset = tabBarHeight + insets.bottom + Spacing.large;
-  // ——— 2) Estados ———
+  // â€”â€”â€” 2) Estados â€”â€”â€”
   const [tasks, setTasks] = useState([]);
   const uniqueTags = Array.from(new Set(tasks.flatMap((t) => t.tags || [])));
   const [typeFilter, setTypeFilter] = useState("all");
@@ -196,9 +198,63 @@ export default function TasksScreen() {
   const [tagFilter, setTagFilter] = useState("all");
   const [activeFilter, setActiveFilter] = useState("pending");
   const [filtersVisible, setFiltersVisible] = useState(false); // BottomSheet de filtros
-  const [showAddModal, setShowAddModal] = useState(false); // Para el botón de añadir tarea
+  const [showAddModal, setShowAddModal] = useState(false); // Para el botÃ³n de aÃ±adir tarea
   const [editingTask, setEditingTask] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const filtersApplied = useMemo(() => {
+    return (
+      typeFilter !== "all" ||
+      elementFilter !== "all" ||
+      priorityFilter !== "all" ||
+      tagFilter !== "all" ||
+      activeFilter !== "pending" ||
+      (searchQuery || "").trim().length > 0
+    );
+  }, [
+    typeFilter,
+    elementFilter,
+    priorityFilter,
+    tagFilter,
+    activeFilter,
+    searchQuery,
+  ]);
+
+  const resetFilters = useCallback(() => {
+    setTypeFilter("all");
+    setElementFilter("all");
+    setPriorityFilter("all");
+    setTagFilter("all");
+    setSearchQuery("");
+    setActiveFilter("pending");
+    setFiltersVisible(false);
+  }, []);
+
+  const renderEmptyState = useCallback(() => {
+    const title = filtersApplied
+      ? "Sin tareas con estos filtros"
+      : "Aún no tienes tareas";
+    const subtitle = filtersApplied
+      ? "Ajusta los filtros o limpia la búsqueda para ver más tareas."
+      : "Crea tu primera tarea para empezar a cultivar tu jardín productivo.";
+    const ctaLabel = filtersApplied ? "Limpiar filtros" : "Crear tarea";
+    const onPress =
+      filtersApplied ? resetFilters : () => setShowAddModal(true);
+    return (
+      <View style={styles.emptyState}>
+        <View style={styles.emptyCard}>
+          <Text style={styles.emptyTitle}>{title}</Text>
+          <Text style={styles.emptySubtitle}>{subtitle}</Text>
+          <TouchableOpacity
+            style={styles.emptyButton}
+            onPress={onPress}
+            accessibilityRole="button"
+          >
+            <Text style={styles.emptyButtonText}>{ctaLabel}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }, [filtersApplied, resetFilters]);
 
   const statusFilters = useMemo(() => {
     const counts = {
@@ -258,9 +314,9 @@ export default function TasksScreen() {
   }, [tasks]);
 
   const difficultyOptions = [
-    { key: "easy", label: "Fácil", color: Colors.secondary },
+    { key: "easy", label: "FÃ¡cil", color: Colors.secondary },
     { key: "medium", label: "Medio", color: Colors.accent },
-    { key: "hard", label: "Difícil", color: Colors.danger },
+    { key: "hard", label: "DifÃ­cil", color: Colors.danger },
   ];
   // filtro avanzado
   const [difficultyFilter, setDifficultyFilter] = useState("all");
@@ -360,17 +416,17 @@ export default function TasksScreen() {
       
       const newDone = !target.done;
       
-      // Si está marcando como completada
+      // Si estÃ¡ marcando como completada
       if (newDone) {
         // Verificar si puede completar (cooldown)
         const completionCheck = canCompleteTask(target);
         
         if (completionCheck.penalty) {
-          // Mostrar advertencia de penalización
-          alert(`⚠️ ${completionCheck.reason}\n\n¿Estás seguro de que quieres completarla ahora?`);
+          // Mostrar advertencia de penalizaciÃ³n
+          alert(`âš ï¸ ${completionCheck.reason}\n\nÂ¿EstÃ¡s seguro de que quieres completarla ahora?`);
         }
         
-        // Calcular cuántas tareas se completaron hoy
+        // Calcular cuÃ¡ntas tareas se completaron hoy
         const today = new Date().toISOString().split('T')[0];
         const tasksCompletedToday = (tasks || []).filter(t => 
           t && 
@@ -415,7 +471,7 @@ export default function TasksScreen() {
           },
         });
         
-        // Si ganó monedas, agregarlas
+        // Si ganÃ³ monedas, agregarlas
         if (finalReward.coin > 0) {
           dispatch({
             type: "ADD_COIN",
@@ -423,7 +479,7 @@ export default function TasksScreen() {
           });
         }
         
-        // Si ganó gemas, agregarlas
+        // Si ganÃ³ gemas, agregarlas
         if (finalReward.gem > 0) {
           dispatch({
             type: "ADD_GEM",
@@ -431,32 +487,33 @@ export default function TasksScreen() {
           });
         }
         
-        // Actualizar desafíos
+        // Actualizar desafÃ­os
         const priorityLabel =
           priorityOptions.find((p) => p.key === target.priority)?.label || "";
         dispatch({
           type: "UPDATE_DAILY_CHALLENGES_ON_TASK_DONE",
           payload: { priority: priorityLabel },
         });
-        
+
         // Logro
         dispatch({
           type: "ACHIEVEMENT_EVENT",
           payload: { type: "task_done", payload: { priority: priorityLabel } },
         });
-        
+        haptics.success();
+
         // Mostrar mensaje de recompensas
         if (completionCheck.penalty) {
-          console.log(`⚠️ Tarea completada antes de tiempo. Recompensas reducidas: +${finalReward.xp} XP`);
+          console.log(`âš ï¸ Tarea completada antes de tiempo. Recompensas reducidas: +${finalReward.xp} XP`);
         } else {
           const rewardMsg = [];
-          if (finalReward.mana > 0) rewardMsg.push(`+${finalReward.mana} Maná`);
+          if (finalReward.mana > 0) rewardMsg.push(`+${finalReward.mana} ManÃ¡`);
           if (finalReward.coin > 0) rewardMsg.push(`+${finalReward.coin} Monedas`);
           if (finalReward.gem > 0) rewardMsg.push(`+${finalReward.gem} Gemas`);
           if (finalReward.xp > 0) rewardMsg.push(`+${finalReward.xp} XP`);
           
           if (rewardMsg.length > 0) {
-            console.log(`✅ Tarea completada! ${rewardMsg.join(', ')}`);
+            console.log(`âœ… Tarea completada! ${rewardMsg.join(', ')}`);
           }
         }
       } else {
@@ -530,7 +587,7 @@ export default function TasksScreen() {
     setShowAddModal(true);
   };
 
-  // ——— 4) Filtrado combinado ———
+  // â€”â€”â€” 4) Filtrado combinado â€”â€”â€”
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
       let stateOK;
@@ -570,7 +627,7 @@ export default function TasksScreen() {
     difficultyFilter,
   ]);
 
-  // ——— 5) Render ———
+  // â€”â€”â€” 5) Render â€”â€”â€”
   const listData = useMemo(
     () => [{ type: "filters", key: "filters" }, ...filteredTasks],
     [filteredTasks]
@@ -620,11 +677,12 @@ export default function TasksScreen() {
         ItemSeparatorComponent={() => (
           <View style={{ height: Spacing.small - Spacing.tiny / 2 }} />
         )}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        removeClippedSubviews={false}
-        initialNumToRender={8}
-        windowSize={11}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          removeClippedSubviews={false}
+          initialNumToRender={8}
+          windowSize={11}
+          ListEmptyComponent={renderEmptyState}
         contentInsetAdjustmentBehavior="automatic"
         extraData={{ tasks, activeFilter, searchQuery }}
         accessibilityRole="list"
@@ -707,3 +765,5 @@ export default function TasksScreen() {
     </SafeAreaView>
   );
 }
+
+

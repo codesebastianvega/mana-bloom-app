@@ -95,11 +95,28 @@ export const Radii = {
 };
 
 export const Typography = {
+  screenTitle: { fontSize: 30, fontWeight: "700", lineHeight: 36 },
   h1: { fontSize: 24, fontWeight: "700", lineHeight: 30 },
   h2: { fontSize: 20, fontWeight: "700", lineHeight: 26 },
+  sectionTitle: { fontSize: 20, fontWeight: "700", lineHeight: 26 },
   title: { fontSize: 18, fontWeight: "600", lineHeight: 24 },
+  sectionSubtitle: { fontSize: 16, fontWeight: "500", lineHeight: 22 },
+  cardTitle: { fontSize: 16, fontWeight: "600", lineHeight: 22 },
+  cardSubtitle: { fontSize: 13, fontWeight: "500", lineHeight: 18 },
   body: { fontSize: 14, fontWeight: "400", lineHeight: 20 },
+  button: {
+    fontSize: 14,
+    fontWeight: "600",
+    lineHeight: 18,
+    letterSpacing: 0.5,
+  },
   caption: { fontSize: 12, fontWeight: "500", lineHeight: 16 },
+  label: {
+    fontSize: 12,
+    fontWeight: "600",
+    lineHeight: 16,
+    letterSpacing: 0.6,
+  },
 };
 
 export const Elevation = {
@@ -123,6 +140,22 @@ export const Gradients = {
   mana: [Colors.primaryFantasy, Colors.secondaryFantasy],
   xp: [Colors.primary, Colors.primaryLight],
   growth: [Colors.success, Colors.secondary],
+};
+
+export const CardStyles = {
+  base: {
+    backgroundColor: Colors.card,
+    borderRadius: Radii.xl,
+    borderWidth: 1,
+    borderColor: Colors.cardBorder,
+  },
+  elevated: {
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: Radii.xl,
+    borderWidth: 1,
+    borderColor: Colors.cardBorder,
+    ...Elevation.card,
+  },
 };
 
 
@@ -167,6 +200,21 @@ export const ElementAccents = {
     },
   },
   accentCta: Colors.accent,
+};
+
+export const CategoryAccents = {
+  potions: Colors.primaryFantasy,
+  tools: Colors.secondary,
+  cosmetics: Colors.secondaryFantasy,
+  seeds: Colors.elementEarth,
+  pets: Colors.warning,
+  inventory: Colors.accent,
+};
+
+export const PriorityAccents = {
+  easy: Colors.secondary,
+  medium: Colors.accent,
+  hard: Colors.danger,
 };
 
 export const isDarkTheme = true;

@@ -18,7 +18,7 @@ import {
   ToastAndroid,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { Colors, Spacing, Radii, Typography } from "../../theme";
+import { Colors, Spacing, Radii, Typography, PriorityAccents } from "../../theme";
 import { XP_REWARD_BY_PRIORITY as PRIORITY_REWARDS } from "../../constants/rewards";
 import { ELEMENT_INFO } from "../../constants/elements";
 import { TIME_ESTIMATES } from "../../constants/taskIntegrity";
@@ -30,11 +30,6 @@ import styles from "./CreateTaskModal.styles";
 
 const PRIORITIES = ["Baja", "Media", "Urgente"];
 const PRIORITY_VALUES = { Baja: "easy", Media: "medium", Urgente: "hard" };
-const PriorityAccents = {
-  easy: Colors.success,
-  medium: Colors.warning,
-  hard: Colors.danger,
-};
 const DifficultyAccents = {
   easy: Colors.info,
   medium: Colors.warning,
