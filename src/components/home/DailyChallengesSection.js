@@ -30,9 +30,10 @@ function DailyChallengesSection() {
     [dispatch]
   );
 
-  if (modules.challenges) {
-    return <SectionPlaceholder height={220} />;
-  }
+  // Temporarily disabled hydration check
+  // if (modules.challenges) {
+  //   return <SectionPlaceholder height={220} />;
+  // }
 
   return (
     <View style={styles.container} accessibilityRole="list">

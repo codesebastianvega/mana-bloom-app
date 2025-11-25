@@ -52,9 +52,10 @@ function EventHighlightsSection() {
   const { modules } = useHydrationStatus();
   const navigation = useNavigation();
 
-  if (modules.news) {
-    return <SectionPlaceholder height={260} />;
-  }
+  // Temporarily disabled hydration check
+  // if (modules.news) {
+  //   return <SectionPlaceholder height={260} />;
+  // }
 
   const handleViewCalendar = () => {
     const state = navigation.getState?.();
