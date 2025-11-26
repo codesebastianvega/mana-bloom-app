@@ -97,4 +97,18 @@ export default StyleSheet.create({
     color: Colors.textMuted,
     fontWeight: "600",
   },
+  healthBadge: {
+    minWidth: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny / 2,
+    backgroundColor: "rgba(255,255,255,0.05)",
+  },
+  healthText: {
+    ...Typography.caption,
+    fontWeight: "700",
+  },
 });

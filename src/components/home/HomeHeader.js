@@ -72,6 +72,7 @@ function HomeHeader({ onHeaderLayout, onChipPopoverToggle }, ref) {
   const { plantState, plantName, news, mana, streak, level } = useAppState();
   const { openDrawer } = useDrawer();
   const variant = resolvePlantState(plantState);
+  const healthPercent = Math.min(100, Math.max(0, Math.round((plantState?.metric || 0) * 100)))||80;
   const plantDisplayName = plantName?.trim() || "Ernesto Perez";
   const hasUnreadNews = news?.items?.some((item) => !item.read);
 
@@ -144,23 +145,25 @@ function HomeHeader({ onHeaderLayout, onChipPopoverToggle }, ref) {
             </View>
           </View>
           <View style={styles.plantChip} accessibilityRole="text">
-            <View
-              style={[styles.plantDot, { backgroundColor: variant.accent }]}
-            />
             <View style={styles.plantTextBlock}>
               <View style={styles.plantNameRow}>
                 <Text style={styles.plantName} numberOfLines={1}>
                   {plantDisplayName}
                 </Text>
-                <Text style={styles.plantLevel}>
-                  Lv {level || 0}
-                </Text>
+                <Text style={styles.plantLevel}>Lv {level || 0}</Text>
               </View>
               <Text
                 style={[styles.plantState, { color: variant.text }]}
                 numberOfLines={1}
               >
                 {variant.label} • Mana {mana ?? 0} • Racha {streak ?? 0}d
+              </Text>
+            </View>
+            <View
+              style={[styles.healthBadge, { borderColor: variant.accent }]}
+            >
+              <Text style={[styles.healthText, { color: variant.accent }]}>
+                {healthPercent}%
               </Text>
             </View>
           </View>
@@ -171,6 +174,8 @@ function HomeHeader({ onHeaderLayout, onChipPopoverToggle }, ref) {
 }
 
 export default forwardRef(HomeHeader);
+
+
 
 
 
