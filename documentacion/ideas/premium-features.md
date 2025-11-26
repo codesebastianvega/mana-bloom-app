@@ -52,6 +52,24 @@
 - **Modo Pro:** acceso completo al hub; usuarios free mantienen el CTA actual limitado (p. ej. sólo “Agregar tarea”).
 - **Pendiente:** definir iconografía y animación; documentar cada acción secundaria para no mezclar flujos core/premium.
 
+## 9. Coach IA (botón “Mi Planta”)
+
+- **Descripción:** el botón central del tab bar abre el hub “Mi Planta” con insights IA:
+  - Resumen instantáneo (salud, XP restante, rituales pendientes).
+  - Recomendaciones del coach (qué ritual hacer, qué tarea desbloquea buffs).
+  - CTA rápidos: “Generar hábito”, “Programar ritual”, “Plan de cuidado”.
+- **Modo Pro:** coach IA con conversación/chat y generación de planes personalizados. Usuarios Free ven sólo la tarjeta de estado y tips básicos.
+- **Implementación:** `featureFlags.aiCoach`. Si está desactivado, mostrar sólo status card y CTA “Mejora tu plan”.
+
+## 10. Bosque Social / Comunidad
+
+- **Idea:** nueva pestaña “Social” con:
+  - Leaderboard de rachas / niveles de amigos.
+  - Feed de logros mágicos (“Alex floreció su planta”, “María regó árbol real”).
+  - Mapa o grid con ubicaciones simbólicas de árboles sembrados y retos cooperativos.
+- **Modo Pro:** acceso completo al feed, retos cooperativos especiales y métricas globales. Usuarios Free ven sólo una vista resumida + invitación a Pro.
+- **Notas:** depende de backend social. Documentar endpoints y flags (p. ej. `featureFlags.socialMap`, `featureFlags.coopChallenges`).
+
 ## 9. Roadmap premium
 
 | Feature                             | Estado        | Responsable | Notas |
@@ -63,6 +81,8 @@
 | Animaciones premium                 | Concepto      | UI/UX       | Requiere assets dedicados |
 | Recordatorios inteligentes          | Diseño        | Producto    | Integrar en header y FAB, flag `remindersPro` |
 | Floating Action Hub                 | Concepto      | Producto/UI | Agrupa acciones premium + CTA |
+| Coach IA (Mi Planta)                | Concepto      | Producto/IA | Requiere chat + recomendaciones contextualizadas |
+| Bosque Social                       | Concepto      | Producto    | Necesita backend social y mapa colaborativo |
 
 ---
 
