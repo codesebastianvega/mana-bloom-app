@@ -8,15 +8,16 @@ import { StyleSheet } from "react-native";
 import { Colors, Spacing, Typography, Radii } from "../../theme";
 
 export default StyleSheet.create({
-  safeArea: {
-    backgroundColor: Colors.background,
+  gradient: {
     paddingTop: 0,
+  },
+  safeArea: {
+    paddingTop: Spacing.small,
   },
   container: {
     paddingHorizontal: Spacing.base,
-    paddingTop: Spacing.tiny / 4,
     paddingBottom: Spacing.small,
-    gap: Spacing.small / 2,
+    gap: Spacing.small,
   },
   brandRow: {
     flexDirection: "row",
@@ -26,21 +27,15 @@ export default StyleSheet.create({
   brandBlock: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Spacing.base,
+    gap: Spacing.small,
   },
-  logoBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: Radii.lg,
-    backgroundColor: Colors.surfaceAlt,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: Colors.border,
+  lotusIcon: {
+    width: 32,
+    height: 32,
   },
   title: {
     ...Typography.h2,
-    fontSize: 24,
+    fontSize: 22,
     lineHeight: 28,
     color: Colors.text,
     letterSpacing: 0.5,
@@ -50,43 +45,56 @@ export default StyleSheet.create({
     alignItems: "center",
     gap: Spacing.small,
   },
-  iconButton: {
+  iconButtonBare: {
     padding: Spacing.small,
-    borderRadius: Radii.lg,
-    backgroundColor: Colors.surfaceAlt,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    position: "relative",
+  },
+  badgeDot: {
+    position: "absolute",
+    top: Spacing.tiny / 2,
+    right: Spacing.tiny / 2,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.accent,
   },
   plantChip: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: Radii.pill,
+    borderRadius: Radii.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: "rgba(255,255,255,0.2)",
     paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.tiny,
+    paddingVertical: Spacing.tiny + 2,
     gap: Spacing.small,
-    backgroundColor: Colors.surfaceAlt,
+    backgroundColor: "rgba(255,255,255,0.08)",
   },
   plantDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
-  plantTexts: {},
-  plantLabel: {},
-  plantState: {},
-  plantCopy: {
+  plantTextBlock: {
+    flex: 1,
+    gap: 2,
+  },
+  plantName: {
     ...Typography.caption,
-    fontSize: 12,
-    letterSpacing: 0.3,
     color: Colors.text,
     fontWeight: "600",
   },
-  plantIconWrapper: {
-    width: 16,
-    height: 16,
-    justifyContent: "center",
+  plantState: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  plantNameRow: {
+    flexDirection: "row",
     alignItems: "center",
+    gap: Spacing.tiny,
+  },
+  plantLevel: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontWeight: "600",
   },
 });
