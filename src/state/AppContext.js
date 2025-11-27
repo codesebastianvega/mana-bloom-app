@@ -122,6 +122,9 @@ function resolveTitleFrom(list, id) {
   return list.find((a) => a.id === id)?.title || id;
 }
 
+// Guardamos una lista segura para evitar fallos si ACHIEVEMENTS no se carga correctamente
+const ACH_LIST = Array.isArray(ACHIEVEMENTS) ? ACHIEVEMENTS : [];
+
 function markUnlocked(state, id) {
   if (!state.unlocked[id]) {
     state.unlocked[id] = {
@@ -480,7 +483,7 @@ function appReducer(state, action) {
       const unlocked = { ...state.achievements.unlocked };
       const wrapper = { unlocked, achievementToast: null };
       const nowIso = new Date().toISOString();
-      ACHIEVEMENTS.forEach((a) => {
+      ACH_LIST.forEach((a) => {
         if (a.type === "count_event" && a.event === type) {
           if (a.id === "t_urgent_10" && payload?.priority !== "Urgente") {
             return;
@@ -513,7 +516,7 @@ function appReducer(state, action) {
     case "CLAIM_ACHIEVEMENT": {
       const { id } = action.payload;
       const unlocked = state.achievements.unlocked[id];
-      const template = ACHIEVEMENTS.find((a) => a.id === id);
+      const template = ACH_LIST.find((a) => a.id === id);
       if (!unlocked || unlocked.claimed || !template) return state;
       let mana = state.mana;
       let wallet = { ...state.wallet };
@@ -915,7 +918,7 @@ export function useAchievements() {
 
 export function useTopAchievements() {
   const state = useAppState();
-  const list = ACHIEVEMENTS.map((a) => {
+  const list = ACH_LIST.map((a) => {
     let progress = 0;
     if (a.type === "count_event") {
       progress = state.achievements.progress[a.id]?.count || 0;

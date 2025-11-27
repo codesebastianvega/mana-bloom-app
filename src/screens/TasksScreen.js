@@ -5,19 +5,19 @@
 // Autor: Codex - Fecha: 2025-10-20
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { FlatList, Modal, View, Text, StatusBar, TouchableOpacity } from "react-native";
+import { FlatList, Modal, View, Text, StatusBar, TouchableOpacity, Pressable, ScrollView } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { getTasks as getStoredTasks, setTasks as setStoredTasks } from "../storage";
 import { supabase } from "../lib/supabase";
 import { fetchUserData, pushTask } from "../lib/sync";
+import { normalizeTasks } from "../utils/taskHelpers";
 
-import StatsHeader from "../components/StatsHeader";
 import TaskFilters from "../components/TaskFilters";
 import TaskCard from "../components/TaskCard/TaskCard";
-import FiltersHeader from "../components/FilterBar/FiltersHeader";
+import SearchBar from "../components/SearchBar/SearchBar";
 import styles from "./TasksScreen.styles";
 import { Colors, Spacing, Gradients, ElementAccents } from "../theme";
 import CreateTaskModal from "../components/CreateTaskModal/CreateTaskModal";
@@ -39,25 +39,13 @@ const mainFilters = [
   },
 ];
 
-const STATUS_FILTER_CONFIG = [
-  {
-    key: "pending",
-    label: "Pendientes",
-    icon: "clock",
-    accent: Colors.accent,
-  },
-  {
-    key: "completed",
-    label: "Completadas",
-    icon: "check-circle",
-    accent: Colors.success,
-  },
-  {
-    key: "deleted",
-    label: "Eliminadas",
-    icon: "trash",
-    accent: Colors.danger,
-  },
+const MISSION_TABS = [
+  { key: "all", label: "Todos" },
+  { key: "single", label: "Tareas" },
+  { key: "habit", label: "Hábitos" },
+  { key: "quest", label: "Misiones" },
+  { key: "ritual", label: "Rituales" },
+  { key: "trash", label: "Papelera" },
 ];
 
 const priorityOptions = [
@@ -196,6 +184,7 @@ export default function TasksScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [tagFilter, setTagFilter] = useState("all");
+  const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [activeFilter, setActiveFilter] = useState("pending");
   const [filtersVisible, setFiltersVisible] = useState(false); // BottomSheet de filtros
   const [showAddModal, setShowAddModal] = useState(false); // Para el botÃ³n de aÃ±adir tarea
@@ -207,7 +196,7 @@ export default function TasksScreen() {
       elementFilter !== "all" ||
       priorityFilter !== "all" ||
       tagFilter !== "all" ||
-      activeFilter !== "pending" ||
+      difficultyFilter !== "all" ||
       (searchQuery || "").trim().length > 0
     );
   }, [
@@ -215,7 +204,7 @@ export default function TasksScreen() {
     elementFilter,
     priorityFilter,
     tagFilter,
-    activeFilter,
+    difficultyFilter,
     searchQuery,
   ]);
 
@@ -224,6 +213,7 @@ export default function TasksScreen() {
     setElementFilter("all");
     setPriorityFilter("all");
     setTagFilter("all");
+    setDifficultyFilter("all");
     setSearchQuery("");
     setActiveFilter("pending");
     setFiltersVisible(false);
@@ -256,55 +246,45 @@ export default function TasksScreen() {
     );
   }, [filtersApplied, resetFilters]);
 
-  const statusFilters = useMemo(() => {
-    const counts = {
-      pending: tasks.filter((t) => !t.completed && !t.isDeleted).length,
-      completed: tasks.filter((t) => t.completed && !t.isDeleted).length,
-      deleted: tasks.filter((t) => t.isDeleted).length,
-    };
-    return STATUS_FILTER_CONFIG.map((item) => ({
-      ...item,
-      count: counts[item.key] || 0,
-    }));
-  }, [tasks]);
-
   useEffect(() => {
     const hydrate = async () => {
       const stored = await getStoredTasks();
-      const normalized = stored.map((t) => ({
-        ...t,
-        note: t.note ?? t.description ?? "",
-        completed: t.done,
-      }));
+      const normalized = normalizeTasks(
+        stored.map((t) => ({
+          ...t,
+          note: t.note ?? t.description ?? "",
+          completed: t.done,
+        }))
+      );
       
       // [MB] Cloud Sync
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         const cloudData = await fetchUserData(session.user.id);
-        if (cloudData?.tasks) {
+        if (Array.isArray(cloudData?.tasks)) {
           // Merge cloud tasks
           const merged = [...normalized];
-          cloudData.tasks.forEach(cloudTask => {
-             const idx = merged.findIndex(t => t.id === cloudTask.id);
-             const localTask = {
-                 ...cloudTask,
-                 done: cloudTask.is_completed,
-                 completed: cloudTask.is_completed,
-                 completedAt: cloudTask.completed_at,
-                 isDeleted: cloudTask.is_deleted,
-                 note: cloudTask.description || "",
-             };
-             if (idx >= 0) {
-                 merged[idx] = { ...merged[idx], ...localTask };
-             } else {
-                 merged.push(localTask);
-             }
+          cloudData.tasks.forEach((cloudTask) => {
+            const idx = merged.findIndex((t) => t.id === cloudTask.id);
+            const localTask = {
+              ...cloudTask,
+              done: cloudTask.is_completed,
+              completed: cloudTask.is_completed,
+              completedAt: cloudTask.completed_at,
+              isDeleted: cloudTask.is_deleted,
+              note: cloudTask.description || "",
+            };
+            if (idx >= 0) {
+              merged[idx] = { ...merged[idx], ...localTask };
+            } else {
+              merged.push(localTask);
+            }
           });
-          setTasks(merged);
+          setTasks(normalizeTasks(merged));
           return;
         }
       }
-      setTasks(normalized);
+      setTasks(normalizeTasks(normalized));
     };
     hydrate();
   }, []);
@@ -318,8 +298,11 @@ export default function TasksScreen() {
     { key: "medium", label: "Medio", color: Colors.accent },
     { key: "hard", label: "DifÃ­cil", color: Colors.danger },
   ];
-  // filtro avanzado
-  const [difficultyFilter, setDifficultyFilter] = useState("all");
+
+  const activeMissionsCount = useMemo(
+    () => tasks.filter((t) => !t.done && !t.isDeleted).length,
+    [tasks]
+  );
 
   const fabGradientPreset = useMemo(() => {
     if (activeFilter === "completed") {
@@ -601,7 +584,10 @@ export default function TasksScreen() {
         default:
           stateOK = !task.done && !task.isDeleted;
       }
-      const typeOK = typeFilter === "all" || task.type === typeFilter;
+      const typeOK =
+        typeFilter === "all" ||
+        typeFilter === "trash" ||
+        task.type === typeFilter;
       const elementOK = elementFilter === "all" || task.element === elementFilter;
       const q = searchQuery.toLowerCase();
       const searchOK =
@@ -627,14 +613,33 @@ export default function TasksScreen() {
     difficultyFilter,
   ]);
 
+  const filteredTaskStats = useMemo(() => {
+    const typeFiltered = tasks.filter((t) => {
+      const matchesType =
+        typeFilter === "all" ||
+        (typeFilter === "trash" ? t.isDeleted : t.type === typeFilter);
+      const notDeleted = typeFilter === "trash" ? t.isDeleted : !t.isDeleted;
+      return matchesType && notDeleted;
+    });
+    const total = typeFiltered.length;
+    const completed = typeFiltered.filter((t) => t.completed).length;
+    return { total, completed };
+  }, [tasks, typeFilter]);
+
+  const dailyProgress =
+    filteredTaskStats.total > 0
+      ? Math.min(filteredTaskStats.completed / filteredTaskStats.total, 1)
+      : 0;
+
+  const activeTabLabel =
+    MISSION_TABS.find((tab) => tab.key === typeFilter)?.label?.toLowerCase() ||
+    "misiones";
+
   // â€”â€”â€” 5) Render â€”â€”â€”
-  const listData = useMemo(
-    () => [{ type: "filters", key: "filters" }, ...filteredTasks],
-    [filteredTasks]
-  );
+  const safeTopInset = Math.max(insets.top - Spacing.xlarge, 0);
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+    <SafeAreaView style={[styles.container, { paddingTop: safeTopInset }]}>
       <StatusBar
         translucent
         barStyle="light-content"
@@ -642,37 +647,129 @@ export default function TasksScreen() {
       />
 
       <FlatList
-        data={listData}
-        keyExtractor={(item) => item.id || item.key}
-        renderItem={({ item }) =>
-          item.type === "filters" ? (
-            <FiltersHeader
-              statusFilters={statusFilters}
-              activeFilter={activeFilter}
-              onSelectFilter={setActiveFilter}
-              searchQuery={searchQuery}
-              onChangeSearch={setSearchQuery}
-              onToggleAdvanced={() => setFiltersVisible(true)}
-            />
-          ) : (
-            <TaskCard
-              task={item}
-              onToggleComplete={toggleTaskDone}
-              onSoftDeleteTask={onSoftDeleteTask}
-              onRestoreTask={onRestoreTask}
-              onPermanentDeleteTask={onPermanentDeleteTask}
-              onEditTask={onEditTask}
-              onToggleSubtask={onToggleSubtask}
-              activeFilter={activeFilter}
-            />
-          )
-        }
+        data={filteredTasks}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TaskCard
+            task={item}
+            onToggleComplete={toggleTaskDone}
+            onSoftDeleteTask={onSoftDeleteTask}
+            onRestoreTask={onRestoreTask}
+            onPermanentDeleteTask={onPermanentDeleteTask}
+            onEditTask={onEditTask}
+            onToggleSubtask={onToggleSubtask}
+            activeFilter={activeFilter}
+          />
+        )}
         ListHeaderComponent={() => (
-          <View style={{ marginBottom: Spacing.small }}>
-            <StatsHeader />
+          <View style={styles.missionHeaderWrapper}>
+            <View style={styles.missionHeaderTop}>
+              <View>
+                <Text style={styles.missionTitle}>Libro de Misiones</Text>
+                <Text style={styles.missionSubtitle}>
+                  {activeMissionsCount} encargos activos
+                </Text>
+              </View>
+              <View style={styles.missionHeaderActions}>
+                <TouchableOpacity
+                  style={styles.missionActionButton}
+                  accessibilityRole="button"
+                  accessibilityLabel="Abrir ajustes de misiones"
+                >
+                  <MaterialCommunityIcons
+                    name="cog-outline"
+                    size={16}
+                    color={Colors.text}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.missionActionButton}
+                  accessibilityRole="button"
+                  accessibilityLabel="Más opciones"
+                >
+                  <MaterialCommunityIcons
+                    name="dots-horizontal"
+                    size={18}
+                    color={Colors.text}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles.searchRow}>
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                onToggleAdvanced={() => setFiltersVisible(true)}
+                placeholder="Buscar encantamientos..."
+              />
+            </View>
+            <ScrollView
+              style={styles.missionTabs}
+              contentContainerStyle={styles.missionTabsContent}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+            >
+              {MISSION_TABS.map((tab) => {
+                const isActive = typeFilter === tab.key;
+                return (
+                  <Pressable
+                    key={tab.key}
+                    onPress={() => {
+                      setTypeFilter(tab.key);
+                      setActiveFilter(tab.key === "trash" ? "deleted" : "pending");
+                    }}
+                    style={[
+                      styles.missionTab,
+                      isActive && styles.missionTabActive,
+                    ]}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Filtrar ${tab.label}`}
+                  >
+                    <Text
+                      style={[
+                        styles.missionTabLabel,
+                        isActive && styles.missionTabLabelActive,
+                      ]}
+                    >
+                      {tab.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+            <LinearGradient
+              colors={["rgba(54,58,77,0.85)", "rgba(29,31,44,0.85)"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.progressCard}
+            >
+              <View style={styles.progressCardInner}>
+                <View style={styles.progressHeader}>
+                  <Text style={styles.progressLabel}>Progreso diario</Text>
+                  <Text style={styles.progressPercent}>
+                    {Math.round(dailyProgress * 100)}%
+                  </Text>
+                </View>
+                <View style={styles.progressBar}>
+                  <LinearGradient
+                    colors={[Colors.secondary, Colors.elementWater]}
+                    start={{ x: 0, y: 0.5 }}
+                    end={{ x: 1, y: 0.5 }}
+                    style={[
+                      styles.progressFill,
+                      { width: `${dailyProgress * 100}%` },
+                    ]}
+                  />
+                </View>
+              <Text style={styles.progressFootnote}>
+                {filteredTaskStats.total > 0
+                  ? `${filteredTaskStats.completed} de ${filteredTaskStats.total} ${activeTabLabel} completadas`
+                  : `Sin ${activeTabLabel} en este filtro`}
+              </Text>
+              </View>
+            </LinearGradient>
           </View>
         )}
-        stickyHeaderIndices={[1]}
         contentContainerStyle={[styles.content, { paddingBottom: fabOffset }]}
         ItemSeparatorComponent={() => (
           <View style={{ height: Spacing.small - Spacing.tiny / 2 }} />
@@ -684,7 +781,7 @@ export default function TasksScreen() {
           windowSize={11}
           ListEmptyComponent={renderEmptyState}
         contentInsetAdjustmentBehavior="automatic"
-        extraData={{ tasks, activeFilter, searchQuery }}
+        extraData={{ tasks, activeFilter, typeFilter, searchQuery }}
         accessibilityRole="list"
       />
 
@@ -731,6 +828,7 @@ export default function TasksScreen() {
                 setPriorityFilter(priorityFilter);
                 setDifficultyFilter(difficultyFilter);
                 setTagFilter(tagFilter);
+                setActiveFilter(active === "trash" ? "deleted" : "pending");
                 setFiltersVisible(false);
               }}
               onClose={() => setFiltersVisible(false)}
@@ -765,5 +863,11 @@ export default function TasksScreen() {
     </SafeAreaView>
   );
 }
+
+
+
+
+
+
 
 

@@ -37,7 +37,7 @@ export default StyleSheet.create({
     backgroundColor: BOX_BACKGROUND,
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.small,
-    borderRadius: Radii.xl,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: BOX_BORDER,
     minHeight: Spacing.large + Spacing.small,
@@ -52,7 +52,7 @@ export default StyleSheet.create({
   filterButton: {
     width: Spacing.base * 2.2,
     height: Spacing.base * 2.2,
-    borderRadius: Radii.lg,
+    borderRadius: Radii.sm,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: BOX_BACKGROUND,

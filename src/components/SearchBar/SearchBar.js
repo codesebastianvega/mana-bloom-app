@@ -11,14 +11,19 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./SearchBar.styles";
 import { Colors } from "../../theme";
 
-export default function SearchBar({ value, onChange, onToggleAdvanced }) {
+export default function SearchBar({
+  value,
+  onChange,
+  onToggleAdvanced,
+  placeholder = "Buscar tareas...",
+}) {
   return (
     <View style={styles.container}>
       <View style={styles.searchBox}>
         <FontAwesome5 name="search" size={16} color={Colors.textMuted} />
         <TextInput
           style={styles.input}
-          placeholder="Buscar tareas..."
+          placeholder={placeholder}
           placeholderTextColor={Colors.textMuted}
           value={value}
           onChangeText={onChange}
