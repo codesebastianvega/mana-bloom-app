@@ -138,7 +138,7 @@ export default function TaskCard({
   const threshold = 80;
   const isDeletedView = activeFilter === "deleted";
 
-  const [showSubtasks, setShowSubtasks] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const taskId = task?.id;
 
   useEffect(() => {
@@ -261,125 +261,111 @@ export default function TaskCard({
       <Animated.View
         style={[
           styles.card,
-            {
-              transform: [{ translateX: pan }, { scale }],
-              opacity: task.completed || task.isDeleted ? 0.5 : 1,
-              borderLeftColor: difficultyAccent,
-              shadowColor: withAlpha(difficultyAccent, 0.6),
-            },
-          ]}
+          {
+            transform: [{ translateX: pan }, { scale }],
+            opacity: task.completed || task.isDeleted ? 0.5 : 1,
+            borderLeftColor: withAlpha(difficultyAccent, 0.5),
+            shadowColor: withAlpha(difficultyAccent, 0.5),
+          },
+        ]}
         {...panResponder.panHandlers}
         onTouchStart={handlePressIn}
         onTouchEnd={handlePressOut}
       >
         <View style={styles.mainColumn}>
           <TouchableOpacity
-            style={styles.contentRow}
-            onPress={() => onEditTask(task)}
+            style={[styles.checkCircle, task.completed && styles.checkCircleDone]}
+            onPress={() => onToggleComplete(task.id)}
           >
-            <View style={styles.textContainer}>
-              <View style={styles.titleRow}>
-                <Text
-                  style={[styles.title, task.completed && styles.textCompleted]}
-                  numberOfLines={2}
-                  ellipsizeMode="tail"
-                >
-                  {task.title}
-                </Text>
-              </View>
-              <Text
-                style={[styles.note, task.completed && styles.textCompleted]}
-                numberOfLines={2}
-                ellipsizeMode="tail"
-              >
-                {task.note}
-              </Text>
-            </View>
+            {task.completed && (
+              <FontAwesome5 name="check" size={12} color={Colors.background} />
+            )}
           </TouchableOpacity>
 
-          {totalSubtasks > 0 && (
-            <>
-              <View style={styles.subtaskHeader}>
-                <TouchableOpacity
-                  style={styles.subtaskToggle}
-                  onPress={() => setShowSubtasks(!showSubtasks)}
-                >
-                  <FontAwesome5
-                    name={showSubtasks ? "chevron-up" : "chevron-down"}
-                    size={12}
-                    color={Colors.textMuted}
-                  />
-                  <Text style={styles.subtaskToggleText}>
-                    {`Subtareas \u00B7 ${completedSubtasks}/${totalSubtasks}`}
+          <View style={styles.titleBlock}>
+            <Text style={[styles.title, task.completed && styles.textCompleted]} numberOfLines={2}>
+              {task.title}
+            </Text>
+          </View>
+
+          {task.tags?.length > 0 && (
+            <View style={styles.tagsRow}>
+              {(task.tags || []).map((tag) => (
+                <View key={tag} style={styles.tagChip}>
+                  <Text style={styles.tagText} numberOfLines={1}>
+                    {`#${tag}`}
                   </Text>
-                </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
+
+          <View style={styles.rewardRow}>
+            <Text style={[styles.rewardText, { color: Colors.primary }]}>⚡ +{xp} XP</Text>
+            <Text style={styles.separatorBar}>|</Text>
+            <Text style={[styles.rewardText, { color: Colors.elementWater }]}>💧 +{mana} Mana</Text>
+            {totalSubtasks > 0 && (
+              <>
+                <Text style={styles.separatorBar}>|</Text>
+                <Text style={[styles.rewardText, styles.rewardTextMuted]}>
+                  🗒️ {completedSubtasks}/{totalSubtasks}
+                </Text>
+              </>
+            )}
+            <TouchableOpacity style={styles.chevronHit} onPress={() => setIsExpanded(!isExpanded)}>
+              <FontAwesome5
+                name={isExpanded ? "chevron-up" : "chevron-down"}
+                size={14}
+                color={Colors.textMuted}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {isExpanded && (
+            <View style={styles.expandBlock}>
+              <View style={styles.headerTile}>
+                <View style={styles.headerTileColumn}>
+                  <Text style={styles.headerTileLabel}>ELEMENTO</Text>
+                  <View style={styles.headerTileValueRow}>
+                    <FontAwesome5 name={elementInfo.name} size={10} color={elementInfo.color} />
+                    <Text style={styles.headerTileValue}>{elementInfo.label}</Text>
+                  </View>
+                </View>
+                <View style={styles.tileDivider} />
+                <View style={styles.headerTileColumn}>
+                  <Text style={styles.headerTileLabel}>TIPO</Text>
+                  <Text style={styles.headerTileValue}>{typeLabel}</Text>
+                </View>
+                <View style={styles.tileDivider} />
+                <View style={styles.headerTileColumn}>
+                  <Text style={styles.headerTileLabel}>PRIORIDAD</Text>
+                  <Text style={[styles.headerTileValue, { color: priorityTone }]}>
+                    {priorityLabel.charAt(0).toUpperCase() + priorityLabel.slice(1)}
+                  </Text>
+                </View>
+                <View style={styles.tileDivider} />
+                <View style={styles.headerTileColumn}>
+                  <Text style={styles.headerTileLabel}>DIFICULTAD</Text>
+                  <Text style={[styles.headerTileValue, { color: difficultyAccent }]}>
+                    {task.difficulty
+                      ? task.difficulty.charAt(0).toUpperCase() + task.difficulty.slice(1)
+                      : ""}
+                  </Text>
+                </View>
               </View>
-              {showSubtasks && (
-                <View style={styles.subtaskList}>
-                  {task.subtasks.length > 5 ? (
-                    <View style={styles.subtaskColumns}>
-                      <View
-                        style={[
-                          styles.subtaskColumn,
-                          { marginRight: Spacing.small },
-                        ]}
-                      >
-                        {(task.subtasks || []).slice(0, 5).map((st) => (
-                          <TouchableOpacity
-                            key={st.id}
-                            style={styles.subtaskItem}
-                            onPress={() => onToggleSubtask(task.id, st.id)}
-                          >
-                            <View style={styles.checkbox}>
-                              {st.completed && (
-                                <FontAwesome5
-                                  name="check"
-                                  size={10}
-                                  color={Colors.text}
-                                />
-                              )}
-                            </View>
-                            <Text
-                              style={[
-                                styles.subtaskText,
-                                st.completed && styles.subtaskTextCompleted,
-                              ]}
-                            >
-                              {st.text}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                      <View style={styles.subtaskColumn}>
-                        {(task.subtasks || []).slice(5, 10).map((st) => (
-                          <TouchableOpacity
-                            key={st.id}
-                            style={styles.subtaskItem}
-                            onPress={() => onToggleSubtask(task.id, st.id)}
-                          >
-                            <View style={styles.checkbox}>
-                              {st.completed && (
-                                <FontAwesome5
-                                  name="check"
-                                  size={10}
-                                  color={Colors.text}
-                                />
-                              )}
-                            </View>
-                            <Text
-                              style={[
-                                styles.subtaskText,
-                                st.completed && styles.subtaskTextCompleted,
-                              ]}
-                            >
-                              {st.text}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    </View>
-                  ) : (
-                    (task.subtasks || []).map((st) => (
+
+              <TouchableOpacity style={styles.focusButton} onPress={() => onEditTask(task)}>
+                <FontAwesome5 name="play" size={12} color={Colors.text} />
+                <Text style={styles.focusButtonText}>Iniciar foco</Text>
+              </TouchableOpacity>
+
+              {task.note ? <Text style={styles.descriptionText}>{task.note}</Text> : null}
+
+              {totalSubtasks > 0 && (
+                <>
+                  <Text style={styles.subtaskSubtitle}>SUBTAREAS</Text>
+                  <View style={styles.subtaskList}>
+                    {(task.subtasks || []).map((st) => (
                       <TouchableOpacity
                         key={st.id}
                         style={styles.subtaskItem}
@@ -387,11 +373,7 @@ export default function TaskCard({
                       >
                         <View style={styles.checkbox}>
                           {st.completed && (
-                            <FontAwesome5
-                              name="check"
-                              size={10}
-                              color={Colors.text}
-                            />
+                            <FontAwesome5 name="check" size={10} color={Colors.text} />
                           )}
                         </View>
                         <Text
@@ -403,85 +385,15 @@ export default function TaskCard({
                           {st.text}
                         </Text>
                       </TouchableOpacity>
-                    ))
-                  )}
-                </View>
+                    ))}
+                  </View>
+                  <View style={styles.subtaskAddRow}>
+                    <Text style={styles.subtaskAddText}>+ Añadir paso...</Text>
+                  </View>
+                </>
               )}
-            </>
-          )}
-
-          <View style={styles.metaRow}>
-            <View
-              style={[
-                styles.priorityChip,
-                {
-                  borderColor: withAlpha(priorityAccent, 0.55),
-                  backgroundColor: withAlpha(Colors.surfaceAlt, 0.45),
-                },
-              ]}
-              accessibilityRole="text"
-            >
-              <FontAwesome5
-                name={priorityIcon}
-                size={9}
-                color={priorityTone}
-              />
-              <Text
-                style={[
-                  styles.priorityChipText,
-                  { color: priorityTone },
-                ]}
-              >
-                {`Prioridad ${priorityLabel}`}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.rewardRow} accessibilityRole="text">
-            <Text style={[styles.rewardLabel, { color: rewardTone }]}>
-              Recompensas:
-            </Text>
-            <FontAwesome5 name="bolt" size={11} color={rewardTone} />
-            <Text style={[styles.rewardText, { color: rewardTone }]}>{`+${xp} XP`}</Text>
-            <Text style={[styles.rewardSeparator, { color: rewardTone }]}>/</Text>
-            <FontAwesome5 name="tint" size={11} color={rewardTone} />
-            <Text style={[styles.rewardText, { color: rewardTone }]}>{`+${mana} Mana`}</Text>
-          </View>
-
-          {task.tags?.length > 0 && (
-            <View style={styles.tagsRow}>
-              {(task.tags || []).map((tag) => (
-                <View key={tag} style={styles.tagChip} accessibilityRole="text">
-                  <Text
-                    style={styles.tagText}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {tag}
-                  </Text>
-                </View>
-              ))}
             </View>
           )}
-        </View>
-        <View style={styles.rightColumn}>
-          <View style={styles.typeAndElementRow}>
-            <View style={styles.typeChip} accessibilityRole="text">
-              <Text style={styles.typeChipText}>{typeLabel}</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.elementButton}
-              onPress={() => onEditTask(task)}
-              accessibilityRole="button"
-              accessibilityLabel={`Editar tarea (Elemento: ${elementInfo.label})`}
-              hitSlop={HIT_SLOP}
-            >
-              <FontAwesome5
-                name={elementInfo.name}
-                size={14}
-                color={elementInfo.color}
-              />
-            </TouchableOpacity>
-          </View>
         </View>
       </Animated.View>
     </View>

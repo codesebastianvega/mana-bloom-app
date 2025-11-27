@@ -4,7 +4,6 @@
 // Puntos de edicion futura: TaskCardStyles refactor a .styles.js y animaciones
 // Autor: Codex - Fecha: 2025-10-20
 
-
 import { StyleSheet } from "react-native";
 import { Colors, Spacing, Radii, Elevation, Typography } from "../../theme";
 
@@ -30,10 +29,10 @@ function withAlpha(hex = "", alpha = 1) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-const CARD_BACKGROUND = withAlpha(Colors.taskCardBackground, 0.9);
-const CARD_BORDER = withAlpha(Colors.primaryLight, 0.28);
+const CARD_BACKGROUND = "#1f1b2d"; // morado oscuro tipo mock
+const CARD_BORDER = "rgba(255,255,255,0.08)";
 const CHIP_BACKGROUND = withAlpha(Colors.taskCardBackground, 0.6);
-const TAG_BACKGROUND = withAlpha(Colors.primaryLight, 0.22);
+const TAG_BACKGROUND = "rgba(179,157,219,0.12)";
 const PRIORITY_CHIP_BACKGROUND = withAlpha(Colors.surfaceAlt, 0.35);
 const PRIORITY_CHIP_BORDER = withAlpha(Colors.primaryLight, 0.22);
 
@@ -77,234 +76,299 @@ export default StyleSheet.create({
     width: "100%",
     backgroundColor: CARD_BACKGROUND,
     borderRadius: Radii.lg,
-    paddingVertical: Spacing.small + Spacing.tiny,
-    paddingHorizontal: Spacing.small + Spacing.tiny,
-    borderLeftWidth: 3,
+    paddingVertical: Spacing.base,
+    paddingHorizontal: Spacing.base,
+    borderLeftWidth: 2,
     borderWidth: 1,
     borderColor: CARD_BORDER,
     flexDirection: "row",
     gap: Spacing.small,
     ...Elevation.card,
-    shadowColor: Colors.taskCardGlow,
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
+    shadowColor: Colors.shadow,
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
   },
   mainColumn: {
     flex: 1,
     flexDirection: "column",
     gap: Spacing.small,
   },
-  rightColumn: {
-    alignItems: "flex-end",
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     gap: Spacing.small,
   },
-  typeAndElementRow: {
+  headerLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Spacing.small,
+    gap: Spacing.tiny,
+    flexWrap: "wrap",
   },
-  elementButton: {
-    width: Spacing.large,
-    height: Spacing.large,
-    borderRadius: Radii.pill,
-    justifyContent: "center",
+  typeText: {
+    ...Typography.caption,
+    color: Colors.text,
+    fontWeight: "700",
+  },
+  separatorDot: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontWeight: "700",
+  },
+  priorityText: {
+    ...Typography.caption,
+    fontWeight: "700",
+  },
+  elementPill: {
+    paddingHorizontal: Spacing.tiny,
+    paddingVertical: Spacing.tiny / 2,
+    borderRadius: Radii.sm,
+    borderWidth: 1,
+    backgroundColor: withAlpha(Colors.surfaceAlt, 0.4),
+  },
+  priorityPill: {
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    borderRadius: Radii.sm,
+    borderWidth: 1,
+    borderColor: PRIORITY_CHIP_BORDER,
+    backgroundColor: PRIORITY_CHIP_BACKGROUND,
+    flexDirection: "row",
     alignItems: "center",
-    backgroundColor: withAlpha(Colors.taskCardBackground, 0.5),
+    gap: Spacing.tiny,
+  },
+  priorityPillText: {
+    ...Typography.caption,
+    fontWeight: "600",
+  },
+  difficultyText: {
+    ...Typography.caption,
+    fontWeight: "600",
+  },
+  headerTile: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: withAlpha(Colors.surfaceAlt, 0.35),
+    borderRadius: Radii.sm,
     borderWidth: 1,
     borderColor: CARD_BORDER,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.small,
+    gap: Spacing.small,
+    justifyContent: "space-between",
+    width: "100%",
   },
-  contentRow: {
-    flexDirection: "row",
+  headerTileColumn: {
+    flexDirection: "column",
+    gap: Spacing.tiny / 2,
     alignItems: "center",
-  },
-  textContainer: {
     flex: 1,
-    gap: Spacing.tiny,
   },
-  titleRow: {
+  headerTileLabel: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontWeight: "700",
+    fontSize: Typography.caption.fontSize - 1,
+  },
+  headerTileValueRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.tiny,
+  },
+  headerTileValue: {
+    ...Typography.caption,
+    color: Colors.text,
+    fontWeight: "700",
+  },
+  tileDivider: {
+    width: 1,
+    alignSelf: "stretch",
+    backgroundColor: withAlpha(Colors.textMuted, 0.25),
+  },
+  subtaskCountChip: {
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    borderRadius: Radii.sm,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.secondary, 0.6),
+    backgroundColor: withAlpha(Colors.secondary, 0.15),
+  },
+  subtaskCountText: {
+    ...Typography.caption,
+    color: Colors.text,
+    fontWeight: "700",
+  },
+  checkCircle: {
+    width: Spacing.large,
+    height: Spacing.large,
+    borderRadius: Spacing.large / 2,
+    borderWidth: 1,
+    borderColor: CARD_BORDER,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: withAlpha(Colors.surfaceAlt, 0.35),
+    position: "absolute",
+    top: -7,
+    right: -7,
+    zIndex: 2,
+  },
+  checkCircleDone: {
+    backgroundColor: Colors.secondary,
+    borderColor: Colors.secondary,
+  },
+  titleBlock: {
+    gap: Spacing.tiny / 2,
+  },
+  titleBlockRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: Spacing.small,
   },
   title: {
     ...Typography.title,
+    fontWeight: "900",
     color: Colors.text,
   },
   note: {
     ...Typography.body,
     fontSize: Typography.caption.fontSize + 1,
     color: Colors.textMuted,
-    marginTop: Spacing.tiny,
-    marginBottom: Spacing.tiny,
   },
   textCompleted: {
     color: Colors.textMuted,
     textDecorationLine: "line-through",
   },
-  subtaskHeader: {
+  rewardRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Spacing.small,
+    gap: Spacing.tiny + 2,
+    flexWrap: "wrap",
     marginTop: Spacing.tiny,
-    marginBottom: Spacing.tiny,
   },
-  subtaskToggle: {
+  rewardText: {
+    ...Typography.caption,
+    fontWeight: "800",
+  },
+  rewardTextMuted: {
+    color: Colors.textMuted,
+  },
+  chevronHit: {
+    marginLeft: "auto",
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+  },
+  dot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: withAlpha(Colors.textMuted, 0.4),
+  },
+  separatorBar: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontWeight: "800",
+  },
+  tagsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.tiny,
+    marginTop: Spacing.tiny / 2,
+    marginBottom: -8,
+  },
+  tagChip: {
+    paddingHorizontal: Spacing.small + 2,
+    paddingVertical: Spacing.tiny / 2,
+    borderRadius: 3,
+    backgroundColor: TAG_BACKGROUND,
+    borderWidth: 0,
+  },
+  tagText: {
+    ...Typography.caption,
+    color: "#BFC6D0",
+  },
+  expandBlock: {
+    marginTop: Spacing.small,
+    gap: Spacing.base,
+    borderTopWidth: 1,
+    borderTopColor: withAlpha(Colors.primaryLight, 0.15),
+    paddingTop: Spacing.small + Spacing.tiny,
+  },
+  focusButton: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  subtaskToggleText: {
-    color: Colors.text,
-    marginLeft: Spacing.small,
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  subtaskCountChip: {
-    height: Spacing.base + Spacing.tiny,
-    paddingHorizontal: Spacing.small,
-    borderRadius: Radii.pill,
-    backgroundColor: withAlpha(Colors.secondary, 0.18),
-    borderWidth: 1,
-    borderColor: Colors.secondary,
     justifyContent: "center",
-    alignItems: "center",
+    gap: Spacing.tiny,
+    paddingVertical: Spacing.small,
+    borderRadius: Radii.lg,
+    backgroundColor: withAlpha(Colors.primaryLight, 0.25),
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.primaryLight, 0.4),
   },
-  subtaskCountText: {
-    ...Typography.caption,
-    fontSize: Typography.caption.fontSize - 2,
-    lineHeight: Typography.caption.fontSize,
-    color: Colors.background,
+  focusButtonText: {
+    ...Typography.button,
+    color: Colors.text,
+  },
+  descriptionText: {
+    ...Typography.body,
+    fontSize: Typography.caption.fontSize + 1,
+    fontWeight: "600",
+    color: Colors.textMuted,
+    backgroundColor: withAlpha(Colors.background, 0.55),
+    borderRadius: Radii.md,
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.base,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.primaryLight, 0.12),
+    marginVertical: Spacing.tiny,
   },
   subtaskList: {
-    marginTop: 1,
-    marginBottom: Spacing.tiny,
-    paddingRight: Spacing.large,
-    paddingVertical: Spacing.tiny,
-    backgroundColor: withAlpha(Colors.surfaceElevated, 0.22),
-    borderRadius: Radii.sm,
-    paddingLeft: Spacing.small,
-    borderWidth: 1,
-    borderColor: withAlpha(Colors.primaryLight, 0.18),
-    gap: Spacing.tiny / 2,
+    marginTop: Spacing.tiny,
+    gap: Spacing.tiny,
   },
-  subtaskColumns: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  subtaskAddRow: {
+    borderTopWidth: 1,
+    borderTopColor: withAlpha(Colors.primaryLight, 0.1),
+    marginTop: Spacing.small,
+    paddingTop: Spacing.base,
   },
-  subtaskColumn: {
-    flex: 1,
+  subtaskAddText: {
+    ...Typography.caption,
+    color: withAlpha(Colors.textMuted, 0.6),
+  },
+  subtaskSubtitle: {
+    ...Typography.caption,
+    fontWeight: "700",
+    color: Colors.text,
+    marginBottom: -10,
   },
   subtaskItem: {
     flexDirection: "row",
     alignItems: "center",
+    paddingVertical: Spacing.small,
     paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny,
-    paddingHorizontal: Spacing.tiny,
+    borderRadius: Radii.sm,
+    backgroundColor: "rgba(60,58,82,0.3)",
   },
   checkbox: {
     width: 16,
     height: 16,
     borderRadius: 4,
     borderWidth: 1.5,
-    borderColor: withAlpha(Colors.primary, 0.8),
+    borderColor: "rgba(179,157,219,0.7)",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: withAlpha(Colors.surface, 0.65),
   },
   subtaskText: {
+    ...Typography.body,
+    fontSize: Typography.caption.fontSize + 1,
+    fontWeight: "600",
     color: Colors.textMuted,
     marginLeft: Spacing.small,
-    fontSize: 13,
   },
   subtaskTextCompleted: {
     color: Colors.textMuted,
     textDecorationLine: "line-through",
-  },
-
-  metaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: Spacing.small - Spacing.tiny / 2,
-  },
-
-  typeChip: {
-    height: Spacing.base + Spacing.small,
-    paddingHorizontal: Spacing.small,
-    borderRadius: Radii.pill,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: CHIP_BACKGROUND,
-    borderWidth: 1,
-    borderColor: CARD_BORDER,
-  },
-  priorityChip: {
-    height: Spacing.base + Spacing.tiny,
-    paddingHorizontal: Spacing.small - Spacing.tiny / 2,
-    borderRadius: Radii.pill,
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    gap: Spacing.tiny,
-    borderWidth: 1,
-    backgroundColor: PRIORITY_CHIP_BACKGROUND,
-    borderColor: PRIORITY_CHIP_BORDER,
-    shadowColor: Colors.shadow,
-    shadowOpacity: 0.18,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  priorityChipText: {
-    ...Typography.caption,
-    fontSize: Typography.caption.fontSize - 1,
-    fontWeight: "600",
-    letterSpacing: 0.1,
-  },
-  typeChipText: {
-    ...Typography.caption,
-    fontSize: Typography.caption.fontSize,
-    lineHeight: Typography.caption.fontSize,
-    color: Colors.text,
-  },
-  tagChip: {
-    height: Spacing.base + Spacing.small,
-    paddingHorizontal: Spacing.small,
-    borderRadius: Radii.pill,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: TAG_BACKGROUND,
-    borderWidth: 1,
-    borderColor: CARD_BORDER,
-    flexShrink: 1,
-    maxWidth: "100%",
-  },
-  tagsRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: Spacing.small - Spacing.tiny / 2,
-    marginTop: Spacing.small,
-  },
-  tagText: {
-    ...Typography.caption,
-    fontSize: Typography.caption.fontSize - 1,
-    lineHeight: Typography.caption.fontSize - 1,
-    color: Colors.text,
-  },
-  rewardRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.tiny,
-    marginTop: Spacing.tiny,
-    flexWrap: "wrap",
-  },
-  rewardLabel: {
-    ...Typography.caption,
-    fontWeight: "600",
-  },
-  rewardText: {
-    ...Typography.caption,
-    fontWeight: "600",
-  },
-  rewardSeparator: {
-    ...Typography.caption,
   },
 });

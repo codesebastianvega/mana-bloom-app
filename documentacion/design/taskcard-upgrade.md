@@ -65,3 +65,10 @@ Conclusi贸n: no necesitamos rehacer toda la l贸gica de datos; hay que rearmar la
 - Errores/offline: no crashear si faltan arrays (normalizar tags/subtasks), loggear fallos de Supabase y reintentar; AsyncStorage como respaldo.
 - Seguridad/RLS: todas las queries a Supabase deben filtrar por user_id; revisar reglas de tablas (profiles, tasks, inventory, journal, daily metrics).
 - Compatibilidad: si backend agrega campos nuevos, ignorar o normalizar; si no env铆a subtasks/tags, usar [].
+
+## 7. Trabajo realizado hoy (UI + l贸gica)
+- Header de TasksScreen alineado al mock: search con placeholder nuevo, tabs en slider horizontal y tarjeta de progreso en vidrio con gradiente.
+- Progreso diario contextual: calcula completadas/total seg煤n el tab activo, excluyendo eliminadas; texto del footnote se adapta al tipo.
+- Chips y bordes menos redondos (ajuste global de Radii) y estilos de search/tabs/chips para lucir m谩s cuadrados.
+- Fix de sync: hidrato normaliza tareas y s贸lo itera cloudData.tasks si es array; IDs locales se reemplazan por UUIDs generados en Supabase sin crashear.
+\n\n## 8. Ideas visuales pendientes\n- Estados completados/archivados: bajar opacidad o tinte general y desactivar CTA.\n- Feedback: resaltar hover/tap en tarjeta y CTA con sombra leve.\n- Subtareas: icono verde en checkbox completado, limitar texto largo con ellipsis.\n- Separadores: reforzar l韓ea entre CTA y descripci髇 si hiciera falta.\n

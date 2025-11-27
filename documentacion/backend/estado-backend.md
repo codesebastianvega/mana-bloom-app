@@ -12,6 +12,7 @@
 - **Logros (`achievements`)**: progreso y desbloqueo guardados; manejo defensivo si el catálogo no carga.
 - **Journal (`journal_entries`)**: lectura/upsert disponible en `pushJournalEntry`.
 - **Métricas diarias (`daily_metrics`)**: helper `updateDailyMetrics` para upsert por fecha/usuario.
+- **Defensivos recientes**: normalización de tareas antes de merge (evita `forEach` sobre undefined); catálogo de logros protegido si no carga (`ACH_LIST`).
 
 ## Pendiente / por reforzar
 - **RLS y filtros**: revisar reglas en Supabase para asegurar todas las tablas filtran por `user_id`.
