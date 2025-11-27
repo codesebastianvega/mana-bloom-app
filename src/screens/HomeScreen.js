@@ -11,7 +11,7 @@ import { Colors, Spacing } from "../theme";
 import StickyHeader from "../components/navigation/StickyHeader";
 import HomeWelcomeCard from "../components/home/HomeWelcomeCard";
 import SocialTicker from "../components/home/SocialTicker";
-import FocusCrystalWidget from "../components/home/FocusCrystalWidget";
+import ProductivitySpellsSlider from "../components/home/ProductivitySpellsSlider";
 import PromoBannerSlider from "../components/home/PromoBannerSlider";
 import DailyChallengesSection from "../components/home/DailyChallengesSection";
 import MagicShopSection from "../components/home/MagicShopSection";
@@ -97,7 +97,7 @@ export default function HomeScreen() {
           <View onLayout={setAnchor("welcome")}>
             <HomeWelcomeCard onNext={goToTasks} />
           </View>
-          <FocusCrystalWidget />
+          <ProductivitySpellsSlider />
           <PromoBannerSlider />
           <View onLayout={setAnchor("hero")}>
             <HomeHeroSection />
