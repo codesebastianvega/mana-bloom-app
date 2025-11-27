@@ -5,7 +5,14 @@
 // Autor: Codex - Fecha: 2025-10-20
 
 import { StyleSheet } from "react-native";
-import { Colors, Spacing, Radii, Elevation, Typography, CardStyles } from "../theme";
+import {
+  Colors,
+  Spacing,
+  Radii,
+  Elevation,
+  Typography,
+  CardStyles,
+} from "../theme";
 import { FAB_SIZE } from "../components/AddTaskButton/AddTaskButton.styles";
 
 const glassOverlay = (alpha) => `rgba(22, 16, 41, ${alpha})`;
@@ -38,7 +45,118 @@ export default StyleSheet.create({
   },
   content: {
     paddingHorizontal: Spacing.base,
-    paddingTop: Spacing.base,
+    paddingTop: Spacing.tiny,
+  },
+  missionHeaderWrapper: {
+    marginBottom: Spacing.large,
+    gap: Spacing.small,
+  },
+  missionHeaderTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: Spacing.small,
+  },
+  missionTitle: {
+    ...Typography.sectionTitle,
+    color: Colors.text,
+  },
+  missionSubtitle: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  missionHeaderActions: {
+    flexDirection: "row",
+    gap: Spacing.tiny,
+  },
+  missionActionButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.04)",
+  },
+  searchRow: {
+    marginTop: Spacing.small,
+  },
+  missionTabs: {
+    marginTop: Spacing.small,
+  },
+  missionTabsContent: {
+    flexDirection: "row",
+    gap: Spacing.tiny,
+  },
+  missionTab: {
+    paddingHorizontal: Spacing.base * 1.25,
+    paddingVertical: Spacing.tiny + 2,
+    marginLeft: 1,
+    borderRadius: 10,
+    borderWidth: 0.5,
+    borderColor: "rgba(255,255,255,0.14)",
+    backgroundColor: "rgba(255,255,255,0.03)",
+  },
+  missionTabActive: {
+    borderColor: Colors.primaryLight,
+    backgroundColor: "rgba(179,157,219,0.18)",
+  },
+  missionTabLabel: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontWeight: "600",
+  },
+  missionTabLabelActive: {
+    color: Colors.text,
+  },
+  progressCard: {
+    marginTop: Spacing.small,
+    backgroundColor: "rgba(13,9,26,0.85)",
+    borderRadius: Radii.xl,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
+    padding: Spacing.base,
+    gap: Spacing.tiny,
+    shadowColor: Colors.shadow,
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 6,
+  },
+  progressHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  progressLabel: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  progressPercent: {
+    ...Typography.caption,
+    color: Colors.text,
+    fontWeight: "800",
+    fontSize: 14,
+  },
+  progressBar: {
+    height: 10,
+    borderRadius: Radii.lg,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    borderRadius: Radii.lg,
+  },
+  progressFootnote: {
+    ...Typography.micro,
+    color: Colors.textMuted,
+    textAlign: "center",
+    marginTop: Spacing.tiny,
   },
   emptyState: {
     paddingVertical: Spacing.large,
@@ -106,5 +224,3 @@ export default StyleSheet.create({
     justifyContent: "center",
   },
 });
-
-

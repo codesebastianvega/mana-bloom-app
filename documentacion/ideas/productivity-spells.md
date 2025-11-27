@@ -24,6 +24,25 @@
 | **Niebla Restauradora** | Break guiado / respiración | Temporizador breve + guía de respiración. |
 | **Meditación Arcana** | Meditación guiada (audio) | Reproductor simple, modo silencio. |
 
+## Framework: Hechizos vs Rituales
+- **Hechizos (productividad)**: timers + helpers visibles siempre en el slot principal de Home.
+- **Rituales (bienestar)**: slides premium desbloqueables que reutilizan la plantilla pero traen contenido multimedia/respiración. Se pueden habilitar con XP o suscripción para no canibalizar PlantScreen.
+
+### Slots Premium
+- Mantener dos slots gratis fijos (Cristal, Pulso) y un slot rotativo premium (Meditación Arcana, Niebla Restauradora, “Zen Sprint”, etc.).
+- Los slides premium pueden agruparse en packs y al completarse abren el modal correspondiente en PlantScreen para registrar el ritual.
+
+### Sincronización con PlantScreen
+- Al activar un ritual desde el slider, enviamos un evento para sugerir completarlo en PlantScreen y mantener narrativa/coherencia.
+- PlantScreen puede mostrar una sección “Hechizos ejecutados” que otorgue buffs o cambie el estado de ánimo según los rituales completados.
+
+## Ideas futuras (experimentos reales)
+- **Timeboxing guiado (90/30, Ultradian Rhythm)**: bloques largos con descansos extensos para sesiones creativas.
+- **Regla de los 2 minutos / Micro bursts GTD**: chips ultra cortos para romper la procrastinación.
+- **Eisenhower Sprint**: enfoque en el cuadrante urgente/importante con helper de priorización.
+- **Deep Work Focus (Cal Newport)**: sesiones de 60+ min con rituales sin notificaciones, ideal como slide premium.
+- **Inbox Zero Blast**: 25-30 min para clasificar, delegar, archivar correos con checklist.
+- **Habit Stacking**: micro bloques encadenados (Escribe → Respira → Revisa agenda) para iniciar las mañanas con energía.
 ## Consideraciones
 - Persistir la elección del hechizo para que Home respete el mismo módulo tras reinicios.
 - Pensar en 'slots' futuros: ¿serán 1 o 2? ¿El usuario podría tener un carrusel de hechizos?

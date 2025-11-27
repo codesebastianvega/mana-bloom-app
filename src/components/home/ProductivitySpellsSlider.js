@@ -67,13 +67,6 @@ const SPELLS = [
     description: "Sesiones 52/17 para misiones largas sin interrupciones.",
     icon: "fire",
   },
-  {
-    id: "mist",
-    name: "Niebla Restauradora",
-    type: "placeholder",
-    description: "Descansos guiados y respiracion",
-    icon: "weather-fog",
-  },
 ];
 
 const CRYSTAL_IMG = require("../../../assets/potions/critalmagico.png");
