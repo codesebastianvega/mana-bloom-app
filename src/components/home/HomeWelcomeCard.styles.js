@@ -109,6 +109,10 @@ export default StyleSheet.create({
     gap: Spacing.small,
     marginBottom: Spacing.tiny,
   },
+  headerTextBlock: {
+    flex: 1,
+    gap: Spacing.tiny / 2,
+  },
   avatarWrapper: {
     width: 44,
     height: 44,
@@ -144,6 +148,12 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
   },
+  avatarStatusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: Colors.success,
+  },
   title: {
     ...Typography.h2,
     color: Colors.text,
@@ -155,6 +165,47 @@ export default StyleSheet.create({
     fontStyle: "italic",
     marginTop: 0,
     marginBottom: Spacing.small,
+  },
+  agendaCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+    borderRadius: Radii.lg,
+    padding: Spacing.small,
+    backgroundColor: "rgba(0,0,0,0.25)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+  },
+  agendaAccent: {
+    width: 4,
+    height: "100%",
+    borderRadius: Radii.pill,
+    backgroundColor: Colors.danger,
+  },
+  agendaTextBlock: {
+    flex: 1,
+    gap: Spacing.tiny / 2,
+  },
+  agendaLabel: {
+    ...Typography.micro,
+    color: Colors.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  agendaTitle: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "700",
+  },
+  agendaIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   kpiRow: {
     flexDirection: "row",

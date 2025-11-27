@@ -4,7 +4,7 @@
 // Puntos de edicion futura: animaciones y origen de datos real
 // Autor: Codex - Fecha: 2025-10-07 (V6)
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { View, Text, Pressable, Animated, Image, Easing } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -237,9 +237,10 @@ const NEON_BLOBS = [
 ];
 
 export default function HomeWelcomeCard({ onNext }) {
-  const { displayName } = useAppState();
+  const { displayName, streak } = useAppState();
   const { items } = useDailyChallenges();
-  const [taskCounts, setTaskCounts] = useState({ tasks: null, habits: null });
+  const [taskCounts, setTaskCounts] = useState({ tasks: null });
+  const [nextTask, setNextTask] = useState(null);
   const chipsAnim = useRef(new Animated.Value(0)).current;
   const ctaScale = useRef(new Animated.Value(1)).current;
   const neonAnimations = useRef(
@@ -340,16 +341,23 @@ export default function HomeWelcomeCard({ onNext }) {
   useFocusEffect(
     useCallback(() => {
       getTasks().then((ts) => {
-        const tasks = ts.filter((t) => t.type === "single" && !t.completed).length;
-        const habits = ts.filter((t) => t.type === "habit" && !t.completed).length;
-        setTaskCounts({ tasks, habits });
+        const pending = ts.filter((t) => !t.completed && !t.isDeleted);
+        const tasks = pending.filter((t) => t.type === "single").length;
+        setTaskCounts({ tasks });
+
+        const order = { hard: 0, medium: 1, easy: 2 };
+        const prioritized = pending
+          .slice()
+          .sort((a, b) => (order[a.priority] ?? 3) - (order[b.priority] ?? 3));
+        setNextTask(prioritized[0] || null);
       });
     }, [])
   );
 
   const completedChallenges = items.filter((it) => it.claimed).length;
   const totalChallenges = items.length;
-  const kpiItems = [
+  const activeChallenges = Math.max(0, totalChallenges - completedChallenges);
+  const kpiCards = [
     {
       key: "tasks",
       label: "Tareas",
@@ -359,22 +367,32 @@ export default function HomeWelcomeCard({ onNext }) {
       accessibilityLabel: `Tareas pendientes: ${taskCounts.tasks ?? 0}`,
     },
     {
-      key: "habits",
-      label: "Hábitos",
-      value: taskCounts.habits ?? "--",
+      key: "streak",
+      label: "Racha",
+      value: streak ?? 0,
       icon: "fire",
       accent: Colors.warning,
-      accessibilityLabel: `Hábitos pendientes: ${taskCounts.habits ?? 0}`,
+      accessibilityLabel: `Racha de ${streak ?? 0} días`,
     },
     {
       key: "challenges",
       label: "Retos",
-      value: `${completedChallenges}/${totalChallenges}`,
+      value: activeChallenges,
       icon: "trophy",
       accent: Colors.accent,
-      accessibilityLabel: `Retos diarios: ${completedChallenges} de ${totalChallenges}`,
+      accessibilityLabel: `Retos activos: ${activeChallenges}`,
     },
   ];
+  const kpiItems = kpiCards;
+  const nextTaskPriority = nextTask?.priority || "easy";
+  const nextTaskAccent =
+    nextTaskPriority === "hard"
+      ? Colors.danger
+      : nextTaskPriority === "medium"
+      ? Colors.accent
+      : Colors.secondary;
+  const nextTaskLabel =
+    nextTask?.title || "El grimorio esta en calma. Todo completado.";
   const lensScale = lensAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [0.94, 1.08],
@@ -395,11 +413,28 @@ export default function HomeWelcomeCard({ onNext }) {
     inputRange: [0, 1],
     outputRange: ["0deg", "360deg"],
   });
-  const subtitleMessage =
-    MOTIVATION_PHRASES[
-      (new Date().getDay() + MOTIVATION_PHRASES.length) %
-        MOTIVATION_PHRASES.length
-    ];
+  const { greetingText, atmosphereText } = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 6)
+      return {
+        greetingText: "La noche es profunda",
+        atmosphereText: "Las estrellas vigilan tu descanso.",
+      };
+    if (hour < 12)
+      return {
+        greetingText: "El rocío despierta",
+        atmosphereText: "La energía del sol naciente está contigo.",
+      };
+    if (hour < 18)
+      return {
+        greetingText: "El sol está en su cenit",
+        atmosphereText: "Es momento de cultivar y crecer.",
+      };
+    return {
+      greetingText: "La niebla se levanta",
+      atmosphereText: "El bosque se prepara para el reposo.",
+    };
+  }, []);
 
   return (
     <View style={styles.wrapper}>
@@ -527,91 +562,87 @@ export default function HomeWelcomeCard({ onNext }) {
           pointerEvents="none"
         />
         <View style={styles.content}>
-        <View style={styles.titleRow}>
-          <View style={styles.avatarWrapper}>
-            <View style={styles.avatarInner}>
-              <Image
-                source={avatarPlaceholder}
-                style={styles.avatarImage}
-                resizeMode="cover"
-              />
+          <View style={styles.titleRow}>
+            <View style={styles.avatarWrapper}>
+              <View style={styles.avatarInner}>
+                <Image
+                  source={avatarPlaceholder}
+                  style={styles.avatarImage}
+                  resizeMode="cover"
+                />
+              </View>
+              <View style={styles.avatarStatus}>
+                <View style={styles.avatarStatusDot} />
+              </View>
             </View>
-            <View style={styles.avatarStatus}>
-              <MaterialCommunityIcons
-                name="sprout"
-                size={14}
-                color={ElementAccents.accentCta}
-              />
+            <View style={styles.headerTextBlock}>
+              <Text accessibilityRole="header" style={styles.title}>
+                {`${greetingText}, ${displayName || "explorador"}.`}
+              </Text>
+              <Text style={styles.subtitle} numberOfLines={2}>
+                “{atmosphereText}”
+              </Text>
             </View>
           </View>
-          <Text accessibilityRole="header" style={styles.title}>
-            {`Hola, ${displayName || "explorador"}!`}
-          </Text>
-        </View>
-        <Text style={styles.subtitle}>{subtitleMessage}</Text>
-        <Animated.View
-          style={[
-            styles.kpiRow,
-            {
-              opacity: chipsAnim,
-              transform: [
-                {
-                  translateY: chipsAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [10, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          {kpiItems.map((kpi) => (
-            <View
-              key={kpi.key}
-              style={styles.kpiBox}
-              accessibilityRole="text"
-              accessibilityLabel={kpi.accessibilityLabel}
-            >
-              <View style={styles.kpiLabelRow}>
-                <MaterialCommunityIcons name={kpi.icon} size={11} color={kpi.accent} />
-                <Text style={styles.kpiLabel}>{kpi.label}</Text>
-              </View>
-              <Text style={styles.kpiNumber}>{kpi.value}</Text>
+
+          <Pressable
+            onPress={onNext}
+            style={styles.agendaCard}
+            accessibilityRole="button"
+            accessibilityLabel="Ir a siguiente tarea"
+          >
+            <View style={[styles.agendaAccent, { backgroundColor: nextTaskAccent }]} />
+            <View style={styles.agendaTextBlock}>
+              <Text style={styles.agendaLabel}>Siguiente paso</Text>
+              <Text style={styles.agendaTitle} numberOfLines={1}>
+                {nextTaskLabel}
+              </Text>
             </View>
-          ))}
-        </Animated.View>
-        <AnimatedPressable
-          onPress={onNext}
-          onPressIn={() => {
-            Animated.timing(ctaScale, {
-              toValue: 0.97,
-              duration: 90,
-              useNativeDriver: true,
-            }).start();
-          }}
-          onPressOut={() => {
-            Animated.timing(ctaScale, {
-              toValue: 1,
-              duration: 120,
-              useNativeDriver: true,
-            }).start();
-          }}
-          style={[styles.footerButton, { transform: [{ scale: ctaScale }] }]}
-          accessibilityRole="button"
-          accessibilityLabel="Ir a mis tareas"
-        >
-          <Text style={styles.footerText}>Ir a mis tareas</Text>
-          <MaterialCommunityIcons
-            name="chevron-right"
-            size={18}
-            color={ElementAccents.accentCta}
-          />
-        </AnimatedPressable>
+            <View style={styles.agendaIcon}>
+              <MaterialCommunityIcons name="check-circle" size={18} color={Colors.text} />
+            </View>
+          </Pressable>
+
+          <Animated.View
+            style={[
+              styles.kpiRow,
+              {
+                opacity: chipsAnim,
+                transform: [
+                  {
+                    translateY: chipsAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [10, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            {kpiCards.map((kpi) => (
+              <View
+                key={kpi.key}
+                style={styles.kpiBox}
+                accessibilityRole="text"
+                accessibilityLabel={kpi.accessibilityLabel}
+              >
+                <View style={styles.kpiLabelRow}>
+                  <MaterialCommunityIcons name={kpi.icon} size={11} color={kpi.accent} />
+                  <Text style={styles.kpiLabel}>{kpi.label}</Text>
+                </View>
+                <Text style={styles.kpiNumber}>{kpi.value}</Text>
+              </View>
+            ))}
+          </Animated.View>
+
         </View>
       </LinearGradient>
     </View>
   );
 }
+
+
+
 
 
 
