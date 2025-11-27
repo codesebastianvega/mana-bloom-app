@@ -35,10 +35,12 @@ export default StyleSheet.create({
     backgroundColor: Colors.background,
   },
   content: {
+    paddingBottom: Spacing.xlarge * 2,
+    gap: Spacing.large,
+  },
+  contentInner: {
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.base,
-    paddingTop: Spacing.large + Spacing.small,
-    paddingBottom: Spacing.xlarge * 2,
     gap: Spacing.large,
   },
   elementBalanceSection: {

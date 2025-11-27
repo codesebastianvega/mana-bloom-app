@@ -26,9 +26,17 @@ export default StyleSheet.create({
     backgroundColor: Colors.background,
   },
   content: {
+    paddingBottom: Spacing.base,
+    gap: Spacing.large,
+  },
+  contentInner: {
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.base,
     gap: Spacing.large,
+  },
+  stickyHeaderWrap: {
+    marginHorizontal: -Spacing.base,
+    paddingHorizontal: Spacing.base,
   },
   heroCard: {
     borderRadius: Radii.xl,

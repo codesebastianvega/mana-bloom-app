@@ -8,8 +8,10 @@ import React, { useRef, useState, useCallback } from "react";
 import { StyleSheet, ScrollView, View, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors, Spacing } from "../theme";
-import HomeHeader from "../components/home/HomeHeader";
+import StickyHeader from "../components/navigation/StickyHeader";
 import HomeWelcomeCard from "../components/home/HomeWelcomeCard";
+import SocialTicker from "../components/home/SocialTicker";
+import FocusCrystalWidget from "../components/home/FocusCrystalWidget";
 import PromoBannerSlider from "../components/home/PromoBannerSlider";
 import DailyChallengesSection from "../components/home/DailyChallengesSection";
 import MagicShopSection from "../components/home/MagicShopSection";
@@ -77,10 +79,11 @@ export default function HomeScreen() {
           onClose={() => dispatch({ type: "CLEAR_ACHIEVEMENT_TOAST" })}
         />
       )}
-      <HomeHeader
+      <StickyHeader
         ref={headerRef}
         onChipPopoverToggle={setChipPopoverOpen}
       />
+      <SocialTicker />
       <View style={styles.contentWrapper}>
         <ScrollView
           ref={scrollRef}
@@ -94,6 +97,7 @@ export default function HomeScreen() {
           <View onLayout={setAnchor("welcome")}>
             <HomeWelcomeCard onNext={goToTasks} />
           </View>
+          <FocusCrystalWidget />
           <PromoBannerSlider />
           <View onLayout={setAnchor("hero")}>
             <HomeHeroSection />

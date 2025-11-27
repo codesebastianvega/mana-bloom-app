@@ -17,6 +17,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import AchievementToast from "../components/common/AchievementToast";
+import StickyHeader from "../components/navigation/StickyHeader";
 import {
   useAchievementToast,
   useAppDispatch,
@@ -202,7 +203,12 @@ export default function ProfileScreen() {
           onClose={() => dispatch({ type: "CLEAR_ACHIEVEMENT_TOAST" })}
         />
       )}
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        stickyHeaderIndices={[0]}
+      >
+        <StickyHeader />
+        <View style={styles.contentInner}>
         <View style={styles.heroCard}>
           <View style={styles.heroHeader}>
             <LinearGradient
@@ -460,20 +466,21 @@ export default function ProfileScreen() {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Acciones suaves</Text>
           </View>
-          {(actions || []).map((action) => (
-            <Pressable key={action.id} style={styles.actionRow}>
-              <View style={styles.actionIcon}>
-                <FontAwesome5 name={action.icon} size={14} color="#80deea" />
-              </View>
-              <Text style={styles.actionLabel}>{action.label}</Text>
-              <FontAwesome5
-                name="chevron-right"
-                size={12}
-                color={styles.actionLabel.color}
-              />
-            </Pressable>
-          ))}
-        </View>
+        {(actions || []).map((action) => (
+          <Pressable key={action.id} style={styles.actionRow}>
+            <View style={styles.actionIcon}>
+              <FontAwesome5 name={action.icon} size={14} color="#80deea" />
+            </View>
+            <Text style={styles.actionLabel}>{action.label}</Text>
+            <FontAwesome5
+              name="chevron-right"
+              size={12}
+              color={styles.actionLabel.color}
+            />
+          </Pressable>
+        ))}
+      </View>
+      </View>
       </ScrollView>
       <AchievementsModal
         visible={modalVisible}

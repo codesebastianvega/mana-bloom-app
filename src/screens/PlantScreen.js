@@ -44,6 +44,7 @@ import styles from "./PlantScreen.styles";
 import { useActiveBuffs, useAppState, useAppDispatch } from "../state/AppContext";
 import { supabase } from "../lib/supabase";
 import { pushJournalEntry, updateDailyMetrics } from "../lib/sync";
+import StickyHeader from "../components/navigation/StickyHeader";
 
 const RITUAL_ACTIONS = [
   "meditate",
@@ -734,7 +735,10 @@ const HYDRATE_GOAL = 8;
       <ScrollView
         contentContainerStyle={styles.content}
         importantForAccessibility={invOpen ? "no-hide-descendants" : "auto"}
+        stickyHeaderIndices={[0]}
       >
+        <StickyHeader />
+        <View style={styles.contentInner}>
         <PlantHeader
           name={plantName}
           onRename={(next) => setPlantName(next)}
@@ -866,6 +870,7 @@ const HYDRATE_GOAL = 8;
             }}
           />
         </ScreenSection>*/}
+        </View>
       </ScrollView>
       <InventorySheet
         visible={invOpen}
