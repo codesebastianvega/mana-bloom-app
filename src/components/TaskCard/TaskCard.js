@@ -11,7 +11,9 @@ import {
   TouchableOpacity,
   Text,
   PanResponder,
+  TextInput,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome5 } from "@expo/vector-icons";
 import styles from "./TaskCardStyles";
 
@@ -131,6 +133,9 @@ export default function TaskCard({
   onEditTask,
   onToggleSubtask,
   onTaskCompleted,
+  onStartFocus,
+  onTagPress,
+  onAddSubtask,
 } = {}) {
 
   const pan = useRef(new Animated.Value(0)).current;
@@ -139,6 +144,10 @@ export default function TaskCard({
   const isDeletedView = activeFilter === "deleted";
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showSubtaskInput, setShowSubtaskInput] = useState(false);
+  const [newSubtaskText, setNewSubtaskText] = useState("");
+  const [showCelebration, setShowCelebration] = useState(false);
+  const celebrationScale = useRef(new Animated.Value(0)).current;
   const taskId = task?.id;
 
   useEffect(() => {
@@ -260,42 +269,67 @@ export default function TaskCard({
       {/* task content */}
       <Animated.View
         style={[
-          styles.card,
           {
             transform: [{ translateX: pan }, { scale }],
             opacity: task.completed || task.isDeleted ? 0.5 : 1,
-            borderLeftColor: withAlpha(difficultyAccent, 0.5),
-            shadowColor: withAlpha(difficultyAccent, 0.5),
           },
         ]}
         {...panResponder.panHandlers}
         onTouchStart={handlePressIn}
         onTouchEnd={handlePressOut}
       >
+        <LinearGradient
+          colors={['#1f1b2d', '#252035', '#1f1b2d']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[
+            styles.card,
+            {
+              borderLeftColor: withAlpha(difficultyAccent, 0.5),
+              shadowColor: withAlpha(difficultyAccent, 0.5),
+            },
+          ]}
+        >
         <View style={styles.mainColumn}>
-          <TouchableOpacity
-            style={[styles.checkCircle, task.completed && styles.checkCircleDone]}
-            onPress={() => onToggleComplete(task.id)}
-          >
-            {task.completed && (
-              <FontAwesome5 name="check" size={12} color={Colors.background} />
-            )}
-          </TouchableOpacity>
+          <View style={styles.cardTopRow}>
+            <TouchableOpacity
+              style={[styles.checkCircle, task.completed && styles.checkCircleDone]}
+              onPress={() => onToggleComplete(task.id)}
+              accessibilityRole="checkbox"
+              accessibilityLabel={task.completed ? "Marcar como pendiente" : "Marcar como completada"}
+              accessibilityState={{ checked: task.completed }}
+            >
+              {task.completed && (
+                <FontAwesome5 name="check" size={12} color={Colors.background} />
+              )}
+            </TouchableOpacity>
 
-          <View style={styles.titleBlock}>
-            <Text style={[styles.title, task.completed && styles.textCompleted]} numberOfLines={2}>
-              {task.title}
-            </Text>
+            <View style={styles.titleBlock}>
+              <Text style={[styles.title, task.completed && styles.textCompleted]} numberOfLines={2}>
+                {task.title}
+              </Text>
+              {!isExpanded && task.note && task.note.trim().length > 0 && (
+                <Text style={styles.notePreview} numberOfLines={2}>
+                  {task.note}
+                </Text>
+              )}
+            </View>
           </View>
 
           {task.tags?.length > 0 && (
             <View style={styles.tagsRow}>
               {(task.tags || []).map((tag) => (
-                <View key={tag} style={styles.tagChip}>
+                <TouchableOpacity
+                  key={tag}
+                  style={styles.tagChip}
+                  onPress={() => onTagPress?.(tag)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Filtrar por etiqueta ${tag}`}
+                >
                   <Text style={styles.tagText} numberOfLines={1}>
                     {`#${tag}`}
                   </Text>
-                </View>
+                </TouchableOpacity>
               ))}
             </View>
           )}
@@ -320,6 +354,22 @@ export default function TaskCard({
               />
             </TouchableOpacity>
           </View>
+
+          {totalSubtasks > 0 && (
+            <View style={styles.progressBarContainer}>
+              <View style={styles.progressBar}>
+                <View 
+                  style={[
+                    styles.progressBarFill, 
+                    { 
+                      width: `${(completedSubtasks / totalSubtasks) * 100}%`,
+                      backgroundColor: difficultyAccent 
+                    }
+                  ]} 
+                />
+              </View>
+            </View>
+          )}
 
           {isExpanded && (
             <View style={styles.expandBlock}>
@@ -354,7 +404,12 @@ export default function TaskCard({
                 </View>
               </View>
 
-              <TouchableOpacity style={styles.focusButton} onPress={() => onEditTask(task)}>
+              <TouchableOpacity 
+                style={styles.focusButton} 
+                onPress={() => onStartFocus?.(task)}
+                accessibilityRole="button"
+                accessibilityLabel="Iniciar modo de enfoque para esta tarea"
+              >
                 <FontAwesome5 name="play" size={12} color={Colors.text} />
                 <Text style={styles.focusButtonText}>Iniciar foco</Text>
               </TouchableOpacity>
@@ -387,14 +442,46 @@ export default function TaskCard({
                       </TouchableOpacity>
                     ))}
                   </View>
-                  <View style={styles.subtaskAddRow}>
-                    <Text style={styles.subtaskAddText}>+ Añadir paso...</Text>
-                  </View>
+                  {!showSubtaskInput ? (
+                    <View style={styles.subtaskAddRow}>
+                      <TouchableOpacity 
+                        onPress={() => setShowSubtaskInput(true)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Añadir nueva subtarea"
+                      >
+                        <Text style={styles.subtaskAddText}>+ Añadir paso...</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <View style={styles.subtaskAddRow}>
+                      <TextInput
+                        style={styles.subtaskInput}
+                        value={newSubtaskText}
+                        onChangeText={setNewSubtaskText}
+                        placeholder="Escribe el paso..."
+                        placeholderTextColor={Colors.textMuted}
+                        autoFocus
+                        onSubmitEditing={() => {
+                          if (newSubtaskText.trim()) {
+                            onAddSubtask?.(task.id, newSubtaskText.trim());
+                            setNewSubtaskText("");
+                            setShowSubtaskInput(false);
+                          }
+                        }}
+                        onBlur={() => {
+                          if (!newSubtaskText.trim()) {
+                            setShowSubtaskInput(false);
+                          }
+                        }}
+                      />
+                    </View>
+                  )}
                 </>
               )}
             </View>
           )}
         </View>
+        </LinearGradient>
       </Animated.View>
     </View>
   );

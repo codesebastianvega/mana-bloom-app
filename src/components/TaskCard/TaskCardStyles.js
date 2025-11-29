@@ -207,10 +207,6 @@ export default StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: withAlpha(Colors.surfaceAlt, 0.35),
-    position: "absolute",
-    top: -7,
-    right: -7,
-    zIndex: 2,
   },
   checkCircleDone: {
     backgroundColor: Colors.secondary,
@@ -218,6 +214,12 @@ export default StyleSheet.create({
   },
   titleBlock: {
     gap: Spacing.tiny / 2,
+    flex: 1,
+  },
+  cardTopRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: Spacing.small,
   },
   titleBlockRow: {
     flexDirection: "row",
@@ -238,6 +240,27 @@ export default StyleSheet.create({
   textCompleted: {
     color: Colors.textMuted,
     textDecorationLine: "line-through",
+  },
+  notePreview: {
+    ...Typography.caption,
+    fontSize: Typography.caption.fontSize,
+    color: withAlpha(Colors.textMuted, 0.8),
+    marginTop: Spacing.tiny / 2,
+    lineHeight: 16,
+  },
+  progressBarContainer: {
+    marginTop: Spacing.small,
+    marginBottom: -Spacing.tiny,
+  },
+  progressBar: {
+    height: 3,
+    backgroundColor: withAlpha(Colors.surfaceAlt, 0.3),
+    borderRadius: 2,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    borderRadius: 2,
   },
   rewardRow: {
     flexDirection: "row",
@@ -370,5 +393,17 @@ export default StyleSheet.create({
   subtaskTextCompleted: {
     color: Colors.textMuted,
     textDecorationLine: "line-through",
+  },
+  subtaskInput: {
+    ...Typography.body,
+    fontSize: Typography.caption.fontSize + 1,
+    fontWeight: "600",
+    color: Colors.text,
+    backgroundColor: withAlpha(Colors.surface, 0.65),
+    borderRadius: Radii.sm,
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.small,
+    borderWidth: 1.5,
+    borderColor: withAlpha(Colors.primaryLight, 0.4),
   },
 });
