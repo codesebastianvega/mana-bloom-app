@@ -94,6 +94,99 @@ const getDifficultyColor = (d) => {
 const xpReward = { easy: 5, medium: 10, hard: 20 };
 const manaReward = { easy: 1, medium: 2, hard: 3 };
 
+// Ribbon helper functions
+const calculateDaysSinceCreation = (createdAt) => {
+  if (!createdAt) return 0;
+  const created = new Date(createdAt);
+  const now = new Date();
+  const diffTime = Math.abs(now - created);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+};
+
+const calculateDaysUntilDeadline = (deadline) => {
+  if (!deadline) return null;
+  const deadlineDate = new Date(deadline);
+  const now = new Date();
+  const diffTime = deadlineDate - now;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+};
+
+const getRibbonData = (task) => {
+  const type = task.type || 'single';
+  
+  switch (type) {
+    case 'single': // TAREA
+      const daysSinceCreation = calculateDaysSinceCreation(task.createdAt);
+      let tareaColor = ['#4B5563', '#6B7280']; // Gris oscuro para mejor contraste
+      if (daysSinceCreation > 7) {
+        tareaColor = ['#7C3AED', '#8B5CF6']; // Morado más vibrante
+      } else if (daysSinceCreation > 3) {
+        tareaColor = ['#2563EB', '#3B82F6']; // Azul más fuerte
+      }
+      return {
+        helper: 'PENDIENTE',
+        value: `${daysSinceCreation} DÍAS`,
+        colors: tareaColor,
+        show: !task.completed,
+      };
+      
+    case 'quest': // MISIÓN
+      const daysUntil = calculateDaysUntilDeadline(task.deadline);
+      if (daysUntil === null) return { show: false };
+      
+      let misionColor = ['#059669', '#10B981']; // Verde esmeralda
+      let urgencyText = 'PLAZO';
+      
+      if (daysUntil < 0) {
+        misionColor = ['#991B1B', '#B91C1C']; // Rojo intenso
+        urgencyText = 'VENCIDO';
+      } else if (daysUntil === 0) {
+        misionColor = ['#DC2626', '#EF4444']; // Rojo
+        urgencyText = 'HOY';
+      } else if (daysUntil === 1) {
+        misionColor = ['#D97706', '#F59E0B']; // Ámbar oscuro
+        urgencyText = 'MAÑANA';
+      } else if (daysUntil <= 2) {
+        misionColor = ['#D97706', '#F59E0B']; // Ámbar oscuro
+        urgencyText = 'URGENTE';
+      } else if (daysUntil <= 7) {
+        misionColor = ['#CA8A04', '#EAB308']; // Amarillo oscuro
+        urgencyText = 'PRÓXIMO';
+      }
+      
+      return {
+        helper: urgencyText,
+        value: daysUntil < 0 ? `${Math.abs(daysUntil)} DÍAS` : `${daysUntil} DÍAS`,
+        colors: misionColor,
+        show: !task.completed,
+      };
+      
+    case 'habit': // HÁBITO
+      const streak = task.streak || 0;
+      return {
+        helper: '', // Sin helper para una sola línea
+        value: `🔥 RACHA: ${streak}`,
+        colors: ['#EA580C', '#F97316'], // Naranja más oscuro para contraste
+        show: true,
+      };
+      
+    case 'ritual': // RITUAL
+      const ritualStreak = task.streak || 0;
+      return {
+        helper: `🔥 RACHA: ${ritualStreak}`,
+        value: `💎 +${task.gemReward || 5}`,
+        colors: ['#D97706', '#F59E0B'], // Dorado/Ámbar oscuro
+        show: true,
+        gemReward: task.gemReward || 5,
+      };
+      
+    default:
+      return { show: false };
+  }
+};
+
 const withAlpha = (hex = "", alpha = 1) => {
   if (!hex) return hex;
   let cleaned = `${hex}`.replace("#", "").trim();
@@ -205,12 +298,47 @@ export default function TaskCard({
   const handlePressOut = () => {
     Animated.spring(scale, { toValue: 1, useNativeDriver: true }).start();
   };
-  // InformaciÃ³n del elemento (icono y color)
-  // se usa una funciÃ³n para evitar lÃ³gica compleja en el render
+
+  // Información del elemento (icono y color)
+  // se usa una función para evitar lógica compleja en el render
   const elementInfo = getElementColor(task.element);
   const typeLabel = getTypeLabel(task.type);
+  const ribbonData = getRibbonData(task);
 
-  // Estilos de acciÃ³n al deslizar
+  const getStatusLines = () => {
+    const lines = [];
+    const daysSinceCreation = calculateDaysSinceCreation(task.createdAt);
+    const estimatedTime = task.estimatedTime || (task.difficulty === 'hard' ? '60m' : task.difficulty === 'medium' ? '30m' : '15m');
+
+    if (task.type === 'quest' && task.deadline) {
+      const daysUntil = calculateDaysUntilDeadline(task.deadline);
+      const dateObj = new Date(task.deadline);
+      const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+      
+      if (daysUntil < 0) {
+        lines.push({ text: `🔴 Venció hace ${Math.abs(daysUntil)} días`, color: Colors.danger });
+      } else if (daysUntil <= 1) {
+        lines.push({ text: `⚠️ Vence en ${daysUntil} día (${dateStr})`, color: Colors.warning });
+      } else if (daysUntil <= 3) {
+        lines.push({ text: `⚠️ Vence en ${daysUntil} días (${dateStr})`, color: Colors.warning });
+      } else {
+        lines.push({ text: `📅 Vence en ${daysUntil} días (${dateStr})`, color: Colors.secondary });
+      }
+    } else if (!task.completed) {
+       lines.push({ text: `⚠️ Sin completar hace ${daysSinceCreation} días`, color: withAlpha(Colors.textMuted, 0.8) });
+    }
+    
+    if ((task.type === 'habit' || task.type === 'ritual') && task.lastCompletedAt) {
+        const lastDate = new Date(task.lastCompletedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+        lines.push({ text: `Última vez hecho: ${lastDate}`, color: withAlpha(Colors.textMuted, 0.8) });
+    }
+
+    lines.push({ text: `⏱️ Tiempo estimado: ${estimatedTime}`, color: withAlpha(Colors.textMuted, 0.8) });
+
+    return lines;
+  };
+
+  // Estilos de acción al deslizar
   return (
     <View style={styles.container}>
       {/* swipe actions */}
@@ -290,6 +418,19 @@ export default function TaskCard({
             },
           ]}
         >
+          {ribbonData.show && (
+            <View style={styles.ribbonContainer}>
+              <LinearGradient
+                colors={ribbonData.colors}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.ribbonGradient}
+              >
+                {ribbonData.helper ? <Text style={styles.ribbonHelperText}>{ribbonData.helper}</Text> : null}
+                <Text style={styles.ribbonValueText}>{ribbonData.value}</Text>
+              </LinearGradient>
+            </View>
+          )}
         <View style={styles.mainColumn}>
           <View style={styles.cardTopRow}>
             <TouchableOpacity
@@ -373,6 +514,7 @@ export default function TaskCard({
 
           {isExpanded && (
             <View style={styles.expandBlock}>
+
               <View style={styles.headerTile}>
                 <View style={styles.headerTileColumn}>
                   <Text style={styles.headerTileLabel}>ELEMENTO</Text>
@@ -415,6 +557,19 @@ export default function TaskCard({
               </TouchableOpacity>
 
               {task.note ? <Text style={styles.descriptionText}>{task.note}</Text> : null}
+
+              <View style={styles.statusLinesContainer}>
+                {getStatusLines().map((line, index, array) => (
+                  <React.Fragment key={index}>
+                    <Text style={[styles.creationDateText, { color: line.color }]}>
+                      {line.text}
+                    </Text>
+                    {index < array.length - 1 && (
+                      <Text style={[styles.creationDateText, { color: Colors.textMuted, marginHorizontal: 6, opacity: 0.5 }]}>|</Text>
+                    )}
+                  </React.Fragment>
+                ))}
+              </View>
 
               {totalSubtasks > 0 && (
                 <>

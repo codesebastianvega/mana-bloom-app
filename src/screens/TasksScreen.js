@@ -570,6 +570,32 @@ export default function TasksScreen() {
     setShowAddModal(true);
   };
 
+  const handleStartFocus = (task) => {
+    // TODO: Navegar a pantalla de foco real
+    console.log("Iniciar foco para:", task.title);
+  };
+
+  const handleTagPress = (tag) => {
+    setTagFilter(tag === tagFilter ? "all" : tag);
+  };
+
+  const handleAddSubtask = (taskId, subtaskText) => {
+    setTasks((prev) =>
+      prev.map((t) => {
+        if (t.id !== taskId) return t;
+        const newSubtask = {
+          id: Date.now().toString(),
+          text: subtaskText,
+          completed: false,
+        };
+        return {
+          ...t,
+          subtasks: [...(t.subtasks || []), newSubtask],
+        };
+      })
+    );
+  };
+
   // â€”â€”â€” 4) Filtrado combinado â€”â€”â€”
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
@@ -659,6 +685,9 @@ export default function TasksScreen() {
             onEditTask={onEditTask}
             onToggleSubtask={onToggleSubtask}
             activeFilter={activeFilter}
+            onStartFocus={handleStartFocus}
+            onTagPress={handleTagPress}
+            onAddSubtask={handleAddSubtask}
           />
         )}
         ListHeaderComponent={() => (

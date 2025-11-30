@@ -18,6 +18,7 @@ import {
   ToastAndroid,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { Colors, Spacing, Radii, Typography, PriorityAccents } from "../../theme";
 import { XP_REWARD_BY_PRIORITY as PRIORITY_REWARDS } from "../../constants/rewards";
 import { ELEMENT_INFO } from "../../constants/elements";
@@ -81,9 +82,38 @@ export default function CreateTaskModal({
   const [newTags, setNewTags] = useState([]);
   const [newSubtaskInput, setNewSubtaskInput] = useState("");
   const [newSubtasks, setNewSubtasks] = useState([]); // [{id,text,completed}]
+  const [newDeadline, setNewDeadline] = useState(""); // Días desde hoy
+  const [newGemReward, setNewGemReward] = useState("5");
+  const [duration, setDuration] = useState(30); // minutes: 15, 30, 60, 120
+  const [dueDate, setDueDate] = useState('Hoy'); // For Misiones
+  const [estimatedXp, setEstimatedXp] = useState(0);
+  const [estimatedMana, setEstimatedMana] = useState(0);
   const [alert, setAlert] = useState(null); // { message, type }
   const [infoElement, setInfoElement] = useState(null);
   const [infoVisible, setInfoVisible] = useState(false);
+
+  // Calculate rewards in real-time
+  useEffect(() => {
+    let baseXp = 10;
+    let baseMana = 5;
+
+    // Priority multiplier (only for Tarea/Misión)
+    if (newType !== 'habit' && newType !== 'ritual') {
+      if (newPriority === 'medium') { baseXp += 10; baseMana += 5; }
+      if (newPriority === 'hard') { baseXp += 30; baseMana += 15; }
+    }
+
+    // Type multiplier
+    if (newType === 'quest') { baseXp *= 2; baseMana *= 2; }
+    if (newType === 'ritual') { baseXp *= 1.5; baseMana *= 1.2; }
+
+    // Difficulty multiplier
+    const diffMultipliers = { easy: 1, medium: 1.5, hard: 2.5, legendary: 5 };
+    const mult = diffMultipliers[newDifficulty] || 1;
+
+    setEstimatedXp(Math.floor(baseXp * mult));
+    setEstimatedMana(Math.floor(baseMana * mult));
+  }, [newType, newPriority, newDifficulty]);
 
   useEffect(() => {
     if (task) {
@@ -100,6 +130,17 @@ export default function CreateTaskModal({
       );
       setNewTagInput("");
       setNewSubtaskInput("");
+      // Calcular días restantes si existe deadline
+      if (task.deadline) {
+        const diff = new Date(task.deadline) - new Date();
+        const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+        setNewDeadline(days > 0 ? days.toString() : "");
+      } else {
+        setNewDeadline("");
+      }
+      setNewGemReward(task.gemReward ? task.gemReward.toString() : "5");
+      setDuration(task.duration || 30);
+      setDueDate(task.dueDate || 'Hoy');
     } else if (visible) {
       resetForm();
     }
@@ -117,6 +158,10 @@ export default function CreateTaskModal({
     setNewTags([]);
     setNewSubtaskInput("");
     setNewSubtasks([]);
+    setNewDeadline("");
+    setNewGemReward("5");
+    setDuration(30);
+    setDueDate('Hoy');
   };
 
   const showAlert = (message, type = "info") => {
@@ -128,6 +173,45 @@ export default function CreateTaskModal({
     if (!newTitle.trim()) {
       showAlert("Debes ingresar un título para la tarea.", "error");
       return;
+    }
+
+    // Validate Misiones must have at least 1 subtask
+    if (newType === 'quest' && newSubtasks.length === 0) {
+      showAlert("Las Misiones requieren al menos 1 subtarea.", "error");
+      return;
+    }
+
+    // Validate Ritual gems are between 5-20
+    if (newType === 'ritual') {
+      const gems = parseInt(newGemReward) || 5;
+      if (gems < 5 || gems > 20) {
+        showAlert("Las gemas deben estar entre 5 y 20.", "error");
+        return;
+      }
+    }
+
+    // Convert dueDate to actual deadline for Misiones
+    let calculatedDeadline = null;
+    if (newType === 'quest' && dueDate) {
+      const now = new Date();
+      switch(dueDate) {
+        case 'Hoy':
+          calculatedDeadline = new Date(now.setHours(23, 59, 59, 999)).toISOString();
+          break;
+        case 'Mañana':
+          calculatedDeadline = new Date(now.setDate(now.getDate() + 1)).toISOString();
+          break;
+        case 'Fin de semana':
+          // Próximo sábado
+          const daysUntilSaturday = (6 - now.getDay() + 7) % 7 || 7;
+          calculatedDeadline = new Date(now.setDate(now.getDate() + daysUntilSaturday)).toISOString();
+          break;
+        case 'Próx. Semana':
+          calculatedDeadline = new Date(now.setDate(now.getDate() + 7)).toISOString();
+          break;
+        default:
+          calculatedDeadline = new Date(now.setDate(now.getDate() + 1)).toISOString();
+      }
     }
 
     const taskData = {
@@ -144,6 +228,10 @@ export default function CreateTaskModal({
         text: st.text,
         completed: st.completed || false,
       })),
+      deadline: calculatedDeadline,
+      gemReward: newType === 'ritual' ? Math.min(Math.max(parseInt(newGemReward) || 5, 5), 20) : null,
+      duration: duration,
+      dueDate: newType === 'quest' ? dueDate : null,
     };
 
     if (task) {
@@ -167,7 +255,10 @@ export default function CreateTaskModal({
       >
         <View style={styles.modalOverlay}>
           <StarfieldOverlay />
-          <View style={styles.root}>
+          <LinearGradient
+            colors={[withAlpha(Colors.surface, 0.95), withAlpha(Colors.surface, 0.85)]}
+            style={styles.root}
+          >
             {alert && (
               <View
                 style={{
@@ -227,43 +318,110 @@ export default function CreateTaskModal({
                 Selecciona si es una tarea unica o un habito recurrente.
               </Text>
               <View style={styles.segmentContainer}>
-                <Pressable
-                  onPress={() => setNewType("single")}
-                  style={[
-                    styles.segmentButton,
-                    newType === "single" && styles.segmentButtonActive,
-                  ]}
-                  accessibilityRole="tab"
-                  accessibilityState={{ selected: newType === "single" }}
-                >
-                  <Text
+                {[
+                  { id: "single", label: "Tarea" },
+                  { id: "habit", label: "Hábito" },
+                  { id: "quest", label: "Misión" },
+                  { id: "ritual", label: "Ritual" },
+                ].map((type) => (
+                  <Pressable
+                    key={type.id}
+                    onPress={() => setNewType(type.id)}
                     style={[
-                      styles.segmentLabel,
-                      newType === "single" && styles.segmentLabelActive,
+                      styles.segmentButton,
+                      newType === type.id && styles.segmentButtonActive,
                     ]}
                   >
-                    Tarea
-                  </Text>
-                </Pressable>
+                    <Text
+                      style={[
+                        styles.segmentLabel,
+                        newType === type.id && styles.segmentLabelActive,
+                      ]}
+                    >
+                      {type.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
 
-                <Pressable
-                  onPress={() => setNewType("habit")}
-                  style={[
-                    styles.segmentButton,
-                    newType === "habit" && styles.segmentButtonActive,
-                  ]}
-                  accessibilityRole="tab"
-                  accessibilityState={{ selected: newType === "habit" }}
-                >
-                  <Text
-                    style={[
-                      styles.segmentLabel,
-                      newType === "habit" && styles.segmentLabelActive,
-                    ]}
-                  >
-                    Hábito
-                  </Text>
-                </Pressable>
+              {newType === "quest" && (
+                <View style={{ marginTop: Spacing.small }}>
+                  <Text style={styles.sectionLabel}>Plazo (Días)</Text>
+                  <Text style={styles.helperText}>Días a partir de hoy para completar la misión.</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Ej: 3"
+                    placeholderTextColor={Colors.textMuted}
+                    keyboardType="numeric"
+                    value={newDeadline}
+                    onChangeText={setNewDeadline}
+                  />
+                </View>
+              )}
+
+              {newType === "ritual" && (
+                <View style={{ marginTop: Spacing.small }}>
+                  <Text style={styles.sectionLabel}>Recompensa (Gemas)</Text>
+                  <Text style={styles.helperText}>Gemas a ganar por completar el ritual.</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Ej: 5"
+                    placeholderTextColor={Colors.textMuted}
+                    keyboardType="numeric"
+                    value={newGemReward}
+                    onChangeText={setNewGemReward}
+                  />
+                </View>
+              )}
+
+              {/* Date Selector - Only for Misiones */}
+              {newType === "quest" && (
+                <View style={{ marginTop: Spacing.base }}>
+                  <Text style={styles.sectionLabel}>Fecha Límite</Text>
+                  <View style={styles.chipRow}>
+                    {['Hoy', 'Mañana', 'Fin de semana', 'Próx. Semana'].map(date => (
+                      <Pressable
+                        key={date}
+                        onPress={() => setDueDate(date)}
+                        style={[
+                          styles.dateChip,
+                          dueDate === date && styles.dateChipActive
+                        ]}
+                      >
+                        <Text style={[
+                          styles.dateChipText,
+                          dueDate === date && styles.dateChipTextActive
+                        ]}>
+                          {date}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Duration Selector - For all types */}
+              <View style={{ marginTop: Spacing.base }}>
+                <Text style={styles.sectionLabel}>Duración Estimada</Text>
+                <View style={styles.chipRow}>
+                  {[15, 30, 60, 120].map(mins => (
+                    <Pressable
+                      key={mins}
+                      onPress={() => setDuration(mins)}
+                      style={[
+                        styles.durationChip,
+                        duration === mins && styles.durationChipActive
+                      ]}
+                    >
+                      <Text style={[
+                        styles.chipLabel,
+                        duration === mins && styles.chipLabelActive
+                      ]}>
+                        {mins < 60 ? `${mins}m` : `${mins/60}h`}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
               </View>
 
               <Text style={styles.sectionLabel}>Elemento</Text>
@@ -309,60 +467,65 @@ export default function CreateTaskModal({
                 )}
               </View>
 
-              <Text style={styles.sectionLabel}>Subtareas</Text>
-              <Text style={styles.helperText}>
-                Agrega pasos mas pequenos para facilitar tu trabajo.
-              </Text>
-              <View style={styles.subtaskRow}>
-                <TextInput
-                  style={styles.subtaskInput}
-                  placeholder="Nueva subtarea"
-                  placeholderTextColor={Colors.textMuted}
-                  value={newSubtaskInput}
-                  onChangeText={setNewSubtaskInput}
-                />
-                <TouchableOpacity
-                  style={styles.subtaskAddBtn}
-                  onPress={() => {
-                    const st = newSubtaskInput.trim();
-                    if (!st) return;
-                    setNewSubtasks((prev) => [
-                      ...prev,
-                      { id: Date.now(), text: st, completed: false },
-                    ]);
-                    setNewSubtaskInput("");
-                  }}
-                >
-                    <FontAwesome5
-                      name="plus"
-                      size={12}
-                      color={Colors.text}
+              {/* Subtasks - Only for Misiones */}
+              {newType === "quest" && (
+                <>
+                  <Text style={styles.sectionLabel}>Subtareas</Text>
+                  <Text style={styles.helperText}>
+                    Agrega pasos mas pequenos para facilitar tu trabajo.
+                  </Text>
+                  <View style={styles.subtaskRow}>
+                    <TextInput
+                      style={styles.subtaskInput}
+                      placeholder="Nueva subtarea"
+                      placeholderTextColor={Colors.textMuted}
+                      value={newSubtaskInput}
+                      onChangeText={setNewSubtaskInput}
                     />
-                </TouchableOpacity>
-              </View>
-              {newSubtasks.length > 0 && (
-                <View style={styles.subtasksChips}>
-                  {newSubtasks.map((st, idx) => (
-                    <View key={st.id || idx} style={styles.chip}>
-                      <Text style={styles.chipLabel}>{st.text}</Text>
-                      <TouchableOpacity
-                        accessibilityRole="button"
-                        onPress={() =>
-                          setNewSubtasks((prev) =>
-                            prev.filter((_, i) => i !== idx)
-                          )
-                        }
-                        style={{ marginLeft: Spacing.tiny }}
-                      >
+                    <TouchableOpacity
+                      style={styles.subtaskAddBtn}
+                      onPress={() => {
+                        const st = newSubtaskInput.trim();
+                        if (!st) return;
+                        setNewSubtasks((prev) => [
+                          ...prev,
+                          { id: Date.now(), text: st, completed: false },
+                        ]);
+                        setNewSubtaskInput("");
+                      }}
+                    >
                         <FontAwesome5
-                          name="times"
+                          name="plus"
                           size={12}
                           color={Colors.text}
                         />
-                      </TouchableOpacity>
+                    </TouchableOpacity>
+                  </View>
+                  {newSubtasks.length > 0 && (
+                    <View style={styles.subtasksChips}>
+                      {newSubtasks.map((st, idx) => (
+                        <View key={st.id || idx} style={styles.chip}>
+                          <Text style={styles.chipLabel}>{st.text}</Text>
+                          <TouchableOpacity
+                            accessibilityRole="button"
+                            onPress={() =>
+                              setNewSubtasks((prev) =>
+                                prev.filter((_, i) => i !== idx)
+                              )
+                            }
+                            style={{ marginLeft: Spacing.tiny }}
+                          >
+                            <FontAwesome5
+                              name="times"
+                              size={12}
+                              color={Colors.text}
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      ))}
                     </View>
-                  ))}
-                </View>
+                  )}
+                </>
               )}
 
               <Text style={styles.sectionLabel}>Prioridad</Text>
@@ -628,6 +791,23 @@ export default function CreateTaskModal({
                 </>
               )}
 
+              {/* Reward Preview Banner */}
+              <View style={styles.rewardBanner}>
+                <View style={styles.rewardIcon}>
+                  <Text style={{ fontSize: 16 }}>✨</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.rewardLabel}>RECOMPENSAS ESTIMADAS</Text>
+                  <View style={styles.rewardValues}>
+                    <Text style={styles.rewardXp}>+{estimatedXp} XP</Text>
+                    <Text style={styles.rewardMana}>+{estimatedMana} Mana</Text>
+                    {newType === 'ritual' && (
+                      <Text style={styles.rewardGems}>+{newGemReward} 💎</Text>
+                    )}
+                  </View>
+                </View>
+              </View>
+
               <View style={styles.actions}>
                 <TouchableOpacity
                   style={[
@@ -646,7 +826,7 @@ export default function CreateTaskModal({
                 </TouchableOpacity>
               </View>
             </ScrollView>
-          </View>
+          </LinearGradient>
         </View>
       </Modal>
       <ElementInfoSheet

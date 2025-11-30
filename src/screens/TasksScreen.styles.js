@@ -156,6 +156,31 @@ export default StyleSheet.create({
     height: "100%",
     borderRadius: Radii.lg,
   },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+    marginTop: Spacing.base,
+    marginBottom: Spacing.small,
+  },
+  sectionHeaderLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  sectionHeaderLabel: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
+    paddingHorizontal: Spacing.tiny,
+  },
+  sectionHeaderText: {
+    ...Typography.caption,
+    color: Colors.text,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
   progressFootnote: {
     ...Typography.caption,
     color: Colors.textMuted,

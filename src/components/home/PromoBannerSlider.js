@@ -214,6 +214,10 @@ const styles = StyleSheet.create({
   container: {
     marginTop: Spacing.large,
     marginBottom: Spacing.small,
+    marginLeft: -24,
+    marginRight: -24,
+    gap: Spacing.small,
+    marginTop: 0,
   },
   scrollContent: {
     paddingHorizontal: (SCREEN_WIDTH - BANNER_WIDTH) / 2,
@@ -284,7 +288,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
   dotActive: {
-    width: 32,
+    width: 26,
   },
 });
 

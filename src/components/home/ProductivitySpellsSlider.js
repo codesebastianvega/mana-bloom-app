@@ -823,6 +823,7 @@ const styles = StyleSheet.create({
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 8 },
     elevation: 6,
+    marginTop: Spacing.tiny + 2,
   },
   titleRow: {
     flexDirection: "row",
@@ -1001,14 +1002,14 @@ const styles = StyleSheet.create({
     marginTop: Spacing.small,
   },
   dot: {
-    width: 8,
-    height: 8,
+    width: 6,
+    height: 6,
     borderRadius: 4,
     backgroundColor: "rgba(255,255,255,0.25)",
   },
   dotActive: {
     backgroundColor: FOCUS_ACCENT,
-    width: 16,
+    width: 26,
   },
   placeholderHeader: {
     flexDirection: "row",
