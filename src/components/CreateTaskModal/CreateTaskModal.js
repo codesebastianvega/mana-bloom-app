@@ -25,7 +25,6 @@ import { ELEMENT_INFO } from "../../constants/elements";
 import { TIME_ESTIMATES } from "../../constants/taskIntegrity";
 
 import ElementGrid from "./ElementGrid";
-import StarfieldOverlay from "./StarfieldOverlay";
 import ElementInfoSheet from "./ElementInfoSheet";
 import styles from "./CreateTaskModal.styles";
 
@@ -56,8 +55,8 @@ const ELEMENT_LABELS = {
   air: "Aire",
 };
 
-const DIFFS = ["Fácil", "Medio", "Difícil"];
-const DIFF_VALUES = { Fácil: "easy", Medio: "medium", Difícil: "hard" };
+const DIFFS = ["Facil", "Medio", "Dificil"];
+const DIFF_VALUES = { Facil: "easy", Medio: "medium", Dificil: "hard" };
 
 export default function CreateTaskModal({
   visible,
@@ -82,7 +81,7 @@ export default function CreateTaskModal({
   const [newTags, setNewTags] = useState([]);
   const [newSubtaskInput, setNewSubtaskInput] = useState("");
   const [newSubtasks, setNewSubtasks] = useState([]); // [{id,text,completed}]
-  const [newDeadline, setNewDeadline] = useState(""); // Días desde hoy
+  const [newDeadline, setNewDeadline] = useState(""); // Dias desde hoy
   const [newGemReward, setNewGemReward] = useState("5");
   const [duration, setDuration] = useState(30); // minutes: 15, 30, 60, 120
   const [dueDate, setDueDate] = useState('Hoy'); // For Misiones
@@ -97,7 +96,7 @@ export default function CreateTaskModal({
     let baseXp = 10;
     let baseMana = 5;
 
-    // Priority multiplier (only for Tarea/Misión)
+    // Priority multiplier (only for Tarea/Mision)
     if (newType !== 'habit' && newType !== 'ritual') {
       if (newPriority === 'medium') { baseXp += 10; baseMana += 5; }
       if (newPriority === 'hard') { baseXp += 30; baseMana += 15; }
@@ -130,7 +129,7 @@ export default function CreateTaskModal({
       );
       setNewTagInput("");
       setNewSubtaskInput("");
-      // Calcular días restantes si existe deadline
+      // Calcular dias restantes si existe deadline
       if (task.deadline) {
         const diff = new Date(task.deadline) - new Date();
         const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
@@ -171,7 +170,7 @@ export default function CreateTaskModal({
 
   const handleSave = () => {
     if (!newTitle.trim()) {
-      showAlert("Debes ingresar un título para la tarea.", "error");
+      showAlert("Debes ingresar un titulo para la tarea.", "error");
       return;
     }
 
@@ -198,15 +197,15 @@ export default function CreateTaskModal({
         case 'Hoy':
           calculatedDeadline = new Date(now.setHours(23, 59, 59, 999)).toISOString();
           break;
-        case 'Mañana':
+        case 'Manana':
           calculatedDeadline = new Date(now.setDate(now.getDate() + 1)).toISOString();
           break;
         case 'Fin de semana':
-          // Próximo sábado
+          // Proximo sabado
           const daysUntilSaturday = (6 - now.getDay() + 7) % 7 || 7;
           calculatedDeadline = new Date(now.setDate(now.getDate() + daysUntilSaturday)).toISOString();
           break;
-        case 'Próx. Semana':
+        case 'Prox. Semana':
           calculatedDeadline = new Date(now.setDate(now.getDate() + 7)).toISOString();
           break;
         default:
@@ -254,9 +253,13 @@ export default function CreateTaskModal({
         statusBarTranslucent
       >
         <View style={styles.modalOverlay}>
-          <StarfieldOverlay />
           <LinearGradient
-            colors={[withAlpha(Colors.surface, 0.95), withAlpha(Colors.surface, 0.85)]}
+            colors={[
+              withAlpha(Colors.primary, 0.35),
+              withAlpha(Colors.surface, 0.95),
+            ]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0.85, y: 1 }}
             style={styles.root}
           >
             {alert && (
@@ -286,19 +289,30 @@ export default function CreateTaskModal({
                 </Text>
               </View>
             )}
+            <LinearGradient
+              colors={[withAlpha(Colors.primary, 0.65), withAlpha(Colors.surfaceAlt, 0.9)]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0.8 }}
+              style={styles.heroRow}
+            >
+              <View>
+                <Text style={styles.heroTitle}>Forjar Mision</Text>
+                <Text style={styles.heroSubtitle}>NUEVA TAREA</Text>
+              </View>
+              <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                <FontAwesome5 name="times" size={16} color={Colors.textMuted} />
+              </TouchableOpacity>
+            </LinearGradient>
+
             <ScrollView
               style={{ width: "100%" }}
-              contentContainerStyle={{ paddingBottom: Spacing.large }}
+              contentContainerStyle={styles.contentContainer}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
             >
-              <Text style={styles.title}>
-                {task ? "Editar Tarea" : "Crear Nueva Tarea"}
-              </Text>
-
               <TextInput
                 style={styles.input}
-                placeholder="Título"
+                placeholder="Titulo"
                 placeholderTextColor={Colors.textMuted}
                 value={newTitle}
                 onChangeText={setNewTitle}
@@ -313,6 +327,30 @@ export default function CreateTaskModal({
                 multiline
               />
 
+              {/* Date Selector - Always Visible */}
+              <View style={{ marginTop: Spacing.base }}>
+                <Text style={styles.sectionLabel}>FECHA LIMITE</Text>
+                <View style={styles.chipRow}>
+                  {['Hoy', 'Manana', 'Fin de semana', 'Prox. Semana'].map(date => (
+                    <Pressable
+                      key={date}
+                      onPress={() => setDueDate(date)}
+                      style={[
+                        styles.dateChip,
+                        dueDate === date && styles.dateChipActive
+                      ]}
+                    >
+                      <Text style={[
+                        styles.dateChipText,
+                        dueDate === date && styles.dateChipTextActive
+                      ]}>
+                        {date}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
               <Text style={styles.sectionLabel}>Tipo</Text>
               <Text style={styles.helperText}>
                 Selecciona si es una tarea unica o un habito recurrente.
@@ -320,8 +358,8 @@ export default function CreateTaskModal({
               <View style={styles.segmentContainer}>
                 {[
                   { id: "single", label: "Tarea" },
-                  { id: "habit", label: "Hábito" },
-                  { id: "quest", label: "Misión" },
+                  { id: "habit", label: "Habito" },
+                  { id: "quest", label: "Mision" },
                   { id: "ritual", label: "Ritual" },
                 ].map((type) => (
                   <Pressable
@@ -346,8 +384,8 @@ export default function CreateTaskModal({
 
               {newType === "quest" && (
                 <View style={{ marginTop: Spacing.small }}>
-                  <Text style={styles.sectionLabel}>Plazo (Días)</Text>
-                  <Text style={styles.helperText}>Días a partir de hoy para completar la misión.</Text>
+                  <Text style={styles.sectionLabel}>Plazo (Dias)</Text>
+                  <Text style={styles.helperText}>Dias a partir de hoy para completar la mision.</Text>
                   <TextInput
                     style={styles.input}
                     placeholder="Ej: 3"
@@ -374,35 +412,11 @@ export default function CreateTaskModal({
                 </View>
               )}
 
-              {/* Date Selector - Only for Misiones */}
-              {newType === "quest" && (
-                <View style={{ marginTop: Spacing.base }}>
-                  <Text style={styles.sectionLabel}>Fecha Límite</Text>
-                  <View style={styles.chipRow}>
-                    {['Hoy', 'Mañana', 'Fin de semana', 'Próx. Semana'].map(date => (
-                      <Pressable
-                        key={date}
-                        onPress={() => setDueDate(date)}
-                        style={[
-                          styles.dateChip,
-                          dueDate === date && styles.dateChipActive
-                        ]}
-                      >
-                        <Text style={[
-                          styles.dateChipText,
-                          dueDate === date && styles.dateChipTextActive
-                        ]}>
-                          {date}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                </View>
-              )}
+
 
               {/* Duration Selector - For all types */}
               <View style={{ marginTop: Spacing.base }}>
-                <Text style={styles.sectionLabel}>Duración Estimada</Text>
+                <Text style={styles.sectionLabel}>Duracion Estimada</Text>
                 <View style={styles.chipRow}>
                   {[15, 30, 60, 120].map(mins => (
                     <Pressable
@@ -439,9 +453,9 @@ export default function CreateTaskModal({
               />
               <View
                 style={styles.whichBlock}
-                accessibilityHint="Toca un elemento o mantén presionado para ver más información"
+                accessibilityHint="Toca un elemento o manten presionado para ver mas informacion"
               >
-                <Text style={styles.whichQuestion}>¿Cuál elijo?</Text>
+                <Text style={styles.whichQuestion}>Cual elijo?</Text>
                 {newElement === "all" ? (
                   <Text style={styles.whichSnippet}>
                     Selecciona un elemento
@@ -453,7 +467,7 @@ export default function CreateTaskModal({
                     </Text>
                     <TouchableOpacity
                       accessibilityRole="button"
-                      accessibilityLabel={`Ver más sobre ${
+                      accessibilityLabel={`Ver mas sobre ${
                         ELEMENT_LABELS[newElement] || ""
                       }`}
                       onPress={() => {
@@ -461,7 +475,7 @@ export default function CreateTaskModal({
                         setInfoVisible(true);
                       }}
                     >
-                      <Text style={styles.whichMore}>Ver más</Text>
+                      <Text style={styles.whichMore}>Ver mas</Text>
                     </TouchableOpacity>
                   </>
                 )}
@@ -582,7 +596,7 @@ export default function CreateTaskModal({
                             ]}
                             numberOfLines={1}
                           >
-                            +{rw.xp} XP · +{rw.mana} Mana
+                            +{rw.xp} XP / +{rw.mana} Mana
                           </Text>
                         </View>
                       </View>
@@ -634,7 +648,7 @@ export default function CreateTaskModal({
 
               <Text style={styles.sectionLabel}>Tiempo Estimado</Text>
               <Text style={styles.helperText}>
-                ¿Cuánto tiempo crees que tomará? Esto ayuda a mantener expectativas realistas.
+                Cuanto tiempo crees que tomara? Esto ayuda a mantener expectativas realistas.
               </Text>
               <ScrollView
                 horizontal
@@ -686,7 +700,7 @@ export default function CreateTaskModal({
                   borderLeftColor: Colors.info,
                 }}>
                   <Text style={{ color: Colors.textMuted, fontSize: 12 }}>
-                    💡 Cooldown mínimo: {(() => {
+                    Tip: Cooldown minimo: {(() => {
                       const estimate = TIME_ESTIMATES.find(e => e.id === newTimeEstimate);
                       const hours = Math.floor(estimate.cooldownMs / (60 * 60 * 1000));
                       const minutes = Math.floor((estimate.cooldownMs % (60 * 60 * 1000)) / (60 * 1000));
@@ -695,7 +709,7 @@ export default function CreateTaskModal({
                     })()}
                   </Text>
                   <Text style={{ color: Colors.textMuted, fontSize: 11, marginTop: 2 }}>
-                    Podrás completar la tarea después de este tiempo
+                    Podras completar la tarea despues de este tiempo
                   </Text>
                 </View>
               )}
@@ -791,18 +805,25 @@ export default function CreateTaskModal({
                 </>
               )}
 
-              {/* Reward Preview Banner */}
+            </ScrollView>
+
+            <View style={styles.footerSection}>
               <View style={styles.rewardBanner}>
-                <View style={styles.rewardIcon}>
-                  <Text style={{ fontSize: 16 }}>✨</Text>
-                </View>
+                <LinearGradient
+                  colors={[withAlpha(Colors.primary, 0.8), withAlpha(Colors.accent, 0.8)]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.rewardIcon}
+                >
+                  <Text style={styles.rewardIconEmoji}>✨</Text>
+                </LinearGradient>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.rewardLabel}>RECOMPENSAS ESTIMADAS</Text>
+                  <Text style={styles.rewardLabel}>RECOMPENSAS</Text>
                   <View style={styles.rewardValues}>
                     <Text style={styles.rewardXp}>+{estimatedXp} XP</Text>
                     <Text style={styles.rewardMana}>+{estimatedMana} Mana</Text>
                     {newType === 'ritual' && (
-                      <Text style={styles.rewardGems}>+{newGemReward} 💎</Text>
+                      <Text style={styles.rewardGems}>+{newGemReward} Gemas</Text>
                     )}
                   </View>
                 </View>
@@ -810,10 +831,7 @@ export default function CreateTaskModal({
 
               <View style={styles.actions}>
                 <TouchableOpacity
-                  style={[
-                    styles.secondaryButton,
-                    { borderColor: Colors.danger },
-                  ]}
+                  style={styles.secondaryButton}
                   onPress={onClose}
                 >
                   <Text style={styles.secondaryButtonLabel}>Cancelar</Text>
@@ -822,10 +840,25 @@ export default function CreateTaskModal({
                   style={styles.primaryButton}
                   onPress={handleSave}
                 >
-                  <Text style={styles.primaryButtonLabel}>Guardar</Text>
+                  <LinearGradient
+                    colors={[Colors.primary, Colors.accent]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.primaryButtonGradient}
+                  >
+                    <FontAwesome5
+                      name="hammer"
+                      size={14}
+                      color={Colors.onAccent}
+                      style={{ marginRight: Spacing.small }}
+                    />
+                    <Text style={styles.primaryButtonLabel}>
+                      {task ? "Guardar Cambios" : "Crear Mision"}
+                    </Text>
+                  </LinearGradient>
                 </TouchableOpacity>
               </View>
-            </ScrollView>
+            </View>
           </LinearGradient>
         </View>
       </Modal>
@@ -838,6 +871,11 @@ export default function CreateTaskModal({
     </>
   );
 }
+
+
+
+
+
 
 
 
