@@ -72,6 +72,8 @@ export default function CreateTaskModal({
 }) {
   const [newTitle, setNewTitle] = useState("");
   const [newNote, setNewNote] = useState("");
+  const [isTitleFocused, setIsTitleFocused] = useState(false);
+  const [isNoteFocused, setIsNoteFocused] = useState(false);
   const [newType, setNewType] = useState("single");
   const [newElement, setNewElement] = useState("all");
   const [newPriority, setNewPriority] = useState("easy");
@@ -289,12 +291,7 @@ export default function CreateTaskModal({
                 </Text>
               </View>
             )}
-            <LinearGradient
-              colors={[withAlpha(Colors.primary, 0.65), withAlpha(Colors.surfaceAlt, 0.9)]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0.8 }}
-              style={styles.heroRow}
-            >
+            <View style={styles.heroRow}>
               <View>
                 <Text style={styles.heroTitle}>Forjar Mision</Text>
                 <Text style={styles.heroSubtitle}>NUEVA TAREA</Text>
@@ -302,7 +299,7 @@ export default function CreateTaskModal({
               <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                 <FontAwesome5 name="times" size={16} color={Colors.textMuted} />
               </TouchableOpacity>
-            </LinearGradient>
+            </View>
 
             <ScrollView
               style={{ width: "100%" }}
@@ -311,20 +308,28 @@ export default function CreateTaskModal({
               keyboardShouldPersistTaps="handled"
             >
               <TextInput
-                style={styles.input}
-                placeholder="Titulo"
+                style={[styles.input, isTitleFocused && styles.inputActive]}
+                placeholder="Crear Mision..."
                 placeholderTextColor={Colors.textMuted}
                 value={newTitle}
                 onChangeText={setNewTitle}
+                onFocus={() => setIsTitleFocused(true)}
+                onBlur={() => setIsTitleFocused(false)}
               />
 
               <TextInput
-                style={[styles.inputMultiline, { marginTop: Spacing.small }]}
+                style={[
+                  styles.inputMultiline,
+                  { marginTop: Spacing.small },
+                  isNoteFocused && styles.inputMultilineActive,
+                ]}
                 placeholder="Detalle o nota (opcional)"
                 placeholderTextColor={Colors.textMuted}
                 value={newNote}
                 onChangeText={setNewNote}
                 multiline
+                onFocus={() => setIsNoteFocused(true)}
+                onBlur={() => setIsNoteFocused(false)}
               />
 
               {/* Date Selector - Always Visible */}

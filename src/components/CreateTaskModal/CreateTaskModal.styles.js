@@ -19,9 +19,9 @@ const withAlpha = (hex = "", alpha = 1) => {
   return `rgba(${r},${g},${b},${alpha})`;
 };
 
-const glassPanel = withAlpha(Colors.surface, 0.96);
-const glassSurface = withAlpha(Colors.surfaceAlt, 0.52);
-const glassDeep = withAlpha(Colors.surfaceAlt, 0.64);
+const glassPanel = "#1d1c2a";
+const glassSurface = "transparent";
+const glassDeep = "transparent";
 const borderSoft = withAlpha(Colors.primaryLight, 0.28);
 const borderStrong = withAlpha(Colors.primaryLight, 0.55);
 
@@ -88,9 +88,10 @@ export default StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.base,
+    paddingVertical: Spacing.small,
     borderBottomWidth: 1,
     borderBottomColor: withAlpha(Colors.primaryLight, 0.15),
+    backgroundColor: "#2f2d4a",
     borderTopLeftRadius: Radii.xl,
     borderTopRightRadius: Radii.xl,
   },
@@ -152,14 +153,37 @@ export default StyleSheet.create({
     gap: Spacing.tiny,
   },
   input: {
-    ...inputBase,
     height: 48,
+    borderBottomWidth: 1,
+    borderBottomColor: withAlpha(Colors.primaryLight, 0.25),
+    paddingHorizontal: 0,
+    paddingVertical: Spacing.tiny,
+    color: Colors.text,
+    fontSize: 22,
+    fontWeight: "800",
+    letterSpacing: 0.2,
+    backgroundColor: "transparent",
+    marginTop: -10,
+  },
+  inputActive: {
+    borderBottomColor: Colors.primary,
+    borderBottomWidth: 2,
   },
   inputMultiline: {
-    ...inputBase,
-    minHeight: 96,
+    minHeight: 110,
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.primaryLight, 0.2),
+    backgroundColor: "#2f2d4a",
+    paddingHorizontal: Spacing.base,
     paddingTop: Spacing.base,
     textAlignVertical: "top",
+    color: Colors.text,
+    marginBottom: -10,
+  },
+  inputMultilineActive: {
+    borderColor: Colors.primary,
+    backgroundColor: "#382f59",
   },
   segmentContainer: {
     flexDirection: "row",
@@ -503,6 +527,7 @@ export default StyleSheet.create({
     borderTopWidth: 0.5,
     borderTopColor: withAlpha(Colors.primaryLight, 0.15),
     gap: Spacing.large,
+    backgroundColor: "#2f2d4a",
   },
   rewardBanner: {
     flexDirection: "row",
