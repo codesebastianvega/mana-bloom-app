@@ -881,6 +881,80 @@ export default function TasksScreen() {
         backgroundColor="transparent"
       />
 
+      <View style={styles.missionHeaderWrapper}>
+        <View style={styles.missionHeaderTop}>
+          <View>
+            <Text style={styles.missionTitle}>Libro de Misiones</Text>
+            <Text style={styles.missionSubtitle}>
+              {activeMissionsCount} encargos activos
+            </Text>
+          </View>
+          <View style={styles.missionHeaderActions}>
+            <TouchableOpacity
+              style={styles.missionActionButton}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir ajustes de misiones"
+            >
+              <MaterialCommunityIcons
+                name="cog-outline"
+                size={16}
+                color={Colors.text}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.missionActionButton}
+              accessibilityRole="button"
+              accessibilityLabel="Más opciones"
+            >
+              <MaterialCommunityIcons
+                name="dots-horizontal"
+                size={18}
+                color={Colors.text}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={styles.searchRow}>
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onToggleAdvanced={() => setFiltersVisible(true)}
+            placeholder="Buscar encantamientos..."
+          />
+        </View>
+        <LinearGradient
+          colors={["rgba(54,58,77,0.85)", "rgba(29,31,44,0.85)"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.progressCard}
+        >
+          <View style={styles.progressCardInner}>
+            <View style={styles.progressHeader}>
+              <Text style={styles.progressLabel}>Progreso diario</Text>
+              <Text style={styles.progressPercent}>
+                {Math.round(dailyProgress * 100)}%
+              </Text>
+            </View>
+            <View style={styles.progressBar}>
+              <LinearGradient
+                colors={[Colors.secondary, Colors.elementWater]}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={[
+                  styles.progressFill,
+                  { width: `${dailyProgress * 100}%` },
+                ]}
+              />
+            </View>
+            <Text style={styles.progressFootnote}>
+              {filteredTaskStats.total > 0
+                ? `${filteredTaskStats.completed} de ${filteredTaskStats.total} ${activeTabLabel} completadas`
+                : `Sin ${activeTabLabel} en este filtro`}
+            </Text>
+          </View>
+        </LinearGradient>
+      </View>
+
       <SectionList
         sections={groupedSections}
         keyExtractor={(item) => item.id}
@@ -932,81 +1006,6 @@ export default function TasksScreen() {
             </View>
           );
         }}
-        ListHeaderComponent={() => (
-          <View style={styles.missionHeaderWrapper}>
-            <View style={styles.missionHeaderTop}>
-              <View>
-                <Text style={styles.missionTitle}>Libro de Misiones</Text>
-                <Text style={styles.missionSubtitle}>
-                  {activeMissionsCount} encargos activos
-                </Text>
-              </View>
-              <View style={styles.missionHeaderActions}>
-                <TouchableOpacity
-                  style={styles.missionActionButton}
-                  accessibilityRole="button"
-                  accessibilityLabel="Abrir ajustes de misiones"
-                >
-                  <MaterialCommunityIcons
-                    name="cog-outline"
-                    size={16}
-                    color={Colors.text}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.missionActionButton}
-                  accessibilityRole="button"
-                  accessibilityLabel="Más opciones"
-                >
-                  <MaterialCommunityIcons
-                    name="dots-horizontal"
-                    size={18}
-                    color={Colors.text}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View style={styles.searchRow}>
-              <SearchBar
-                value={searchQuery}
-                onChange={setSearchQuery}
-                onToggleAdvanced={() => setFiltersVisible(true)}
-                placeholder="Buscar encantamientos..."
-              />
-            </View>
-            <LinearGradient
-              colors={["rgba(54,58,77,0.85)", "rgba(29,31,44,0.85)"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.progressCard}
-            >
-              <View style={styles.progressCardInner}>
-                <View style={styles.progressHeader}>
-                  <Text style={styles.progressLabel}>Progreso diario</Text>
-                  <Text style={styles.progressPercent}>
-                    {Math.round(dailyProgress * 100)}%
-                  </Text>
-                </View>
-                <View style={styles.progressBar}>
-                  <LinearGradient
-                    colors={[Colors.secondary, Colors.elementWater]}
-                    start={{ x: 0, y: 0.5 }}
-                    end={{ x: 1, y: 0.5 }}
-                    style={[
-                      styles.progressFill,
-                      { width: `${dailyProgress * 100}%` },
-                    ]}
-                  />
-                </View>
-              <Text style={styles.progressFootnote}>
-                {filteredTaskStats.total > 0
-                  ? `${filteredTaskStats.completed} de ${filteredTaskStats.total} ${activeTabLabel} completadas`
-                  : `Sin ${activeTabLabel} en este filtro`}
-              </Text>
-              </View>
-            </LinearGradient>
-          </View>
-        )}
         contentContainerStyle={[styles.content, { paddingBottom: fabOffset }]}
         ItemSeparatorComponent={() => (
           <View style={{ height: Spacing.small - Spacing.tiny / 2 }} />
