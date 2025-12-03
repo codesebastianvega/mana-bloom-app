@@ -281,6 +281,22 @@ export default StyleSheet.create({
     paddingHorizontal: Spacing.small,
     paddingVertical: Spacing.tiny,
   },
+  reviveButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.secondary, 0.5),
+    backgroundColor: withAlpha(Colors.secondary, 0.15),
+  },
+  reviveLabel: {
+    ...Typography.caption,
+    color: Colors.text,
+    fontWeight: "700",
+  },
   dot: {
     width: 4,
     height: 4,

@@ -1,4 +1,4 @@
-// [MB] Modulo: Tasks / Seccion: Tarjeta de tarea
+﻿// [MB] Modulo: Tasks / Seccion: Tarjeta de tarea
 // Afecta: TasksScreen (listado y acciones de tareas)
 // Proposito: Item deslizable con claras senales de dificultad y prioridad
 // Puntos de edicion futura: animaciones y microinteracciones en TaskCard
@@ -114,74 +114,119 @@ const calculateDaysUntilDeadline = (deadline) => {
 };
 
 const getRibbonData = (task) => {
-  const type = task.type || 'single';
-  
+  const type = task.type || "single";
+  const daysSinceCreation = calculateDaysSinceCreation(task.createdAt);
+
+  const mapDue = () => {
+    if (task.dueDate) {
+      const map = {
+        "Hoy": 0,
+        "Mañana": 1,
+        "Manana": 1,
+        "En 3 dias": 3,
+        "En 5 dias": 5,
+        "En 10 dias": 10,
+        "En 15 dias": 15,
+        "En 20 dias": 20,
+        "En 30 dias": 30,
+        "Fin de semana": 2,
+        "Prox. Semana": 7,
+      };
+      return map[task.dueDate] ?? null;
+    }
+    if (task.deadline) {
+      return calculateDaysUntilDeadline(task.deadline);
+    }
+    return null;
+  };
+
   switch (type) {
-    case 'single': // TAREA
-      const daysSinceCreation = calculateDaysSinceCreation(task.createdAt);
-      let tareaColor = ['#4B5563', '#6B7280']; // Gris oscuro para mejor contraste
-      if (daysSinceCreation > 7) {
-        tareaColor = ['#7C3AED', '#8B5CF6']; // Morado más vibrante
-      } else if (daysSinceCreation > 3) {
-        tareaColor = ['#2563EB', '#3B82F6']; // Azul más fuerte
+    case "single": {
+      const dueDays = mapDue();
+      if (dueDays !== null) {
+        if (dueDays < 0) {
+          return {
+            helper: "Atraso",
+            value: `${Math.abs(dueDays)} días`,
+            colors: [Colors.danger, withAlpha(Colors.danger, 0.7)],
+            show: !task.completed,
+          };
+        }
+        if (dueDays === 0) {
+          return {
+            helper: "Vence hoy",
+            value: "Hoy",
+            colors: [Colors.warning, withAlpha(Colors.warning, 0.8)],
+            show: !task.completed,
+          };
+        }
+        return {
+          helper: "Faltan",
+          value: `${dueDays} días`,
+          colors: [Colors.accent, withAlpha(Colors.accent, 0.8)],
+          show: !task.completed,
+        };
       }
+      const baseColors =
+        daysSinceCreation > 7
+          ? [Colors.primary, withAlpha(Colors.primary, 0.7)]
+          : [withAlpha(Colors.textMuted, 0.6), withAlpha(Colors.textMuted, 0.4)];
       return {
-        helper: 'PENDIENTE',
-        value: `${daysSinceCreation} DÍAS`,
-        colors: tareaColor,
+        helper: "Creada hace",
+        value: `${daysSinceCreation} días`,
+        colors: baseColors,
         show: !task.completed,
       };
-      
-    case 'quest': // MISIÓN
+    }
+
+    case "quest": {
       const daysUntil = calculateDaysUntilDeadline(task.deadline);
       if (daysUntil === null) return { show: false };
-      
-      let misionColor = ['#059669', '#10B981']; // Verde esmeralda
-      let urgencyText = 'PLAZO';
-      
+      let colors = [Colors.secondary, withAlpha(Colors.secondary, 0.7)];
+      let helper = "Plazo";
+      let value = `${daysUntil} días`;
       if (daysUntil < 0) {
-        misionColor = ['#991B1B', '#B91C1C']; // Rojo intenso
-        urgencyText = 'VENCIDO';
+        helper = "Vencido";
+        value = `${Math.abs(daysUntil)} días`;
+        colors = [Colors.danger, withAlpha(Colors.danger, 0.7)];
       } else if (daysUntil === 0) {
-        misionColor = ['#DC2626', '#EF4444']; // Rojo
-        urgencyText = 'HOY';
-      } else if (daysUntil === 1) {
-        misionColor = ['#D97706', '#F59E0B']; // Ámbar oscuro
-        urgencyText = 'MAÑANA';
+        helper = "Vence hoy";
+        value = "Hoy";
+        colors = [Colors.warning, withAlpha(Colors.warning, 0.8)];
       } else if (daysUntil <= 2) {
-        misionColor = ['#D97706', '#F59E0B']; // Ámbar oscuro
-        urgencyText = 'URGENTE';
+        helper = "Urgente";
+        colors = [Colors.accent, withAlpha(Colors.accent, 0.8)];
       } else if (daysUntil <= 7) {
-        misionColor = ['#CA8A04', '#EAB308']; // Amarillo oscuro
-        urgencyText = 'PRÓXIMO';
+        helper = "Próximo";
+        colors = [Colors.elementWater, withAlpha(Colors.elementWater, 0.7)];
       }
-      
+      return { helper, value, colors, show: !task.completed };
+    }
+
+    case "habit": {
+      const streak = task.currentStreak || task.streak || 0;
+      const dead = task.isDead;
       return {
-        helper: urgencyText,
-        value: daysUntil < 0 ? `${Math.abs(daysUntil)} DÍAS` : `${daysUntil} DÍAS`,
-        colors: misionColor,
-        show: !task.completed,
-      };
-      
-    case 'habit': // HÁBITO
-      const streak = task.streak || 0;
-      return {
-        helper: '', // Sin helper para una sola línea
-        value: `🔥 RACHA: ${streak}`,
-        colors: ['#EA580C', '#F97316'], // Naranja más oscuro para contraste
+        helper: dead ? "Muerto por inactividad" : "Racha",
+        value: dead ? "" : `${streak} días`,
+        colors: dead
+          ? [withAlpha(Colors.textMuted, 0.5), withAlpha(Colors.textMuted, 0.3)]
+          : [Colors.secondary, withAlpha(Colors.secondary, 0.7)],
         show: true,
       };
-      
-    case 'ritual': // RITUAL
+    }
+
+    case "ritual": {
       const ritualStreak = task.streak || 0;
       return {
-        helper: `🔥 RACHA: ${ritualStreak}`,
-        value: `💎 +${task.gemReward || 5}`,
-        colors: ['#D97706', '#F59E0B'], // Dorado/Ámbar oscuro
+        helper: `Racha: ${ritualStreak}`,
+        value: `+${task.gemReward || 5} Gemas`,
+        colors: [Colors.accent, withAlpha(Colors.accent, 0.7)],
         show: true,
         gemReward: task.gemReward || 5,
       };
-      
+    }
+
     default:
       return { show: false };
   }
@@ -235,6 +280,7 @@ export default function TaskCard({
   const scale = useRef(new Animated.Value(1)).current;
   const threshold = 80;
   const isDeletedView = activeFilter === "deleted";
+  const isCemetery = task.isDeleted || task.completed || (task.type === "habit" && task.isDead);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [showSubtaskInput, setShowSubtaskInput] = useState(false);
@@ -299,8 +345,8 @@ export default function TaskCard({
     Animated.spring(scale, { toValue: 1, useNativeDriver: true }).start();
   };
 
-  // Información del elemento (icono y color)
-  // se usa una función para evitar lógica compleja en el render
+  // InformaciÃ³n del elemento (icono y color)
+  // se usa una funciÃ³n para evitar lÃ³gica compleja en el render
   const elementInfo = getElementColor(task.element);
   const typeLabel = getTypeLabel(task.type);
   const ribbonData = getRibbonData(task);
@@ -316,29 +362,29 @@ export default function TaskCard({
       const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
       
       if (daysUntil < 0) {
-        lines.push({ text: `🔴 Venció hace ${Math.abs(daysUntil)} días`, color: Colors.danger });
+        lines.push({ text: `ðŸ”´ VenciÃ³ hace ${Math.abs(daysUntil)} dÃ­as`, color: Colors.danger });
       } else if (daysUntil <= 1) {
-        lines.push({ text: `⚠️ Vence en ${daysUntil} día (${dateStr})`, color: Colors.warning });
+        lines.push({ text: `âš ï¸ Vence en ${daysUntil} dÃ­a (${dateStr})`, color: Colors.warning });
       } else if (daysUntil <= 3) {
-        lines.push({ text: `⚠️ Vence en ${daysUntil} días (${dateStr})`, color: Colors.warning });
+        lines.push({ text: `âš ï¸ Vence en ${daysUntil} dÃ­as (${dateStr})`, color: Colors.warning });
       } else {
-        lines.push({ text: `📅 Vence en ${daysUntil} días (${dateStr})`, color: Colors.secondary });
+        lines.push({ text: `ðŸ“… Vence en ${daysUntil} dÃ­as (${dateStr})`, color: Colors.secondary });
       }
     } else if (!task.completed) {
-       lines.push({ text: `⚠️ Sin completar hace ${daysSinceCreation} días`, color: withAlpha(Colors.textMuted, 0.8) });
+       lines.push({ text: `âš ï¸ Sin completar hace ${daysSinceCreation} dÃ­as`, color: withAlpha(Colors.textMuted, 0.8) });
     }
     
     if ((task.type === 'habit' || task.type === 'ritual') && task.lastCompletedAt) {
         const lastDate = new Date(task.lastCompletedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-        lines.push({ text: `Última vez hecho: ${lastDate}`, color: withAlpha(Colors.textMuted, 0.8) });
+        lines.push({ text: `Ãšltima vez hecho: ${lastDate}`, color: withAlpha(Colors.textMuted, 0.8) });
     }
 
-    lines.push({ text: `⏱️ Tiempo estimado: ${estimatedTime}`, color: withAlpha(Colors.textMuted, 0.8) });
+    lines.push({ text: `â±ï¸ Tiempo estimado: ${estimatedTime}`, color: withAlpha(Colors.textMuted, 0.8) });
 
     return lines;
   };
 
-  // Estilos de acción al deslizar
+  // Estilos de acciÃ³n al deslizar
   return (
     <View style={styles.container}>
       {/* swipe actions */}
@@ -476,24 +522,38 @@ export default function TaskCard({
           )}
 
           <View style={styles.rewardRow}>
-            <Text style={[styles.rewardText, { color: Colors.primary }]}>⚡ +{xp} XP</Text>
+            <Text style={[styles.rewardText, { color: Colors.primary }]}>âš¡ +{xp} XP</Text>
             <Text style={styles.separatorBar}>|</Text>
-            <Text style={[styles.rewardText, { color: Colors.elementWater }]}>💧 +{mana} Mana</Text>
+            <Text style={[styles.rewardText, { color: Colors.elementWater }]}>ðŸ’§ +{mana} Mana</Text>
             {totalSubtasks > 0 && (
               <>
                 <Text style={styles.separatorBar}>|</Text>
                 <Text style={[styles.rewardText, styles.rewardTextMuted]}>
-                  🗒️ {completedSubtasks}/{totalSubtasks}
+                  ðŸ—’ï¸ {completedSubtasks}/{totalSubtasks}
                 </Text>
               </>
             )}
-            <TouchableOpacity style={styles.chevronHit} onPress={() => setIsExpanded(!isExpanded)}>
-              <FontAwesome5
-                name={isExpanded ? "chevron-up" : "chevron-down"}
-                size={14}
-                color={Colors.textMuted}
-              />
-            </TouchableOpacity>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: Spacing.tiny }}>
+              {isCemetery && task.type === "habit" && (
+                <TouchableOpacity
+                  style={styles.reviveButton}
+                  onPress={() => onRestoreTask && onRestoreTask(task.id)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Revivir hábito"
+                  hitSlop={HIT_SLOP}
+                >
+                  <FontAwesome5 name="undo" size={12} color={Colors.text} />
+                  <Text style={styles.reviveLabel}>Revivir</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity style={styles.chevronHit} onPress={() => setIsExpanded(!isExpanded)}>
+                <FontAwesome5
+                  name={isExpanded ? "chevron-up" : "chevron-down"}
+                  size={14}
+                  color={Colors.textMuted}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
           {totalSubtasks > 0 && (
@@ -602,9 +662,9 @@ export default function TaskCard({
                       <TouchableOpacity 
                         onPress={() => setShowSubtaskInput(true)}
                         accessibilityRole="button"
-                        accessibilityLabel="Añadir nueva subtarea"
+                        accessibilityLabel="AÃ±adir nueva subtarea"
                       >
-                        <Text style={styles.subtaskAddText}>+ Añadir paso...</Text>
+                        <Text style={styles.subtaskAddText}>+ AÃ±adir paso...</Text>
                       </TouchableOpacity>
                     </View>
                   ) : (
@@ -641,3 +701,6 @@ export default function TaskCard({
     </View>
   );
 }
+
+
+

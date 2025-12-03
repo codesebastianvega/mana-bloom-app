@@ -246,6 +246,29 @@ export default function TasksScreen() {
     );
   }, [filtersApplied, resetFilters]);
 
+  // Habits: actualizar racha/missed al hidratar
+  const refreshHabitStates = useCallback((list = []) => {
+    const todayMidnight = new Date();
+    todayMidnight.setHours(0, 0, 0, 0);
+    return list.map((t) => {
+      if (t.type !== "habit") return t;
+      const lastDone = t.lastDoneDate ? new Date(t.lastDoneDate) : null;
+      const lastRef = lastDone || (t.createdAt ? new Date(t.createdAt) : todayMidnight);
+      lastRef.setHours(0, 0, 0, 0);
+      const diffDays = Math.floor((todayMidnight - lastRef) / (1000 * 60 * 60 * 24));
+      let missed = t.missedDaysInARow || 0;
+      if (diffDays > 0 && !t.completed) {
+        missed = missed + diffDays;
+      }
+      const isDead = missed >= 3 || t.isDead;
+      return {
+        ...t,
+        missedDaysInARow: missed,
+        isDead,
+      };
+    });
+  }, []);
+
   useEffect(() => {
     const hydrate = async () => {
       const stored = await getStoredTasks();
@@ -284,7 +307,7 @@ export default function TasksScreen() {
           return;
         }
       }
-      setTasks(normalizeTasks(normalized));
+      setTasks(refreshHabitStates(purgeCemetery(normalizeTasks(normalized))));
     };
     hydrate();
   }, []);
@@ -434,12 +457,23 @@ export default function TasksScreen() {
         });
         
         // Actualizar tarea
+        const habitFields =
+          target.type === "habit"
+            ? {
+                currentStreak: (target.currentStreak || target.streak || 0) + 1,
+                missedDaysInARow: 0,
+                lastDoneDate: new Date().toISOString(),
+                isDead: false,
+              }
+            : {};
+
         const updated = {
           ...target,
           done: newDone,
           completed: newDone,
           completedAt: new Date().toISOString(),
           isDeleted: false,
+          ...habitFields,
         };
         
         setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
@@ -528,11 +562,22 @@ export default function TasksScreen() {
 
   const onRestoreTask = (id) =>
     setTasks((prev) =>
-      prev.map((t) =>
-        t.id === id
-          ? { ...t, isDeleted: false, done: false, completed: false, completedAt: null }
-          : t
-      )
+      prev.map((t) => {
+        if (t.id !== id) return t;
+        if (t.type === "habit" && t.isDead) {
+          return {
+            ...t,
+            isDead: false,
+            currentStreak: 0,
+            missedDaysInARow: 0,
+            done: false,
+            completed: false,
+            completedAt: null,
+            isDeleted: false,
+          };
+        }
+        return { ...t, isDeleted: false, done: false, completed: false, completedAt: null };
+      })
     );
 
   const onPermanentDeleteTask = (id) => deleteTask(id);
@@ -568,6 +613,18 @@ export default function TasksScreen() {
 
   const onAddTask = () => {
     setShowAddModal(true);
+  };
+
+  const purgeCemetery = (list = []) => {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 7);
+    return list.filter((t) => {
+      const completedAt = t.completedAt ? new Date(t.completedAt) : null;
+      const deletedAt = t.deletedAt ? new Date(t.deletedAt) : null;
+      const deathDate = completedAt || deletedAt;
+      if (!deathDate) return true;
+      return deathDate >= cutoff;
+    });
   };
 
   const handleStartFocus = (task) => {
@@ -745,6 +802,24 @@ export default function TasksScreen() {
     MISSION_TABS.find((tab) => tab.key === typeFilter)?.label?.toLowerCase() ||
     "misiones";
 
+  const applyAlpha = (hex = "", alpha = 0.2) => {
+    if (!hex || typeof hex !== "string" || !hex.startsWith("#")) return hex;
+    const base = hex.replace("#", "");
+    if (base.length !== 6) return hex;
+    const a = Math.round(alpha * 255)
+      .toString(16)
+      .padStart(2, "0");
+    return `#${base}${a}`;
+  };
+
+  const SECTION_META = {
+    bosses: { icon: "fire", color: Colors.elementFire, title: "Jefes de Zona" },
+    calm: { icon: "leaf", color: Colors.elementWater, title: "Misiones Tranquilas" },
+    secondary: { icon: "feather", color: Colors.textMuted, title: "Tareas Secundarias" },
+    habits: { icon: "repeat", color: Colors.secondary, title: "Hábitos Activos" },
+    cemetery: { icon: "skull", color: Colors.danger, title: "Cementerio" },
+  };
+
   // â€”â€”â€” 5) Render â€”â€”â€”
   const safeTopInset = Math.max(insets.top - Spacing.xlarge, 0);
 
@@ -774,14 +849,39 @@ export default function TasksScreen() {
             onAddSubtask={handleAddSubtask}
           />
         )}
-        renderSectionHeader={({ section }) => (
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
-            {section.helper ? (
-              <Text style={styles.sectionSubtitle}>{section.helper}</Text>
-            ) : null}
-          </View>
-        )}
+        renderSectionHeader={({ section }) => {
+          const meta = SECTION_META[section.key] || {};
+          return (
+            <View style={styles.sectionHeader}>
+              <View
+                style={[
+                  styles.sectionIconWrap,
+                  {
+                    backgroundColor: applyAlpha(meta.color || Colors.primary, 0.16),
+                    borderColor: applyAlpha(meta.color || Colors.primary, 0.45),
+                  },
+                ]}
+              >
+                <FontAwesome
+                  name={meta.icon || "bookmark"}
+                  size={12}
+                  color={meta.color || Colors.text}
+                />
+              </View>
+              <View style={styles.sectionHeaderTextWrap}>
+                <Text style={styles.sectionTitle}>
+                  {meta.title || section.title}
+                </Text>
+                {section.helper ? (
+                  <Text style={styles.sectionSubtitle}>{section.helper}</Text>
+                ) : null}
+              </View>
+              <View style={styles.sectionBadge}>
+                <Text style={styles.sectionBadgeText}>{section.data.length}</Text>
+              </View>
+            </View>
+          );
+        }}
         ListHeaderComponent={() => (
           <View style={styles.missionHeaderWrapper}>
             <View style={styles.missionHeaderTop}>

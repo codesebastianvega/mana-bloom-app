@@ -163,6 +163,33 @@ export default StyleSheet.create({
     marginTop: Spacing.base,
     marginBottom: Spacing.small,
   },
+  sectionIconWrap: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sectionHeaderTextWrap: {
+    flex: 1,
+  },
+  sectionBadge: {
+    minWidth: 28,
+    height: 24,
+    paddingHorizontal: Spacing.tiny,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
+    backgroundColor: "rgba(255,255,255,0.06)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sectionBadgeText: {
+    ...Typography.caption,
+    color: Colors.text,
+    fontWeight: "800",
+  },
   sectionTitle: {
     ...Typography.body,
     color: Colors.text,
