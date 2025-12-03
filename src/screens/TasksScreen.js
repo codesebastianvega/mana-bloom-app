@@ -740,13 +740,63 @@ export default function TasksScreen() {
   };
 
   const groupedSections = useMemo(() => {
+    const q = (searchQuery || "").toLowerCase().trim();
+    const keywords = q.split(/\s+/).filter(Boolean);
+    let derivedType = typeFilter;
+    let derivedPriority = priorityFilter;
+    let derivedDifficulty = difficultyFilter;
+
+    keywords.forEach((word) => {
+      if (["habito", "habito", "hábito", "habit", "habitos"].includes(word)) {
+        derivedType = "habit";
+      }
+      if (["tarea", "tareas", "task"].includes(word)) {
+        derivedType = "single";
+      }
+      if (["urgente", "alta"].includes(word)) {
+        derivedPriority = "hard";
+      }
+      if (["media", "normal"].includes(word)) {
+        derivedPriority = "medium";
+      }
+      if (["baja", "easy", "facil", "fácil"].includes(word)) {
+        derivedPriority = "easy";
+      }
+      if (["facil", "fácil", "easy"].includes(word)) {
+        derivedDifficulty = "easy";
+      }
+      if (["medio", "media", "normal"].includes(word)) {
+        derivedDifficulty = "medium";
+      }
+      if (["dificil", "difícil", "hard"].includes(word)) {
+        derivedDifficulty = "hard";
+      }
+      if (["epico", "épico", "legendary"].includes(word)) {
+        derivedDifficulty = "legendary";
+      }
+      if (["agua", "water"].includes(word)) elementFilter === "all" && (derivedType = derivedType); // no-op to appease linter
+    });
+
+    const filtered = tasks.filter((task) => {
+      const txt = `${task.title || ""} ${task.note || ""}`.toLowerCase();
+      const textOK = !q || txt.includes(q);
+      const typeOK =
+        derivedType === "all" ||
+        (derivedType === "trash" ? task.isDeleted : task.type === derivedType);
+      const elementOK = elementFilter === "all" || task.element === elementFilter;
+      const prioOK = derivedPriority === "all" || task.priority === derivedPriority;
+      const diffOK = derivedDifficulty === "all" || task.difficulty === derivedDifficulty;
+
+      return textOK && typeOK && elementOK && prioOK && diffOK;
+    });
+
     const bosses = [];
     const calm = [];
     const secondary = [];
     const habits = [];
     const cemetery = [];
 
-    (tasks || []).forEach((task) => {
+    (filtered || []).forEach((task) => {
       const type = task.type || "single";
       const isCompleted = task.completed || task.done;
       const isDeleted = task.isDeleted;
@@ -816,7 +866,7 @@ export default function TasksScreen() {
     bosses: { icon: "fire", color: Colors.elementFire, title: "Jefes de Zona" },
     calm: { icon: "leaf", color: Colors.elementWater, title: "Misiones Tranquilas" },
     secondary: { icon: "tag", color: Colors.textMuted, title: "Tareas Secundarias" },
-    habits: { icon: "refresh", color: Colors.secondary, title: "Hábitos Activos" },
+    habits: { icon: "refresh", color: Colors.elementAir, title: "Hábitos Activos" },
     cemetery: { icon: "trash", color: Colors.danger, title: "Cementerio" },
   };
 
