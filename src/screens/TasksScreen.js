@@ -815,9 +815,9 @@ export default function TasksScreen() {
   const SECTION_META = {
     bosses: { icon: "fire", color: Colors.elementFire, title: "Jefes de Zona" },
     calm: { icon: "leaf", color: Colors.elementWater, title: "Misiones Tranquilas" },
-    secondary: { icon: "feather", color: Colors.textMuted, title: "Tareas Secundarias" },
-    habits: { icon: "repeat", color: Colors.secondary, title: "Hábitos Activos" },
-    cemetery: { icon: "skull", color: Colors.danger, title: "Cementerio" },
+    secondary: { icon: "tag", color: Colors.textMuted, title: "Tareas Secundarias" },
+    habits: { icon: "refresh", color: Colors.secondary, title: "Hábitos Activos" },
+    cemetery: { icon: "trash", color: Colors.danger, title: "Cementerio" },
   };
 
   // â€”â€”â€” 5) Render â€”â€”â€”

@@ -522,14 +522,14 @@ export default function TaskCard({
           )}
 
           <View style={styles.rewardRow}>
-            <Text style={[styles.rewardText, { color: Colors.primary }]}>âš¡ +{xp} XP</Text>
+            <Text style={[styles.rewardText, { color: Colors.primary }]}>+{xp} XP</Text>
             <Text style={styles.separatorBar}>|</Text>
-            <Text style={[styles.rewardText, { color: Colors.elementWater }]}>ðŸ’§ +{mana} Mana</Text>
+            <Text style={[styles.rewardText, { color: Colors.elementWater }]}>+{mana} Mana</Text>
             {totalSubtasks > 0 && (
               <>
                 <Text style={styles.separatorBar}>|</Text>
                 <Text style={[styles.rewardText, styles.rewardTextMuted]}>
-                  ðŸ—’ï¸ {completedSubtasks}/{totalSubtasks}
+                  {completedSubtasks}/{totalSubtasks}
                 </Text>
               </>
             )}
@@ -539,7 +539,7 @@ export default function TaskCard({
                   style={styles.reviveButton}
                   onPress={() => onRestoreTask && onRestoreTask(task.id)}
                   accessibilityRole="button"
-                  accessibilityLabel="Revivir hábito"
+                  accessibilityLabel="Revivir habito"
                   hitSlop={HIT_SLOP}
                 >
                   <FontAwesome5 name="undo" size={12} color={Colors.text} />
@@ -701,6 +701,9 @@ export default function TaskCard({
     </View>
   );
 }
+
+
+
 
 
 
