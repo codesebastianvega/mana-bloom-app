@@ -5,7 +5,7 @@
 // Autor: Codex - Fecha: 2025-10-20
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { FlatList, Modal, View, Text, StatusBar, TouchableOpacity, Pressable, ScrollView } from "react-native";
+import { Modal, View, Text, StatusBar, TouchableOpacity, Pressable, ScrollView, SectionList } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -657,6 +657,90 @@ export default function TasksScreen() {
       ? Math.min(filteredTaskStats.completed / filteredTaskStats.total, 1)
       : 0;
 
+  // 4.1 Mapa vivo (secciones calculadas)
+  const parseDueDays = useCallback((due) => {
+    if (!due) return null;
+    const map = {
+      "Hoy": 0,
+      "Manana": 1,
+      "En 3 dias": 3,
+      "En 5 dias": 5,
+      "En 10 dias": 10,
+      "En 15 dias": 15,
+      "En 20 dias": 20,
+      "En 30 dias": 30,
+      "Fin de semana": 2,
+      "Prox. Semana": 7,
+    };
+    return map[due] ?? null;
+  }, []);
+
+  const daysSince = (dateStr) => {
+    if (!dateStr) return 0;
+    const created = new Date(dateStr);
+    const now = new Date();
+    return Math.floor((now - created) / (1000 * 60 * 60 * 24));
+  };
+
+  const groupedSections = useMemo(() => {
+    const bosses = [];
+    const calm = [];
+    const secondary = [];
+    const habits = [];
+    const cemetery = [];
+
+    (tasks || []).forEach((task) => {
+      const type = task.type || "single";
+      const isCompleted = task.completed || task.done;
+      const isDeleted = task.isDeleted;
+      const isHabitDead = type === "habit" && task.isDead;
+
+      if (isCompleted || isDeleted || isHabitDead) {
+        cemetery.push(task);
+        return;
+      }
+
+      if (type === "habit") {
+        habits.push(task);
+        return;
+      }
+
+      const dueDays = parseDueDays(task.dueDate);
+      const age = daysSince(task.createdAt);
+      const priority = task.priority || "medium";
+      const difficulty = task.difficulty || "medium";
+
+      const isBoss =
+        (dueDays !== null && dueDays <= 0) ||
+        age >= 7 ||
+        priority === "hard" ||
+        difficulty === "hard" ||
+        difficulty === "legendary";
+
+      const isSecondary =
+        priority === "easy" ||
+        (dueDays === null && (difficulty === "easy" || difficulty === "low"));
+
+      if (isBoss) {
+        bosses.push(task);
+      } else if (isSecondary) {
+        secondary.push(task);
+      } else {
+        calm.push(task);
+      }
+    });
+
+    const sections = [
+      { key: "bosses", title: "Jefes de Mazmorra", helper: "Vencidas, viejas o muy urgentes/difíciles.", data: bosses },
+      { key: "calm", title: "Misiones Tranquilas", helper: "Backlog sano con fechas futuras o reciente.", data: calm },
+      { key: "secondary", title: "Tareas Secundarias", helper: "Opcionales o prioridad baja.", data: secondary },
+      { key: "habits", title: "Hábitos Activos", helper: "Compromisos recurrentes en curso.", data: habits },
+      { key: "cemetery", title: "Cementerio", helper: "Completadas, eliminadas o hábitos muertos.", data: cemetery },
+    ];
+
+    return sections.filter((s) => s.data.length > 0);
+  }, [tasks, parseDueDays]);
+
   const activeTabLabel =
     MISSION_TABS.find((tab) => tab.key === typeFilter)?.label?.toLowerCase() ||
     "misiones";
@@ -672,8 +756,8 @@ export default function TasksScreen() {
         backgroundColor="transparent"
       />
 
-      <FlatList
-        data={filteredTasks}
+      <SectionList
+        sections={groupedSections}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TaskCard
@@ -689,6 +773,14 @@ export default function TasksScreen() {
             onTagPress={handleTagPress}
             onAddSubtask={handleAddSubtask}
           />
+        )}
+        renderSectionHeader={({ section }) => (
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
+            {section.helper ? (
+              <Text style={styles.sectionSubtitle}>{section.helper}</Text>
+            ) : null}
+          </View>
         )}
         ListHeaderComponent={() => (
           <View style={styles.missionHeaderWrapper}>
@@ -803,14 +895,15 @@ export default function TasksScreen() {
         ItemSeparatorComponent={() => (
           <View style={{ height: Spacing.small - Spacing.tiny / 2 }} />
         )}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          removeClippedSubviews={false}
-          initialNumToRender={8}
-          windowSize={11}
-          ListEmptyComponent={renderEmptyState}
+        SectionSeparatorComponent={() => <View style={{ height: Spacing.base }} />}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        removeClippedSubviews={false}
+        initialNumToRender={8}
+        windowSize={11}
+        ListEmptyComponent={renderEmptyState}
         contentInsetAdjustmentBehavior="automatic"
-        extraData={{ tasks, activeFilter, typeFilter, searchQuery }}
+        extraData={{ tasks, groupedSections }}
         accessibilityRole="list"
       />
 

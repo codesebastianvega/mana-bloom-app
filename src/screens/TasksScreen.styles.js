@@ -163,6 +163,16 @@ export default StyleSheet.create({
     marginTop: Spacing.base,
     marginBottom: Spacing.small,
   },
+  sectionTitle: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "800",
+    letterSpacing: 0.3,
+  },
+  sectionSubtitle: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
   sectionHeaderLine: {
     flex: 1,
     height: 1,
