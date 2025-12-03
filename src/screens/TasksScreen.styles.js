@@ -49,6 +49,7 @@ export default StyleSheet.create({
   },
   missionHeaderWrapper: {
     marginBottom: Spacing.large,
+    paddingHorizontal: Spacing.base,
     gap: Spacing.small,
   },
   missionHeaderTop: {
@@ -93,6 +94,7 @@ export default StyleSheet.create({
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 6,
+    alignSelf: "stretch",
   },
   progressCardInner: {
     borderRadius: 8,

@@ -777,17 +777,32 @@ export default function TasksScreen() {
       if (["agua", "water"].includes(word)) elementFilter === "all" && (derivedType = derivedType); // no-op to appease linter
     });
 
+    const effectiveType = derivedType;
+    const effectivePriority = derivedPriority;
+    const effectiveDifficulty = derivedDifficulty;
+
     const filtered = tasks.filter((task) => {
       const txt = `${task.title || ""} ${task.note || ""}`.toLowerCase();
       const textOK = !q || txt.includes(q);
+      const stateOK = (() => {
+        switch (activeFilter) {
+          case "completed":
+            return (task.done || task.completed) && !task.isDeleted;
+          case "deleted":
+            return task.isDeleted;
+          default:
+            return !task.isDeleted && !task.done && !task.completed;
+        }
+      })();
       const typeOK =
-        derivedType === "all" ||
-        (derivedType === "trash" ? task.isDeleted : task.type === derivedType);
+        effectiveType === "all" ||
+        (effectiveType === "trash" ? task.isDeleted : task.type === effectiveType);
       const elementOK = elementFilter === "all" || task.element === elementFilter;
-      const prioOK = derivedPriority === "all" || task.priority === derivedPriority;
-      const diffOK = derivedDifficulty === "all" || task.difficulty === derivedDifficulty;
+      const prioOK = effectivePriority === "all" || task.priority === effectivePriority;
+      const diffOK = effectiveDifficulty === "all" || task.difficulty === effectiveDifficulty;
+      const tagOK = tagFilter === "all" || (task.tags || []).includes(tagFilter);
 
-      return textOK && typeOK && elementOK && prioOK && diffOK;
+      return textOK && stateOK && typeOK && elementOK && prioOK && diffOK && tagOK;
     });
 
     const bosses = [];
