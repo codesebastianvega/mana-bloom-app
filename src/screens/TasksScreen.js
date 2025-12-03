@@ -851,7 +851,16 @@ export default function TasksScreen() {
     ];
 
     return sections.filter((s) => s.data.length > 0);
-  }, [tasks, parseDueDays]);
+  }, [
+    tasks,
+    parseDueDays,
+    searchQuery,
+    typeFilter,
+    elementFilter,
+    priorityFilter,
+    difficultyFilter,
+    tagFilter,
+  ]);
 
   const activeTabLabel =
     MISSION_TABS.find((tab) => tab.key === typeFilter)?.label?.toLowerCase() ||
