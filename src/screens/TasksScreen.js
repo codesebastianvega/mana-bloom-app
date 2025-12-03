@@ -784,16 +784,6 @@ export default function TasksScreen() {
     const filtered = tasks.filter((task) => {
       const txt = `${task.title || ""} ${task.note || ""}`.toLowerCase();
       const textOK = !q || txt.includes(q);
-      const stateOK = (() => {
-        switch (activeFilter) {
-          case "completed":
-            return (task.done || task.completed) && !task.isDeleted;
-          case "deleted":
-            return task.isDeleted;
-          default:
-            return !task.isDeleted && !task.done && !task.completed;
-        }
-      })();
       const typeOK =
         effectiveType === "all" ||
         (effectiveType === "trash" ? task.isDeleted : task.type === effectiveType);
@@ -802,7 +792,7 @@ export default function TasksScreen() {
       const diffOK = effectiveDifficulty === "all" || task.difficulty === effectiveDifficulty;
       const tagOK = tagFilter === "all" || (task.tags || []).includes(tagFilter);
 
-      return textOK && stateOK && typeOK && elementOK && prioOK && diffOK && tagOK;
+      return textOK && typeOK && elementOK && prioOK && diffOK && tagOK;
     });
 
     const bosses = [];
