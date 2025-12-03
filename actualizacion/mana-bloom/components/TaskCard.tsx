@@ -306,9 +306,20 @@ export const TaskCard: React.FC<Props> = ({
                     )}
 
                 {(task.description || subtasks.length > 0 || task.status !== 'completed') && !isSelectionMode && (
-                    <div className="text-slate-500 text-xs transform transition-transform duration-300" style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-                        ▼
-                    </div>
+                    <svg 
+                        width="16" 
+                        height="16" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                        className="text-slate-500 transform transition-transform duration-300"
+                        style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    >
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
                 )}
                 </div>
             </div>

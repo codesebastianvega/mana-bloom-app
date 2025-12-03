@@ -1,12 +1,13 @@
-﻿// [MB] Modulo: Tasks / Seccion: CreateTaskModal - ElementGrid
+// [MB] Modulo: Tasks / Seccion: CreateTaskModal - ElementGrid
 // Afecta: CreateTaskModal (seleccion de elemento)
-// Proposito: Grid 2x2 con animaciones de seleccion de elementos
-// Puntos de edicion futura: animaciones y estilos por elemento
+// Proposito: Chips horizontales inspirados en el mock de afinidad elemental
+// Puntos de edicion futura: animaciones onPress o gradientes dinamicos
 // Autor: Codex - Fecha: 2025-10-20
 
-import React, { useState, useMemo } from "react";
+import React from "react";
 import { View, Pressable, Text, Image } from "react-native";
-import { Colors, Spacing, Radii } from "../../theme";
+import { Colors, Spacing } from "../../theme";
+import { ELEMENT_INFO } from "../../constants/elements";
 import styles from "./CreateTaskModal.styles";
 
 const withAlpha = (hex = "", alpha = 1) => {
@@ -22,104 +23,89 @@ const withAlpha = (hex = "", alpha = 1) => {
 };
 
 const ElementAccents = {
-  water: Colors.elementWater,
   fire: Colors.elementFire,
+  water: Colors.elementWater,
   earth: Colors.elementEarth,
   air: Colors.elementAir,
 };
 
-// TODO: restaurar emojis una vez se actualice el encoding global del repo.
-const ELEMENTS = [
-  { key: "water", label: "Agua", icon: require("../../../assets/water.png"), caption: "Fluye y enfoca" },
-  { key: "fire", label: "Fuego", icon: require("../../../assets/fire.png"), caption: "Energía y empuje" },
-  { key: "earth", label: "Tierra", icon: require("../../../assets/earth.png"), caption: "Constancia y base" },
-  { key: "air", label: "Aire", icon: require("../../../assets/wind.png"), caption: "Ligereza y ritmo" },
-];
+const ELEMENT_ORDER = ["fire", "water", "earth", "air"];
+const ELEMENT_LABELS = {
+  fire: "FUEGO",
+  water: "AGUA",
+  earth: "TIERRA",
+  air: "AIRE",
+};
+const ELEMENT_ICONS = {
+  fire: require("../../../assets/fire.png"),
+  water: require("../../../assets/water.png"),
+  earth: require("../../../assets/earth.png"),
+  air: require("../../../assets/wind.png"),
+};
 
-export default function ElementGrid({ value, onChange, onLongPress, tileAspect = 0.78 }) {
-  const [gridWidth, setGridWidth] = useState(0);
-  const horizontalPadding = Spacing.small;
-  const columnGap = Spacing.small;
-  const cardSize = gridWidth
-    ? (gridWidth - horizontalPadding * 2 - columnGap) / 2
-    : 0;
-  const cardHeight = cardSize * tileAspect;
-  const rows = useMemo(() => {
-    const chunked = [];
-    for (let idx = 0; idx < ELEMENTS.length; idx += 2) {
-      chunked.push(ELEMENTS.slice(idx, idx + 2));
-    }
-    return chunked;
-  }, []);
-
+export default function ElementGrid({ value, onChange, onLongPress }) {
   return (
-    <View
-      style={styles.elementGrid}
-      onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)}
-    >
-      {rows.map((row, rowIdx) => (
-        <View
-          key={`element-row-${rowIdx}`}
-          style={[
-            styles.elementRow,
-            rowIdx === rows.length - 1 && styles.elementRowLast,
-          ]}
-        >
-          {row.map((el, colIdx) => (
-            <ElementTile
-              key={el.key}
-              element={el}
-              width={cardSize}
-              height={cardHeight}
-              selected={value === el.key}
-              onPress={() => onChange(el.key)}
-              onLongPress={() => onLongPress(el.key)}
-              isLastColumn={colIdx === row.length - 1}
-              columnGap={columnGap}
-            />
-          ))}
-          {row.length === 1 && (
-            <View style={{ width: cardSize, height: cardHeight }} />
-          )}
-        </View>
-      ))}
+    <View style={styles.elementGrid}>
+      <View style={styles.elementRow}>
+        {ELEMENT_ORDER.map((key) => (
+          <ElementTile
+            key={key}
+            elementKey={key}
+            label={ELEMENT_LABELS[key]}
+            icon={ELEMENT_ICONS[key]}
+            selected={value === key}
+            onPress={() => onChange(key)}
+            onLongPress={() => onLongPress(key)}
+          />
+        ))}
+      </View>
     </View>
   );
 }
 
-function ElementTile({ element, width, height, selected, onPress, onLongPress, isLastColumn, columnGap }) {
-  const accent = ElementAccents[element.key];
-  const activeBackground = selected ? withAlpha(accent, 0.16) : "transparent";
-  const activeBorder = selected
-    ? withAlpha(accent, 0.9)
-    : withAlpha(Colors.primaryLight, 0.25);
+function ElementTile({ elementKey, label, icon, selected, onPress, onLongPress }) {
+  const accent = ElementAccents[elementKey];
+  const borderColor = selected
+    ? withAlpha(accent, 0.85)
+    : withAlpha(Colors.primaryLight, 0.2);
+  const backgroundColor = selected
+    ? withAlpha(Colors.surfaceElevated, 0.85)
+    : withAlpha(Colors.surfaceAlt, 0.5);
 
   return (
     <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
       accessibilityRole="button"
-      accessibilityLabel={`Mantener presionado para ver ayuda de ${element.label}`}
+      accessibilityLabel={`Seleccionar ${label}`}
       accessibilityState={{ selected }}
       style={[
         styles.elementTile,
         {
-          width,
-          height,
-          borderColor: activeBorder,
-          backgroundColor: activeBackground,
-          marginRight: isLastColumn ? 0 : columnGap,
+          borderColor,
+          backgroundColor,
+          shadowColor: accent,
+          shadowOpacity: selected ? 0.4 : 0,
+          shadowRadius: selected ? 12 : 0,
+          shadowOffset: { width: 0, height: selected ? 6 : 0 },
+          elevation: selected ? 6 : 0,
         },
-        selected && styles.elementTileActive,
       ]}
     >
-      <Image source={element.icon} style={{ width: 36, height: 36, marginBottom: Spacing.tiny }} resizeMode="contain" />
-      <Text style={styles.elementTitle}>{element.label}</Text>
-      <Text style={styles.elementCaption} numberOfLines={1} ellipsizeMode="tail">
-        {element.caption}
-      </Text>
+      <View
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: withAlpha(accent, selected ? 0.35 : 0.18),
+          marginBottom: Spacing.tiny,
+        }}
+      >
+        <Image source={icon} style={{ width: 26, height: 26 }} resizeMode="contain" />
+      </View>
+      <Text style={styles.elementTitle}>{label}</Text>
     </Pressable>
   );
 }
-
-

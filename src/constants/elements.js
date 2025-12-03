@@ -1,66 +1,70 @@
 export const ELEMENT_INFO = {
   fire: {
-    title: "Fuego 🔥 (Poder y Pasión)",
+    title: "Fuego (Poder y Pasion)",
+    tagline: "Creatividad y accion rapida.",
     description:
-      "Se usa para tareas que requieren alta energía, urgencia o creatividad espontánea.",
+      "Usalo para tareas que requieren energia alta, urgencia o creatividad espontanea.",
     examples: [
       "Enviar propuesta con deadline hoy",
-      "Pitch rápido/brainstorm",
+      "Pitch rapido o brainstorm",
       "Entrenamiento intenso",
-      "Resolver bug crítico",
+      "Resolver bug critico",
       "Grabar video/toma creativa",
-      "Lanzar campaña",
+      "Lanzar campana",
       "Limpiar backlog urgente",
     ],
     purpose:
-      'Propósito: "Inyecta poder y acelera el crecimiento de la planta."',
+      'Proposito: "Inyecta poder y acelera el crecimiento de la planta."',
   },
   water: {
-    title: "Agua 💧 (Calma y Flujo)",
+    title: "Agua (Calma y Flujo)",
+    tagline: "Fluye y enfoca tu mente.",
     description:
-      "Se usa para tareas que necesitan atención continua, concentración o un estado de calma.",
+      "Usalo para tareas que necesitan atencion continua, concentracion o calma sostenida.",
     examples: [
       "Planificar semana",
-      "Leer/estudiar 30–60 min",
+      "Leer o estudiar 30-60 min",
       "Redactar documento largo",
       "Procesar correos",
-      "Meditación/respiración",
+      "Meditacion o respiracion",
       "Refinar notas",
-      "Revisión tranquila de PRs",
+      "Revision tranquila de PRs",
     ],
     purpose:
-      'Propósito: "Mantiene la planta hidratada y en un crecimiento estable."',
+      'Proposito: "Mantiene la planta hidratada y en un crecimiento estable."',
   },
   earth: {
-    title: "Tierra 🌱 (Estabilidad y Crecimiento)",
+    title: "Tierra (Estabilidad y Crecimiento)",
+    tagline: "Constancia y base firme.",
     description:
-      "Se usa para tareas fundamentales, repetitivas o que construyen un hábito.",
+      "Usalo para tareas fundamentales, repetitivas o que construyen habitos.",
     examples: [
       "Rutina de ejercicio",
       "Ordenar escritorio",
-      "Lavar/organizar",
-      "Contabilidad/domésticos",
+      "Lavar u organizar",
+      "Contabilidad o domesticos",
       "Repasar vocabulario",
-      "Backup/limpieza sistema",
-      "Hábitos diarios",
+      "Backup o limpieza del sistema",
+      "Habitos diarios",
     ],
     purpose:
-      'Propósito: "Proporciona una base sólida y nutrientes para un crecimiento sostenible."',
+      'Proposito: "Proporciona una base solida y nutrientes para un crecimiento sostenible."',
   },
   air: {
-    title: "Aire 🌬️ (Libertad y Movimiento)",
+    title: "Aire (Libertad y Movimiento)",
+    tagline: "Flexibilidad y claridad mental.",
     description:
-      "Se usa para tareas que requieren claridad mental, comunicación o flexibilidad.",
+      "Usalo para tareas que requieren claridad mental, comunicacion o flexibilidad.",
     examples: [
       "Escribir correo importante",
-      "Organizar ideas/Mindmap",
+      "Organizar ideas o mindmap",
       "Aprender concepto nuevo",
-      "Llamada breve/agenda",
+      "Llamada breve o agenda",
       "Revisar roadmap",
       "Plan de estudio",
       "Documentar decisiones",
     ],
     purpose:
-      'Propósito: "Le da a la planta el espacio para respirar y expandirse."',
+      'Proposito: "Le da a la planta el espacio para respirar y expandirse."',
   },
 };
