@@ -82,34 +82,6 @@ export default StyleSheet.create({
   searchRow: {
     marginTop: Spacing.small,
   },
-  missionTabs: {
-    marginTop: Spacing.small,
-  },
-  missionTabsContent: {
-    flexDirection: "row",
-    gap: Spacing.tiny,
-  },
-  missionTab: {
-    paddingHorizontal: Spacing.base * 1.25,
-    paddingVertical: Spacing.tiny + 2,
-    marginLeft: 1,
-    borderRadius: 10,
-    borderWidth: 0.5,
-    borderColor: "rgba(255,255,255,0.14)",
-    backgroundColor: "rgba(255,255,255,0.03)",
-  },
-  missionTabActive: {
-    borderColor: Colors.primaryLight,
-    backgroundColor: "rgba(179,157,219,0.18)",
-  },
-  missionTabLabel: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    fontWeight: "600",
-  },
-  missionTabLabelActive: {
-    color: Colors.text,
-  },
   progressCard: {
     marginTop: Spacing.small,
     borderRadius: 10,

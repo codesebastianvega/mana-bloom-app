@@ -974,40 +974,6 @@ export default function TasksScreen() {
                 placeholder="Buscar encantamientos..."
               />
             </View>
-            <ScrollView
-              style={styles.missionTabs}
-              contentContainerStyle={styles.missionTabsContent}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-            >
-              {MISSION_TABS.map((tab) => {
-                const isActive = typeFilter === tab.key;
-                return (
-                  <Pressable
-                    key={tab.key}
-                    onPress={() => {
-                      setTypeFilter(tab.key);
-                      setActiveFilter(tab.key === "trash" ? "deleted" : "pending");
-                    }}
-                    style={[
-                      styles.missionTab,
-                      isActive && styles.missionTabActive,
-                    ]}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Filtrar ${tab.label}`}
-                  >
-                    <Text
-                      style={[
-                        styles.missionTabLabel,
-                        isActive && styles.missionTabLabelActive,
-                      ]}
-                    >
-                      {tab.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
             <LinearGradient
               colors={["rgba(54,58,77,0.85)", "rgba(29,31,44,0.85)"]}
               start={{ x: 0, y: 0 }}
