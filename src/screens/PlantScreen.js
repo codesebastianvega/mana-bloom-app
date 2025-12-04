@@ -739,16 +739,42 @@ const HYDRATE_GOAL = 8;
       >
         <StickyHeader />
         <View style={styles.contentInner}>
-        <PlantHeader
-          name={plantName}
-          onRename={(next) => setPlantName(next)}
-          streakDays={streakDays}
-          mission={missionText}
-          stageLabel={`Etapa: Brote � ${etaText}`}
-          ritualTargets={`${ritualActiveCount} / ${RITUAL_ACTIONS.length} rituales`}
-          agendaItems={agendaItems}
-          climateInfo={{ ...climateInfo, hint: "Clima templado, aprovecha para tareas de luz" }}
-        />
+        <View style={styles.plantCard}>
+          <View style={styles.plantCardTop}>
+            <View style={styles.plantCardTitleRow}>
+              <View style={styles.plantAvatar} />
+              <View style={styles.plantTitleGroup}>
+                <Text style={styles.plantName}>{plantName || "Ernesto"}</Text>
+                <Text style={styles.plantStage}>ETAPA: <Text style={styles.plantStageAccent}>Floreciente</Text></Text>
+              </View>
+            </View>
+            <View style={styles.plantBadge}>
+              <Text style={styles.plantBadgeText}>5 días 🔥</Text>
+            </View>
+          </View>
+
+          <View style={styles.plantMetaRow}>
+            <Text style={styles.plantMeta}>24°C • Soleado</Text>
+          </View>
+
+          <View style={styles.plantDivider} />
+
+          <View style={styles.gardenHeaderRow}>
+            <Text style={styles.gardenTitle}>MI JARDÍN</Text>
+            <Pressable style={styles.alertButton} accessibilityRole="button">
+              <Text style={styles.alertText}>🔔 Alertas</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.gardenList}>
+            <View style={styles.gardenItem}>
+              <View style={styles.gardenDot} />
+              <Text style={styles.gardenItemTextStrong}>Regado hace 2h</Text>
+            </View>
+            <Text style={styles.gardenItemTextMuted}>Próximo: ~3 tareas</Text>
+          </View>
+        </View>
+
         <View style={styles.heroEdgeSection}>
           <View style={styles.heroHeaderRow}>
             <View style={{ flex: 1 }}>
