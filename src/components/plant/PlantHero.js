@@ -1,69 +1,30 @@
-// [MB] Módulo: Planta / Sección: Hero animado
-// Afecta: PlantScreen (demo inicial)
-// Propósito: mostrar la planta junto a métricas y barra de salud
-// Puntos de edición futura: enlazar métricas reales, animaciones extra
-// Autor: Codex - Fecha: 2025-08-16
-
-import React, { useEffect, useRef, useState } from "react";
-import { View, Text, Image, Animated, Easing, StyleSheet, ScrollView, Pressable } from "react-native";
+﻿import React, { useEffect, useMemo, useRef, useState } from "react";
+import { View, Text, Image, Animated, Pressable, ScrollView, StyleSheet } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
-
-const withAlpha = (hex = "", alpha = 1) => {
-  if (!hex) return hex;
-  let cleaned = `${hex}`.replace("#", "").trim();
-  if (cleaned.length === 3) cleaned = cleaned.split("").map((c) => c + c).join("");
-  if (cleaned.length === 8) cleaned = cleaned.slice(0, 6);
-  if (cleaned.length !== 6) return hex;
-  const value = parseInt(cleaned, 16);
-  const r = (value >> 16) & 255;
-  const g = (value >> 8) & 255;
-  const b = value & 255;
-  return `rgba(${r},${g},${b},${alpha})`;
-};
 
 const SIZE_MAP = {
   md: Spacing.xlarge * 5.5,
   lg: Spacing.xlarge * 6.5,
   xl: Spacing.xlarge * 7.5,
-  hero: Spacing.xlarge * 8.5,
 };
 
 const STAGES = [
-  { key: "semilla", label: "Semilla", icon: "🥚", preview: "🌱", accent: Colors.elementEarthLight },
-  { key: "germen", label: "Germen", icon: "🌿", preview: "🌿", accent: Colors.elementEarth },
-  { key: "brote", label: "Brote", icon: "🌱", preview: "🌰", accent: Colors.elementWaterLight },
-  { key: "juvenil", label: "Juvenil", icon: "🍃", preview: "🍃", accent: Colors.elementWater },
-  { key: "vibrante", label: "Vibrante", icon: "🌼", preview: "🌼", accent: Colors.accent },
-  { key: "floreciente", label: "Floreciente", icon: "🌸", preview: "🌸", accent: Colors.ritualJournal },
-  { key: "radiante", label: "Radiante", icon: "☀️", preview: "☀️", accent: Colors.ritualSun },
-  { key: "madura", label: "Madura", icon: "🌳", preview: "🌳", accent: Colors.secondary },
-  { key: "sage", label: "Sabia", icon: "🌙", preview: "🌙", accent: Colors.ritualCalm },
-  { key: "arcana", label: "Arcana", icon: "✨", preview: "✨", accent: Colors.primaryFantasy },
+  { key: "seed", label: "Semilla", accent: Colors.elementEarthLight },
+  { key: "sprout", label: "Brote", accent: Colors.elementWaterLight },
+  { key: "bloom", label: "Floreciente", accent: Colors.accent },
+  { key: "mature", label: "Madura", accent: Colors.secondary },
 ];
 
 const LEVELS_PER_STAGE = 10;
 
-const STAGE_TIPS = {
-  semilla: "Dedica tiempo a hábitos suaves para germinar tu rutina.",
-  germen: "Sigue regando con tareas cortas para consolidar momentum.",
-  brote: "Introduce misiones de enfoque y revisiones diarias para crecer.",
-  juvenil: "Combina proyectos largos con pausas activas para no saturarte.",
-  vibrante: "Prioriza retos de fuego y comparte logros para potenciar XP.",
-  floreciente: "Añade rituales y descansos profundos para sostener la energía.",
-  radiante: "Protege tu planta evitando sobrecarga; alterna tareas duras y suaves.",
-  madura: "Enfócate en optimizar hábitos existentes y pulir detalles.",
-  sage: "Experimenta con nuevas disciplinas y documenta aprendizajes.",
-  arcana: "Explora habilidades avanzadas y comparte conocimientos con tu guild.",
+const CARE_ACCENTS = {
+  water: Colors.elementWater,
+  light: Colors.accent,
+  nutrients: Colors.success,
+  purity: Colors.primary,
 };
-
-const CTA_RAINBOW = [
-  Colors.primary,
-  Colors.secondary,
-  Colors.elementWater,
-  Colors.accent,
-];
 
 export default function PlantHero({
   source,
@@ -77,229 +38,121 @@ export default function PlantHero({
   wellbeingMetrics = [],
   ritualSummary,
   climateInfo,
-  style,
   stageProgress,
   careSuggestions = [],
   onPressCareSuggestion,
   companionStatus,
   onPressCompanion,
 }) {
-  const anim = useRef(new Animated.Value(0)).current;
+  const auraAnim = useRef(new Animated.Value(0)).current;
+  const sliderRef = useRef(null);
+  const [activeStageTip, setActiveStageTip] = useState(null);
 
   useEffect(() => {
     if (!showAura) return;
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(anim, {
+        Animated.timing(auraAnim, {
           toValue: 1,
-          duration: 1750,
-          easing: Easing.inOut(Easing.quad),
+          duration: 1500,
           useNativeDriver: true,
         }),
-        Animated.timing(anim, {
+        Animated.timing(auraAnim, {
           toValue: 0,
-          duration: 1750,
-          easing: Easing.inOut(Easing.quad),
+          duration: 1500,
           useNativeDriver: true,
         }),
       ])
     );
     loop.start();
     return () => loop.stop();
-  }, [anim, showAura]);
+  }, [auraAnim, showAura]);
 
   const baseSize = SIZE_MAP[size] || SIZE_MAP.lg;
-  const scale = !showAura
-    ? 1
-    : anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.03] });
-  const auraOpacity = anim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.08, 0.18],
-  });
-  const auraSizeOuter = baseSize * 1.45;
-
-  const label = `Planta ${stage}; salud ${Math.round(
-    health * 100
-  )}%; ánimo ${mood}`;
   const healthPercent = Math.round(Math.max(0, Math.min(1, health)) * 100);
-  const healthGradient =
-    healthPercent > 66
-      ? [Colors.success, Colors.success]
-      : healthPercent > 33
-      ? [Colors.success, Colors.warning]
-      : [Colors.warning, Colors.danger];
 
-  const healthColor =
-    healthPercent > 66
-      ? Colors.success
-      : healthPercent > 33
-      ? Colors.warning
-      : Colors.danger;
   const chips = careMetrics.map((item) => ({
     key: item.key,
     label: item.label,
     percent: Math.round(Math.max(0, Math.min(1, item.value ?? 0)) * 100),
+    accent: CARE_ACCENTS[item.key] || Colors.primary,
   }));
-  const wellbeingChips = wellbeingMetrics.map((item) =>
-    mapWellbeingChip(item, climateInfo)
-  );
-  const derivedRitualSummary = ritualSummary
-    ? {
-        key: "rituals",
-        label: "Rituales",
-        display: `${ritualSummary.active} / ${ritualSummary.total}`,
-        active: ritualSummary.active,
-        total: ritualSummary.total,
-        tags:
-          ritualSummary.tags && ritualSummary.tags.length > 0
-            ? ritualSummary.tags
-            : [],
-        accent: Colors.accent,
-      }
-    : wellbeingChips.find((chip) => chip.key === "rituals");
-  const temperatureChip = wellbeingChips.find(
-    (chip) => chip.key === "temperature"
-  );
-  const moodChip = wellbeingChips.find((chip) => chip.key === "mood");
-  const focusChip = wellbeingChips.find((chip) => chip.key === "focus");
-  const secondaryChipsRaw = [moodChip, focusChip].filter(Boolean);
 
-  const stageInfo = stageProgress || {};
-  const sliderRef = useRef(null);
-  const stagePercent = Math.max(
-    0,
-    Math.min(100, Math.round((stageInfo.progress ?? 0) * 100))
-  );
-  const totalLevels = STAGES.length * LEVELS_PER_STAGE;
-  const absoluteLevel = Math.min(
-    totalLevels,
-    Math.max(0, stageInfo.progress ?? 0) * totalLevels
-  );
-  const fallbackIndex = Math.max(
-    0,
-    STAGES.findIndex((s) => s.key === (stageInfo.stage || stage))
-  );
-  const stageIndex = Math.min(
-    STAGES.length - 1,
-    stageInfo.progress > 0
-      ? Math.floor(absoluteLevel / LEVELS_PER_STAGE)
-      : fallbackIndex >= 0
-      ? fallbackIndex
-      : 0
-  );
-  const currentStage = STAGES[stageIndex] || STAGES[0];
-  const nextStage = STAGES[Math.min(STAGES.length - 1, stageIndex + 1)];
-  const levelWithinStage = absoluteLevel - stageIndex * LEVELS_PER_STAGE;
-  const subPercent = Math.round((levelWithinStage / LEVELS_PER_STAGE) * 100);
-  const stageHint =
-    stageInfo.etaText || "Completa tareas para desbloquear la siguiente etapa";
-  const [activeStageTip, setActiveStageTip] = useState(null);
+  const wellbeingChips = wellbeingMetrics.map((item) => mapWellbeingChip(item, climateInfo));
+  const moodChip = wellbeingChips.find((chip) => chip.key === "mood");
+  const temperatureChip = wellbeingChips.find((chip) => chip.key === "temperature");
+
+  const stageData = useMemo(() => {
+    const fallback = {
+      percentTotal: 0,
+      stageIndex: 0,
+      stagePercent: 0,
+      nextStage: STAGES[1] || null,
+      hint: "Completa tareas para avanzar",
+    };
+    if (!stageProgress) {
+      return fallback;
+    }
+    const totalPercent = Math.max(0, Math.min(1, stageProgress.progress ?? 0));
+    const totalLevels = STAGES.length * LEVELS_PER_STAGE;
+    const absoluteLevel = totalPercent * totalLevels;
+    const stageIndex = Math.min(
+      STAGES.length - 1,
+      totalPercent > 0 ? Math.floor(absoluteLevel / LEVELS_PER_STAGE) : 0
+    );
+    const levelWithin = absoluteLevel - stageIndex * LEVELS_PER_STAGE;
+    const stagePercent =
+      stageIndex >= STAGES.length - 1
+        ? 100
+        : Math.round(Math.max(0, Math.min(1, levelWithin / LEVELS_PER_STAGE)) * 100);
+    const nextStage = stageIndex >= STAGES.length - 1 ? null : STAGES[stageIndex + 1];
+    const hint =
+      stageProgress.etaText ||
+      (nextStage ? `Faltan pasos para ${nextStage.label}` : "Etapa final alcanzada");
+    return {
+      percentTotal: Math.round(totalPercent * 100),
+      stageIndex,
+      stagePercent,
+      nextStage,
+      hint,
+    };
+  }, [stageProgress]);
 
   useEffect(() => {
     if (!sliderRef.current) return;
-    const slideWidth = 168 + Spacing.small;
-    const offset = Math.max(0, stageIndex * slideWidth - slideWidth);
+    const slideWidth = 160 + Spacing.small;
+    const offset = Math.max(0, stageData.stageIndex * slideWidth - slideWidth);
     sliderRef.current.scrollTo({ x: offset, animated: true });
-  }, [stageIndex]);
+  }, [stageData.stageIndex]);
 
-  const careSuggestionList = Array.isArray(careSuggestions)
-    ? careSuggestions
-    : [];
-  const safeCompanionStatus = companionStatus || {};
-  const topSuggestion = careSuggestionList[0];
-  const leftStatStack = [
-    <HealthChip
-      key="health"
-      percent={healthPercent}
-      gradient={healthGradient}
-      color={healthColor}
-    />,
-  ];
-  if (moodChip) {
-    leftStatStack.push(
-      <StatDetailChip
-        key="mood"
-        emoji={moodChip.emoji || "😊"}
-        label={moodChip.label}
-        value={moodChip.display}
-        accent={moodChip.accent}
-        meta={moodChip.meta}
-      />
-    );
-  }
-  leftStatStack.push(
-    <CompanionChip
-      key="companion"
-      status={safeCompanionStatus}
-      onAction={onPressCompanion}
-    />
-  );
-  const rightStatStack = [];
-  if (stageProgress) {
-    rightStatStack.push(
-      <StageDonutCard key="stage" percent={stagePercent} nextStage={nextStage?.label} />
-    );
-  }
-  if (temperatureChip) {
-    rightStatStack.push(
-      <View
-        key="temperature"
-        style={[
-          styles.subChipFull,
-          styles.tempChip,
-          { borderColor: temperatureChip.accent },
-        ]}
-      >
-        <View style={styles.tempChipContent}>
-          <View style={styles.tempChipHeader}>
-            <Text style={styles.subChipEmoji}>🌡️</Text>
-            <Text style={styles.subChipLabel}>
-              {temperatureChip.label}
-            </Text>
-          </View>
-          <Text
-            style={[
-              styles.tempValue,
-              { color: temperatureChip.accent },
-            ]}
-          >
-            {temperatureChip.display}
-          </Text>
-          {temperatureChip.meta ? (
-            <Text style={styles.subChipMeta}>
-              {temperatureChip.meta}
-            </Text>
-          ) : null}
-        </View>
-      </View>
-    );
-  }
   const handleStagePress = (item) => {
     setActiveStageTip((prev) => {
-      if (prev && prev.title === item.label) {
-        return null;
-      }
-      return {
-        title: item.label,
-        text: STAGE_TIPS[item.key] || stageHint,
-      };
+      if (prev?.key === item.key) return null;
+      return { key: item.key, title: item.label, text: STAGE_TIPS[item.key] || stageData.hint };
     });
   };
 
+  const auraScale = auraAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.05] });
+  const auraOpacity = auraAnim.interpolate({ inputRange: [0, 1], outputRange: [0.08, 0.18] });
+
+  const safeSuggestions = Array.isArray(careSuggestions) ? careSuggestions.slice(0, 4) : [];
+
   return (
-    <View style={[styles.container, style]}>
+    <View style={styles.container}>
       <View style={styles.heroRow}>
         {chips.length ? (
           <View style={styles.metricsColumn}>
             {chips.map((chip) => (
-              <View key={chip.key} style={styles.metricChip}>
-                <Text style={styles.metricLabel}>{chip.label}</Text>
-                <Text style={styles.metricValue}>{chip.percent}%</Text>
+              <View key={chip.key} style={[styles.metricChip, { borderColor: withAlpha(chip.accent, 0.3) }]}>
+                <View style={[styles.metricAccent, { backgroundColor: chip.accent }]} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.metricLabel}>{chip.label}</Text>
+                  <Text style={styles.metricValue}>{chip.percent}%</Text>
+                </View>
               </View>
             ))}
           </View>
         ) : null}
-
         <View style={styles.heroWrap}>
           {showAura && (
             <Animated.View
@@ -307,440 +160,454 @@ export default function PlantHero({
               style={[
                 styles.aura,
                 {
-                  width: auraSizeOuter,
-                  height: auraSizeOuter,
-                  borderRadius: auraSizeOuter / 2,
-                  backgroundColor: Colors.primaryFantasy,
+                  width: baseSize * 1.4,
+                  height: baseSize * 1.4,
+                  borderRadius: (baseSize * 1.4) / 2,
                   opacity: auraOpacity,
-                  transform: [{ scale }],
+                  transform: [{ scale: auraScale }],
                 },
               ]}
             />
           )}
           <Animated.View
-            accessibilityRole="image"
-            accessibilityLabel={label}
             style={[
-              styles.hero,
+              styles.heroCircle,
               {
                 width: baseSize,
                 height: baseSize,
                 borderRadius: baseSize / 2,
-                transform: [{ scale }],
-                backgroundColor: showAura ? Colors.surface : "transparent",
-                shadowOpacity: showAura ? 0.25 : 0,
               },
             ]}
           >
             {source ? (
-              <Image
-                source={source}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  borderRadius: baseSize / 2,
-                }}
-                resizeMode="contain"
-              />
+              <Image source={source} style={styles.heroImage} resizeMode="contain" />
             ) : (
-              <Text style={{ fontSize: baseSize * 0.6 }}>🌱</Text>
+              <Text style={{ fontSize: baseSize * 0.4 }}>🌱</Text>
             )}
-            {skinAccent && showAura && (
-              <View
-                pointerEvents="none"
-                style={[
-                  styles.pot,
-                  {
-                    backgroundColor: skinAccent,
-                    width: baseSize * 0.6,
-                    height: baseSize * 0.25,
-                    borderRadius: (baseSize * 0.6) / 2,
-                    left: (baseSize - baseSize * 0.6) / 2,
-                    bottom: Spacing.small,
-                  },
-                ]}
-              />
-            )}
+            {skinAccent ? <View style={[styles.potAccent, { backgroundColor: skinAccent, width: baseSize * 0.6 }]} /> : null}
           </Animated.View>
         </View>
       </View>
-      {stageProgress ? (
-        <View style={styles.stageSection}>
-          <View style={styles.stageHeader}>
-            <Text style={styles.stageTitle}>Ruta de crecimiento</Text>
-            <Text style={styles.stageHint}>{stageHint}</Text>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.stageSliderRow}
-            ref={sliderRef}
-          >
-            {STAGES.map((item, index) => (
-              <StageSlide
-                key={item.key}
-                stage={item}
-                index={index}
-                level={index === stageIndex ? subPercent : index < stageIndex ? 100 : 0}
-                active={index === stageIndex}
-                completed={index < stageIndex}
-                onPressStage={handleStagePress}
-              />
-            ))}
-          </ScrollView>
-          {activeStageTip ? (
-            <View style={styles.stageTooltip}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.stageTooltipTitle}>{activeStageTip.title}</Text>
-                <Text style={styles.stageTooltipText}>{activeStageTip.text}</Text>
-              </View>
-              <Pressable
-                onPress={() => setActiveStageTip(null)}
-                style={styles.stageTooltipClose}
-                accessibilityLabel="Cerrar detalle de etapa"
-              >
-                <Text style={styles.stageTooltipCloseText}>×</Text>
-              </Pressable>
-            </View>
-          ) : null}
+
+      <View style={styles.stageSection}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Ruta de crecimiento</Text>
+          <Text style={styles.sectionHint}>{stageData.hint}</Text>
         </View>
-      ) : null}
-      <View style={styles.statsCard}>
-        {(leftStatStack.length || rightStatStack.length) ? (
-          <View style={styles.statColumns}>
-            <View style={[styles.statColumn, styles.statColumnLeft]}>
-              {leftStatStack.map((chip, idx) => (
-                <View key={`left-${idx}`} style={styles.statColumnItem}>
-                  {chip}
-                </View>
-              ))}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.stageSlider}
+          ref={sliderRef}
+        >
+          {STAGES.map((item, index) => (
+            <StageSlide
+              key={item.key}
+              stage={item}
+              active={index === stageData.stageIndex}
+              completed={index < stageData.stageIndex}
+              percent={
+                index === stageData.stageIndex
+                  ? stageData.stagePercent
+                  : index < stageData.stageIndex
+                  ? 100
+                  : 0
+              }
+              onPress={() => handleStagePress(item)}
+            />
+          ))}
+        </ScrollView>
+        {activeStageTip ? (
+          <View style={styles.stageTip}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.stageTipTitle}>{activeStageTip.title}</Text>
+              <Text style={styles.stageTipText}>{activeStageTip.text}</Text>
             </View>
-            <View style={[styles.statColumn, styles.statColumnRight]}>
-              {rightStatStack.map((chip, idx) => (
-                <View key={`right-${idx}`} style={styles.statColumnItem}>
-                  {chip}
-                </View>
-              ))}
-            </View>
-          </View>
-        ) : null}
-        {derivedRitualSummary ? (
-          <View style={styles.ritualCard}>
-            <View style={styles.ritualHeader}>
-              <Text style={styles.ritualTitle}>Rituales</Text>
-              <Text
-                style={[
-                  styles.ritualCount,
-                  { color: derivedRitualSummary.accent },
-                ]}
-              >
-                {derivedRitualSummary.display}
-              </Text>
-            </View>
-            <Text style={styles.ritualHint}>
-              Tus hábitos personales mantienen motivada a la planta.
-            </Text>
-            {derivedRitualSummary.active > 0 ? (
-              <View style={styles.ritualTags}>
-                {derivedRitualSummary.tags.map((hint) => (
-                  <View key={hint} style={styles.ritualTag}>
-                    <Text style={styles.ritualTagText}>{hint}</Text>
-                  </View>
-                ))}
-              </View>
-            ) : null}
-          </View>
-        ) : null}
-        {careSuggestionList.length ? (
-          <View style={styles.careSuggestionBlock}>
-            <View style={styles.careSuggestionHeader}>
-              <Text style={styles.careSuggestionTitle}>Cuidados sugeridos</Text>
-              <Text style={styles.careSuggestionHint}>
-                Prioriza estos para equilibrar
-              </Text>
-            </View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.careSuggestionRow}
-            >
-              {careSuggestionList.map((item) => {
-                const severity = getSeverityMeta(item.deficit);
-                const cooldown =
-                  item.cooldownMs && item.cooldownMs > 0
-                    ? formatCooldownShort(item.cooldownMs)
-                    : null;
-                return (
-                  <CareSuggestionChip
-                    key={item.key}
-                    label={item.label}
-                    accent={item.accent}
-                    severity={severity}
-                    cooldown={cooldown}
-                    disabled={Boolean(cooldown)}
-                    onPress={() => onPressCareSuggestion?.(item.key)}
-                  />
-                );
-              })}
-            </ScrollView>
+            <Pressable onPress={() => setActiveStageTip(null)} style={styles.stageTipClose}>
+              <Text style={styles.stageTipCloseText}>×</Text>
+            </Pressable>
           </View>
         ) : null}
       </View>
+
+      <View style={styles.statsGrid}>
+        <View style={styles.statRow}>
+          <VitalityCard
+            percent={healthPercent}
+            style={[styles.statCardWide, styles.statCardSpacing]}
+          />
+          <BondCard
+            moodChip={moodChip}
+            fallbackMood={mood}
+            style={[styles.statCardNarrow, styles.statCardSpacing]}
+          />
+        </View>
+        <View style={styles.statRow}>
+          <ClimateCard
+            climateInfo={climateInfo}
+            temperatureChip={temperatureChip}
+            style={[styles.statCardWide, styles.statCardSpacing]}
+          />
+          <NextFormCard
+            percent={stageData.stagePercent}
+            nextStage={stageData.nextStage}
+            style={[styles.statCardNarrow, styles.statCardSpacing]}
+          />
+        </View>
+      </View>
+
+      <CompanionCard status={companionStatus} onPress={onPressCompanion} />
+
+      {ritualSummary ? <RitualCard summary={ritualSummary} /> : null}
+
+      {safeSuggestions.length ? (
+        <View style={styles.suggestionBlock}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Cuidados sugeridos</Text>
+            <Text style={styles.sectionHint}>Equilibra tus métricas</Text>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestionRow}>
+            {safeSuggestions.map((item) => {
+              const severity = getSeverity(item.deficit);
+              const cooldown = item.cooldownMs && item.cooldownMs > 0 ? formatCooldown(item.cooldownMs) : null;
+              return (
+                <CareSuggestionChip
+                  key={item.key}
+                  label={item.label}
+                  accent={item.accent}
+                  severity={severity}
+                  cooldown={cooldown}
+                  disabled={Boolean(cooldown)}
+                  onPress={() => onPressCareSuggestion?.(item.key)}
+                />
+              );
+            })}
+          </ScrollView>
+        </View>
+      ) : null}
     </View>
   );
 }
 
-function StageSlide({ stage, index, level, active, completed, onPressStage }) {
-  const displayLevel = Math.min(100, Math.max(0, Math.round(level)));
-  const accentColor = stage.accent || Colors.secondary;
-  const baseBorder = withAlpha(accentColor, 0.45);
-  const baseBackground = withAlpha(accentColor, completed ? 0.18 : 0.08);
-  const activeBackground = withAlpha(accentColor, 0.24);
-  const slideStyles = [
-    styles.stageSlide,
-    { borderColor: baseBorder, backgroundColor: baseBackground },
-    completed && styles.stageSlideCompleted,
-    active && { borderColor: accentColor, backgroundColor: activeBackground },
-  ];
-  const dotStyles = [
-    styles.stageDot,
-    { borderColor: withAlpha(accentColor, active ? 1 : 0.45) },
-    completed && styles.stageDotCompleted,
-    active && { backgroundColor: accentColor },
-  ];
+const STAGE_TIPS = {
+  seed: "Dedica micro tareas suaves para germinar.",
+  sprout: "Introduce hábitos diarios para mantener el ritmo.",
+  bloom: "Equilibra tareas de fuego y agua para florecer.",
+  mature: "Optimiza tus logros y protege la planta del estrés.",
+};
+
+function StageSlide({ stage, active, completed, percent, onPress }) {
   return (
     <Pressable
-      style={slideStyles}
-      onPress={() => onPressStage?.(stage)}
-      accessibilityRole="button"
-      accessibilityLabel={`Ver detalles de ${stage.label}`}
+      onPress={onPress}
+      style={[
+        styles.stageSlide,
+        {
+          borderColor: withAlpha(stage.accent, active ? 0.9 : 0.35),
+          backgroundColor: withAlpha(stage.accent, completed ? 0.25 : 0.12),
+        },
+      ]}
     >
-      <View style={dotStyles}>
-        <Text style={styles.stageDotLabel}>{index + 1}</Text>
-      </View>
-      <View style={styles.stageCopy}>
+      <View style={styles.stageSlideHeader}>
         <Text style={styles.stageSlideLabel}>{stage.label}</Text>
-        <Text style={styles.stageSlideMeta}>
-          {completed ? "Completada" : active ? `${displayLevel}%` : "Pendiente"}
-        </Text>
-        {active && (
-          <View style={styles.stageSubBar}>
-            <View
-              style={[styles.stageSubFill, { width: `${Math.max(displayLevel, 6)}%` }]}
-            />
-          </View>
-        )}
+        <Text style={styles.stageSlidePercent}>{completed ? "100%" : active ? `${Math.max(percent, 5)}%` : "0%"}</Text>
       </View>
-      <Text style={[styles.stageIcon, { color: accentColor }]}>{stage.preview}</Text>
+      <View style={styles.stageSlideBar}>
+        <View
+          style={[
+            styles.stageSlideFill,
+            { width: `${completed ? 100 : active ? Math.max(percent, 5) : 0}%`, backgroundColor: stage.accent },
+          ]}
+        />
+      </View>
     </Pressable>
   );
 }
 
-function HealthChip({ percent, gradient, color }) {
+function VitalityCard({ percent, style }) {
+  const descriptor =
+    percent >= 80
+      ? "Sistema de raíces fuerte."
+      : percent >= 55
+      ? "Estable, sigue hidratando."
+      : "Necesita cuidados urgentes.";
   return (
-    <View style={styles.healthChip}>
-      <View style={styles.healthChipHeader}>
-        <Text style={styles.healthChipTitle}>Salud</Text>
-        <Text style={[styles.healthChipPercent, { color }]}>{percent}%</Text>
+    <LinearGradient
+      colors={["#3bb475", "#1d7c5e"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={[styles.statCard, styles.vitalityCard, style]}
+    >
+      <Text style={styles.statLabelLight}>VITALIDAD</Text>
+      <View style={styles.vitalityValueRow}>
+        <Text style={styles.vitalityValue}>{percent}%</Text>
+        <Text style={styles.vitalityHeart}>❤</Text>
       </View>
-      <View
-        style={styles.healthChipBar}
-        accessibilityRole="progressbar"
-        accessibilityValue={{ now: percent, min: 0, max: 100 }}
-      >
-        <LinearGradient
-          colors={gradient}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          style={[styles.healthChipFill, { width: `${Math.max(8, percent)}%` }]}
-        />
+      <View style={styles.vitalityBar}>
+        <View style={[styles.vitalityFill, { width: `${Math.max(10, percent)}%` }]} />
       </View>
-      <Text style={styles.healthChipHint}>Manténla sobre 80% para evitar retrocesos.</Text>
+      <Text style={styles.vitalityHint}>{descriptor}</Text>
+    </LinearGradient>
+  );
+}
+
+function BondCard({ moodChip, fallbackMood, style }) {
+  const moodValue = moodChip?.display || fallbackMood || "Estable";
+  const moodEmoji = moodChip?.emoji || "😊";
+  return (
+    <View style={[styles.statCard, styles.bondCard, style]}>
+      <View style={styles.bondHeader}>
+        <Text style={styles.statLabelDark}>VÍNCULO</Text>
+        <View style={styles.bondMood}>
+          <Text style={styles.bondMoodValue}>{moodValue}</Text>
+          <Text style={styles.bondMoodEmoji}>{moodEmoji}</Text>
+        </View>
+      </View>
+      <BondMeter label="Confianza" value={78} accent="#FFC04D" />
+      <BondMeter label="Sincronía" value={62} accent="#af8bff" />
     </View>
   );
 }
 
-function StageDonutCard({ percent, nextStage }) {
-  const size = 110;
-  const strokeWidth = 10;
+function BondMeter({ label, value, accent }) {
+  return (
+    <View style={styles.bondMeter}>
+      <View style={styles.bondMeterHeader}>
+        <Text style={styles.bondMeterLabel}>{label}</Text>
+        <Text style={[styles.bondMeterLabel, { color: accent }]}>{value}%</Text>
+      </View>
+      <View style={styles.bondMeterBar}>
+        <View style={[styles.bondMeterFill, { width: `${Math.max(8, value)}%`, backgroundColor: accent }]} />
+      </View>
+    </View>
+  );
+}
+
+function ClimateCard({ climateInfo = {}, temperatureChip, style }) {
+  const parsedTemp =
+    climateInfo?.tempC ??
+    (temperatureChip?.display ? parseInt(temperatureChip.display, 10) : undefined);
+  const tempDisplay =
+    parsedTemp !== undefined && !Number.isNaN(parsedTemp)
+      ? `${parsedTemp}°C`
+      : temperatureChip?.display || "—°C";
+  const location = climateInfo?.location || "";
+  const conditionRaw =
+    climateInfo?.status ||
+    climateInfo?.condition ||
+    temperatureChip?.label ||
+    "Clima estable";
+  const showCondition =
+    conditionRaw &&
+    (!location || conditionRaw.trim().toLowerCase() !== location.trim().toLowerCase());
+  const hintCandidate = climateInfo?.flowHint || climateInfo?.hint || temperatureChip?.meta || "";
+  const flowHint =
+    hintCandidate &&
+    (!location || hintCandidate.trim().toLowerCase() !== location.trim().toLowerCase())
+      ? hintCandidate
+      : "El flujo de mana es óptimo.";
+  const icon = climateInfo?.icon || "🌤️";
+  return (
+    <LinearGradient
+      colors={["#2f3d9f", "#14152f"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={[styles.statCard, styles.climateCard, style]}
+    >
+      <Text style={styles.statLabelLight}>CLIMA DE MANA</Text>
+      <View style={styles.climateValueStack}>
+        <Text style={styles.climateValue}>{tempDisplay}</Text>
+        <Text style={styles.climateIcon}>{icon}</Text>
+      </View>
+      {showCondition ? <Text style={styles.climateCondition}>{conditionRaw}</Text> : null}
+      {location ? <Text style={styles.climateLocation}>{location}</Text> : null}
+      <View style={styles.climateHintPill}>
+        <Text style={styles.climateHintText}>⚡ {flowHint}</Text>
+      </View>
+    </LinearGradient>
+  );
+}
+
+function NextFormCard({ percent = 0, nextStage, style }) {
+  const remaining = Math.max(0, 100 - percent);
+  const nextLabel = nextStage?.label || "Forma final";
+  const hasNext = Boolean(nextStage);
+  const statusLabel = !hasNext
+    ? "Etapa máxima alcanzada"
+    : remaining > 0
+    ? `${remaining}% restante`
+    : "Lista para evolucionar";
+  const narrative = !hasNext
+    ? "Has desbloqueado todas las formas actuales."
+    : remaining > 0
+    ? `Tu planta se prepara para ${nextLabel.toLowerCase()}.`
+    : `Tu planta puede convertirse en ${nextLabel.toLowerCase()}.`;
+  return (
+    <View style={[styles.statCard, styles.formCard, style]}>
+      <Text style={styles.statLabelDark}>PRÓXIMA FORMA</Text>
+      <View style={styles.nextFormStack}>
+        <StageProgressDonut percent={percent} />
+        <Text style={styles.nextFormLabel}>{nextLabel}</Text>
+        <Text style={styles.nextFormRequirement}>{statusLabel}</Text>
+        <Text style={styles.nextFormHint}>{narrative}</Text>
+      </View>
+    </View>
+  );
+}
+
+function StageProgressDonut({ percent }) {
+  const size = 82;
+  const strokeWidth = 9;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+  const clamped = Math.max(0, Math.min(100, percent));
   const offset = circumference - (clamped / 100) * circumference;
-
   return (
-    <View style={styles.stageDonutCard}>
-      <Text style={styles.stageDonutTitle}>Etapa global</Text>
-      <View style={styles.stageDonutSvg}>
-        <Svg width={size} height={size}>
-          <Circle
-            stroke={withAlpha(Colors.text, 0.15)}
-            fill="none"
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            strokeWidth={strokeWidth}
-          />
-          <Circle
-            stroke={Colors.secondary}
-            fill="none"
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            strokeWidth={strokeWidth}
-            strokeDasharray={`${circumference} ${circumference}`}
-            strokeDashoffset={offset}
-            strokeLinecap="round"
-            transform={`rotate(-90 ${size / 2} ${size / 2})`}
-          />
-        </Svg>
-        <Text style={styles.stageDonutPercent}>{clamped}%</Text>
-      </View>
-      <Text style={styles.stageDonutHint}>
-        {nextStage ? `Siguiente: ${nextStage}` : "Etapa final"}
-      </Text>
+    <View style={styles.stageDonut}>
+      <Svg width={size} height={size}>
+        <Circle
+          stroke={withAlpha(Colors.text, 0.1)}
+          fill="none"
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          strokeWidth={strokeWidth}
+        />
+        <Circle
+          stroke={Colors.secondary}
+          fill="none"
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          strokeWidth={strokeWidth}
+          strokeDasharray={`${circumference} ${circumference}`}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </Svg>
+      <Text style={styles.stageDonutPercent}>{clamped}%</Text>
     </View>
   );
 }
 
-function StatDetailChip({ emoji, label, value, accent, meta, hint }) {
-  return (
-    <View
-      style={[
-        styles.subChipStack,
-        { borderColor: accent },
-      ]}
-    >
-      <View style={styles.subChipStackContent}>
-        <Text style={styles.subChipEmoji}>{emoji}</Text>
-        <Text style={styles.subChipLabel}>{label}</Text>
-        <Text
-          style={[
-            styles.subChipInlineValue,
-            { color: accent },
-          ]}
-        >
-          {value}
-        </Text>
-      </View>
-      {meta ? <Text style={styles.subChipMeta}>{meta}</Text> : null}
-      {hint ? <Text style={styles.subChipHint}>{hint}</Text> : null}
-    </View>
-  );
-}
-
-function CompanionChip({ status = {}, onAction }) {
-  const pet = status.pet;
-  const potions = status.potions || [];
-  if (pet) {
+function CompanionCard({ status, onPress }) {
+  const potions = status?.potions ?? [];
+  if (!status?.pet && potions.length === 0) {
     return (
-      <View style={styles.companionChip}>
-        <View style={styles.companionHeader}>
-          <Text style={styles.companionEmoji}>{pet.emoji || "🐾"}</Text>
-          <View>
-            <Text style={styles.companionTitle}>Compañero activo</Text>
-            <Text style={styles.companionPetName}>{pet.name}</Text>
-          </View>
-        </View>
-        <Text style={styles.companionPetHint}>{pet.status || "Cuidando tu planta mientras descansas."}</Text>
+      <View style={styles.companionCard}> 
+        <Text style={styles.sectionTitle}>Sin compañero activo</Text>
+        <Text style={styles.sectionHint}>Equipa una mascota o poción para proteger la planta.</Text>
+        <Pressable style={styles.companionButton} onPress={onPress}>
+          <Text style={styles.companionButtonText}>Ver inventario</Text>
+        </Pressable>
       </View>
     );
   }
-  if (potions.length) {
-    return (
-      <View style={styles.companionChip}>
-        <Text style={styles.companionTitle}>Pociones activas</Text>
-        {potions.slice(0, 2).map((potion) => (
-          <View key={potion.id} style={styles.potionRow}>
-            <Text style={styles.companionEmoji}>{potion.emoji || "🧪"}</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.potionLabel}>{potion.label}</Text>
-              <Text style={styles.potionHint}>
-                {potion.remaining ? `Expira en ${potion.remaining}` : "En curso"}
-              </Text>
+  return (
+    <View style={styles.companionCard}>
+      <View style={styles.companionHeader}> 
+        <Text style={styles.sectionTitle}>Compañero activo</Text>
+        <Pressable onPress={onPress}>
+          <Text style={styles.linkText}>Cambiar</Text>
+        </Pressable>
+      </View>
+      {status.pet ? (
+        <Text style={styles.companionPet}>{status.pet.name} {status.pet.emoji || "🐾"}</Text>
+      ) : null}
+      {potions.length ? (
+        <View style={styles.potionRow}>
+          {potions.slice(0, 2).map((potion) => (
+            <View key={potion.id} style={styles.potionChip}>
+              <Text style={styles.potionText}>{potion.label}</Text>
+              <Text style={styles.potionMeta}>{potion.remaining}</Text>
             </View>
-          </View>
-        ))}
-        {potions.length > 2 ? (
-          <Text style={styles.potionMore}>+{potions.length - 2} adicionales</Text>
-        ) : null}
-      </View>
-    );
-  }
-  return (
-    <View style={[styles.companionChip, styles.companionEmpty]}>
-      <Text style={styles.companionTitle}>Sin compañero</Text>
-      <Text style={styles.companionPetHint}>
-        Activa una poción o adopta una mascota premium para proteger tu planta cuando te ausentes.
-      </Text>
-      <Pressable
-        style={styles.companionButton}
-        onPress={onAction}
-        accessibilityRole="button"
-        accessibilityLabel="Ver más opciones de pociones o mascotas"
-      >
-        <View style={styles.companionRainbowBorder}>
-          <LinearGradient
-            colors={CTA_RAINBOW}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.companionBorder}
-          />
-          <View style={styles.companionButtonInner}>
-            <Text style={styles.companionButtonText}>Ver más</Text>
-          </View>
+          ))}
         </View>
-      </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
+function RitualCard({ summary }) {
+  const tags = summary.tags?.slice(0, 4) || [];
+  return (
+    <View style={styles.ritualCard}>
+      <View style={styles.ritualHeader}>
+        <Text style={styles.sectionTitle}>Rituales</Text>
+        <Text style={styles.ritualCount}>{`${summary.active} / ${summary.total}`}</Text>
+      </View>
+      <Text style={styles.sectionHint}>Tus hábitos personales mantienen motivada a la planta.</Text>
+      {tags.length ? (
+        <View style={styles.ritualTagRow}>
+          {tags.map((tag) => (
+            <View key={tag} style={styles.ritualTag}>
+              <Text style={styles.ritualTagText}>{tag}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }
 
 function CareSuggestionChip({ label, accent, severity, cooldown, disabled, onPress }) {
-  const color = accent || Colors.primary;
   return (
     <Pressable
       onPress={onPress}
-      style={[
-        styles.careSuggestionChip,
-        { borderColor: withAlpha(color, 0.3), backgroundColor: withAlpha(color, 0.08) },
-        disabled && styles.careSuggestionChipDisabled,
-      ]}
-      accessibilityRole="button"
-      accessibilityLabel={`Aplicar cuidado ${label}`}
       disabled={disabled}
+      style={[
+        styles.suggestionChip,
+        {
+          borderColor: withAlpha(accent || Colors.primary, 0.35),
+          backgroundColor: withAlpha(accent || Colors.primary, 0.12),
+          opacity: disabled ? 0.5 : 1,
+        },
+      ]}
     >
-      <View style={styles.careSuggestionInfo}>
-        <Text style={[styles.careSuggestionLabel, { color }]} numberOfLines={1}>
-          {label}
-        </Text>
-        <Text style={styles.careSuggestionMeta}>
-          {cooldown ? `Disponible en ${cooldown}` : "Listo para activar"}
-        </Text>
+      <View style={{ flex: 1 }}>
+        <Text style={[styles.suggestionLabel, { color: accent || Colors.primary }]}>{label}</Text>
+        <Text style={styles.suggestionMeta}>{cooldown ? `Disponible en ${cooldown}` : "Listo"}</Text>
       </View>
       {severity.label ? (
-        <View
-          style={[
-            styles.careSuggestionBadge,
-            { borderColor: severity.color, backgroundColor: withAlpha(severity.color, 0.12) },
-          ]}
-        >
-          <Text style={[styles.careSuggestionBadgeText, { color: severity.color }]}>
-            {severity.label}
-          </Text>
+        <View style={styles.suggestionBadge}>
+          <Text style={[styles.suggestionBadgeText, { color: severity.color }]}>{severity.label}</Text>
         </View>
       ) : null}
     </Pressable>
   );
 }
 
-function getSeverityMeta(deficit = 0) {
-  if (deficit >= 0.2) return { label: "Alto", color: Colors.danger };
-  if (deficit >= 0.1) return { label: "Medio", color: Colors.warning };
-  return { label: "", color: Colors.secondary };
+function mapWellbeingChip(item, climateInfo) {
+  const value = Math.max(0, Math.min(1, item.value ?? 0));
+  const percent = Math.round(value * 100);
+  switch (item.key) {
+    case "mood": {
+      if (percent >= 75) return { key: item.key, display: "Feliz", emoji: "😊" };
+      if (percent >= 45) return { key: item.key, display: "Estable", emoji: "🙂" };
+      return { key: item.key, display: "Baja", emoji: "😕" };
+    }
+    case "temperature": {
+      return {
+        key: item.key,
+        label: "Temperatura",
+        display: `${Math.round(15 + value * 15)}°C`,
+        meta: climateInfo?.location,
+      };
+    }
+    default:
+      return item;
+  }
 }
 
-function formatCooldownShort(ms = 0) {
-  if (!ms) return "";
+function getSeverity(deficit = 0) {
+  if (deficit >= 0.2) return { label: "Alto", color: Colors.danger };
+  if (deficit >= 0.1) return { label: "Medio", color: Colors.warning };
+  return { label: "", color: Colors.textMuted };
+}
+
+function formatCooldown(ms = 0) {
+  if (!ms) return null;
   const minutes = Math.max(1, Math.round(ms / 60000));
   if (minutes >= 60) {
     const hours = Math.floor(minutes / 60);
@@ -750,180 +617,43 @@ function formatCooldownShort(ms = 0) {
   return `${minutes}m`;
 }
 
+const withAlpha = (hex = "", alpha = 1) => {
+  if (!hex) return hex;
+  let cleaned = `${hex}`.replace("#", "").trim();
+  if (cleaned.length === 3) cleaned = cleaned.split("").map((c) => c + c).join("");
+  const value = parseInt(cleaned, 16);
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+};
+
 const styles = StyleSheet.create({
   container: {
-    gap: Spacing.base,
-  },
-  stageSection: {
-    gap: Spacing.small,
-    marginTop: Spacing.small,
-  },
-  stageHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  stageTitle: {
-    ...Typography.body,
-    color: Colors.text,
-    fontWeight: "700",
-  },
-  stageHint: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  stageSliderRow: {
-    gap: Spacing.small,
-    paddingRight: Spacing.base,
-  },
-  stageSlide: {
-    width: 168,
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    padding: Spacing.small,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.small,
-  },
-  stageSlideCompleted: {
-    opacity: 0.9,
-  },
-  stageDot: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  stageDotCompleted: {
-    backgroundColor: Colors.success,
-    borderColor: Colors.success,
-  },
-  stageDotLabel: {
-    ...Typography.caption,
-    color: Colors.text,
-    fontWeight: "700",
-  },
-  stageCopy: {
-    flex: 1,
-    gap: 4,
-  },
-  stageSlideLabel: {
-    ...Typography.caption,
-    color: Colors.text,
-    fontWeight: "600",
-  },
-  stageSlideMeta: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  stageSubBar: {
-    height: 4,
-    borderRadius: Radii.pill,
-    backgroundColor: "rgba(255,255,255,0.12)",
-    overflow: "hidden",
-  },
-  stageSubFill: {
-    height: "100%",
-    borderRadius: Radii.pill,
-    backgroundColor: Colors.accent,
-  },
-  stageIcon: {
-    fontSize: 18,
-  },
-  stageTooltip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.small,
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    backgroundColor: "rgba(0,0,0,0.25)",
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    marginTop: Spacing.small,
-  },
-  stageTooltipTitle: {
-    ...Typography.caption,
-    color: Colors.text,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 0.6,
-  },
-  stageTooltipText: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  stageTooltipClose: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
-  },
-  stageTooltipCloseText: {
-    color: Colors.text,
-    fontWeight: "700",
-    fontSize: 16,
+    gap: Spacing.large,
   },
   heroRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: Spacing.base,
-  },
-  statsCard: {
-    borderRadius: Radii.xl,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    backgroundColor: "rgba(28,24,52,0.9)",
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 16,
-    padding: Spacing.base,
-    gap: Spacing.base,
-  },
-  aura: {
-    position: "absolute",
-  },
-  hero: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.surface,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-  },
-  pot: {
-    position: "absolute",
-  },
-  heroWrap: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: Spacing.small,
+    gap: Spacing.large,
   },
   metricsColumn: {
-    minWidth: 148,
     gap: Spacing.small,
-    paddingVertical: Spacing.small,
-    paddingHorizontal: Spacing.small,
+    flexBasis: "38%",
   },
   metricChip: {
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.tiny,
-    borderRadius: Radii.pill,
-    backgroundColor: "rgba(255,255,255,0.08)",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    minWidth: 140,
+    borderWidth: 1,
+    borderRadius: Radii.md,
+    padding: Spacing.small,
+    gap: Spacing.small,
+  },
+  metricAccent: {
+    width: 6,
+    height: "70%",
+    borderRadius: Radii.pill,
   },
   metricLabel: {
     ...Typography.caption,
@@ -932,475 +662,426 @@ const styles = StyleSheet.create({
   metricValue: {
     ...Typography.body,
     color: Colors.text,
-    fontWeight: "600",
+    fontWeight: "700",
   },
-  divider: {
-    height: 1,
+  heroWrap: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  aura: {
+    position: "absolute",
+    backgroundColor: Colors.primaryFantasy,
+    borderRadius: 200,
+  },
+  heroCircle: {
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.35),
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.primaryLight, 0.25),
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  heroImage: {
     width: "100%",
-    backgroundColor: "rgba(255,255,255,0.08)",
-    marginTop: Spacing.small,
+    height: "100%",
   },
-  subChipColumns: {
-    flexDirection: "row",
-    gap: Spacing.small,
-    alignItems: "stretch",
+  potAccent: {
+    position: "absolute",
+    bottom: Spacing.small,
+    height: Spacing.large,
+    borderRadius: Radii.pill,
+    alignSelf: "center",
+    opacity: 0.7,
   },
-  statColumns: {
-    flexDirection: "row",
-    gap: Spacing.small,
-    alignItems: "stretch",
-  },
-  statColumn: {
-    flex: 1,
+  stageSection: {
     gap: Spacing.small,
   },
-  statColumnLeft: {
-    justifyContent: "space-between",
-  },
-  statColumnRight: {
-    justifyContent: "space-between",
-  },
-  statColumnItem: {
-    flex: 1,
-  },
-  statColumnItemSpacer: {
-    flex: 1,
-  },
-  subChipStack: {
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    borderRadius: Radii.lg,
-    backgroundColor: "rgba(255,255,255,0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.18)",
-    shadowColor: Colors.shadow,
-    shadowOpacity: 0.12,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 10,
-    minHeight: 48,
-    justifyContent: "center",
-    alignItems: "stretch",
-  },
-  subChipFull: {
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    borderRadius: Radii.lg,
-    backgroundColor: "rgba(255,255,255,0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.18)",
-    shadowColor: Colors.shadow,
-    shadowOpacity: 0.12,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 10,
-    minHeight: 104,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  subChipLabelWrap: {
+  sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Spacing.tiny,
+    justifyContent: "space-between",
   },
-  subChipLabel: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  subChipValue: {
-    ...Typography.caption,
+  sectionTitle: {
+    ...Typography.body,
+    color: Colors.text,
     fontWeight: "700",
   },
-  subChipInlineValue: {
-    ...Typography.caption,
-    fontWeight: "700",
-    marginLeft: Spacing.small,
-  },
-  subChipMeta: {
+  sectionHint: {
     ...Typography.caption,
     color: Colors.textMuted,
-    fontSize: 11,
   },
-  subChipHint: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    fontSize: 11,
-  },
-  subChipEmoji: {
-    fontSize: 14,
-  },
-  subChipStackContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  tempValueRow: {
-    flexDirection: "row",
-    alignItems: "center",
+  stageSlider: {
     gap: Spacing.small,
+    paddingRight: Spacing.base,
   },
-  tempChipContent: {
-    alignItems: "center",
-    gap: Spacing.small,
-  },
-  tempChipHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.tiny,
-  },
-  progressChip: {
-    marginTop: Spacing.small,
+  stageSlide: {
+    width: 160,
     borderRadius: Radii.lg,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.15)",
-    padding: Spacing.small + Spacing.tiny,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    padding: Spacing.small,
+    gap: Spacing.small,
   },
-  progressChipLabel: {
+  stageSlideHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  stageSlideLabel: {
     ...Typography.caption,
     color: Colors.text,
     fontWeight: "600",
   },
-  progressChipHint: {
+  stageSlidePercent: {
     ...Typography.caption,
-    color: Colors.textMuted,
+    color: Colors.text,
   },
-  progressChipValue: {
-    ...Typography.title,
+  stageSlideBar: {
+    height: 4,
+    borderRadius: Radii.pill,
+    backgroundColor: withAlpha(Colors.text, 0.12),
+    overflow: "hidden",
+  },
+  stageSlideFill: {
+    height: "100%",
+    borderRadius: Radii.pill,
+  },
+  stageTip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.surface, 0.15),
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.45),
+    padding: Spacing.small,
+  },
+  stageTipTitle: {
+    ...Typography.caption,
     color: Colors.text,
     fontWeight: "700",
   },
-  careSuggestionBlock: {
-    gap: Spacing.tiny,
+  stageTipText: {
+    ...Typography.caption,
+    color: Colors.textMuted,
   },
-  careSuggestionHeader: {
+  stageTipClose: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.text, 0.2),
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stageTipCloseText: {
+    color: Colors.text,
+    fontWeight: "700",
+  },
+  statsGrid: {
+    gap: Spacing.small,
+  },
+  statRow: {
+    flexDirection: "row",
+    gap: Spacing.small,
+    justifyContent: "space-between",
+  },
+  statCard: {
+    flex: 1,
+    borderRadius: Radii.xl,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.surface, 0.2),
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.5),
+    padding: Spacing.base,
+    gap: Spacing.small,
+  },
+  statCardWide: {
+    flex: 0.64,
+  },
+  statCardNarrow: {
+    flex: 0.34,
+  },
+  statCardSpacing: {
+    flexGrow: 1,
+  },
+  statLabelLight: {
+    ...Typography.caption,
+    color: withAlpha("#ffffff", 0.9),
+    letterSpacing: 0.8,
+  },
+  statLabelDark: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    letterSpacing: 0.8,
+  },
+  vitalityCard: {
+    backgroundColor: "transparent",
+    borderWidth: 0,
+  },
+  vitalityValueRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  careSuggestionTitle: {
+  vitalityValue: {
+    ...Typography.h1,
+    color: "#ffffff",
+    fontSize: 32,
+  },
+  vitalityHeart: {
+    fontSize: 24,
+    color: "#ffccd7",
+  },
+  vitalityBar: {
+    height: 8,
+    borderRadius: Radii.pill,
+    backgroundColor: withAlpha("#ffffff", 0.25),
+    overflow: "hidden",
+  },
+  vitalityFill: {
+    height: "100%",
+    borderRadius: Radii.pill,
+    backgroundColor: "#ffffff",
+  },
+  vitalityHint: {
+    ...Typography.caption,
+    color: "#ffffff",
+  },
+  bondCard: {
+    backgroundColor: withAlpha(Colors.surface, 0.7),
+  },
+  bondHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  bondMood: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
+  },
+  bondMoodValue: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "700",
+  },
+  bondMoodEmoji: {
+    fontSize: 18,
+  },
+  bondMeter: {
+    gap: Spacing.tiny / 2,
+  },
+  bondMeterHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  bondMeterLabel: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  bondMeterBar: {
+    height: 6,
+    borderRadius: Radii.pill,
+    backgroundColor: withAlpha(Colors.text, 0.1),
+  },
+  bondMeterFill: {
+    height: "100%",
+    borderRadius: Radii.pill,
+  },
+  climateCard: {
+    borderWidth: 0,
+    paddingVertical: Spacing.large,
+    gap: Spacing.small,
+  },
+  climateValueStack: {
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.tiny,
+  },
+  climateValue: {
+    ...Typography.h1,
+    color: Colors.text,
+  },
+  climateIcon: {
+    fontSize: 24,
+  },
+  climateLocation: {
+    ...Typography.caption,
+    color: Colors.text,
+  },
+  climateCondition: {
     ...Typography.body,
     color: Colors.text,
     fontWeight: "600",
   },
-  careSuggestionHint: {
+  climateHintPill: {
+    alignSelf: "flex-start",
+    borderRadius: Radii.pill,
+    backgroundColor: withAlpha("#ffffff", 0.15),
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.tiny,
+  },
+  climateHintText: {
     ...Typography.caption,
-    color: Colors.textMuted,
+    color: "#fff",
   },
-  careSuggestionRow: {
-    gap: Spacing.small,
-    paddingRight: Spacing.base,
+  formCard: {
+    backgroundColor: withAlpha(Colors.secondaryFantasy, 0.16),
+    borderColor: withAlpha(Colors.secondaryFantasy, 0.4),
   },
-  careSuggestionChip: {
-    flexDirection: "row",
+  nextFormStack: {
     alignItems: "center",
     gap: Spacing.small,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    minWidth: 180,
   },
-  careSuggestionChipDisabled: {
-    opacity: 0.5,
-  },
-  careSuggestionInfo: {
-    flex: 1,
-    gap: 2,
-  },
-  careSuggestionLabel: {
-    ...Typography.caption,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-  },
-  careSuggestionMeta: {
+  nextFormRequirement: {
     ...Typography.caption,
     color: Colors.textMuted,
-    fontSize: 11,
   },
-  careSuggestionBadge: {
-    borderWidth: 1,
-    borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny / 2,
-  },
-  careSuggestionBadgeText: {
-    ...Typography.caption,
+  nextFormLabel: {
+    ...Typography.body,
+    color: Colors.text,
     fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
   },
-  companionChip: {
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.15)",
-    backgroundColor: "rgba(255,255,255,0.05)",
-    gap: Spacing.small,
-    minHeight: 96,
+  nextFormHint: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  stageDonut: {
+    width: 82,
+    height: 82,
+    alignItems: "center",
     justifyContent: "center",
   },
-  companionEmpty: {
-    justifyContent: "space-between",
+  stageDonutPercent: {
+    position: "absolute",
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "700",
+  },
+  companionCard: {
+    borderRadius: Radii.xl,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.surface, 0.2),
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.45),
+    padding: Spacing.base,
+    gap: Spacing.small,
   },
   companionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Spacing.small,
+    justifyContent: "space-between",
   },
-  companionEmoji: {
-    fontSize: 20,
-  },
-  companionTitle: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-    fontWeight: "700",
-  },
-  companionPetName: {
+  companionPet: {
     ...Typography.body,
     color: Colors.text,
     fontWeight: "700",
   },
-  companionPetHint: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    fontSize: 11,
-  },
   companionButton: {
     alignSelf: "flex-start",
-  },
-  companionRainbowBorder: {
     borderRadius: Radii.pill,
-    padding: 1,
-  },
-  companionBorder: {
-    borderRadius: Radii.pill,
-  },
-  companionButtonInner: {
-    borderRadius: Radii.pill,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.secondary, 0.6),
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.tiny,
   },
   companionButtonText: {
     ...Typography.caption,
-    color: Colors.text,
+    color: Colors.secondary,
     fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
   },
   potionRow: {
     flexDirection: "row",
-    alignItems: "center",
     gap: Spacing.small,
   },
-  potionLabel: {
-    ...Typography.body,
+  potionChip: {
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.tiny,
+    borderRadius: Radii.pill,
+    backgroundColor: withAlpha(Colors.surface, 0.3),
+  },
+  potionText: {
+    ...Typography.caption,
     color: Colors.text,
     fontWeight: "600",
   },
-  potionHint: {
+  potionMeta: {
     ...Typography.caption,
     color: Colors.textMuted,
-    fontSize: 11,
-  },
-  potionMore: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    fontStyle: "italic",
-  },
-  healthChip: {
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.15)",
-    backgroundColor: "rgba(255,255,255,0.05)",
-    gap: Spacing.tiny,
-    flex: 1,
-  },
-  healthChipHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  healthChipTitle: {
-    ...Typography.caption,
-    color: Colors.text,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-  },
-  healthChipPercent: {
-    ...Typography.body,
-    fontWeight: "700",
-  },
-  healthChipBar: {
-    height: 12,
-    borderRadius: Radii.pill,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    overflow: "hidden",
-  },
-  healthChipFill: {
-    height: "100%",
-    borderRadius: Radii.pill,
-  },
-  healthChipHint: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    fontSize: 11,
-  },
-  stageDonutCard: {
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.15)",
-    backgroundColor: "rgba(0,0,0,0.2)",
-    padding: Spacing.small,
-    alignItems: "center",
-    gap: Spacing.tiny,
-    flex: 1,
-  },
-  stageDonutTitle: {
-    ...Typography.caption,
-    color: Colors.text,
-    fontWeight: "700",
-  },
-  stageDonutSvg: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  stageDonutPercent: {
-    position: "absolute",
-    ...Typography.title,
-    color: Colors.text,
-    fontWeight: "700",
-  },
-  stageDonutHint: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    fontSize: 11,
-  },
-  tempValue: {
-    ...Typography.title,
-    fontSize: 28,
-    fontWeight: "800",
-    paddingVertical: Spacing.tiny,
   },
   ritualCard: {
     borderRadius: Radii.xl,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    backgroundColor: "rgba(26,20,48,0.75)",
+    borderColor: withAlpha(Colors.surface, 0.2),
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.45),
     padding: Spacing.base,
     gap: Spacing.small,
-    shadowColor: Colors.shadow,
-    shadowOpacity: 0.18,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 20,
   },
   ritualHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-  },
-  ritualTitle: {
-    ...Typography.body,
-    color: Colors.text,
-    fontWeight: "600",
+    justifyContent: "space-between",
   },
   ritualCount: {
     ...Typography.body,
+    color: Colors.text,
     fontWeight: "700",
   },
-  ritualHint: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  ritualTags: {
+  ritualTagRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
     gap: Spacing.small,
+    flexWrap: "wrap",
   },
   ritualTag: {
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny,
     borderRadius: Radii.pill,
-    backgroundColor: "rgba(255,255,255,0.08)",
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.text, 0.2),
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.tiny,
   },
   ritualTagText: {
     ...Typography.caption,
     color: Colors.text,
   },
+  suggestionBlock: {
+    gap: Spacing.small,
+  },
+  suggestionRow: {
+    gap: Spacing.small,
+    paddingRight: Spacing.base,
+  },
+  suggestionChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.small,
+    minWidth: 180,
+    gap: Spacing.small,
+  },
+  suggestionLabel: {
+    ...Typography.caption,
+    fontWeight: "700",
+  },
+  suggestionMeta: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontSize: 11,
+  },
+  suggestionBadge: {
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny / 2,
+  },
+  suggestionBadgeText: {
+    ...Typography.caption,
+    fontWeight: "700",
+  },
+  linkText: {
+    ...Typography.caption,
+    color: Colors.secondary,
+    fontWeight: "700",
+  },
 });
-
-function mapWellbeingChip(item, climateInfo) {
-  const value = Math.max(0, Math.min(1, item.value ?? 0));
-  const percent = Math.round(value * 100);
-  switch (item.key) {
-    case "mood": {
-      const moodState =
-        percent >= 75
-          ? { emoji: "😄", text: "Feliz", accent: Colors.success }
-          : percent >= 45
-          ? { emoji: "🙂", text: "Estable", accent: Colors.secondary }
-          : percent >= 25
-          ? { emoji: "😟", text: "Baja", accent: Colors.warning }
-          : { emoji: "😭", text: "Crítica", accent: Colors.danger };
-      return {
-        key: item.key,
-        label: item.label,
-        display: moodState.text,
-        emoji: moodState.emoji,
-        accent: moodState.accent,
-      };
-    }
-    case "temperature": {
-      const tempC = Math.round(15 + value * 15);
-      return {
-        key: item.key,
-        label: item.label,
-        display: `${tempC}°C`,
-        meta: climateInfo?.location
-          ? climateInfo.condition
-            ? `${climateInfo.location} · ${climateInfo.condition}`
-            : climateInfo.location
-          : undefined,
-        fullWidth: true,
-        accent: Colors.warning,
-      };
-    }
-    case "rituals": {
-      const active = Math.max(0, Math.round(value * 4));
-      const tagCount = Math.min(3, Math.max(1, active));
-      return {
-        key: item.key,
-        label: item.label,
-        display: `${active} activos`,
-        tags: Array.from({ length: tagCount }, (_, idx) => `Ritual ${idx + 1}`),
-        accent: Colors.accent,
-      };
-    }
-    case "focus": {
-      const score = Math.max(0, Math.round(value * 5));
-      return {
-        key: item.key,
-        label: item.label,
-        display: `${score}/5`,
-        accent: Colors.info,
-      };
-    }
-    default:
-      return {
-        key: item.key,
-        label: item.label,
-        display: `${percent}%`,
-        accent: Colors.text,
-      };
-  }
-}
-

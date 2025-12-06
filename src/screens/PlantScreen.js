@@ -778,22 +778,11 @@ const HYDRATE_GOAL = 8;
         <View style={styles.heroEdgeSection}>
           <View style={styles.heroHeaderRow}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.heroSectionTitle}>Estado de la planta</Text>
+              <Text style={styles.heroSectionTitle}>Signos</Text>
               <Text style={styles.heroSectionCopy}>
-                Observa métricas, etapa y sugerencias para mantenerla equilibrada.
+                Monitorea humedad, luz, nutrientes y pureza para mantenerla estable.
               </Text>
             </View>
-            <Pressable
-              style={styles.heroSectionButton}
-              onPress={() => {
-                setSelectedSkinId(equippedSkinId);
-                setInvOpen(true);
-              }}
-              accessibilityRole="button"
-              accessibilityLabel="Abrir inventario de la planta"
-            >
-              <Text style={styles.heroSectionButtonText}>Inventario</Text>
-            </Pressable>
           </View>
           <PlantHero
             source={HERO_SPRITE}
