@@ -1,6 +1,13 @@
-﻿import React, { useEffect, useMemo, useRef, useState } from "react";
-import { View, Text, Image, Animated, Pressable, ScrollView, StyleSheet } from "react-native";
-import Svg, { Circle } from "react-native-svg";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  Image,
+  Animated,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
 
@@ -18,12 +25,31 @@ const STAGES = [
 ];
 
 const LEVELS_PER_STAGE = 10;
+const STAT_CARD_HEIGHT = 148;
 
 const CARE_ACCENTS = {
   water: Colors.elementWater,
   light: Colors.accent,
   nutrients: Colors.success,
   purity: Colors.primary,
+};
+
+const SUGGESTION_ICON_MAP = {
+  water: { emoji: "💧", accent: Colors.elementWater },
+  feed: { emoji: "🌱", accent: Colors.elementEarth },
+  clean: { emoji: "🧽", accent: Colors.primary },
+  prune: { emoji: "✂️", accent: Colors.secondary },
+  light: { emoji: "☀️", accent: Colors.elementFire },
+  mist: { emoji: "🌫️", accent: Colors.elementAir },
+  search: { emoji: "🔍", accent: Colors.secondary },
+  meditate: { emoji: "🧘", accent: Colors.ritualCalm },
+  hydrate: { emoji: "🚰", accent: Colors.elementWater },
+  stretch: { emoji: "🤸", accent: Colors.secondary },
+  sunlight: { emoji: "🌞", accent: Colors.elementFire },
+  visualize: { emoji: "💭", accent: Colors.ritualJournal },
+  journal: { emoji: "📓", accent: Colors.ritualJournal },
+  gratitude: { emoji: "🙏", accent: Colors.secondary },
+  restEyes: { emoji: "😌", accent: Colors.ritualCalm },
 };
 
 export default function PlantHero({
@@ -47,6 +73,7 @@ export default function PlantHero({
   const auraAnim = useRef(new Animated.Value(0)).current;
   const sliderRef = useRef(null);
   const [activeStageTip, setActiveStageTip] = useState(null);
+  const [statSlideWidth, setStatSlideWidth] = useState(1);
 
   useEffect(() => {
     if (!showAura) return;
@@ -78,9 +105,13 @@ export default function PlantHero({
     accent: CARE_ACCENTS[item.key] || Colors.primary,
   }));
 
-  const wellbeingChips = wellbeingMetrics.map((item) => mapWellbeingChip(item, climateInfo));
+  const wellbeingChips = wellbeingMetrics.map((item) =>
+    mapWellbeingChip(item, climateInfo)
+  );
   const moodChip = wellbeingChips.find((chip) => chip.key === "mood");
-  const temperatureChip = wellbeingChips.find((chip) => chip.key === "temperature");
+  const temperatureChip = wellbeingChips.find(
+    (chip) => chip.key === "temperature"
+  );
 
   const stageData = useMemo(() => {
     const fallback = {
@@ -104,11 +135,16 @@ export default function PlantHero({
     const stagePercent =
       stageIndex >= STAGES.length - 1
         ? 100
-        : Math.round(Math.max(0, Math.min(1, levelWithin / LEVELS_PER_STAGE)) * 100);
-    const nextStage = stageIndex >= STAGES.length - 1 ? null : STAGES[stageIndex + 1];
+        : Math.round(
+            Math.max(0, Math.min(1, levelWithin / LEVELS_PER_STAGE)) * 100
+          );
+    const nextStage =
+      stageIndex >= STAGES.length - 1 ? null : STAGES[stageIndex + 1];
     const hint =
       stageProgress.etaText ||
-      (nextStage ? `Faltan pasos para ${nextStage.label}` : "Etapa final alcanzada");
+      (nextStage
+        ? `Faltan pasos para ${nextStage.label}`
+        : "Etapa final alcanzada");
     return {
       percentTotal: Math.round(totalPercent * 100),
       stageIndex,
@@ -128,14 +164,61 @@ export default function PlantHero({
   const handleStagePress = (item) => {
     setActiveStageTip((prev) => {
       if (prev?.key === item.key) return null;
-      return { key: item.key, title: item.label, text: STAGE_TIPS[item.key] || stageData.hint };
+      return {
+        key: item.key,
+        title: item.label,
+        text: STAGE_TIPS[item.key] || stageData.hint,
+      };
     });
   };
 
-  const auraScale = auraAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.05] });
-  const auraOpacity = auraAnim.interpolate({ inputRange: [0, 1], outputRange: [0.08, 0.18] });
+  const auraScale = auraAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.05],
+  });
+  const auraOpacity = auraAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.08, 0.18],
+  });
 
-  const safeSuggestions = Array.isArray(careSuggestions) ? careSuggestions.slice(0, 4) : [];
+  const safeSuggestions = Array.isArray(careSuggestions)
+    ? careSuggestions.slice(0, 4)
+    : [];
+
+  const statCards = [
+    {
+      key: "vitality",
+      element: <VitalityCard percent={healthPercent} />,
+    },
+    {
+      key: "bond",
+      element: <BondCard moodChip={moodChip} fallbackMood={mood} />,
+    },
+    {
+      key: "climate",
+      element: (
+        <ClimateCard
+          climateInfo={climateInfo}
+          temperatureChip={temperatureChip}
+        />
+      ),
+    },
+    {
+      key: "next",
+      element: (
+        <NextFormCard
+          percent={stageData.stagePercent}
+          nextStage={stageData.nextStage}
+        />
+      ),
+    },
+  ];
+
+  const statSlideGap = Spacing.base;
+  const statSlideTargetWidth = statSlideWidth ? statSlideWidth * 0.82 : 0;
+  const statsSnapInterval = statSlideTargetWidth
+    ? statSlideTargetWidth + statSlideGap
+    : undefined;
 
   return (
     <View style={styles.container}>
@@ -143,8 +226,19 @@ export default function PlantHero({
         {chips.length ? (
           <View style={styles.metricsColumn}>
             {chips.map((chip) => (
-              <View key={chip.key} style={[styles.metricChip, { borderColor: withAlpha(chip.accent, 0.3) }]}>
-                <View style={[styles.metricAccent, { backgroundColor: chip.accent }]} />
+              <View
+                key={chip.key}
+                style={[
+                  styles.metricChip,
+                  { borderColor: withAlpha(chip.accent, 0.3) },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.metricAccent,
+                    { backgroundColor: chip.accent },
+                  ]}
+                />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.metricLabel}>{chip.label}</Text>
                   <Text style={styles.metricValue}>{chip.percent}%</Text>
@@ -180,11 +274,22 @@ export default function PlantHero({
             ]}
           >
             {source ? (
-              <Image source={source} style={styles.heroImage} resizeMode="contain" />
+              <Image
+                source={source}
+                style={styles.heroImage}
+                resizeMode="contain"
+              />
             ) : (
               <Text style={{ fontSize: baseSize * 0.4 }}>🌱</Text>
             )}
-            {skinAccent ? <View style={[styles.potAccent, { backgroundColor: skinAccent, width: baseSize * 0.6 }]} /> : null}
+            {skinAccent ? (
+              <View
+                style={[
+                  styles.potAccent,
+                  { backgroundColor: skinAccent, width: baseSize * 0.6 },
+                ]}
+              />
+            ) : null}
           </Animated.View>
         </View>
       </View>
@@ -223,67 +328,53 @@ export default function PlantHero({
               <Text style={styles.stageTipTitle}>{activeStageTip.title}</Text>
               <Text style={styles.stageTipText}>{activeStageTip.text}</Text>
             </View>
-            <Pressable onPress={() => setActiveStageTip(null)} style={styles.stageTipClose}>
+            <Pressable
+              onPress={() => setActiveStageTip(null)}
+              style={styles.stageTipClose}
+            >
               <Text style={styles.stageTipCloseText}>×</Text>
             </Pressable>
           </View>
         ) : null}
       </View>
 
-      <View style={styles.statsGrid}>
-        <View style={styles.statRow}>
-          <VitalityCard
-            percent={healthPercent}
-            style={[styles.statCardWide, styles.statCardSpacing]}
-          />
-          <BondCard
-            moodChip={moodChip}
-            fallbackMood={mood}
-            style={[styles.statCardNarrow, styles.statCardSpacing]}
-          />
-        </View>
-        <View style={styles.statRow}>
-          <ClimateCard
-            climateInfo={climateInfo}
-            temperatureChip={temperatureChip}
-            style={[styles.statCardWide, styles.statCardSpacing]}
-          />
-          <NextFormCard
-            percent={stageData.stagePercent}
-            nextStage={stageData.nextStage}
-            style={[styles.statCardNarrow, styles.statCardSpacing]}
-          />
-        </View>
+      <View
+        style={styles.statsCarousel}
+        onLayout={(event) => setStatSlideWidth(event.nativeEvent.layout.width)}
+      >
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          decelerationRate="fast"
+          snapToAlignment="start"
+          snapToInterval={statsSnapInterval}
+          contentContainerStyle={styles.statsSlides}
+        >
+          {statCards.map((item, index) => (
+            <View
+              key={item.key}
+              style={[
+                styles.statSlide,
+                statSlideTargetWidth ? { width: statSlideTargetWidth } : null,
+                index < statCards.length - 1
+                  ? { marginRight: statSlideGap }
+                  : null,
+              ]}
+            >
+              <View style={styles.statSlideInner}>{item.element}</View>
+            </View>
+          ))}
+        </ScrollView>
       </View>
 
       <CompanionCard status={companionStatus} onPress={onPressCompanion} />
 
-      {ritualSummary ? <RitualCard summary={ritualSummary} /> : null}
-
-      {safeSuggestions.length ? (
-        <View style={styles.suggestionBlock}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Cuidados sugeridos</Text>
-            <Text style={styles.sectionHint}>Equilibra tus métricas</Text>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestionRow}>
-            {safeSuggestions.map((item) => {
-              const severity = getSeverity(item.deficit);
-              const cooldown = item.cooldownMs && item.cooldownMs > 0 ? formatCooldown(item.cooldownMs) : null;
-              return (
-                <CareSuggestionChip
-                  key={item.key}
-                  label={item.label}
-                  accent={item.accent}
-                  severity={severity}
-                  cooldown={cooldown}
-                  disabled={Boolean(cooldown)}
-                  onPress={() => onPressCareSuggestion?.(item.key)}
-                />
-              );
-            })}
-          </ScrollView>
-        </View>
+      {ritualSummary || safeSuggestions.length ? (
+        <MicroMissionsCard
+          ritualSummary={ritualSummary}
+          suggestions={safeSuggestions}
+          onPressMission={onPressCareSuggestion}
+        />
       ) : null}
     </View>
   );
@@ -310,13 +401,18 @@ function StageSlide({ stage, active, completed, percent, onPress }) {
     >
       <View style={styles.stageSlideHeader}>
         <Text style={styles.stageSlideLabel}>{stage.label}</Text>
-        <Text style={styles.stageSlidePercent}>{completed ? "100%" : active ? `${Math.max(percent, 5)}%` : "0%"}</Text>
+        <Text style={styles.stageSlidePercent}>
+          {completed ? "100%" : active ? `${Math.max(percent, 5)}%` : "0%"}
+        </Text>
       </View>
       <View style={styles.stageSlideBar}>
         <View
           style={[
             styles.stageSlideFill,
-            { width: `${completed ? 100 : active ? Math.max(percent, 5) : 0}%`, backgroundColor: stage.accent },
+            {
+              width: `${completed ? 100 : active ? Math.max(percent, 5) : 0}%`,
+              backgroundColor: stage.accent,
+            },
           ]}
         />
       </View>
@@ -325,26 +421,34 @@ function StageSlide({ stage, active, completed, percent, onPress }) {
 }
 
 function VitalityCard({ percent, style }) {
+  const safePercent = Math.max(0, Math.min(100, percent));
   const descriptor =
-    percent >= 80
+    safePercent >= 80
       ? "Sistema de raíces fuerte."
-      : percent >= 55
+      : safePercent >= 55
       ? "Estable, sigue hidratando."
       : "Necesita cuidados urgentes.";
+  const progressWidth = `${Math.max(8, safePercent)}%`;
   return (
     <LinearGradient
-      colors={["#3bb475", "#1d7c5e"]}
+      colors={["#2fc578", "#157050"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={[styles.statCard, styles.vitalityCard, style]}
+      style={[styles.vitalityCard, style]}
     >
-      <Text style={styles.statLabelLight}>VITALIDAD</Text>
-      <View style={styles.vitalityValueRow}>
-        <Text style={styles.vitalityValue}>{percent}%</Text>
-        <Text style={styles.vitalityHeart}>❤</Text>
+      <View style={styles.vitalityHeader}>
+        <Text style={styles.vitalityLabel}>VITALIDAD</Text>
+        <Text style={styles.vitalityHeart}>❤️</Text>
       </View>
+      <Text style={styles.vitalityValue}>{safePercent}%</Text>
       <View style={styles.vitalityBar}>
-        <View style={[styles.vitalityFill, { width: `${Math.max(10, percent)}%` }]} />
+        <View style={styles.vitalityBarTrack} />
+        <LinearGradient
+          colors={["#f5fff5", "#b5f2c7"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={[styles.vitalityBarFill, { width: progressWidth }]}
+        />
       </View>
       <Text style={styles.vitalityHint}>{descriptor}</Text>
     </LinearGradient>
@@ -355,29 +459,42 @@ function BondCard({ moodChip, fallbackMood, style }) {
   const moodValue = moodChip?.display || fallbackMood || "Estable";
   const moodEmoji = moodChip?.emoji || "😊";
   return (
-    <View style={[styles.statCard, styles.bondCard, style]}>
+    <LinearGradient
+      colors={["#2c1741", "#140c25"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={[styles.bondCard, style]}
+    >
       <View style={styles.bondHeader}>
-        <Text style={styles.statLabelDark}>VÍNCULO</Text>
-        <View style={styles.bondMood}>
+        <Text style={styles.bondLabel}>VÍNCULO</Text>
+        <View style={styles.bondMoodTag}>
           <Text style={styles.bondMoodValue}>{moodValue}</Text>
           <Text style={styles.bondMoodEmoji}>{moodEmoji}</Text>
         </View>
       </View>
-      <BondMeter label="Confianza" value={78} accent="#FFC04D" />
-      <BondMeter label="Sincronía" value={62} accent="#af8bff" />
-    </View>
+      <BondMeter label="Confianza" value={78} accent="#ffc04d" />
+      <BondMeter label="Sincronía" value={62} accent="#b18bff" />
+    </LinearGradient>
   );
 }
 
 function BondMeter({ label, value, accent }) {
+  const safeValue = Math.max(0, Math.min(100, value));
   return (
     <View style={styles.bondMeter}>
       <View style={styles.bondMeterHeader}>
         <Text style={styles.bondMeterLabel}>{label}</Text>
-        <Text style={[styles.bondMeterLabel, { color: accent }]}>{value}%</Text>
+        <Text style={[styles.bondMeterValue, { color: accent }]}>
+          {safeValue}%
+        </Text>
       </View>
-      <View style={styles.bondMeterBar}>
-        <View style={[styles.bondMeterFill, { width: `${Math.max(8, value)}%`, backgroundColor: accent }]} />
+      <View style={styles.bondMeterTrack}>
+        <View
+          style={[
+            styles.bondMeterFill,
+            { width: `${Math.max(8, safeValue)}%`, backgroundColor: accent },
+          ]}
+        />
       </View>
     </View>
   );
@@ -386,44 +503,55 @@ function BondMeter({ label, value, accent }) {
 function ClimateCard({ climateInfo = {}, temperatureChip, style }) {
   const parsedTemp =
     climateInfo?.tempC ??
-    (temperatureChip?.display ? parseInt(temperatureChip.display, 10) : undefined);
+    (temperatureChip?.display
+      ? parseInt(temperatureChip.display, 10)
+      : undefined);
   const tempDisplay =
     parsedTemp !== undefined && !Number.isNaN(parsedTemp)
       ? `${parsedTemp}°C`
-      : temperatureChip?.display || "—°C";
-  const location = climateInfo?.location || "";
+      : temperatureChip?.display || "-°C";
+  const location = climateInfo?.location || temperatureChip?.meta || "";
   const conditionRaw =
     climateInfo?.status ||
     climateInfo?.condition ||
-    temperatureChip?.label ||
+    climateInfo?.descriptor ||
+    climateInfo?.summary ||
+    climateInfo?.weatherLabel ||
+    climateInfo?.shortStatus ||
     "Clima estable";
-  const showCondition =
-    conditionRaw &&
-    (!location || conditionRaw.trim().toLowerCase() !== location.trim().toLowerCase());
-  const hintCandidate = climateInfo?.flowHint || climateInfo?.hint || temperatureChip?.meta || "";
-  const flowHint =
-    hintCandidate &&
-    (!location || hintCandidate.trim().toLowerCase() !== location.trim().toLowerCase())
-      ? hintCandidate
-      : "El flujo de mana es óptimo.";
+  const hintCandidate = climateInfo?.flowHint || climateInfo?.hint || "";
+  const flowHint = hintCandidate || "El flujo de mana es optimo.";
+  const humidity = climateInfo?.humidity
+    ? `Humedad ${climateInfo.humidity}%`
+    : null;
+  const trendText = climateInfo?.trendText || climateInfo?.trend || null;
+  const detailText = [trendText, humidity].filter(Boolean).join(" • ");
   const icon = climateInfo?.icon || "🌤️";
   return (
     <LinearGradient
-      colors={["#2f3d9f", "#14152f"]}
+      colors={["#1c2b6b", "#11163c"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={[styles.statCard, styles.climateCard, style]}
+      style={[styles.climateCard, style]}
     >
-      <Text style={styles.statLabelLight}>CLIMA DE MANA</Text>
-      <View style={styles.climateValueStack}>
+      <View style={styles.climateHeader}>
+        <Text style={styles.climateLabel}>CLIMA DE MANA</Text>
+        {location ? (
+          <Text style={styles.climateLocationMeta}>{location}</Text>
+        ) : null}
+      </View>
+      <View style={styles.climateInfoRow}>
         <Text style={styles.climateValue}>{tempDisplay}</Text>
         <Text style={styles.climateIcon}>{icon}</Text>
       </View>
-      {showCondition ? <Text style={styles.climateCondition}>{conditionRaw}</Text> : null}
-      {location ? <Text style={styles.climateLocation}>{location}</Text> : null}
-      <View style={styles.climateHintPill}>
-        <Text style={styles.climateHintText}>⚡ {flowHint}</Text>
+      <Text style={styles.climateCondition}>{conditionRaw}</Text>
+      <View style={styles.climateFlowPill}>
+        <Text style={styles.climateFlowIcon}>💡</Text>
+        <Text style={styles.climateFlowText}>{flowHint}</Text>
       </View>
+      {detailText ? (
+        <Text style={styles.climateTrendText}>{detailText}</Text>
+      ) : null}
     </LinearGradient>
   );
 }
@@ -431,6 +559,7 @@ function ClimateCard({ climateInfo = {}, temperatureChip, style }) {
 function NextFormCard({ percent = 0, nextStage, style }) {
   const remaining = Math.max(0, 100 - percent);
   const nextLabel = nextStage?.label || "Forma final";
+  const accent = nextStage?.accent || Colors.secondary;
   const hasNext = Boolean(nextStage);
   const statusLabel = !hasNext
     ? "Etapa máxima alcanzada"
@@ -442,78 +571,114 @@ function NextFormCard({ percent = 0, nextStage, style }) {
     : remaining > 0
     ? `Tu planta se prepara para ${nextLabel.toLowerCase()}.`
     : `Tu planta puede convertirse en ${nextLabel.toLowerCase()}.`;
+  const helperTip = hasNext
+    ? "Completa rituales para acelerar el avance."
+    : "Mantén el flujo estable para conservar la forma.";
   return (
-    <View style={[styles.statCard, styles.formCard, style]}>
-      <Text style={styles.statLabelDark}>PRÓXIMA FORMA</Text>
-      <View style={styles.nextFormStack}>
-        <StageProgressDonut percent={percent} />
-        <Text style={styles.nextFormLabel}>{nextLabel}</Text>
-        <Text style={styles.nextFormRequirement}>{statusLabel}</Text>
-        <Text style={styles.nextFormHint}>{narrative}</Text>
+    <LinearGradient
+      colors={["#4b2b16", "#1f1208"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={[styles.formCard, style]}
+    >
+      <View style={styles.formHeader}>
+        <Text style={styles.formLabel}>PRÓXIMA FORMA</Text>
+        <View style={styles.formStageBadge}>
+          <Text style={styles.formStageBadgeText}>En progreso</Text>
+        </View>
       </View>
-    </View>
-  );
-}
-
-function StageProgressDonut({ percent }) {
-  const size = 82;
-  const strokeWidth = 9;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const clamped = Math.max(0, Math.min(100, percent));
-  const offset = circumference - (clamped / 100) * circumference;
-  return (
-    <View style={styles.stageDonut}>
-      <Svg width={size} height={size}>
-        <Circle
-          stroke={withAlpha(Colors.text, 0.1)}
-          fill="none"
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          strokeWidth={strokeWidth}
-        />
-        <Circle
-          stroke={Colors.secondary}
-          fill="none"
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          strokeWidth={strokeWidth}
-          strokeDasharray={`${circumference} ${circumference}`}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        />
-      </Svg>
-      <Text style={styles.stageDonutPercent}>{clamped}%</Text>
-    </View>
+      <View style={styles.nextFormStack}>
+        <View style={styles.nextFormMainRow}>
+          <Text style={styles.nextFormPercent}>{Math.round(percent)}%</Text>
+          <View style={styles.formCopy}>
+            <Text style={styles.nextFormLabel}>{nextLabel}</Text>
+            <Text style={styles.nextFormRequirement}>{statusLabel}</Text>
+          </View>
+        </View>
+        <View style={styles.nextFormProgressTrack}>
+          <View
+            style={[
+              styles.nextFormProgressFill,
+              {
+                width: `${Math.max(8, Math.min(100, percent))}%`,
+                backgroundColor: accent,
+              },
+            ]}
+          />
+        </View>
+      </View>
+      <View
+        style={[
+          styles.formTipChip,
+          { backgroundColor: withAlpha(accent, 0.12) },
+        ]}
+      >
+        <Text style={[styles.formTipIcon, { color: accent }]}>✨</Text>
+        <Text style={styles.formTipText}>{helperTip}</Text>
+      </View>
+    </LinearGradient>
   );
 }
 
 function CompanionCard({ status, onPress }) {
   const potions = status?.potions ?? [];
-  if (!status?.pet && potions.length === 0) {
+  const hasActiveLoadout = Boolean(status?.pet || potions.length);
+  const demoPets = [
+    { id: "aurin", emoji: "\u{1F408}", name: "Aurin" },
+    { id: "nix", emoji: "\u{1F98B}", name: "Nix" },
+  ];
+
+  if (!hasActiveLoadout) {
     return (
-      <View style={styles.companionCard}> 
-        <Text style={styles.sectionTitle}>Sin compañero activo</Text>
-        <Text style={styles.sectionHint}>Equipa una mascota o poción para proteger la planta.</Text>
-        <Pressable style={styles.companionButton} onPress={onPress}>
-          <Text style={styles.companionButtonText}>Ver inventario</Text>
-        </Pressable>
-      </View>
+      <LinearGradient
+        colors={["#36124f", "#180926"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.companionCard, styles.companionCardEmpty]}
+      >
+        <View style={styles.companionEmptyCopy}>
+          <Text style={styles.companionEmptyTitle}>Sin compañero activo</Text>
+          <Text style={styles.companionEmptySubtitle}>
+            Equipa una mascota o poción para proteger la planta.
+          </Text>
+          <Pressable style={styles.companionButton} onPress={onPress}>
+            <Text style={styles.companionButtonText}>Ver inventario</Text>
+          </Pressable>
+        </View>
+        <View style={styles.companionPetsPreview}>
+          <Text style={styles.companionPetsTitle}>Mascotas sugeridas</Text>
+          <View style={styles.companionPetsRow}>
+            {demoPets.map((pet) => (
+              <View key={pet.id} style={styles.companionPetBadge}>
+                <View style={styles.companionPetAvatar}>
+                  <Text style={styles.companionPetEmoji}>{pet.emoji}</Text>
+                </View>
+                <Text style={styles.companionPetLabel}>{pet.name}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </LinearGradient>
     );
   }
+
   return (
-    <View style={styles.companionCard}>
-      <View style={styles.companionHeader}> 
+    <LinearGradient
+      colors={["#281335", "#190c25"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.companionCard}
+    >
+      <View style={styles.companionHeader}>
         <Text style={styles.sectionTitle}>Compañero activo</Text>
         <Pressable onPress={onPress}>
           <Text style={styles.linkText}>Cambiar</Text>
         </Pressable>
       </View>
       {status.pet ? (
-        <Text style={styles.companionPet}>{status.pet.name} {status.pet.emoji || "🐾"}</Text>
+        <Text style={styles.companionPet}>
+          {status.pet.name} {status.pet.emoji || "\u{1F432}"}
+        </Text>
       ) : null}
       {potions.length ? (
         <View style={styles.potionRow}>
@@ -525,66 +690,158 @@ function CompanionCard({ status, onPress }) {
           ))}
         </View>
       ) : null}
-    </View>
+    </LinearGradient>
   );
 }
+function MicroMissionsCard({
+  ritualSummary,
+  suggestions = [],
+  onPressMission,
+}) {
+  const fallbackMissions = [
+    {
+      id: "clean_leaves",
+      key: "clean",
+      title: "Limpiar hojas",
+      subtitle: "Detectado polvo astral",
+      reward: "+50 XP",
+      accent: "#5f2a88",
+      emoji: "\u{1F9FD}",
+    },
+    {
+      id: "mist",
+      key: "mist",
+      title: "Neblina",
+      subtitle: "Aumenta humedad",
+      reward: "+20 XP",
+      accent: "#1b3d8c",
+      emoji: "\u{1F32B}",
+    },
+  ];
 
-function RitualCard({ summary }) {
-  const tags = summary.tags?.slice(0, 4) || [];
+  const missionsRaw = suggestions.slice(0, 2).map((item, index) => {
+    const severity = getSeverity(item.deficit);
+    const iconInfo = SUGGESTION_ICON_MAP[item.key] || {
+      emoji: fallbackMissions[index]?.emoji || "?",
+      accent: fallbackMissions[index]?.accent || Colors.secondary,
+    };
+    return {
+      id: item.key,
+      key: item.key,
+      title: item.label,
+      subtitle:
+        severity.label === "Alto"
+          ? "Debes atenderlo hoy"
+          : severity.label === "Medio"
+          ? "Refuerza el flujo pronto"
+          : "Mantén el flujo estable",
+      reward:
+        severity.label === "Alto"
+          ? "+50 XP"
+          : severity.label === "Medio"
+          ? "+30 XP"
+          : "+20 XP",
+      accent: iconInfo.accent,
+      emoji: iconInfo.emoji,
+    };
+  });
+
+  const missions = missionsRaw.length ? missionsRaw : fallbackMissions;
+  const activeTags = ritualSummary?.tags?.slice(0, 3);
+  const activeCount = ritualSummary?.active ?? 0;
+  const totalCount = ritualSummary?.total ?? 8;
+
   return (
-    <View style={styles.ritualCard}>
-      <View style={styles.ritualHeader}>
-        <Text style={styles.sectionTitle}>Rituales</Text>
-        <Text style={styles.ritualCount}>{`${summary.active} / ${summary.total}`}</Text>
-      </View>
-      <Text style={styles.sectionHint}>Tus hábitos personales mantienen motivada a la planta.</Text>
-      {tags.length ? (
-        <View style={styles.ritualTagRow}>
-          {tags.map((tag) => (
-            <View key={tag} style={styles.ritualTag}>
-              <Text style={styles.ritualTagText}>{tag}</Text>
-            </View>
+    <View style={styles.microShell}>
+      <LinearGradient
+        colors={["#1a0f2f", "#0f071d"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.ritualCard}
+      >
+        <View style={styles.microHeader}>
+          <View style={styles.microHeaderCopy}>
+            <Text style={styles.ritualLabel}>MICRO-MISIONES</Text>
+            <Text style={styles.microSubtitle}>
+              Activa un ritual personal para potenciar tus misiones.
+            </Text>
+          </View>
+          <View style={styles.ritualSummaryBadge}>
+            <Text
+              style={styles.ritualSummaryText}
+            >{`${activeCount}/${totalCount}`}</Text>
+          </View>
+        </View>
+        {activeTags?.length ? (
+          <View style={styles.ritualTagsRow}>
+            {activeTags.map((tag) => (
+              <View key={tag} style={styles.ritualTagChip}>
+                <Text style={styles.ritualTagText}>{tag}</Text>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <Text style={styles.microActiveTextMuted}>
+            Aún no tienes rituales activos.
+          </Text>
+        )}
+        <View style={styles.ritualList}>
+          {missions.map((mission, index) => (
+            <Pressable
+              key={mission.id}
+              onPress={() => onPressMission?.(mission.key)}
+              style={styles.missionPressable}
+            >
+              <LinearGradient
+                colors={
+                  index === 0 ? ["#4c1f6b", "#2c1348"] : ["#15294f", "#0e1735"]
+                }
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.missionRow}
+              >
+                <View
+                  style={[
+                    styles.missionIconWrap,
+                    {
+                      backgroundColor: withAlpha(
+                        mission.accent || Colors.secondary,
+                        0.3
+                      ),
+                    },
+                  ]}
+                >
+                  <Text style={styles.missionIcon}>{mission.emoji || "?"}</Text>
+                </View>
+                <View style={styles.missionCopy}>
+                  <Text style={styles.missionTitle}>{mission.title}</Text>
+                  <Text style={styles.missionSubtitle}>{mission.subtitle}</Text>
+                </View>
+                <LinearGradient
+                  colors={["#30e49c", "#18c678"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.missionReward}
+                >
+                  <Text style={styles.missionRewardText}>{mission.reward}</Text>
+                </LinearGradient>
+              </LinearGradient>
+            </Pressable>
           ))}
         </View>
-      ) : null}
+      </LinearGradient>
     </View>
   );
 }
-
-function CareSuggestionChip({ label, accent, severity, cooldown, disabled, onPress }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      style={[
-        styles.suggestionChip,
-        {
-          borderColor: withAlpha(accent || Colors.primary, 0.35),
-          backgroundColor: withAlpha(accent || Colors.primary, 0.12),
-          opacity: disabled ? 0.5 : 1,
-        },
-      ]}
-    >
-      <View style={{ flex: 1 }}>
-        <Text style={[styles.suggestionLabel, { color: accent || Colors.primary }]}>{label}</Text>
-        <Text style={styles.suggestionMeta}>{cooldown ? `Disponible en ${cooldown}` : "Listo"}</Text>
-      </View>
-      {severity.label ? (
-        <View style={styles.suggestionBadge}>
-          <Text style={[styles.suggestionBadgeText, { color: severity.color }]}>{severity.label}</Text>
-        </View>
-      ) : null}
-    </Pressable>
-  );
-}
-
 function mapWellbeingChip(item, climateInfo) {
   const value = Math.max(0, Math.min(1, item.value ?? 0));
   const percent = Math.round(value * 100);
   switch (item.key) {
     case "mood": {
-      if (percent >= 75) return { key: item.key, display: "Feliz", emoji: "😊" };
-      if (percent >= 45) return { key: item.key, display: "Estable", emoji: "🙂" };
+      if (percent >= 75)
+        return { key: item.key, display: "Feliz", emoji: "😊" };
+      if (percent >= 45)
+        return { key: item.key, display: "Estable", emoji: "🙂" };
       return { key: item.key, display: "Baja", emoji: "😕" };
     }
     case "temperature": {
@@ -620,7 +877,11 @@ function formatCooldown(ms = 0) {
 const withAlpha = (hex = "", alpha = 1) => {
   if (!hex) return hex;
   let cleaned = `${hex}`.replace("#", "").trim();
-  if (cleaned.length === 3) cleaned = cleaned.split("").map((c) => c + c).join("");
+  if (cleaned.length === 3)
+    cleaned = cleaned
+      .split("")
+      .map((c) => c + c)
+      .join("");
   const value = parseInt(cleaned, 16);
   const r = (value >> 16) & 255;
   const g = (value >> 8) & 255;
@@ -779,94 +1040,112 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   statsGrid: {
-    gap: Spacing.small,
+    gap: Spacing.base,
   },
-  statRow: {
-    flexDirection: "row",
-    gap: Spacing.small,
-    justifyContent: "space-between",
+  statsCarousel: {
+    gap: Spacing.base,
   },
-  statCard: {
-    flex: 1,
-    borderRadius: Radii.xl,
-    borderWidth: 1,
-    borderColor: withAlpha(Colors.surface, 0.2),
-    backgroundColor: withAlpha(Colors.surfaceElevated, 0.5),
-    padding: Spacing.base,
-    gap: Spacing.small,
+  statsSlides: {
+    alignItems: "stretch",
+    paddingLeft: 0,
+    paddingRight: 0,
   },
-  statCardWide: {
-    flex: 0.64,
+  statSlide: {
+    flexGrow: 0,
   },
-  statCardNarrow: {
-    flex: 0.34,
-  },
-  statCardSpacing: {
-    flexGrow: 1,
+  statSlideInner: {
+    height: STAT_CARD_HEIGHT,
+    justifyContent: "center",
+    width: "100%",
   },
   statLabelLight: {
     ...Typography.caption,
-    color: withAlpha("#ffffff", 0.9),
-    letterSpacing: 0.8,
-  },
-  statLabelDark: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    letterSpacing: 0.8,
+    color: withAlpha("#ffffff", 0.8),
+    letterSpacing: 0.6,
   },
   vitalityCard: {
-    backgroundColor: "transparent",
-    borderWidth: 0,
+    flex: 1,
+    borderRadius: 18,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.small + 2,
+    gap: Spacing.small,
   },
-  vitalityValueRow: {
+  vitalityHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
+  vitalityLabel: {
+    ...Typography.caption,
+    color: withAlpha("#e6fff4", 0.9),
+    letterSpacing: 1,
+  },
   vitalityValue: {
     ...Typography.h1,
     color: "#ffffff",
-    fontSize: 32,
+    fontSize: 30,
+    lineHeight: 30,
+    fontWeight: "800",
+    marginTop: -4,
+    marginBottom: -2,
   },
   vitalityHeart: {
-    fontSize: 24,
-    color: "#ffccd7",
+    fontSize: 20,
+    color: "#ff8ba3",
   },
   vitalityBar: {
     height: 8,
     borderRadius: Radii.pill,
-    backgroundColor: withAlpha("#ffffff", 0.25),
     overflow: "hidden",
+    marginTop: Spacing.tiny,
+    position: "relative",
   },
-  vitalityFill: {
+  vitalityBarTrack: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: withAlpha("#8ce2b1", 0.35),
+  },
+  vitalityBarFill: {
     height: "100%",
     borderRadius: Radii.pill,
-    backgroundColor: "#ffffff",
   },
   vitalityHint: {
-    ...Typography.caption,
-    color: "#ffffff",
+    ...Typography.body,
+    color: withAlpha("#ffffff", 0.9),
+    fontSize: 12,
   },
   bondCard: {
-    backgroundColor: withAlpha(Colors.surface, 0.7),
+    flex: 1,
+    borderRadius: 18,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.base,
+    gap: Spacing.base,
   },
   bondHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  bondMood: {
+  bondLabel: {
+    ...Typography.caption,
+    color: withAlpha("#ffffff", 0.8),
+    letterSpacing: 0.9,
+  },
+  bondMoodTag: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.tiny,
   },
   bondMoodValue: {
     ...Typography.body,
-    color: Colors.text,
+    color: "#ffe48d",
     fontWeight: "700",
   },
   bondMoodEmoji: {
-    fontSize: 18,
+    fontSize: 16,
   },
   bondMeter: {
     gap: Spacing.tiny / 2,
@@ -878,61 +1157,132 @@ const styles = StyleSheet.create({
   },
   bondMeterLabel: {
     ...Typography.caption,
-    color: Colors.textMuted,
+    color: withAlpha("#f0e9ff", 0.8),
   },
-  bondMeterBar: {
+  bondMeterValue: {
+    ...Typography.caption,
+    fontWeight: "700",
+  },
+  bondMeterTrack: {
     height: 6,
     borderRadius: Radii.pill,
-    backgroundColor: withAlpha(Colors.text, 0.1),
+    backgroundColor: withAlpha("#ffffff", 0.12),
   },
   bondMeterFill: {
     height: "100%",
     borderRadius: Radii.pill,
   },
   climateCard: {
-    borderWidth: 0,
-    paddingVertical: Spacing.large,
+    flex: 1,
+    borderRadius: 18,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.base,
     gap: Spacing.small,
+    position: "relative",
   },
-  climateValueStack: {
+  climateHeader: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: Spacing.tiny,
+    justifyContent: "space-between",
+  },
+  climateLabel: {
+    ...Typography.caption,
+    color: withAlpha("#d0e2ff", 0.9),
+    letterSpacing: 0.9,
+  },
+  climateInfoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
   },
   climateValue: {
     ...Typography.h1,
     color: Colors.text,
+    fontSize: 26,
   },
   climateIcon: {
-    fontSize: 24,
-  },
-  climateLocation: {
-    ...Typography.caption,
-    color: Colors.text,
+    fontSize: 22,
   },
   climateCondition: {
     ...Typography.body,
     color: Colors.text,
     fontWeight: "600",
   },
-  climateHintPill: {
-    alignSelf: "flex-start",
-    borderRadius: Radii.pill,
-    backgroundColor: withAlpha("#ffffff", 0.15),
+  climateLocationMeta: {
+    ...Typography.caption,
+    color: withAlpha("#d0e2ff", 0.85),
+  },
+  climateFlowPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
+    borderRadius: 6,
+    backgroundColor: withAlpha("#ffffff", 0.1),
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.tiny,
+    marginTop: Spacing.small,
   },
-  climateHintText: {
+  climateFlowIcon: {
+    fontSize: 14,
+    color: Colors.secondary,
+  },
+  climateFlowText: {
     ...Typography.caption,
-    color: "#fff",
+    color: Colors.text,
+  },
+  climateTrendText: {
+    ...Typography.caption,
+    color: withAlpha(Colors.textMuted, 0.85),
   },
   formCard: {
-    backgroundColor: withAlpha(Colors.secondaryFantasy, 0.16),
-    borderColor: withAlpha(Colors.secondaryFantasy, 0.4),
+    flex: 1,
+    borderRadius: 18,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.small + 2,
+    gap: Spacing.tiny + 2,
+  },
+  formHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  formLabel: {
+    ...Typography.caption,
+    color: withAlpha("#ffe6c5", 0.85),
+    letterSpacing: 0.9,
+  },
+  formStageBadge: {
+    borderRadius: Radii.pill,
+    borderWidth: 1,
+    borderColor: withAlpha("#ffffff", 0.35),
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.tiny,
+    backgroundColor: withAlpha("#ffffff", 0.12),
+  },
+  formStageBadgeText: {
+    ...Typography.caption,
+    color: Colors.text,
+    fontWeight: "600",
   },
   nextFormStack: {
-    alignItems: "center",
     gap: Spacing.small,
+  },
+  nextFormMainRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.base,
+  },
+  formCopy: {
+    flex: 1,
+    gap: Spacing.tiny / 4,
+    minWidth: 0,
+  },
+  nextFormPercent: {
+    ...Typography.body,
+    color: Colors.text,
+    fontSize: 25,
+    lineHeight: 28,
+    fontWeight: "700",
   },
   nextFormRequirement: {
     ...Typography.caption,
@@ -943,29 +1293,44 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontWeight: "700",
   },
-  nextFormHint: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  stageDonut: {
-    width: 82,
-    height: 82,
+  formTipChip: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    gap: Spacing.tiny,
+    alignSelf: "flex-start",
+    borderRadius: 6,
+    marginTop: Spacing.small,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.tiny,
   },
-  stageDonutPercent: {
-    position: "absolute",
-    ...Typography.body,
+  formTipIcon: {
+    fontSize: 14,
+  },
+  formTipText: {
+    ...Typography.caption,
     color: Colors.text,
-    fontWeight: "700",
+  },
+  nextFormProgressTrack: {
+    height: 6,
+    borderRadius: Radii.pill,
+    backgroundColor: withAlpha("#ffffff", 0.18),
+    overflow: "hidden",
+  },
+  nextFormProgressFill: {
+    height: "100%",
+    borderRadius: Radii.pill,
   },
   companionCard: {
     borderRadius: Radii.xl,
     borderWidth: 1,
-    borderColor: withAlpha(Colors.surface, 0.2),
-    backgroundColor: withAlpha(Colors.surfaceElevated, 0.45),
+    borderColor: withAlpha(Colors.surface, 0.3),
     padding: Spacing.base,
     gap: Spacing.small,
+  },
+  companionCardEmpty: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: Spacing.large,
   },
   companionHeader: {
     flexDirection: "row",
@@ -977,11 +1342,66 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontWeight: "700",
   },
+  companionEmptyCopy: {
+    flex: 1,
+    gap: Spacing.small,
+  },
+  companionEmptyTitle: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "700",
+    fontSize: 18,
+  },
+  companionEmptySubtitle: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  companionPetsPreview: {
+    flex: 1,
+    gap: Spacing.small,
+  },
+  companionPetsTitle: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  companionPetsRow: {
+    flexDirection: "row",
+    gap: Spacing.small,
+    flexWrap: "wrap",
+  },
+  companionPetBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small / 2,
+    paddingHorizontal: Spacing.small,
+    paddingVertical: Spacing.tiny,
+    borderRadius: Radii.lg,
+    backgroundColor: withAlpha("#000000", 0.25),
+  },
+  companionPetAvatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: withAlpha("#ffffff", 0.08),
+  },
+  companionPetEmoji: {
+    fontSize: 18,
+  },
+  companionPetLabel: {
+    ...Typography.caption,
+    color: Colors.text,
+    fontWeight: "600",
+  },
   companionButton: {
     alignSelf: "flex-start",
     borderRadius: Radii.pill,
     borderWidth: 1,
-    borderColor: withAlpha(Colors.secondary, 0.6),
+    borderColor: withAlpha(Colors.secondary, 0.8),
+    backgroundColor: withAlpha(Colors.secondary, 0.12),
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.tiny,
   },
@@ -1009,33 +1429,50 @@ const styles = StyleSheet.create({
     ...Typography.caption,
     color: Colors.textMuted,
   },
-  ritualCard: {
+  microShell: {
     borderRadius: Radii.xl,
     borderWidth: 1,
-    borderColor: withAlpha(Colors.surface, 0.2),
-    backgroundColor: withAlpha(Colors.surfaceElevated, 0.45),
-    padding: Spacing.base,
-    gap: Spacing.small,
+    borderColor: withAlpha("#ffffff", 0.12),
+    borderStyle: "dashed",
+    padding: 2,
   },
-  ritualHeader: {
+  ritualCard: {
+    borderRadius: Radii.xl,
+    padding: Spacing.base,
+    gap: Spacing.base,
+  },
+  microHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  ritualCount: {
-    ...Typography.body,
-    color: Colors.text,
+  microHeaderCopy: {
+    flex: 1,
+    gap: Spacing.tiny / 2,
+  },
+  microSubtitle: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  ritualSummaryBadge: {
+    borderRadius: Radii.pill,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.tiny,
+    backgroundColor: withAlpha("#000000", 0.35),
+  },
+  ritualSummaryText: {
+    ...Typography.caption,
+    color: Colors.secondary,
     fontWeight: "700",
   },
-  ritualTagRow: {
+  ritualTagsRow: {
     flexDirection: "row",
-    gap: Spacing.small,
     flexWrap: "wrap",
+    gap: Spacing.small,
   },
-  ritualTag: {
+  ritualTagChip: {
     borderRadius: Radii.pill,
-    borderWidth: 1,
-    borderColor: withAlpha(Colors.text, 0.2),
+    backgroundColor: withAlpha("#ffffff", 0.08),
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.tiny,
   },
@@ -1043,40 +1480,54 @@ const styles = StyleSheet.create({
     ...Typography.caption,
     color: Colors.text,
   },
-  suggestionBlock: {
+  microActiveTextMuted: {
+    ...Typography.caption,
+    color: withAlpha(Colors.textMuted, 0.9),
+  },
+  ritualList: {
     gap: Spacing.small,
   },
-  suggestionRow: {
-    gap: Spacing.small,
-    paddingRight: Spacing.base,
+  missionPressable: {
+    borderRadius: Radii.lg,
+    overflow: "hidden",
   },
-  suggestionChip: {
+  missionRow: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small,
-    minWidth: 180,
     gap: Spacing.small,
+    borderRadius: Radii.lg,
+    padding: Spacing.small,
   },
-  suggestionLabel: {
-    ...Typography.caption,
+  missionIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  missionIcon: {
+    fontSize: 20,
+  },
+  missionCopy: {
+    flex: 1,
+  },
+  missionTitle: {
+    ...Typography.body,
+    color: Colors.text,
     fontWeight: "700",
   },
-  suggestionMeta: {
+  missionSubtitle: {
     ...Typography.caption,
     color: Colors.textMuted,
-    fontSize: 11,
   },
-  suggestionBadge: {
+  missionReward: {
     borderRadius: Radii.pill,
-    borderWidth: 1,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny / 2,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.tiny,
   },
-  suggestionBadgeText: {
+  missionRewardText: {
     ...Typography.caption,
+    color: Colors.textInverse,
     fontWeight: "700",
   },
   linkText: {
