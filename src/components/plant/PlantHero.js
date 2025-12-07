@@ -232,13 +232,31 @@ export default function PlantHero({
             ))}
           </View>
         ) : null}
+        <View style={styles.heroWrap}>
+          {source ? (
+            <Image
+              source={source}
+              style={[
+                styles.heroImage,
+                {
+                  width: baseSize * 1.25,
+                  height: baseSize * 1.25,
+                  marginLeft: -Spacing.base * 2.5,
+                },
+              ]}
+              resizeMode="contain"
+            />
+          ) : (
+            <Text style={{ fontSize: baseSize * 0.4 }}>🌱</Text>
+          )}
+        </View>
       </View>
 
       <View style={styles.stageSection}>
         <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Ruta de crecimiento</Text>
-      </View>
-      <Text style={styles.stageDescription}>{stageSummary}</Text>
+          <Text style={styles.sectionTitle}>Ruta de crecimiento</Text>
+        </View>
+        <Text style={styles.stageDescription}>{stageSummary}</Text>
       </View>
 
       <View
@@ -790,7 +808,7 @@ const styles = StyleSheet.create({
   },
   heroWrap: {
     flex: 1,
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "center",
   },
   aura: {
@@ -1337,4 +1355,3 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 });
-
