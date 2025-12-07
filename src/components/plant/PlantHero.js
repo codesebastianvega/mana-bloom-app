@@ -71,8 +71,6 @@ export default function PlantHero({
   onPressCompanion,
 }) {
   const auraAnim = useRef(new Animated.Value(0)).current;
-  const sliderRef = useRef(null);
-  const [activeStageTip, setActiveStageTip] = useState(null);
   const [statSlideWidth, setStatSlideWidth] = useState(1);
 
   useEffect(() => {
@@ -154,23 +152,10 @@ export default function PlantHero({
     };
   }, [stageProgress]);
 
-  useEffect(() => {
-    if (!sliderRef.current) return;
-    const slideWidth = 160 + Spacing.small;
-    const offset = Math.max(0, stageData.stageIndex * slideWidth - slideWidth);
-    sliderRef.current.scrollTo({ x: offset, animated: true });
-  }, [stageData.stageIndex]);
-
-  const handleStagePress = (item) => {
-    setActiveStageTip((prev) => {
-      if (prev?.key === item.key) return null;
-      return {
-        key: item.key,
-        title: item.label,
-        text: STAGE_TIPS[item.key] || stageData.hint,
-      };
-    });
-  };
+  const currentStage = STAGES[stageData.stageIndex] || STAGES[0];
+  const stageSummary = stageData.nextStage
+    ? `Estás en ${currentStage.label} con ${stageData.stagePercent}% completado.`
+    : `Etapa final: ${currentStage.label}.`;
 
   const auraScale = auraAnim.interpolate({
     inputRange: [0, 1],
@@ -247,95 +232,13 @@ export default function PlantHero({
             ))}
           </View>
         ) : null}
-        <View style={styles.heroWrap}>
-          {showAura && (
-            <Animated.View
-              pointerEvents="none"
-              style={[
-                styles.aura,
-                {
-                  width: baseSize * 1.4,
-                  height: baseSize * 1.4,
-                  borderRadius: (baseSize * 1.4) / 2,
-                  opacity: auraOpacity,
-                  transform: [{ scale: auraScale }],
-                },
-              ]}
-            />
-          )}
-          <Animated.View
-            style={[
-              styles.heroCircle,
-              {
-                width: baseSize,
-                height: baseSize,
-                borderRadius: baseSize / 2,
-              },
-            ]}
-          >
-            {source ? (
-              <Image
-                source={source}
-                style={styles.heroImage}
-                resizeMode="contain"
-              />
-            ) : (
-              <Text style={{ fontSize: baseSize * 0.4 }}>🌱</Text>
-            )}
-            {skinAccent ? (
-              <View
-                style={[
-                  styles.potAccent,
-                  { backgroundColor: skinAccent, width: baseSize * 0.6 },
-                ]}
-              />
-            ) : null}
-          </Animated.View>
-        </View>
       </View>
 
       <View style={styles.stageSection}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Ruta de crecimiento</Text>
-          <Text style={styles.sectionHint}>{stageData.hint}</Text>
-        </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.stageSlider}
-          ref={sliderRef}
-        >
-          {STAGES.map((item, index) => (
-            <StageSlide
-              key={item.key}
-              stage={item}
-              active={index === stageData.stageIndex}
-              completed={index < stageData.stageIndex}
-              percent={
-                index === stageData.stageIndex
-                  ? stageData.stagePercent
-                  : index < stageData.stageIndex
-                  ? 100
-                  : 0
-              }
-              onPress={() => handleStagePress(item)}
-            />
-          ))}
-        </ScrollView>
-        {activeStageTip ? (
-          <View style={styles.stageTip}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.stageTipTitle}>{activeStageTip.title}</Text>
-              <Text style={styles.stageTipText}>{activeStageTip.text}</Text>
-            </View>
-            <Pressable
-              onPress={() => setActiveStageTip(null)}
-              style={styles.stageTipClose}
-            >
-              <Text style={styles.stageTipCloseText}>×</Text>
-            </Pressable>
-          </View>
-        ) : null}
+        <Text style={styles.sectionTitle}>Ruta de crecimiento</Text>
+      </View>
+      <Text style={styles.stageDescription}>{stageSummary}</Text>
       </View>
 
       <View
@@ -377,46 +280,6 @@ export default function PlantHero({
         />
       ) : null}
     </View>
-  );
-}
-
-const STAGE_TIPS = {
-  seed: "Dedica micro tareas suaves para germinar.",
-  sprout: "Introduce hábitos diarios para mantener el ritmo.",
-  bloom: "Equilibra tareas de fuego y agua para florecer.",
-  mature: "Optimiza tus logros y protege la planta del estrés.",
-};
-
-function StageSlide({ stage, active, completed, percent, onPress }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={[
-        styles.stageSlide,
-        {
-          borderColor: withAlpha(stage.accent, active ? 0.9 : 0.35),
-          backgroundColor: withAlpha(stage.accent, completed ? 0.25 : 0.12),
-        },
-      ]}
-    >
-      <View style={styles.stageSlideHeader}>
-        <Text style={styles.stageSlideLabel}>{stage.label}</Text>
-        <Text style={styles.stageSlidePercent}>
-          {completed ? "100%" : active ? `${Math.max(percent, 5)}%` : "0%"}
-        </Text>
-      </View>
-      <View style={styles.stageSlideBar}>
-        <View
-          style={[
-            styles.stageSlideFill,
-            {
-              width: `${completed ? 100 : active ? Math.max(percent, 5) : 0}%`,
-              backgroundColor: stage.accent,
-            },
-          ]}
-        />
-      </View>
-    </Pressable>
   );
 }
 
@@ -972,72 +835,10 @@ const styles = StyleSheet.create({
     ...Typography.caption,
     color: Colors.textMuted,
   },
-  stageSlider: {
-    gap: Spacing.small,
-    paddingRight: Spacing.base,
-  },
-  stageSlide: {
-    width: 160,
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    padding: Spacing.small,
-    gap: Spacing.small,
-  },
-  stageSlideHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  stageSlideLabel: {
-    ...Typography.caption,
-    color: Colors.text,
-    fontWeight: "600",
-  },
-  stageSlidePercent: {
-    ...Typography.caption,
-    color: Colors.text,
-  },
-  stageSlideBar: {
-    height: 4,
-    borderRadius: Radii.pill,
-    backgroundColor: withAlpha(Colors.text, 0.12),
-    overflow: "hidden",
-  },
-  stageSlideFill: {
-    height: "100%",
-    borderRadius: Radii.pill,
-  },
-  stageTip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.small,
-    borderRadius: Radii.lg,
-    borderWidth: 1,
-    borderColor: withAlpha(Colors.surface, 0.15),
-    backgroundColor: withAlpha(Colors.surfaceElevated, 0.45),
-    padding: Spacing.small,
-  },
-  stageTipTitle: {
-    ...Typography.caption,
-    color: Colors.text,
-    fontWeight: "700",
-  },
-  stageTipText: {
+  stageDescription: {
     ...Typography.caption,
     color: Colors.textMuted,
-  },
-  stageTipClose: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: withAlpha(Colors.text, 0.2),
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  stageTipCloseText: {
-    color: Colors.text,
-    fontWeight: "700",
+    marginTop: Spacing.tiny,
   },
   statsGrid: {
     gap: Spacing.base,
@@ -1536,3 +1337,4 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 });
+
