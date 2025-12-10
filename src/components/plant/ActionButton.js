@@ -4,8 +4,9 @@
 // Puntos de edicion futura: mover estilos a .styles.js cuando crezca
 // Autor: Codex - Fecha: 2025-10-30
 
-import React, { useEffect, useMemo, useState } from "react";
-import { Pressable, Text, View, StyleSheet, Image } from "react-native";
+import React, { useEffect, useMemo, useState, useRef } from "react";
+import { Pressable, Text, View, StyleSheet, Image, Animated } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome5 } from "@expo/vector-icons";
 
 import { Colors, Spacing, Radii, Typography, Opacity } from "../../theme";
@@ -55,6 +56,8 @@ const withAlpha = (color = "#000000", alpha = 1) => {
   return `rgba(${r},${g},${b},${alpha})`;
 };
 
+const HOLD_TO_ACTIVATE_MS = 3000;
+
 const formatMs = (ms = 0) => {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
   const hours = Math.floor(totalSeconds / 3600);
@@ -90,6 +93,9 @@ export default function ActionButton({
 }) {
   const accent = ACCENTS[accentKey] || DEFAULT_ACCENT;
   const [remainingMs, setRemainingMs] = useState(cooldownMs || 0);
+  const holdAnim = useRef(new Animated.Value(0)).current;
+  const holdActiveRef = useRef(false);
+  const [isHolding, setIsHolding] = useState(false);
 
   useEffect(() => {
     setRemainingMs(cooldownMs || 0);
@@ -120,6 +126,33 @@ export default function ActionButton({
     });
   };
 
+  const startHold = () => {
+    if (inactive || holdActiveRef.current) return;
+    holdActiveRef.current = true;
+    setIsHolding(true);
+    holdAnim.setValue(0);
+    Animated.timing(holdAnim, {
+      toValue: 1,
+      duration: HOLD_TO_ACTIVATE_MS,
+      useNativeDriver: false,
+    }).start(({ finished }) => {
+      holdActiveRef.current = false;
+      setIsHolding(false);
+      holdAnim.setValue(0);
+      if (finished) {
+        emitPress();
+      }
+    });
+  };
+
+  const cancelHold = () => {
+    if (!holdActiveRef.current) return;
+    holdActiveRef.current = false;
+    holdAnim.stopAnimation();
+    holdAnim.setValue(0);
+    setIsHolding(false);
+  };
+
   const titleLines = variant === "dual" ? 2 : 1;
   const Header = (
     <View style={styles.header}>
@@ -145,16 +178,27 @@ export default function ActionButton({
     let primaryLabel = "Activar";
     if (inactive) {
       if (remainingMs > 0) {
-        primaryLabel = `Úsalo en ${formatted}`;
+        primaryLabel = `Usalo en ${formatted}`;
       } else {
         if (accentKey === "water") primaryLabel = "Falta mana";
         else if (accentKey === "nutrients") primaryLabel = "Faltan monedas";
         else primaryLabel = "No disponible";
       }
+    } else if (isHolding) {
+      primaryLabel = "Mantener presionado...";
+    } else {
+      primaryLabel = "Mantener presionado";
     }
     const a11yLabel = primaryLabel;
     const copyText = helper || statusText;
-
+    const progressHeight = holdAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: ["0%", "100%"],
+    });
+    const overlayOpacity = holdAnim.interpolate({
+      inputRange: [0, 0.2, 1],
+      outputRange: [0, 0.6, 0.9],
+    });
     return (
       <View
         style={[
@@ -169,6 +213,20 @@ export default function ActionButton({
           },
         ]}
       >
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.dualProgressOverlay,
+            { height: progressHeight, opacity: overlayOpacity },
+          ]}
+        >
+          <LinearGradient
+            colors={[withAlpha(accent, 0.35), withAlpha(accent, 0.08)]}
+            start={{ x: 0.5, y: 1 }}
+            end={{ x: 0.5, y: 0 }}
+            style={StyleSheet.absoluteFill}
+          />
+        </Animated.View>
         {onInfoPress ? (
           <Pressable
             onPress={onInfoPress}
@@ -208,7 +266,8 @@ export default function ActionButton({
               </Text>
             ) : null}
             <Pressable
-              onPress={emitPress}
+              onPressIn={startHold}
+              onPressOut={cancelHold}
               style={[
                 styles.careCTA,
                 {
@@ -224,9 +283,7 @@ export default function ActionButton({
                 style={[
                   styles.careCTAText,
                   {
-                    color: inactive
-                      ? withAlpha(Colors.text, 0.7)
-                      : Colors.background,
+                    color: inactive ? withAlpha(Colors.text, 0.7) : Colors.background,
                   },
                 ]}
                 numberOfLines={1}
@@ -327,12 +384,20 @@ const styles = StyleSheet.create({
   },
   dualCard: {
     gap: Spacing.small,
+    position: "relative",
+    overflow: "hidden",
   },
   dualCompact: {
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.small * 0.75,
     gap: Spacing.small,
     minHeight: 120,
+  },
+  dualProgressOverlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   careInfoFloating: {
     position: "absolute",
@@ -553,3 +618,9 @@ const styles = StyleSheet.create({
     top: -Spacing.base * 0.4,
   },
 });
+
+
+
+
+
+
