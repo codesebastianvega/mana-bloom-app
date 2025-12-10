@@ -5,7 +5,7 @@
 // Autor: Codex - Fecha: 2025-10-30
 
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { Pressable, Text, View, StyleSheet, Image, Animated } from "react-native";
+import { Pressable, Text, View, StyleSheet, Image, Animated, Easing } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome5 } from "@expo/vector-icons";
 
@@ -94,6 +94,8 @@ export default function ActionButton({
   const accent = ACCENTS[accentKey] || DEFAULT_ACCENT;
   const [remainingMs, setRemainingMs] = useState(cooldownMs || 0);
   const holdAnim = useRef(new Animated.Value(0)).current;
+  const glowAnim = useRef(new Animated.Value(0)).current;
+  const successAnim = useRef(new Animated.Value(0)).current;
   const holdActiveRef = useRef(false);
   const [isHolding, setIsHolding] = useState(false);
 
@@ -126,6 +128,43 @@ export default function ActionButton({
     });
   };
 
+  const triggerGlow = () => {
+    glowAnim.stopAnimation();
+    glowAnim.setValue(0);
+    Animated.sequence([
+      Animated.timing(glowAnim, {
+        toValue: 1,
+        duration: 220,
+        useNativeDriver: false,
+      }),
+      Animated.timing(glowAnim, {
+        toValue: 0,
+        duration: 320,
+        useNativeDriver: false,
+      }),
+    ]).start();
+  };
+
+  const triggerSuccessFlash = () => {
+    successAnim.stopAnimation();
+    successAnim.setValue(0);
+    Animated.sequence([
+      Animated.timing(successAnim, {
+        toValue: 1,
+        duration: 220,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: false,
+      }),
+      Animated.timing(successAnim, {
+        toValue: 0,
+        duration: 420,
+        delay: 250,
+        easing: Easing.inOut(Easing.quad),
+        useNativeDriver: false,
+      }),
+    ]).start();
+  };
+
   const startHold = () => {
     if (inactive || holdActiveRef.current) return;
     holdActiveRef.current = true;
@@ -141,6 +180,8 @@ export default function ActionButton({
       holdAnim.setValue(0);
       if (finished) {
         emitPress();
+        triggerGlow();
+        triggerSuccessFlash();
       }
     });
   };
@@ -199,8 +240,24 @@ export default function ActionButton({
       inputRange: [0, 0.2, 1],
       outputRange: [0, 0.6, 0.9],
     });
+    const glowBorderColor = glowAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [borderColor, withAlpha(accent, 0.95)],
+    });
+    const glowShadowOpacity = glowAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 0.45],
+    });
+    const successScale = successAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [1, 1.03],
+    });
+    const successOverlayOpacity = successAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 0.9],
+    });
     return (
-      <View
+      <Animated.View
         style={[
           styles.card,
           styles.dualCard,
@@ -210,9 +267,28 @@ export default function ActionButton({
             borderColor,
             borderLeftWidth: 3,
             borderLeftColor: accent,
+            shadowOpacity: glowShadowOpacity,
+            shadowRadius: 18,
+            shadowOffset: { width: 0, height: 0 },
+            transform: [{ scale: successScale }],
           },
+          { borderColor: glowBorderColor },
         ]}
       >
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.dualSuccessOverlay,
+            { opacity: successOverlayOpacity },
+          ]}
+        >
+          <LinearGradient
+            colors={[withAlpha("#3cd689", 0.7), withAlpha(accent, 0.4)]}
+            start={{ x: 0.5, y: 1 }}
+            end={{ x: 0.5, y: 0 }}
+            style={StyleSheet.absoluteFill}
+          />
+        </Animated.View>
         <Animated.View
           pointerEvents="none"
           style={[
@@ -295,7 +371,7 @@ export default function ActionButton({
             </Pressable>
           </View>
         </View>
-      </View>
+      </Animated.View>
     );
   }
 
@@ -398,6 +474,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  dualSuccessOverlay: {
+    ...StyleSheet.absoluteFillObject,
   },
   careInfoFloating: {
     position: "absolute",
