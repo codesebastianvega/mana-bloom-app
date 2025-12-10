@@ -7,7 +7,7 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { ScrollView, AccessibilityInfo, View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import PlantHero from "../components/plant/PlantHero";
 import PlantHeader from "../components/plant/PlantHeader";
 import QuickActions from "../components/plant/QuickActions";
@@ -174,6 +174,7 @@ const CARE_SUGGESTION_RULES = [
 export default function PlantScreen() {
   const { mana, wallet, inventory } = useAppState();
   const dispatch = useAppDispatch();
+  const navigation = useNavigation();
   
   const [plantName, setPlantName] = useState("Mi Planta");
   const [invOpen, setInvOpen] = useState(false);
@@ -253,7 +254,10 @@ const HYDRATE_GOAL = 8;
   const activeRitualKeys = RITUAL_ACTIONS.filter((key) => ritualStatus[key]);
   const ritualActiveCount = activeRitualKeys.length;
   const ritualCompletion = ritualActiveCount / RITUAL_ACTIONS.length;
-  const ritualTags = activeRitualKeys.map((key) => RITUAL_LABELS[key] || key);
+  const ritualTags = activeRitualKeys.map((key) => ({
+    key,
+    label: RITUAL_LABELS[key] || key,
+  }));
   
   const careMetricChips = useMemo(
     () => [
@@ -464,39 +468,6 @@ const HYDRATE_GOAL = 8;
   const careSuggestion = useMemo(() => deriveCareSuggestion(careMetrics), [careMetrics]);
   const suggestionKey = careSuggestion?.key;
 
-  const miniCareActions = useMemo(() => {
-    return CARE_SUGGESTION_RULES.map((rule) => {
-      const value = careMetrics[rule.metric];
-      const deficit = typeof value === "number" ? rule.threshold - value : 0;
-      return {
-        key: rule.key,
-        label: rule.label,
-        accent: PLANT_ACTION_ACCENTS[rule.key],
-        deficit,
-        cooldownMs: actionCooldowns[rule.key] || 0,
-      };
-    })
-      .filter((item) => item.deficit > 0 && item.cooldownMs <= 0)
-      .sort((a, b) => b.deficit - a.deficit)
-      .slice(0, 4);
-  }, [careMetrics, actionCooldowns]);
-
-  const companionStatus = useMemo(() => {
-    const nowTs = Date.now();
-    const potions =
-      activeBuffs?.map((buff) => {
-        const preset = BUFF_PRESETS[buff.type] || BUFF_PRESETS.default;
-        const remainingMs = Math.max(0, (buff.expiresAt || 0) - nowTs);
-        return {
-          id: buff.id,
-          label: preset.title,
-          emoji: preset.emoji,
-          remaining: formatDurationShort(remainingMs),
-        };
-      }) || [];
-    return { pet: null, potions };
-  }, [activeBuffs]);
-
   useEffect(() => {
     if (snoozedSuggestionKey && snoozedSuggestionKey !== suggestionKey) {
       setSnoozedSuggestionKey(null);
@@ -590,14 +561,13 @@ const HYDRATE_GOAL = 8;
     handleAction(targetKey);
   };
 
-  const handleMiniActionPress = (actionKey) => {
-    triggerActionKey(actionKey);
-  };
-
   const handleOpenInventoryFromHero = () => {
     setSelectedSkinId(equippedSkinId);
     setInvOpen(true);
   };
+  const handleOpenMagicShop = useCallback(() => {
+    navigation.navigate("ShopScreen", { initialTab: "pets" });
+  }, [navigation]);
 
   const launchBreathModal = () => {
     setPendingBreathAction("meditate");
@@ -794,13 +764,8 @@ const HYDRATE_GOAL = 8;
             size="lg"
             careMetrics={careMetricChips}
             wellbeingMetrics={wellbeingMetricChips}
-            ritualSummary={{ active: ritualActiveCount, total: RITUAL_ACTIONS.length, tags: ritualTags }}
             climateInfo={climateInfo}
             stageProgress={{ stage: "brote", progress: xpProgress, etaText }}
-            careSuggestions={miniCareActions}
-            onPressCareSuggestion={handleMiniActionPress}
-            companionStatus={companionStatus}
-            onPressCompanion={handleOpenInventoryFromHero}
           />
         </View>
         <QuickActions

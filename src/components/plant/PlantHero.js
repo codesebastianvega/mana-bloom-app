@@ -4,7 +4,6 @@ import {
   Text,
   Image,
   Animated,
-  Pressable,
   ScrollView,
   StyleSheet,
 } from "react-native";
@@ -34,24 +33,6 @@ const CARE_ACCENTS = {
   purity: Colors.primary,
 };
 
-const SUGGESTION_ICON_MAP = {
-  water: { emoji: "💧", accent: Colors.elementWater },
-  feed: { emoji: "🌱", accent: Colors.elementEarth },
-  clean: { emoji: "🧽", accent: Colors.primary },
-  prune: { emoji: "✂️", accent: Colors.secondary },
-  light: { emoji: "☀️", accent: Colors.elementFire },
-  mist: { emoji: "🌫️", accent: Colors.elementAir },
-  search: { emoji: "🔍", accent: Colors.secondary },
-  meditate: { emoji: "🧘", accent: Colors.ritualCalm },
-  hydrate: { emoji: "🚰", accent: Colors.elementWater },
-  stretch: { emoji: "🤸", accent: Colors.secondary },
-  sunlight: { emoji: "🌞", accent: Colors.elementFire },
-  visualize: { emoji: "💭", accent: Colors.ritualJournal },
-  journal: { emoji: "📓", accent: Colors.ritualJournal },
-  gratitude: { emoji: "🙏", accent: Colors.secondary },
-  restEyes: { emoji: "😌", accent: Colors.ritualCalm },
-};
-
 export default function PlantHero({
   source,
   size = "lg",
@@ -62,13 +43,8 @@ export default function PlantHero({
   skinAccent,
   careMetrics = [],
   wellbeingMetrics = [],
-  ritualSummary,
   climateInfo,
   stageProgress,
-  careSuggestions = [],
-  onPressCareSuggestion,
-  companionStatus,
-  onPressCompanion,
 }) {
   const auraAnim = useRef(new Animated.Value(0)).current;
   const [statSlideWidth, setStatSlideWidth] = useState(1);
@@ -165,10 +141,6 @@ export default function PlantHero({
     inputRange: [0, 1],
     outputRange: [0.08, 0.18],
   });
-
-  const safeSuggestions = Array.isArray(careSuggestions)
-    ? careSuggestions.slice(0, 4)
-    : [];
 
   const statCards = [
     {
@@ -288,15 +260,6 @@ export default function PlantHero({
         </ScrollView>
       </View>
 
-      <CompanionCard status={companionStatus} onPress={onPressCompanion} />
-
-      {ritualSummary || safeSuggestions.length ? (
-        <MicroMissionsCard
-          ritualSummary={ritualSummary}
-          suggestions={safeSuggestions}
-          onPressMission={onPressCareSuggestion}
-        />
-      ) : null}
     </View>
   );
 }
@@ -501,219 +464,6 @@ function NextFormCard({ percent = 0, nextStage, style }) {
   );
 }
 
-function CompanionCard({ status, onPress }) {
-  const potions = status?.potions ?? [];
-  const hasActiveLoadout = Boolean(status?.pet || potions.length);
-  const demoPets = [
-    { id: "aurin", emoji: "\u{1F408}", name: "Aurin" },
-    { id: "nix", emoji: "\u{1F98B}", name: "Nix" },
-  ];
-
-  if (!hasActiveLoadout) {
-    return (
-      <LinearGradient
-        colors={["#36124f", "#180926"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.companionCard, styles.companionCardEmpty]}
-      >
-        <View style={styles.companionEmptyCopy}>
-          <Text style={styles.companionEmptyTitle}>Sin compañero activo</Text>
-          <Text style={styles.companionEmptySubtitle}>
-            Equipa una mascota o poción para proteger la planta.
-          </Text>
-          <Pressable style={styles.companionButton} onPress={onPress}>
-            <Text style={styles.companionButtonText}>Ver inventario</Text>
-          </Pressable>
-        </View>
-        <View style={styles.companionPetsPreview}>
-          <Text style={styles.companionPetsTitle}>Mascotas sugeridas</Text>
-          <View style={styles.companionPetsRow}>
-            {demoPets.map((pet) => (
-              <View key={pet.id} style={styles.companionPetBadge}>
-                <View style={styles.companionPetAvatar}>
-                  <Text style={styles.companionPetEmoji}>{pet.emoji}</Text>
-                </View>
-                <Text style={styles.companionPetLabel}>{pet.name}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      </LinearGradient>
-    );
-  }
-
-  return (
-    <LinearGradient
-      colors={["#281335", "#190c25"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.companionCard}
-    >
-      <View style={styles.companionHeader}>
-        <Text style={styles.sectionTitle}>Compañero activo</Text>
-        <Pressable onPress={onPress}>
-          <Text style={styles.linkText}>Cambiar</Text>
-        </Pressable>
-      </View>
-      {status.pet ? (
-        <Text style={styles.companionPet}>
-          {status.pet.name} {status.pet.emoji || "\u{1F432}"}
-        </Text>
-      ) : null}
-      {potions.length ? (
-        <View style={styles.potionRow}>
-          {potions.slice(0, 2).map((potion) => (
-            <View key={potion.id} style={styles.potionChip}>
-              <Text style={styles.potionText}>{potion.label}</Text>
-              <Text style={styles.potionMeta}>{potion.remaining}</Text>
-            </View>
-          ))}
-        </View>
-      ) : null}
-    </LinearGradient>
-  );
-}
-function MicroMissionsCard({
-  ritualSummary,
-  suggestions = [],
-  onPressMission,
-}) {
-  const fallbackMissions = [
-    {
-      id: "clean_leaves",
-      key: "clean",
-      title: "Limpiar hojas",
-      subtitle: "Detectado polvo astral",
-      reward: "+50 XP",
-      accent: "#5f2a88",
-      emoji: "\u{1F9FD}",
-    },
-    {
-      id: "mist",
-      key: "mist",
-      title: "Neblina",
-      subtitle: "Aumenta humedad",
-      reward: "+20 XP",
-      accent: "#1b3d8c",
-      emoji: "\u{1F32B}",
-    },
-  ];
-
-  const missionsRaw = suggestions.slice(0, 2).map((item, index) => {
-    const severity = getSeverity(item.deficit);
-    const iconInfo = SUGGESTION_ICON_MAP[item.key] || {
-      emoji: fallbackMissions[index]?.emoji || "?",
-      accent: fallbackMissions[index]?.accent || Colors.secondary,
-    };
-    return {
-      id: item.key,
-      key: item.key,
-      title: item.label,
-      subtitle:
-        severity.label === "Alto"
-          ? "Debes atenderlo hoy"
-          : severity.label === "Medio"
-          ? "Refuerza el flujo pronto"
-          : "Mantén el flujo estable",
-      reward:
-        severity.label === "Alto"
-          ? "+50 XP"
-          : severity.label === "Medio"
-          ? "+30 XP"
-          : "+20 XP",
-      accent: iconInfo.accent,
-      emoji: iconInfo.emoji,
-    };
-  });
-
-  const missions = missionsRaw.length ? missionsRaw : fallbackMissions;
-  const activeTags = ritualSummary?.tags?.slice(0, 3);
-  const activeCount = ritualSummary?.active ?? 0;
-  const totalCount = ritualSummary?.total ?? 8;
-
-  return (
-    <View style={styles.microShell}>
-      <LinearGradient
-        colors={["#1a0f2f", "#0f071d"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.ritualCard}
-      >
-        <View style={styles.microHeader}>
-          <View style={styles.microHeaderCopy}>
-            <Text style={styles.ritualLabel}>MICRO-MISIONES</Text>
-            <Text style={styles.microSubtitle}>
-              Activa un ritual personal para potenciar tus misiones.
-            </Text>
-          </View>
-          <View style={styles.ritualSummaryBadge}>
-            <Text
-              style={styles.ritualSummaryText}
-            >{`${activeCount}/${totalCount}`}</Text>
-          </View>
-        </View>
-        {activeTags?.length ? (
-          <View style={styles.ritualTagsRow}>
-            {activeTags.map((tag) => (
-              <View key={tag} style={styles.ritualTagChip}>
-                <Text style={styles.ritualTagText}>{tag}</Text>
-              </View>
-            ))}
-          </View>
-        ) : (
-          <Text style={styles.microActiveTextMuted}>
-            Aún no tienes rituales activos.
-          </Text>
-        )}
-        <View style={styles.ritualList}>
-          {missions.map((mission, index) => (
-            <Pressable
-              key={mission.id}
-              onPress={() => onPressMission?.(mission.key)}
-              style={styles.missionPressable}
-            >
-              <LinearGradient
-                colors={
-                  index === 0 ? ["#4c1f6b", "#2c1348"] : ["#15294f", "#0e1735"]
-                }
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.missionRow}
-              >
-                <View
-                  style={[
-                    styles.missionIconWrap,
-                    {
-                      backgroundColor: withAlpha(
-                        mission.accent || Colors.secondary,
-                        0.3
-                      ),
-                    },
-                  ]}
-                >
-                  <Text style={styles.missionIcon}>{mission.emoji || "?"}</Text>
-                </View>
-                <View style={styles.missionCopy}>
-                  <Text style={styles.missionTitle}>{mission.title}</Text>
-                  <Text style={styles.missionSubtitle}>{mission.subtitle}</Text>
-                </View>
-                <LinearGradient
-                  colors={["#30e49c", "#18c678"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.missionReward}
-                >
-                  <Text style={styles.missionRewardText}>{mission.reward}</Text>
-                </LinearGradient>
-              </LinearGradient>
-            </Pressable>
-          ))}
-        </View>
-      </LinearGradient>
-    </View>
-  );
-}
 function mapWellbeingChip(item, climateInfo) {
   const value = Math.max(0, Math.min(1, item.value ?? 0));
   const percent = Math.round(value * 100);
@@ -1048,6 +798,7 @@ const styles = StyleSheet.create({
   climateFlowText: {
     ...Typography.caption,
     color: Colors.text,
+    textAlign: "center",
   },
   climateTrendText: {
     ...Typography.caption,
@@ -1116,7 +867,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.tiny,
-    alignSelf: "flex-start",
+    alignSelf: "center",
     borderRadius: 6,
     marginTop: Spacing.small,
     paddingHorizontal: Spacing.base,
@@ -1128,6 +879,7 @@ const styles = StyleSheet.create({
   formTipText: {
     ...Typography.caption,
     color: Colors.text,
+    textAlign: "center",
   },
   nextFormProgressTrack: {
     height: 6,
@@ -1139,219 +891,9 @@ const styles = StyleSheet.create({
     height: "100%",
     borderRadius: Radii.pill,
   },
-  companionCard: {
-    borderRadius: Radii.xl,
-    borderWidth: 1,
-    borderColor: withAlpha(Colors.surface, 0.3),
-    padding: Spacing.base,
-    gap: Spacing.small,
-  },
-  companionCardEmpty: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: Spacing.large,
-  },
-  companionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  companionPet: {
-    ...Typography.body,
-    color: Colors.text,
-    fontWeight: "700",
-  },
-  companionEmptyCopy: {
-    flex: 1,
-    gap: Spacing.small,
-  },
-  companionEmptyTitle: {
-    ...Typography.body,
-    color: Colors.text,
-    fontWeight: "700",
-    fontSize: 18,
-  },
-  companionEmptySubtitle: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  companionPetsPreview: {
-    flex: 1,
-    gap: Spacing.small,
-  },
-  companionPetsTitle: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-  },
-  companionPetsRow: {
-    flexDirection: "row",
-    gap: Spacing.small,
-    flexWrap: "wrap",
-  },
-  companionPetBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.small / 2,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny,
-    borderRadius: Radii.lg,
-    backgroundColor: withAlpha("#000000", 0.25),
-  },
-  companionPetAvatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: withAlpha("#ffffff", 0.08),
-  },
-  companionPetEmoji: {
-    fontSize: 18,
-  },
-  companionPetLabel: {
-    ...Typography.caption,
-    color: Colors.text,
-    fontWeight: "600",
-  },
-  companionButton: {
-    alignSelf: "flex-start",
-    borderRadius: Radii.pill,
-    borderWidth: 1,
-    borderColor: withAlpha(Colors.secondary, 0.8),
-    backgroundColor: withAlpha(Colors.secondary, 0.12),
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.tiny,
-  },
-  companionButtonText: {
-    ...Typography.caption,
-    color: Colors.secondary,
-    fontWeight: "700",
-  },
-  potionRow: {
-    flexDirection: "row",
-    gap: Spacing.small,
-  },
-  potionChip: {
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.tiny,
-    borderRadius: Radii.pill,
-    backgroundColor: withAlpha(Colors.surface, 0.3),
-  },
-  potionText: {
-    ...Typography.caption,
-    color: Colors.text,
-    fontWeight: "600",
-  },
-  potionMeta: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  microShell: {
-    borderRadius: Radii.xl,
-    borderWidth: 1,
-    borderColor: withAlpha("#ffffff", 0.12),
-    borderStyle: "dashed",
-    padding: 2,
-  },
-  ritualCard: {
-    borderRadius: Radii.xl,
-    padding: Spacing.base,
-    gap: Spacing.base,
-  },
-  microHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  microHeaderCopy: {
-    flex: 1,
-    gap: Spacing.tiny / 2,
-  },
-  microSubtitle: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  ritualSummaryBadge: {
-    borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.tiny,
-    backgroundColor: withAlpha("#000000", 0.35),
-  },
-  ritualSummaryText: {
-    ...Typography.caption,
-    color: Colors.secondary,
-    fontWeight: "700",
-  },
-  ritualTagsRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: Spacing.small,
-  },
-  ritualTagChip: {
-    borderRadius: Radii.pill,
-    backgroundColor: withAlpha("#ffffff", 0.08),
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.tiny,
-  },
-  ritualTagText: {
-    ...Typography.caption,
-    color: Colors.text,
-  },
-  microActiveTextMuted: {
-    ...Typography.caption,
-    color: withAlpha(Colors.textMuted, 0.9),
-  },
-  ritualList: {
-    gap: Spacing.small,
-  },
-  missionPressable: {
-    borderRadius: Radii.lg,
-    overflow: "hidden",
-  },
-  missionRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.small,
-    borderRadius: Radii.lg,
-    padding: Spacing.small,
-  },
-  missionIconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  missionIcon: {
-    fontSize: 20,
-  },
-  missionCopy: {
-    flex: 1,
-  },
-  missionTitle: {
-    ...Typography.body,
-    color: Colors.text,
-    fontWeight: "700",
-  },
-  missionSubtitle: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  missionReward: {
-    borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.tiny,
-  },
-  missionRewardText: {
-    ...Typography.caption,
-    color: Colors.textInverse,
-    fontWeight: "700",
-  },
-  linkText: {
-    ...Typography.caption,
-    color: Colors.secondary,
-    fontWeight: "700",
-  },
 });
+
+
+
+
+
