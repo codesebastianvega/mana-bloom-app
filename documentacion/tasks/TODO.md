@@ -30,6 +30,10 @@
 - [ ] Refactorizar AppContext para alinear eventos/persistencia con PROGRESSIVE_ACHIEVEMENTS y limpiar referencias legacy
 - [ ] Adaptar AchievementsPanel y modal para mostrar tiers y recompensas usando el nuevo esquema de logros
 
+- [ ] Conectar tips PRO de PlantScreen a backend/suscripción y definir fallback sin conexión
+- [ ] Persistir acordeones (tips PRO y ElementBalance) en PlantScreen
+- [ ] Crear deep link PlantScreen ? Tasks con filtro por elemento desde balance elemental
+
 ## ðŸŸ¡ Media Prioridad
 
 ### UI/UX

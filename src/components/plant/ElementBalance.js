@@ -1,13 +1,12 @@
-// [MB] Módulo: Planta / Sección: Balance elemental
-// Afecta: PlantScreen (sección de elementos)
-// Propósito: donut superior + grid 2×2 (Fuego, Agua, Tierra, Viento)
-// Puntos de edición futura: conectar con métricas y buffs elementales
+// [MB] Modulo: Planta / Seccion: Balance elemental
+// Afecta: PlantScreen (seccion de elementos)
+// Proposito: donut superior + grid 2x2 (Fuego, Agua, Tierra, Viento)
+// Puntos de edicion futura: conectar con metricas y buffs elementales
 // Autor: Codex - Fecha: 2025-11-13
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import Svg, { Circle } from "react-native-svg";
 import { Colors, Spacing, Radii, Typography } from "../../theme";
 
 const withAlpha = (hex = "", alpha = 1) => {
@@ -47,35 +46,35 @@ const PERSONA_PRESETS = {
   },
   water: {
     label: "Paciente (Agua)",
-    description: "Prefieres hábitos tranquilos. Añade fuego para empujar objetivos.",
+    description: "Prefieres habitos tranquilos. Anade fuego para empujar objetivos.",
     color: Colors.elementWater,
   },
   earth: {
-    label: "Metódico (Tierra)",
+    label: "Metodico (Tierra)",
     description: "Proyectos largos dominan tu agenda. Mezcla viento para explorar ideas.",
     color: Colors.elementEarth,
   },
   wind: {
     label: "Explorador (Aire)",
-    description: "Mucho aprendizaje y notas. Suma tierra y agua para aterrizar hábitos.",
+    description: "Mucho aprendizaje y notas. Suma tierra y agua para aterrizar habitos.",
     color: Colors.elementAir,
   },
   balanced: {
     label: "Equilibrado",
-    description: "Tus tareas y hábitos se reparten parejo entre los elementos.",
+    description: "Tus tareas y habitos se reparten parejo entre los elementos.",
     color: Colors.text,
   },
 };
 
 const PERSONA_GUIDANCE = {
-  fire: "Tu energía va a tope: intercala hábitos de agua y notas de aire para enfriar el ritmo sin perder foco.",
+  fire: "Tu energia va a tope: intercala habitos de agua y notas de aire para enfriar el ritmo sin perder foco.",
   water:
-    "Estás fluyendo, pero añade misiones de fuego y proyectos de tierra para evitar quedarte en modo pausa.",
+    "Estas fluyendo, pero anade misiones de fuego y proyectos de tierra para evitar quedarte en modo pausa.",
   earth:
-    "Tu plan es metódico; reserva slots de aire y agua para que las ideas se muevan y la mente respire.",
+    "Tu plan es metodico; reserva slots de aire y agua para que las ideas se muevan y la mente respire.",
   wind:
-    "Hay muchas ideas en juego; aterriza esa energía con tareas de tierra y descansos de agua.",
-  balanced: "Tienes una mezcla pareja. Vigila que ningún elemento supere 35% para sostener la armonía.",
+    "Hay muchas ideas en juego; aterriza esa energia con tareas de tierra y descansos de agua.",
+  balanced: "Tienes una mezcla pareja. Vigila que ningun elemento supere 35% para sostener la armonia.",
 };
 
 export default function ElementBalance({ values = {}, style, onSelectElement }) {
@@ -98,6 +97,8 @@ export default function ElementBalance({ values = {}, style, onSelectElement }) 
     return { highest, lowest, status, gap };
   }, [data.fire, data.water, data.earth, data.wind]);
 
+  const syncPercent = Math.max(0, Math.min(100, Math.round((1 - summary.gap) * 100)));
+
   const persona = useMemo(() => {
     const { highest, gap } = summary;
     if (!highest || gap < 0.15) return PERSONA_PRESETS.balanced;
@@ -110,12 +111,9 @@ export default function ElementBalance({ values = {}, style, onSelectElement }) 
     return PERSONA_GUIDANCE[key] || PERSONA_GUIDANCE.balanced;
   }, [summary]);
 
-  const averagePercent = useMemo(() => {
-    const valuesArr = Object.values(data);
-    if (!valuesArr.length) return 0;
-    const sum = valuesArr.reduce((acc, val) => acc + val, 0);
-    return Math.round((sum / valuesArr.length) * 100);
-  }, [data.fire, data.water, data.earth, data.wind]);
+  const preferredKey = summary.highest?.key ?? order[0];
+  const [expandedKey, setExpandedKey] = useState(preferredKey);
+
   const statusAccent = statusAccentColor(summary.status);
 
   return (
@@ -126,25 +124,33 @@ export default function ElementBalance({ values = {}, style, onSelectElement }) 
         end={{ x: 1, y: 1 }}
         style={styles.summaryCard}
       >
-        <View style={styles.summaryHeader}>
-          <Text style={styles.summaryLabel}>Personalidad</Text>
-          <Text
+        <Text style={styles.summaryEssenceLabel}>ESENCIA</Text>
+        <Text style={[styles.summaryPersonaTitle, { color: persona.color }]}>
+          {persona.label}
+        </Text>
+        <Text style={styles.summaryGuidance}>{personaAdvice}</Text>
+        <View style={styles.syncRow}>
+          <View style={styles.syncBar}>
+            <View style={[styles.syncFill, { width: `${syncPercent}%` }]} />
+          </View>
+        </View>
+        <View style={styles.syncMetaRow}>
+          <View style={styles.syncMetaTile}>
+            <Text style={styles.syncMetaLabel}>Sincronia</Text>
+            <Text style={styles.syncMetaValue}>{syncPercent}%</Text>
+          </View>
+          <View
             style={[
-              styles.summaryStatusChip,
-              { borderColor: statusAccent, color: statusAccent },
+              styles.syncMetaTile,
+              styles.syncStatusTile,
+              { borderColor: withAlpha(statusAccent, 0.4) },
             ]}
           >
-            {summary.status}
-          </Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <View style={styles.summaryText}>
-            <Text style={[styles.summaryPersonaTitle, { color: persona.color }]}>
-              {persona.label}
+            <Text style={[styles.syncMetaLabel, { color: statusAccent }]}>Estado</Text>
+            <Text style={[styles.syncStatusValue, { color: statusAccent }]}>
+              {summary.status}
             </Text>
-            <Text style={styles.summaryGuidance}>{personaAdvice}</Text>
           </View>
-          <BalanceDial percent={averagePercent} />
         </View>
       </LinearGradient>
 
@@ -153,12 +159,7 @@ export default function ElementBalance({ values = {}, style, onSelectElement }) 
           const percent = Math.round(data[key] * 100);
           const status = statusLabel(data[key]);
           const bucket = counts[key] || { tasks: 0, habits: 0 };
-          const capsuleStyle =
-            status === "Alto"
-              ? styles.statusCapsuleHigh
-              : status === "Bajo"
-              ? styles.statusCapsuleLow
-              : styles.statusCapsuleNeutral;
+          const isExpanded = expandedKey === key;
 
           return (
             <Pressable
@@ -168,67 +169,74 @@ export default function ElementBalance({ values = {}, style, onSelectElement }) 
                 pressed && styles.tilePressed,
               ]}
               android_ripple={{ color: withAlpha(COLORS[key], 0.2) }}
-              onPress={() => onSelectElement?.(key)}
+              onPress={() => {
+                setExpandedKey((prev) => (prev === key ? null : key));
+              }}
               accessibilityRole="button"
               accessibilityLabel={`Mostrar tareas de ${labelFor(key)}`}
             >
               <LinearGradient
-                colors={[withAlpha(Colors.surfaceAlt, 0.9), withAlpha(COLORS[key], 0.12)]}
+                colors={[withAlpha(Colors.surfaceAlt, 0.95), withAlpha(COLORS[key], 0.16)]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={styles.tile}
+                style={[
+                  styles.tile,
+                  !isExpanded && styles.tileCollapsed,
+                  { borderColor: withAlpha(COLORS[key], 0.5) },
+                ]}
               >
-                <View style={styles.tileHeaderRow}>
+                <View style={styles.tileTopRow}>
                   <View style={styles.tileHeaderLeft}>
-                    <View style={styles.tileIconWrap}>
+                    <View
+                      style={[
+                        styles.tileIconWrap,
+                        { backgroundColor: withAlpha(COLORS[key], 0.25) },
+                      ]}
+                    >
                       <Image source={ICONS[key]} style={styles.tileIcon} />
                     </View>
                     <View style={styles.tileTitleGroup}>
                       <Text style={styles.tileTitle}>{labelFor(key)}</Text>
-                      <Text style={styles.tileCounts}>
-                        {bucket.tasks} tareas · {bucket.habits} hábitos
+                      <Text style={styles.tileCounts}>{statusCopy(status)}</Text>
+                    </View>
+                  </View>
+                  <Text style={[styles.tilePercent, { color: COLORS[key] }]}>{percent}%</Text>
+                </View>
+                <View style={styles.track}>
+                  <View
+                    style={[
+                      styles.fill,
+                      { width: `${percent}%`, backgroundColor: COLORS[key] },
+                    ]}
+                  />
+                </View>
+                {isExpanded && (
+                  <>
+                    <View style={styles.tileStatsRow}>
+                      <View style={styles.tileStatCard}>
+                        <Text style={styles.tileStatNumber}>{bucket.tasks}</Text>
+                        <Text style={styles.tileStatLabel}>Tareas</Text>
+                      </View>
+                      <View style={styles.tileStatCard}>
+                        <Text style={styles.tileStatNumber}>{bucket.habits}</Text>
+                        <Text style={styles.tileStatLabel}>Habitos</Text>
+                      </View>
+                    </View>
+                    <View style={styles.tileAdvice}>
+                      <Text style={styles.tileAdviceLabel}>Consejo alquimico</Text>
+                      <Text style={styles.tileAdviceText}>
+                        {capitalizeFirst(complementSuggestion(key))}
                       </Text>
                     </View>
-                  </View>
-                  <Text style={[styles.statusCapsule, capsuleStyle]}>{status}</Text>
-                </View>
-                <View style={styles.tileBody}>
-                  <View style={styles.percentRow}>
-                    <View
-                      style={[
-                        styles.percentPill,
-                        { backgroundColor: withAlpha(COLORS[key], 0.25) },
-                      ]}
-                    >
-                      <Text style={styles.percentPillText}>{percent}%</Text>
-                    </View>
-                    <Text style={styles.percentCopy}>
-                      {status === "Alto"
-                        ? "Necesita balance"
-                        : status === "Bajo"
-                        ? "Súbele actividad"
-                        : "Estable"}
-                    </Text>
-                  </View>
-                  <View style={styles.track}>
-                    <View
-                      style={[
-                        styles.fill,
-                        { width: `${percent}%`, backgroundColor: COLORS[key] },
-                      ]}
-                    />
-                  </View>
-                  <Text style={styles.tileSuggestion}>
-                    Refuerza con {complementSuggestion(key)}
-                  </Text>
-                </View>
+                  </>
+                )}
               </LinearGradient>
             </Pressable>
           );
         })}
       </View>
       <Text style={styles.legendText}>
-        Consejo: mantén cada elemento cerca de 25% para evitar penalizaciones.
+        Consejo: manten cada elemento cerca de 25% para evitar penalizaciones.
       </Text>
     </View>
   );
@@ -281,46 +289,6 @@ function complementSuggestion(key) {
   }
 }
 
-function BalanceDial({ percent = 0 }) {
-  const clamped = Math.max(0, Math.min(100, Math.round(percent)));
-  const size = 72;
-  const strokeWidth = 6;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (clamped / 100) * circumference;
-
-  return (
-    <View style={styles.dialWrapper}>
-      <Svg width={size} height={size}>
-        <Circle
-          stroke={withAlpha(Colors.text, 0.12)}
-          fill="none"
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          strokeWidth={strokeWidth}
-        />
-        <Circle
-          stroke={Colors.primaryLight}
-          fill="none"
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          strokeWidth={strokeWidth}
-          strokeDasharray={`${circumference} ${circumference}`}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        />
-      </Svg>
-      <View style={styles.dialLabel}>
-        <Text style={styles.dialPercent}>{clamped}%</Text>
-        <Text style={styles.dialCaption}>Promedio</Text>
-      </View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   container: {
     gap: Spacing.base,
@@ -332,27 +300,10 @@ const styles = StyleSheet.create({
     borderColor: withAlpha(Colors.primaryLight, 0.2),
     gap: Spacing.small,
   },
-  summaryRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: Spacing.small,
-  },
-  summaryHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: Spacing.small,
-  },
-  summaryText: {
-    flex: 1,
-    gap: Spacing.tiny / 2,
-  },
-  summaryLabel: {
+  summaryEssenceLabel: {
     ...Typography.caption,
-    color: Colors.textMuted,
+    color: withAlpha(Colors.textMuted, 0.9),
     letterSpacing: 1,
-    textTransform: "uppercase",
   },
   summaryPersonaTitle: {
     ...Typography.title,
@@ -364,54 +315,65 @@ const styles = StyleSheet.create({
     ...Typography.body,
     color: Colors.textMuted,
   },
-  summaryFooter: {
+  syncRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.small,
+    marginTop: Spacing.small,
   },
-  summaryStatusChip: {
-    ...Typography.caption,
-    borderWidth: 1,
+  syncBar: {
+    flex: 1,
+    height: 8,
     borderRadius: Radii.pill,
+    backgroundColor: withAlpha(Colors.text, 0.12),
+    overflow: "hidden",
+  },
+  syncFill: {
+    height: "100%",
+    borderRadius: Radii.pill,
+    backgroundColor: Colors.primaryLight,
+  },
+  syncMetaRow: {
+    flexDirection: "row",
+    alignItems: "stretch",
+    gap: Spacing.small,
+    marginTop: Spacing.small,
+  },
+  syncMetaTile: {
+    flex: 1,
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.text, 0.08),
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.25),
     paddingHorizontal: Spacing.small,
-    paddingVertical: 2,
+    paddingVertical: Spacing.small,
+    gap: Spacing.tiny / 2,
+  },
+  syncMetaLabel: {
+    ...Typography.caption,
+    color: Colors.textMuted,
     textTransform: "uppercase",
     letterSpacing: 0.8,
-    fontWeight: "700",
-  },
-  summaryContext: {
-    ...Typography.caption,
-    color: Colors.textMuted,
-  },
-  dialWrapper: {
-    width: 76,
-    height: 76,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  dialLabel: {
-    position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  dialPercent: {
-    ...Typography.title,
-    color: Colors.text,
-    fontWeight: "700",
-  },
-  dialCaption: {
-    ...Typography.caption,
-    color: Colors.textMuted,
     fontSize: 10,
   },
+  syncMetaValue: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "700",
+    fontSize: 18,
+  },
+  syncStatusTile: {
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.35),
+  },
+  syncStatusValue: {
+    ...Typography.body,
+    fontWeight: "700",
+  },
   grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: Spacing.small,
+    gap: Spacing.base,
   },
   tileWrapper: {
-    flexGrow: 1,
-    minWidth: 148,
+    width: "100%",
     borderRadius: Radii.xl,
     overflow: "hidden",
     borderWidth: 1,
@@ -428,11 +390,14 @@ const styles = StyleSheet.create({
     borderRadius: Radii.xl,
     backgroundColor: withAlpha(Colors.surfaceAlt, 0.6),
   },
-  tileHeaderRow: {
+  tileCollapsed: {
+    paddingBottom: Spacing.small,
+    gap: Spacing.tiny,
+  },
+  tileTopRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: Spacing.small,
   },
   tileHeaderLeft: {
     flexDirection: "row",
@@ -467,27 +432,9 @@ const styles = StyleSheet.create({
     ...Typography.caption,
     color: Colors.textMuted,
   },
-  tileBody: {
-    gap: Spacing.small,
-  },
-  percentRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.tiny,
-  },
-  percentPill: {
-    borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.small,
-    paddingVertical: 2,
-  },
-  percentPillText: {
-    ...Typography.caption,
-    color: Colors.text,
+  tilePercent: {
+    ...Typography.body,
     fontWeight: "700",
-  },
-  percentCopy: {
-    ...Typography.caption,
-    color: Colors.textMuted,
   },
   track: {
     height: 6,
@@ -499,32 +446,51 @@ const styles = StyleSheet.create({
     height: "100%",
     borderRadius: Radii.pill,
   },
-  statusCapsule: {
-    ...Typography.caption,
+  tileStatsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+    marginTop: Spacing.small,
+  },
+  tileStatCard: {
+    flex: 1,
+    borderRadius: Radii.lg,
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.3),
+    paddingVertical: Spacing.small,
+    alignItems: "center",
     borderWidth: 1,
-    borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.small + 2,
-    paddingVertical: Spacing.tiny / 2,
-    fontWeight: "700",
-    textTransform: "capitalize",
-    letterSpacing: 0.4,
+    borderColor: withAlpha(Colors.text, 0.08),
   },
-  statusCapsuleHigh: {
-    borderColor: Colors.warning,
-    color: Colors.warning,
+  tileStatNumber: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "800",
   },
-  statusCapsuleLow: {
-    borderColor: Colors.secondary,
-    color: Colors.secondary,
-  },
-  statusCapsuleNeutral: {
-    borderColor: Colors.textMuted,
-    color: Colors.textMuted,
-  },
-  tileSuggestion: {
+  tileStatLabel: {
     ...Typography.caption,
     color: Colors.textMuted,
-    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  tileAdvice: {
+    marginTop: Spacing.small,
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.text, 0.08),
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.25),
+    padding: Spacing.small,
+    gap: Spacing.tiny / 2,
+  },
+  tileAdviceLabel: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    textTransform: "uppercase",
+    fontSize: 10,
+  },
+  tileAdviceText: {
+    ...Typography.body,
+    color: Colors.text,
+    fontSize: 12,
   },
   legendText: {
     ...Typography.caption,
@@ -532,3 +498,32 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function statusCopy(status) {
+  switch (status) {
+    case "Alto":
+      return "Necesita balance";
+    case "Bajo":
+      return "Activa mas acciones";
+    default:
+      return "Estable";
+  }
+}
+
+function capitalizeFirst(text = "") {
+  if (!text) return "";
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}

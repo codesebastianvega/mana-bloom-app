@@ -1,22 +1,26 @@
 // [MB] Módulo: Plant / Sección: Roadmap
 // Afecta: PlantScreen
 // Propósito: Registrar avances e identificar próximos pasos críticos
-// Puntos de edición futura: Hero, balance elemental, timeline de acciones
-// Autor: Codex - Fecha: 2025-11-18
+// Puntos de edición futura: tips PRO conectados a backend, balance elemental interactivo, sincronización de rituales
+// Autor: Codex - Fecha: 2025-12-07
 
 # PlantScreen Roadmap
 
-## Estado actual
-- El hero (PlantHero) ya combina métricas, salud y focos en dos columnas dentro del bloque.
-- El balance elemental (dona + grid) quedó pendiente de vincular con los nuevos iconos y el contexto de mana.
+## Estado actual (2025-12-07)
+- Tarjeta de identidad rearmada con racha 🔥, tiles minimalistas (☀️ clima, 🌿 vitalidad) y bloque “Consejos del jardinero” con badge PRO + acordeón.
+- PlantHero conserva métricas clave y copy saneado; QuickActions/rituales operan con `ACTION_MECHANICS` y almacenamiento local.
+- ElementBalance usa strings ASCII, tarjetas plegables y cápsulas de sincronía para describir progreso.
 
 ## Observaciones pendientes
-1. Documentar el timeline de acciones (Regar, Meditar, Cambiar maceta) y su coste/cooldown.
-2. Definir la sección de stats extra (Nivel, Rituales) que debe convivir con chips de rachas y cápsulas de recursos.
-3. Aclarar la lógica de la tarjeta hero (imagen `assets/matureplant.png`, fila XP/ETA, acciones) y cómo se actualiza desde la tienda mágica.
-4. Detallar la integración del balance elemental con los ítems recién subidos (elemento activo, efectos visuales).
+1. **Tips PRO conectados a backend:** el módulo usa métricas locales (careSuggestion, hydrateCount, ritualActiveCount, clima mock). Falta definir API/IA y gating real por suscripción.
+2. **Persistencia de UI:** estados como `gardenerExpanded` y el elemento expandido en `ElementBalance` deberían almacenarse para rehidratar la vista.
+3. **Flujo balance → tareas:** al deshabilitar el trigger hacia `CreateTaskModal`, ya no hay atajo directo. Se necesita deep link a TasksScreen con filtros preaplicados o una hoja contextual.
+4. **Selector de skins:** la tarjeta heroica muestra acentos pero no expone CTA directo para InventorySheet. Falta definir botón “Cambiar maceta” acorde al nuevo layout.
+5. **Higiene de strings/emoji global:** persisten textos con mojibake en `ACTION_MECHANICS`, `BUFF_PRESETS` y algunos componentes; mantener limpieza coordinada.
 
-## Próximos pasos para mañana
-1. Ampliar este roadmap con wireframes o notas para cada subsección listada arriba.
-2. Sincronizar con el inventario de assets para que todos los botones del hero puedan abrir la tienda mágica.
-3. Confirmar los datos que requiere el Context actual para mostrar salud, mana y efectos visibles en esta pantalla.
+## Próximos pasos
+1. **Diseñar contrato de tips PRO** (payload esperado, frecuencia de refresco, copy guidelines) y documentarlo en `documentacion/backend/estado-backend.md` cuando esté listo.
+2. **Persistir acordeones** mediante AsyncStorage/contexto para que el usuario mantenga preferencia (tips y tarjetas elementales).
+3. **Hook balance→Tasks:** añadir helper de navegación `navigateToTasks({ element })` reutilizable desde PlantScreen y otros módulos.
+4. **Checklist de datos**: consolidar qué viene de AppContext vs. storage para evitar dobles lecturas cuando entremos en fase online.
+5. **Actualizar wireframes** (`documentacion/design/wireframes/plant-screen-wireframe.md`) con el layout PRO para referencia del equipo de diseño.

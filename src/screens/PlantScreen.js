@@ -6,8 +6,9 @@
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { ScrollView, AccessibilityInfo, View, Text, Pressable } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import PlantHero from "../components/plant/PlantHero";
 import PlantHeader from "../components/plant/PlantHeader";
 import QuickActions from "../components/plant/QuickActions";
@@ -171,14 +172,35 @@ const CARE_SUGGESTION_RULES = [
   { key: "search", metric: "purity", threshold: 0.7, label: PLANT_ACTION_LABELS.search },
 ];
 
+const GARDENER_ICONS = {
+  water: "💧",
+  feed: "🌱",
+  clean: "🧹",
+  prune: "✂️",
+  light: "☀️",
+  mist: "💨",
+  search: "🔍",
+  meditate: "🧘",
+  hydrate: "💦",
+  stretch: "🌀",
+  sunlight: "🌞",
+  visualize: "🌈",
+  journal: "📝",
+  gratitude: "💛",
+  restEyes: "😴",
+  default: "✨",
+};
+
 export default function PlantScreen() {
   const { mana, wallet, inventory } = useAppState();
   const dispatch = useAppDispatch();
+  const navigation = useNavigation();
   
   const [plantName, setPlantName] = useState("Mi Planta");
   const [invOpen, setInvOpen] = useState(false);
   const [equippedSkinId, setEquippedSkinId] = useState("s1"); // Default
   const [selectedSkinId, setSelectedSkinId] = useState();
+  const [gardenerExpanded, setGardenerExpanded] = useState(false);
   
   // [MB] Derived Economy from AppContext
   const economy = { mana, coins: wallet.coin, gems: wallet.gem };
@@ -243,7 +265,7 @@ const HYDRATE_GOAL = 8;
   const etaText = "faltan ~3 tareas";
   const missionText = "";
   const xpProgress = 0.62;
-  const climateInfo = { location: "Zipaquirá, COL", tempC: 24 };
+  const climateInfo = { location: "Zipaquira, COL", tempC: 24, status: "Soleado" };
   const agendaItems = [
     { id: "ag1", timeLabel: "08:00", label: "Regar ligero", impact: "+10% hidratación" },
     { id: "ag2", timeLabel: "14:00", label: "Revisar luz", impact: "Mantén 20 min de sol" },
@@ -253,7 +275,10 @@ const HYDRATE_GOAL = 8;
   const activeRitualKeys = RITUAL_ACTIONS.filter((key) => ritualStatus[key]);
   const ritualActiveCount = activeRitualKeys.length;
   const ritualCompletion = ritualActiveCount / RITUAL_ACTIONS.length;
-  const ritualTags = activeRitualKeys.map((key) => RITUAL_LABELS[key] || key);
+  const ritualTags = activeRitualKeys.map((key) => ({
+    key,
+    label: RITUAL_LABELS[key] || key,
+  }));
   
   const careMetricChips = useMemo(
     () => [
@@ -268,7 +293,8 @@ const HYDRATE_GOAL = 8;
   const plantHealth =
     Object.values(careMetrics).reduce((sum, value) => sum + (value ?? 0), 0) /
     Object.keys(careMetrics).length;
-    
+  const plantHealthPercent = Math.round(Math.max(0, Math.min(1, plantHealth)) * 100);
+  const stageLabel = "Floreciente";
   const wellbeingMetricChips = useMemo(
     () => [
       { key: "mood", label: "Ánimo", value: careMetrics.mood },
@@ -463,39 +489,51 @@ const HYDRATE_GOAL = 8;
 
   const careSuggestion = useMemo(() => deriveCareSuggestion(careMetrics), [careMetrics]);
   const suggestionKey = careSuggestion?.key;
-
-  const miniCareActions = useMemo(() => {
-    return CARE_SUGGESTION_RULES.map((rule) => {
-      const value = careMetrics[rule.metric];
-      const deficit = typeof value === "number" ? rule.threshold - value : 0;
-      return {
-        key: rule.key,
-        label: rule.label,
-        accent: PLANT_ACTION_ACCENTS[rule.key],
-        deficit,
-        cooldownMs: actionCooldowns[rule.key] || 0,
-      };
-    })
-      .filter((item) => item.deficit > 0 && item.cooldownMs <= 0)
-      .sort((a, b) => b.deficit - a.deficit)
-      .slice(0, 4);
-  }, [careMetrics, actionCooldowns]);
-
-  const companionStatus = useMemo(() => {
-    const nowTs = Date.now();
-    const potions =
-      activeBuffs?.map((buff) => {
-        const preset = BUFF_PRESETS[buff.type] || BUFF_PRESETS.default;
-        const remainingMs = Math.max(0, (buff.expiresAt || 0) - nowTs);
-        return {
-          id: buff.id,
-          label: preset.title,
-          emoji: preset.emoji,
-          remaining: formatDurationShort(remainingMs),
-        };
-      }) || [];
-    return { pet: null, potions };
-  }, [activeBuffs]);
+  const gardenerHeadline = careSuggestion
+    ? `Sugerencia: ${
+        PLANT_ACTION_LABELS[careSuggestion.key] ||
+        careSuggestion.label ||
+        "acciones clave"
+      }`
+    : "Todo equilibrado, sigue cuidando tu jardin.";
+  const gardenTips = useMemo(() => {
+    const tips = [];
+    if (careSuggestion) {
+      const label =
+        PLANT_ACTION_LABELS[careSuggestion.key] || careSuggestion.label || "Accion sugerida";
+      tips.push({
+        id: "care",
+        icon: GARDENER_ICONS[careSuggestion.key] || GARDENER_ICONS.default,
+        title: label,
+        detail: "Activa esta accion para estabilizar tus metricas.",
+      });
+    }
+    if (hydrateCount < HYDRATE_GOAL) {
+      tips.push({
+        id: "hydrate",
+        icon: "💧",
+        title: "Riego pendiente",
+        detail: `Te faltan ${HYDRATE_GOAL - hydrateCount} vasos para completar el ritual.`,
+      });
+    }
+    if (ritualActiveCount === 0) {
+      tips.push({
+        id: "rituals",
+        icon: "🧘",
+        title: "Ritual veloz",
+        detail: "Activa un ritual ligero para animar a tu planta.",
+      });
+    }
+    if (climateInfo?.status || climateInfo?.tempC) {
+      tips.push({
+        id: "climate",
+        icon: "☀️",
+        title: climateInfo?.status ? `Clima ${climateInfo.status}` : "Clima estable",
+        detail: `${climateInfo?.tempC ?? "--"} C en ${climateInfo?.location || "tu zona"}`,
+      });
+    }
+    return tips.slice(0, 3);
+  }, [careSuggestion, hydrateCount, ritualActiveCount, climateInfo]);
 
   useEffect(() => {
     if (snoozedSuggestionKey && snoozedSuggestionKey !== suggestionKey) {
@@ -590,14 +628,13 @@ const HYDRATE_GOAL = 8;
     handleAction(targetKey);
   };
 
-  const handleMiniActionPress = (actionKey) => {
-    triggerActionKey(actionKey);
-  };
-
   const handleOpenInventoryFromHero = () => {
     setSelectedSkinId(equippedSkinId);
     setInvOpen(true);
   };
+  const handleOpenMagicShop = useCallback(() => {
+    navigation.navigate("ShopScreen", { initialTab: "pets" });
+  }, [navigation]);
 
   const launchBreathModal = () => {
     setPendingBreathAction("meditate");
@@ -739,35 +776,102 @@ const HYDRATE_GOAL = 8;
       >
         <StickyHeader />
         <View style={styles.contentInner}>
-        <PlantHeader
-          name={plantName}
-          onRename={(next) => setPlantName(next)}
-          streakDays={streakDays}
-          mission={missionText}
-          stageLabel={`Etapa: Brote � ${etaText}`}
-          ritualTargets={`${ritualActiveCount} / ${RITUAL_ACTIONS.length} rituales`}
-          agendaItems={agendaItems}
-          climateInfo={{ ...climateInfo, hint: "Clima templado, aprovecha para tareas de luz" }}
-        />
+        <View style={styles.plantCard}>
+          <LinearGradient
+            colors={["rgba(42,33,64,0.95)", "rgba(19,15,32,0.9)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.plantCardInner}
+          >
+            <View style={styles.plantCardTop}>
+              <View style={styles.plantCardTitleRow}>
+                <View style={styles.plantTitleGroup}>
+                  <Text style={styles.plantName}>{plantName || "Ernesto"}</Text>
+                  <Text style={styles.plantStage}>
+                    Etapa <Text style={styles.plantStageAccent}>{stageLabel}</Text>
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.plantStreakChip}>🔥 Racha {streakDays} dias</Text>
+            </View>
+
+            <View style={styles.plantInfoRow}>
+              <View style={styles.plantInfoTile}>
+                <Text style={styles.plantInfoLabel}>☀️ Clima actual</Text>
+                <Text style={styles.plantInfoValue}>{climateInfo?.tempC ?? "--"} C</Text>
+                <Text style={styles.plantInfoCaption}>
+                  {climateInfo?.status || "Clima estable"}
+                </Text>
+                <Text style={styles.plantInfoMeta}>{climateInfo?.location || "Sin ubicacion"}</Text>
+              </View>
+              <View style={styles.plantInfoTile}>
+                <Text style={styles.plantInfoLabel}>🌿 Vitalidad</Text>
+                <Text style={styles.plantInfoValue}>{plantHealthPercent}%</Text>
+                <Text style={styles.plantInfoCaption}>Salud general</Text>
+                <Text style={styles.plantInfoMeta}>Actualiza tus cuidados</Text>
+              </View>
+            </View>
+
+            <View style={styles.gardenIntroRow}>
+              <View style={styles.gardenTitleGroup}>
+                <Text style={styles.gardenTitle}>Consejos del jardinero</Text>
+                <Text style={styles.gardenSubtitle}>{gardenerHeadline}</Text>
+              </View>
+              <View style={styles.gardenProChip}>
+                <Text style={styles.gardenProText}>PRO</Text>
+              </View>
+            </View>
+            <View style={styles.gardenCard}>
+              <View style={styles.gardenHeaderRow}>
+                <View style={styles.gardenTitleGroup}>
+                  <Text style={styles.gardenTitle}>Plan del dia</Text>
+                  <Text style={styles.gardenSubtitle}>Tips generados por IA</Text>
+                </View>
+                <View style={styles.gardenHeaderRight}>
+                  <Pressable
+                    style={styles.gardenToggleWrap}
+                    onPress={() => setGardenerExpanded((prev) => !prev)}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      gardenerExpanded
+                        ? "Ocultar consejos del jardinero"
+                        : "Mostrar consejos del jardinero"
+                    }
+                  >
+                    <Text style={styles.gardenToggleLabel}>
+                      {gardenerExpanded ? "Ocultar" : "Ver tips"}
+                    </Text>
+                    <Text style={styles.gardenToggleIcon}>{gardenerExpanded ? "▴" : "▾"}</Text>
+                  </Pressable>
+                </View>
+              </View>
+              {gardenerExpanded ? (
+                <View style={styles.gardenTips}>
+                  {gardenTips.map((tip) => (
+                    <View key={tip.id} style={styles.gardenTipRow}>
+                      <Text style={styles.gardenTipIcon}>{tip.icon}</Text>
+                      <View style={styles.gardenTipCopy}>
+                        <Text style={styles.gardenItemTextStrong}>{tip.title}</Text>
+                        {tip.detail ? (
+                          <Text style={styles.gardenItemTextMuted}>{tip.detail}</Text>
+                        ) : null}
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              ) : null}
+            </View>
+          </LinearGradient>
+        </View>
+
         <View style={styles.heroEdgeSection}>
           <View style={styles.heroHeaderRow}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.heroSectionTitle}>Estado de la planta</Text>
+              <Text style={styles.heroSectionTitle}>Signos</Text>
               <Text style={styles.heroSectionCopy}>
-                Observa métricas, etapa y sugerencias para mantenerla equilibrada.
+                Monitorea humedad, luz, nutrientes y pureza para mantenerla estable.
               </Text>
             </View>
-            <Pressable
-              style={styles.heroSectionButton}
-              onPress={() => {
-                setSelectedSkinId(equippedSkinId);
-                setInvOpen(true);
-              }}
-              accessibilityRole="button"
-              accessibilityLabel="Abrir inventario de la planta"
-            >
-              <Text style={styles.heroSectionButtonText}>Inventario</Text>
-            </Pressable>
           </View>
           <PlantHero
             source={HERO_SPRITE}
@@ -779,13 +883,8 @@ const HYDRATE_GOAL = 8;
             size="lg"
             careMetrics={careMetricChips}
             wellbeingMetrics={wellbeingMetricChips}
-            ritualSummary={{ active: ritualActiveCount, total: RITUAL_ACTIONS.length, tags: ritualTags }}
             climateInfo={climateInfo}
             stageProgress={{ stage: "brote", progress: xpProgress, etaText }}
-            careSuggestions={miniCareActions}
-            onPressCareSuggestion={handleMiniActionPress}
-            companionStatus={companionStatus}
-            onPressCompanion={handleOpenInventoryFromHero}
           />
         </View>
         <QuickActions
@@ -1051,5 +1150,6 @@ const DIFFICULTY_OPTIONS = [
   { key: "medium", label: "Media" },
   { key: "hard", label: "Dif�cil" },
 ];
+
 
 
