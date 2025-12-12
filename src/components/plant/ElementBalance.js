@@ -1,7 +1,7 @@
-﻿// [MB] M?dulo: Planta / Secci?n: Balance elemental
-// Afecta: PlantScreen (secci?n de elementos)
-// Prop?sito: donut superior + grid 2?2 (Fuego, Agua, Tierra, Viento)
-// Puntos de edici?n futura: conectar con m?tricas y buffs elementales
+// [MB] Modulo: Planta / Seccion: Balance elemental
+// Afecta: PlantScreen (seccion de elementos)
+// Proposito: donut superior + grid 2x2 (Fuego, Agua, Tierra, Viento)
+// Puntos de edicion futura: conectar con metricas y buffs elementales
 // Autor: Codex - Fecha: 2025-11-13
 
 import React, { useMemo, useState } from "react";
@@ -46,35 +46,35 @@ const PERSONA_PRESETS = {
   },
   water: {
     label: "Paciente (Agua)",
-    description: "Prefieres h?bitos tranquilos. A?ade fuego para empujar objetivos.",
+    description: "Prefieres habitos tranquilos. Anade fuego para empujar objetivos.",
     color: Colors.elementWater,
   },
   earth: {
-    label: "Met?dico (Tierra)",
+    label: "Metodico (Tierra)",
     description: "Proyectos largos dominan tu agenda. Mezcla viento para explorar ideas.",
     color: Colors.elementEarth,
   },
   wind: {
     label: "Explorador (Aire)",
-    description: "Mucho aprendizaje y notas. Suma tierra y agua para aterrizar h?bitos.",
+    description: "Mucho aprendizaje y notas. Suma tierra y agua para aterrizar habitos.",
     color: Colors.elementAir,
   },
   balanced: {
     label: "Equilibrado",
-    description: "Tus tareas y h?bitos se reparten parejo entre los elementos.",
+    description: "Tus tareas y habitos se reparten parejo entre los elementos.",
     color: Colors.text,
   },
 };
 
 const PERSONA_GUIDANCE = {
-  fire: "Tu energ?a va a tope: intercala h?bitos de agua y notas de aire para enfriar el ritmo sin perder foco.",
+  fire: "Tu energia va a tope: intercala habitos de agua y notas de aire para enfriar el ritmo sin perder foco.",
   water:
-    "Est?s fluyendo, pero a?ade misiones de fuego y proyectos de tierra para evitar quedarte en modo pausa.",
+    "Estas fluyendo, pero anade misiones de fuego y proyectos de tierra para evitar quedarte en modo pausa.",
   earth:
-    "Tu plan es met?dico; reserva slots de aire y agua para que las ideas se muevan y la mente respire.",
+    "Tu plan es metodico; reserva slots de aire y agua para que las ideas se muevan y la mente respire.",
   wind:
-    "Hay muchas ideas en juego; aterriza esa energ?a con tareas de tierra y descansos de agua.",
-  balanced: "Tienes una mezcla pareja. Vigila que ning?n elemento supere 35% para sostener la armon?a.",
+    "Hay muchas ideas en juego; aterriza esa energia con tareas de tierra y descansos de agua.",
+  balanced: "Tienes una mezcla pareja. Vigila que ningun elemento supere 35% para sostener la armonia.",
 };
 
 export default function ElementBalance({ values = {}, style, onSelectElement }) {
@@ -136,7 +136,7 @@ export default function ElementBalance({ values = {}, style, onSelectElement }) 
         </View>
         <View style={styles.syncMetaRow}>
           <View style={styles.syncMetaTile}>
-            <Text style={styles.syncMetaLabel}>Sincron?a</Text>
+            <Text style={styles.syncMetaLabel}>Sincronia</Text>
             <Text style={styles.syncMetaValue}>{syncPercent}%</Text>
           </View>
           <View
@@ -219,11 +219,11 @@ export default function ElementBalance({ values = {}, style, onSelectElement }) 
                       </View>
                       <View style={styles.tileStatCard}>
                         <Text style={styles.tileStatNumber}>{bucket.habits}</Text>
-                        <Text style={styles.tileStatLabel}>H?bitos</Text>
+                        <Text style={styles.tileStatLabel}>Habitos</Text>
                       </View>
                     </View>
                     <View style={styles.tileAdvice}>
-                      <Text style={styles.tileAdviceLabel}>Consejo alqu?mico</Text>
+                      <Text style={styles.tileAdviceLabel}>Consejo alquimico</Text>
                       <Text style={styles.tileAdviceText}>
                         {capitalizeFirst(complementSuggestion(key))}
                       </Text>
@@ -236,7 +236,7 @@ export default function ElementBalance({ values = {}, style, onSelectElement }) 
         })}
       </View>
       <Text style={styles.legendText}>
-        Consejo: mant?n cada elemento cerca de 25% para evitar penalizaciones.
+        Consejo: manten cada elemento cerca de 25% para evitar penalizaciones.
       </Text>
     </View>
   );
@@ -517,7 +517,7 @@ function statusCopy(status) {
     case "Alto":
       return "Necesita balance";
     case "Bajo":
-      return "Activa más acciones";
+      return "Activa mas acciones";
     default:
       return "Estable";
   }
