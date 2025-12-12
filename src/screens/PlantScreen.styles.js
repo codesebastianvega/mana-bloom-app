@@ -44,12 +44,14 @@ export default StyleSheet.create({
     gap: Spacing.large,
   },
   plantCard: {
-    backgroundColor: withAlpha(Colors.surfaceElevated, 0.8),
     borderRadius: Radii.xl,
-    borderWidth: 1,
-    borderColor: withAlpha(Colors.secondary, 0.4),
+    overflow: "hidden",
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.6),
+    borderWidth: 0,
+  },
+  plantCardInner: {
     padding: Spacing.base,
-    gap: Spacing.small,
+    gap: Spacing.base,
   },
   plantCardTop: {
     flexDirection: "row",
@@ -61,14 +63,6 @@ export default StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.small,
-  },
-  plantAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: withAlpha(Colors.secondary, 0.6),
-    backgroundColor: withAlpha(Colors.secondary, 0.2),
   },
   plantTitleGroup: {
     gap: 2,
@@ -83,36 +77,58 @@ export default StyleSheet.create({
     ...Typography.caption,
     color: Colors.textMuted,
     letterSpacing: 0.4,
+    textTransform: "uppercase",
+    fontSize: 11,
   },
   plantStageAccent: {
     color: Colors.secondary,
     fontWeight: "700",
   },
-  plantBadge: {
-    paddingHorizontal: Spacing.small,
-    paddingVertical: Spacing.tiny + 2,
+  plantStreakChip: {
     borderRadius: Radii.pill,
     borderWidth: 1,
-    borderColor: withAlpha(Colors.elementFire, 0.7),
+    borderColor: withAlpha(Colors.elementFire, 0.6),
     backgroundColor: withAlpha(Colors.elementFire, 0.15),
-  },
-  plantBadgeText: {
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.tiny + 2,
     ...Typography.caption,
-    color: Colors.text,
     fontWeight: "700",
+    color: Colors.elementFire,
   },
-  plantMetaRow: {
+  plantInfoRow: {
     flexDirection: "row",
-    justifyContent: "flex-end",
+    gap: Spacing.small,
   },
-  plantMeta: {
+  plantInfoTile: {
+    flex: 1,
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.text, 0.08),
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.3),
+    padding: Spacing.base,
+    gap: Spacing.tiny / 2,
+  },
+  plantInfoLabel: {
     ...Typography.caption,
     color: Colors.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    fontSize: 10,
   },
-  plantDivider: {
-    height: 1,
-    backgroundColor: withAlpha(Colors.border, 0.6),
-    marginVertical: Spacing.tiny,
+  plantInfoValue: {
+    ...Typography.h1,
+    fontSize: 22,
+    lineHeight: 24,
+    color: Colors.text,
+  },
+  plantInfoCaption: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: "600",
+  },
+  plantInfoMeta: {
+    ...Typography.caption,
+    color: Colors.textMuted,
   },
   gardenHeaderRow: {
     flexDirection: "row",
@@ -124,13 +140,25 @@ export default StyleSheet.create({
     color: Colors.textMuted,
     letterSpacing: 0.8,
   },
-  gardenList: {
-    gap: Spacing.tiny,
-  },
-  gardenItem: {
-    flexDirection: "row",
-    alignItems: "center",
+  gardenCard: {
+    borderRadius: Radii.lg,
+    borderWidth: 1,
+    borderColor: withAlpha(Colors.text, 0.08),
+    backgroundColor: withAlpha(Colors.surface, 0.5),
+    padding: Spacing.base,
     gap: Spacing.small,
+  },
+  gardenTimeline: {
+    gap: Spacing.small,
+  },
+  gardenTimelineItem: {
+    flexDirection: "row",
+    gap: Spacing.small,
+    alignItems: "flex-start",
+  },
+  gardenTimelineCopy: {
+    flex: 1,
+    gap: 2,
   },
   gardenDot: {
     width: 8,
@@ -147,18 +175,15 @@ export default StyleSheet.create({
     ...Typography.caption,
     color: Colors.textMuted,
   },
-  alertButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.tiny,
+  alertPill: {
+    borderRadius: Radii.pill,
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.tiny + 2,
-    borderRadius: Radii.pill,
     borderWidth: 1,
-    borderColor: withAlpha(Colors.accent, 0.6),
-    backgroundColor: withAlpha(Colors.surface, 0.6),
+    borderColor: withAlpha(Colors.secondary, 0.6),
+    backgroundColor: withAlpha(Colors.secondary, 0.15),
   },
-  alertText: {
+  alertPillText: {
     ...Typography.caption,
     color: Colors.text,
     fontWeight: "700",

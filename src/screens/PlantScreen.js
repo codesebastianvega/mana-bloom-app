@@ -5,7 +5,8 @@
 // Autor: Codex - Fecha: 2025-11-13
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { ScrollView, AccessibilityInfo, View, Text, Pressable } from "react-native";
+import { ScrollView, AccessibilityInfo, View, Text } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import PlantHero from "../components/plant/PlantHero";
@@ -244,7 +245,7 @@ const HYDRATE_GOAL = 8;
   const etaText = "faltan ~3 tareas";
   const missionText = "";
   const xpProgress = 0.62;
-  const climateInfo = { location: "Zipaquirá, COL", tempC: 24 };
+  const climateInfo = { location: "Zipaquira, COL", tempC: 24, status: "Soleado" };
   const agendaItems = [
     { id: "ag1", timeLabel: "08:00", label: "Regar ligero", impact: "+10% hidratación" },
     { id: "ag2", timeLabel: "14:00", label: "Revisar luz", impact: "Mantén 20 min de sol" },
@@ -272,6 +273,15 @@ const HYDRATE_GOAL = 8;
   const plantHealth =
     Object.values(careMetrics).reduce((sum, value) => sum + (value ?? 0), 0) /
     Object.keys(careMetrics).length;
+  const plantHealthPercent = Math.round(Math.max(0, Math.min(1, plantHealth)) * 100);
+  const stageLabel = "Floreciente";
+  const gardenEvents = useMemo(
+    () => [
+      { id: "water", primary: "Regada hace 2h", secondary: "Proximo riego estimado en 4h" },
+      { id: "tasks", primary: "Proxima meta: ~3 tareas", secondary: "Completa misiones para avanzar" },
+    ],
+    []
+  );
     
   const wellbeingMetricChips = useMemo(
     () => [
@@ -710,39 +720,61 @@ const HYDRATE_GOAL = 8;
         <StickyHeader />
         <View style={styles.contentInner}>
         <View style={styles.plantCard}>
-          <View style={styles.plantCardTop}>
-            <View style={styles.plantCardTitleRow}>
-              <View style={styles.plantAvatar} />
-              <View style={styles.plantTitleGroup}>
-                <Text style={styles.plantName}>{plantName || "Ernesto"}</Text>
-                <Text style={styles.plantStage}>ETAPA: <Text style={styles.plantStageAccent}>Floreciente</Text></Text>
+          <LinearGradient
+            colors={["rgba(42,33,64,0.95)", "rgba(19,15,32,0.9)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.plantCardInner}
+          >
+            <View style={styles.plantCardTop}>
+              <View style={styles.plantCardTitleRow}>
+                <View style={styles.plantTitleGroup}>
+                  <Text style={styles.plantName}>{plantName || "Ernesto"}</Text>
+                  <Text style={styles.plantStage}>
+                    Etapa <Text style={styles.plantStageAccent}>{stageLabel}</Text>
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.plantStreakChip}>🔥 Racha {streakDays} dias</Text>
+            </View>
+
+            <View style={styles.plantInfoRow}>
+              <View style={styles.plantInfoTile}>
+                <Text style={styles.plantInfoLabel}>Clima actual</Text>
+                <Text style={styles.plantInfoValue}>{climateInfo?.tempC ?? "--"} C</Text>
+                <Text style={styles.plantInfoCaption}>
+                  {climateInfo?.status || "Clima estable"}
+                </Text>
+                <Text style={styles.plantInfoMeta}>{climateInfo?.location || "Sin ubicacion"}</Text>
+              </View>
+              <View style={styles.plantInfoTile}>
+                <Text style={styles.plantInfoLabel}>Vitalidad</Text>
+                <Text style={styles.plantInfoValue}>{plantHealthPercent}%</Text>
+                <Text style={styles.plantInfoCaption}>Salud general</Text>
+                <Text style={styles.plantInfoMeta}>Actualiza tus cuidados</Text>
               </View>
             </View>
-            <View style={styles.plantBadge}>
-              <Text style={styles.plantBadgeText}>5 días 🔥</Text>
+
+            <View style={styles.gardenCard}>
+              <View style={styles.gardenHeaderRow}>
+                <Text style={styles.gardenTitle}>Mi jardin</Text>
+                <View style={styles.alertPill}>
+                  <Text style={styles.alertPillText}>Sin alertas</Text>
+                </View>
+              </View>
+              <View style={styles.gardenTimeline}>
+                {gardenEvents.map((event) => (
+                  <View key={event.id} style={styles.gardenTimelineItem}>
+                    <View style={styles.gardenDot} />
+                    <View style={styles.gardenTimelineCopy}>
+                      <Text style={styles.gardenItemTextStrong}>{event.primary}</Text>
+                      <Text style={styles.gardenItemTextMuted}>{event.secondary}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
             </View>
-          </View>
-
-          <View style={styles.plantMetaRow}>
-            <Text style={styles.plantMeta}>24°C • Soleado</Text>
-          </View>
-
-          <View style={styles.plantDivider} />
-
-          <View style={styles.gardenHeaderRow}>
-            <Text style={styles.gardenTitle}>MI JARDÍN</Text>
-            <Pressable style={styles.alertButton} accessibilityRole="button">
-              <Text style={styles.alertText}>🔔 Alertas</Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.gardenList}>
-            <View style={styles.gardenItem}>
-              <View style={styles.gardenDot} />
-              <Text style={styles.gardenItemTextStrong}>Regado hace 2h</Text>
-            </View>
-            <Text style={styles.gardenItemTextMuted}>Próximo: ~3 tareas</Text>
-          </View>
+          </LinearGradient>
         </View>
 
         <View style={styles.heroEdgeSection}>
@@ -1031,5 +1063,6 @@ const DIFFICULTY_OPTIONS = [
   { key: "medium", label: "Media" },
   { key: "hard", label: "Dif�cil" },
 ];
+
 
 
