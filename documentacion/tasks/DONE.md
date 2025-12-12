@@ -44,3 +44,11 @@
 ---
 
 *Archivo histÃ³rico - no borrar*
+## 2025-12-07
+
+### PlantScreen UI Refresh
+- [x] Simplificar tarjeta de identidad (racha ??, tiles ??/??, copy saneado)
+- [x] Implementar módulo “Consejos del jardinero” con badge PRO y tips plegables
+- [x] Normalizar ElementBalance (ASCII + tarjetas plegables + cápsulas de sinergía)
+- [x] Eliminar chips redundantes (Limpiar) y aclarar toggles
+- [x] Ajustar documentación (componentes, roadmap, audit) para reflejar el nuevo diseño

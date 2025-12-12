@@ -115,3 +115,25 @@ Este documento registra decisiones importantes de diseÃ±o y desarrollo, incluyen
 ---
 
 *Actualizar este documento cada vez que se tome una decisiÃ³n importante*
+
+## PlantScreen
+
+### UI refresh + módulo PRO
+
+**Decisión:** Reorganizar la tarjeta principal con racha ??, tiles minimalistas y bloque “Consejos del jardinero” (PRO) con acordeón contextual.
+**Razón:** La tarjeta anterior ocupaba mucho espacio, repetía métricas y no comunicaba valor premium. El nuevo layout reduce ruido visual y ofrece tips accionables.
+**Fecha:** 2025-12-07
+**Iteraciones:** 2
+
+#### Historial:
+1. **v1:** Tarjeta con avatar placeholder, borde verde y timeline estático.
+2. **v2:** Tarjeta minimalista + chip ?? + tips PRO plegables con copy contextual.
+
+**Lecciones:**
+- Los tips deben aportar información distinta al resto de la UI.
+- El badge PRO funciona mejor fuera del contenedor principal.
+- El acordeón necesita toggle explícito (no depender del copy).
+
+**Alternativas consideradas:**
+- Mantener timeline con alerts (descartado por bajo valor).
+- Mezclar tips dentro del hero (descartado por confundir jerarquía).

@@ -103,9 +103,9 @@ export default StyleSheet.create({
     flex: 1,
     borderRadius: Radii.lg,
     borderWidth: 1,
-    borderColor: withAlpha(Colors.text, 0.08),
-    backgroundColor: withAlpha(Colors.surfaceElevated, 0.3),
-    padding: Spacing.base,
+    borderColor: withAlpha(Colors.text, 0.06),
+    backgroundColor: withAlpha(Colors.surfaceElevated, 0.2),
+    padding: Spacing.small + Spacing.tiny,
     gap: Spacing.tiny / 2,
   },
   plantInfoLabel: {
@@ -117,9 +117,10 @@ export default StyleSheet.create({
   },
   plantInfoValue: {
     ...Typography.h1,
-    fontSize: 22,
-    lineHeight: 24,
+    fontSize: 20,
+    lineHeight: 22,
     color: Colors.text,
+    fontWeight: "700",
   },
   plantInfoCaption: {
     ...Typography.body,
@@ -134,31 +135,91 @@ export default StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    gap: Spacing.small,
+  },
+  gardenHeaderRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+  },
+  gardenToggleWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.tiny,
+  },
+  gardenTitleGroup: {
+    flex: 1,
+    gap: 2,
   },
   gardenTitle: {
     ...Typography.label,
     color: Colors.textMuted,
     letterSpacing: 0.8,
   },
+  gardenSubtitle: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  gardenIntroRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: Spacing.small,
+  },
   gardenCard: {
     borderRadius: Radii.lg,
     borderWidth: 1,
-    borderColor: withAlpha(Colors.text, 0.08),
-    backgroundColor: withAlpha(Colors.surface, 0.5),
+    borderColor: withAlpha(Colors.primaryLight, 0.4),
+    backgroundColor: withAlpha(Colors.surface, 0.6),
     padding: Spacing.base,
     gap: Spacing.small,
+    shadowColor: Colors.primaryLight,
+    shadowOpacity: 0.45,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
   },
-  gardenTimeline: {
+  gardenProChip: {
+    paddingHorizontal: Spacing.small + 4,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+    backgroundColor: "rgba(0,0,0,0.25)",
+  },
+  gardenProText: {
+    fontSize: 10,
+    lineHeight: 12,
+    color: "#ffdf9b",
+    fontWeight: "800",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+  },
+  gardenTips: {
     gap: Spacing.small,
   },
-  gardenTimelineItem: {
+  gardenTipRow: {
     flexDirection: "row",
     gap: Spacing.small,
     alignItems: "flex-start",
   },
-  gardenTimelineCopy: {
+  gardenTipIcon: {
+    fontSize: 16,
+  },
+  gardenTipCopy: {
     flex: 1,
     gap: 2,
+  },
+  gardenToggleLabel: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+  },
+  gardenToggleIcon: {
+    ...Typography.title,
+    color: Colors.text,
+    lineHeight: Typography.title.lineHeight,
   },
   gardenDot: {
     width: 8,
@@ -174,19 +235,6 @@ export default StyleSheet.create({
   gardenItemTextMuted: {
     ...Typography.caption,
     color: Colors.textMuted,
-  },
-  alertPill: {
-    borderRadius: Radii.pill,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.tiny + 2,
-    borderWidth: 1,
-    borderColor: withAlpha(Colors.secondary, 0.6),
-    backgroundColor: withAlpha(Colors.secondary, 0.15),
-  },
-  alertPillText: {
-    ...Typography.caption,
-    color: Colors.text,
-    fontWeight: "700",
   },
   elementBalanceSection: {
     gap: Spacing.small,

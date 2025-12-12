@@ -5,7 +5,7 @@
 // Autor: Codex - Fecha: 2025-11-13
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { ScrollView, AccessibilityInfo, View, Text } from "react-native";
+import { ScrollView, AccessibilityInfo, View, Text, Pressable } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
@@ -172,6 +172,25 @@ const CARE_SUGGESTION_RULES = [
   { key: "search", metric: "purity", threshold: 0.7, label: PLANT_ACTION_LABELS.search },
 ];
 
+const GARDENER_ICONS = {
+  water: "💧",
+  feed: "🌱",
+  clean: "🧹",
+  prune: "✂️",
+  light: "☀️",
+  mist: "💨",
+  search: "🔍",
+  meditate: "🧘",
+  hydrate: "💦",
+  stretch: "🌀",
+  sunlight: "🌞",
+  visualize: "🌈",
+  journal: "📝",
+  gratitude: "💛",
+  restEyes: "😴",
+  default: "✨",
+};
+
 export default function PlantScreen() {
   const { mana, wallet, inventory } = useAppState();
   const dispatch = useAppDispatch();
@@ -181,6 +200,7 @@ export default function PlantScreen() {
   const [invOpen, setInvOpen] = useState(false);
   const [equippedSkinId, setEquippedSkinId] = useState("s1"); // Default
   const [selectedSkinId, setSelectedSkinId] = useState();
+  const [gardenerExpanded, setGardenerExpanded] = useState(false);
   
   // [MB] Derived Economy from AppContext
   const economy = { mana, coins: wallet.coin, gems: wallet.gem };
@@ -275,14 +295,6 @@ const HYDRATE_GOAL = 8;
     Object.keys(careMetrics).length;
   const plantHealthPercent = Math.round(Math.max(0, Math.min(1, plantHealth)) * 100);
   const stageLabel = "Floreciente";
-  const gardenEvents = useMemo(
-    () => [
-      { id: "water", primary: "Regada hace 2h", secondary: "Proximo riego estimado en 4h" },
-      { id: "tasks", primary: "Proxima meta: ~3 tareas", secondary: "Completa misiones para avanzar" },
-    ],
-    []
-  );
-    
   const wellbeingMetricChips = useMemo(
     () => [
       { key: "mood", label: "Ánimo", value: careMetrics.mood },
@@ -477,6 +489,51 @@ const HYDRATE_GOAL = 8;
 
   const careSuggestion = useMemo(() => deriveCareSuggestion(careMetrics), [careMetrics]);
   const suggestionKey = careSuggestion?.key;
+  const gardenerHeadline = careSuggestion
+    ? `Sugerencia: ${
+        PLANT_ACTION_LABELS[careSuggestion.key] ||
+        careSuggestion.label ||
+        "acciones clave"
+      }`
+    : "Todo equilibrado, sigue cuidando tu jardin.";
+  const gardenTips = useMemo(() => {
+    const tips = [];
+    if (careSuggestion) {
+      const label =
+        PLANT_ACTION_LABELS[careSuggestion.key] || careSuggestion.label || "Accion sugerida";
+      tips.push({
+        id: "care",
+        icon: GARDENER_ICONS[careSuggestion.key] || GARDENER_ICONS.default,
+        title: label,
+        detail: "Activa esta accion para estabilizar tus metricas.",
+      });
+    }
+    if (hydrateCount < HYDRATE_GOAL) {
+      tips.push({
+        id: "hydrate",
+        icon: "💧",
+        title: "Riego pendiente",
+        detail: `Te faltan ${HYDRATE_GOAL - hydrateCount} vasos para completar el ritual.`,
+      });
+    }
+    if (ritualActiveCount === 0) {
+      tips.push({
+        id: "rituals",
+        icon: "🧘",
+        title: "Ritual veloz",
+        detail: "Activa un ritual ligero para animar a tu planta.",
+      });
+    }
+    if (climateInfo?.status || climateInfo?.tempC) {
+      tips.push({
+        id: "climate",
+        icon: "☀️",
+        title: climateInfo?.status ? `Clima ${climateInfo.status}` : "Clima estable",
+        detail: `${climateInfo?.tempC ?? "--"} C en ${climateInfo?.location || "tu zona"}`,
+      });
+    }
+    return tips.slice(0, 3);
+  }, [careSuggestion, hydrateCount, ritualActiveCount, climateInfo]);
 
   useEffect(() => {
     if (snoozedSuggestionKey && snoozedSuggestionKey !== suggestionKey) {
@@ -740,7 +797,7 @@ const HYDRATE_GOAL = 8;
 
             <View style={styles.plantInfoRow}>
               <View style={styles.plantInfoTile}>
-                <Text style={styles.plantInfoLabel}>Clima actual</Text>
+                <Text style={styles.plantInfoLabel}>☀️ Clima actual</Text>
                 <Text style={styles.plantInfoValue}>{climateInfo?.tempC ?? "--"} C</Text>
                 <Text style={styles.plantInfoCaption}>
                   {climateInfo?.status || "Clima estable"}
@@ -748,31 +805,61 @@ const HYDRATE_GOAL = 8;
                 <Text style={styles.plantInfoMeta}>{climateInfo?.location || "Sin ubicacion"}</Text>
               </View>
               <View style={styles.plantInfoTile}>
-                <Text style={styles.plantInfoLabel}>Vitalidad</Text>
+                <Text style={styles.plantInfoLabel}>🌿 Vitalidad</Text>
                 <Text style={styles.plantInfoValue}>{plantHealthPercent}%</Text>
                 <Text style={styles.plantInfoCaption}>Salud general</Text>
                 <Text style={styles.plantInfoMeta}>Actualiza tus cuidados</Text>
               </View>
             </View>
 
+            <View style={styles.gardenIntroRow}>
+              <View style={styles.gardenTitleGroup}>
+                <Text style={styles.gardenTitle}>Consejos del jardinero</Text>
+                <Text style={styles.gardenSubtitle}>{gardenerHeadline}</Text>
+              </View>
+              <View style={styles.gardenProChip}>
+                <Text style={styles.gardenProText}>PRO</Text>
+              </View>
+            </View>
             <View style={styles.gardenCard}>
               <View style={styles.gardenHeaderRow}>
-                <Text style={styles.gardenTitle}>Mi jardin</Text>
-                <View style={styles.alertPill}>
-                  <Text style={styles.alertPillText}>Sin alertas</Text>
+                <View style={styles.gardenTitleGroup}>
+                  <Text style={styles.gardenTitle}>Plan del dia</Text>
+                  <Text style={styles.gardenSubtitle}>Tips generados por IA</Text>
+                </View>
+                <View style={styles.gardenHeaderRight}>
+                  <Pressable
+                    style={styles.gardenToggleWrap}
+                    onPress={() => setGardenerExpanded((prev) => !prev)}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      gardenerExpanded
+                        ? "Ocultar consejos del jardinero"
+                        : "Mostrar consejos del jardinero"
+                    }
+                  >
+                    <Text style={styles.gardenToggleLabel}>
+                      {gardenerExpanded ? "Ocultar" : "Ver tips"}
+                    </Text>
+                    <Text style={styles.gardenToggleIcon}>{gardenerExpanded ? "▴" : "▾"}</Text>
+                  </Pressable>
                 </View>
               </View>
-              <View style={styles.gardenTimeline}>
-                {gardenEvents.map((event) => (
-                  <View key={event.id} style={styles.gardenTimelineItem}>
-                    <View style={styles.gardenDot} />
-                    <View style={styles.gardenTimelineCopy}>
-                      <Text style={styles.gardenItemTextStrong}>{event.primary}</Text>
-                      <Text style={styles.gardenItemTextMuted}>{event.secondary}</Text>
+              {gardenerExpanded ? (
+                <View style={styles.gardenTips}>
+                  {gardenTips.map((tip) => (
+                    <View key={tip.id} style={styles.gardenTipRow}>
+                      <Text style={styles.gardenTipIcon}>{tip.icon}</Text>
+                      <View style={styles.gardenTipCopy}>
+                        <Text style={styles.gardenItemTextStrong}>{tip.title}</Text>
+                        {tip.detail ? (
+                          <Text style={styles.gardenItemTextMuted}>{tip.detail}</Text>
+                        ) : null}
+                      </View>
                     </View>
-                  </View>
-                ))}
-              </View>
+                  ))}
+                </View>
+              ) : null}
             </View>
           </LinearGradient>
         </View>

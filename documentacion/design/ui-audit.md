@@ -29,18 +29,18 @@
 ## Plant Screen
 
 **Estado actual**
-- `src/screens/PlantScreen.js` combina Hero + QuickActions + múltiples modales rituales. Gran parte de los estilos están en `PlantScreen.styles.js` con `withAlpha`.
-- `PlantHero`, `QuickActions` y `ElementBalance` ya usan tokens de `theme.js`.
+- `src/screens/PlantScreen.js` combina la tarjeta de identidad renovada (racha ??, tiles ??/??), PlantHero, QuickActions y ElementBalance actualizado.
+- `PlantScreen.styles.js` reutiliza el chip PRO de Productivity Spells y define el glow del bloque premium.
 
 **Hallazgos**
-- Hay múltiples modales rituales (HydrateModal, StretchModal, etc.) con estilos propios; algunos siguen utilizando números mágicos y textos en “Spanglish”. Necesitamos una guía de modales para mantener fondos/starfield consistentes.
-- Algunos emojis/strings vienen con mojibake (`Poci��n Sabidur��a` en `BUFF_PRESETS`, `title: "Festival Solar"` vs. otros con acentos rotos). Debe corregirse para la versión final.
-- No existe aún una documentación consolidada del flujo de QuickActions: qué acciones son dual, qué copy mostrar, cómo se conecta al inventario. Actualmente esa info vive dispersa en `ACTION_MECHANICS`.
+- Los tips PRO siguen usando datos locales y no verifican suscripci�n; falta contrato backend y manejo de errores.
+- Los acordeones (tips PRO y ElementBalance) no persisten al navegar; UX inconsistente.
+- QuickActions/modales a�n tienen strings con mojibake en `ACTION_MECHANICS`/`BUFF_PRESETS`.
 
 **Acciones sugeridas**
-1. Crear una tabla “Rituales y acciones suaves” en la nueva guía UI para describir cada modal (assets, copy, tokens).
-2. Normalizar strings/encoding en `PlantScreen` y componentes relacionados.
-3. Definir estados “sin buffs / sin rituales activos” y documentarlos para replicar en otras pantallas.
+1. Definir API para tips PRO (payload, fallback, gating) y documentarla.
+2. Persistir `gardenerExpanded` y la tarjeta elemental seleccionada mediante AsyncStorage/contexto.
+3. Completar saneamiento de strings/emoji en `ACTION_MECHANICS` y documentar los tokens en la gu�a de modales.
 
 ## Tasks Screen
 
@@ -83,3 +83,4 @@
 3. **Sincronización con prototipado externo**: usar la guía para pedir a la IA (Figma) sólo variaciones compatibles (mismos tokens, mismos bloques). Documentar resultados en los wireframes existentes para no perder versión.
 
 > Este archivo debe actualizarse al cerrar cada hallazgo (marcar fecha y commit) para mantener rastreable la convergencia UI/UX previa al MVP.
+
